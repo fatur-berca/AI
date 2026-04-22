@@ -1,0 +1,19 @@
+UPDATE TransportExecution
+SET
+	CFPLiter = NULL,
+	CFPTKM = NULL,
+	KGCO2 = NULL,
+	AVGLoadFactor = NULL
+
+
+ALTER TABLE TransportExecution
+ALTER COLUMN CFPLiter DECIMAL(18,10);
+
+ALTER TABLE TransportExecution
+ALTER COLUMN CFPTKM DECIMAL(18,10);
+
+ALTER TABLE TransportExecution
+ALTER COLUMN KGCO2 DECIMAL(18,10);
+
+ALTER TABLE TransportExecution
+ALTER COLUMN AVGLoadFactor DECIMAL(18,10);

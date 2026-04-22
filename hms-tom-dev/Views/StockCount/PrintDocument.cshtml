@@ -1,0 +1,554 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+</style>
+
+
+<body class="report-page watermarks">
+    <main>
+        <h3 class="title noline">FORM MANUAL STOCK COUNT</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>: 04-May-2017</span></li>
+            <li><label>Plant</label><span>: ZD4A-DC Karawang Lot 17</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Distribution Asistant</label><span>: </span></li>
+            <li><label>Shift</label><span>: </span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Speaking Code</th>
+                    <th>Batch</th>
+                    <th>Jumlah Pallet</th>
+                    <th>Isi Per Pallet</th>
+                    <th>Recehan</th>
+                    <th>Total (CS)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017017</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017018</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>UML12RA</td>
+                    <td>PB-2017008</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="signature">
+            <div class="sign">
+                &nbsp;
+            </div>
+            <div class="sign text-center">
+                &nbsp;
+            </div>
+            <div class="sign text-center">
+                &nbsp;
+            </div>
+            <div class="sign text-center">
+                <p>Distribution Assistant/Helper/Admin</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+        </div>
+        <hr class="bold" />
+        <p class="printed">Printed by : KSISWOAD on 19-May-2017 09:19</p>
+
+        <h4 class="section-title noline">Logistic & Distribution</h4>
+
+        <ul class="col-data">
+            <li><label>ADW/DPC</label><span>: </span></li>
+            <li><label>Week</label><span>: </span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Hari/Tanggal</label><span>: </span></li>
+            <li><label>Pukul</label><span>: </span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No</th>
+                    <th rowspan="2">Brand</th>
+                    <th rowspan="2">Pita</th>
+                    <th colspan="12">KPS Week Produksi (In Box)</th>
+                    <th rowspan="2">Total Box</th>
+                    <th colspan="4">Recehan</th>
+                    <th colspan="1">Grand Total</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>Box</th>
+                    <th>Bal</th>
+                    <th>Slof</th>
+                    <th>Pack</th>
+                    <th>(PACK)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Catatan: <br />
+        </p>
+
+        <div class="signature">
+            <div class="sign text-center">
+                <p>Pemeriksa Fisik Barang,</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</p>
+                <p>Distribution Assistant</p>
+            </div>
+            <div class="sign text-center">
+                &nbsp;
+            </div>
+            <div class="sign text-center">
+                &nbsp;
+            </div>
+            <div class="sign text-center">
+                <p>Mengetahui,</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</p>
+                <p>Supervisor Area Distribution</p>
+            </div>
+        </div>
+
+        <hr class="bold" />
+        <p class="printed">Printed by : KSISWOAD on 19-May-2017 09:19</p>
+
+        <h4 class="section-title noline">Rekonsiliasi Stock Fisik vs System</h4>
+
+        <ul class="col-data">
+            <li><label>Area</label><span>: ADW XXX</span></li>
+            <li><label>Jenis Persediaan</label><span>: FG</span></li>
+            <li><label>Lokasi</label><span>: JL XXX</span></li>
+            <li><label>Stock Akhir Per Tanggal</label><span>: XXX</span></li>
+        </ul>
+
+        <ul class="col-data bordered">
+            <li><label>Doc No</label><span>BWI/FG/31/12/2016</span></li>
+            <li><label>Disiapkan Oleh</label><span>XXX (Auditor)</span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th rowspan="3">No</th>
+                    <th rowspan="3">FA Code</th>
+                    <th rowspan="3">Brand</th>
+                    <th rowspan="3">UoM</th>
+                    <th colspan="5">Fisik</th>
+                    <th colspan="1">SAP</th>
+                    <th rowspan="3">Selisih<br />(g=e-f)</th>
+                    <th rowspan="3">Remarks</th>
+                </tr>
+                <tr>
+                    <th colspan="1">Fisik</th>
+                    <th colspan="1">Receiving<br />(Not Yet)</th>
+                    <th colspan="2">Loading<br />(Not Yet Input/Interface)</th>
+                    <th rowspan="2">Total<br />(e = a-b+c+d)</th>
+                    <th rowspan="2">On Hand Sloc 1000<br />(f)</th>
+                </tr>
+                <tr>
+                    <th>(a)</th>
+                    <th>(b)</th>
+                    <th>STO<br />(c)</th>
+                    <th>BPPB<br />(d)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>01</td>
+                    <td>FA045372.05</td>
+                    <td>AVM16RA164J6</td>
+                    <td>pak</td>
+                    <td>1403</td>
+                    <td></td>
+                    <td></td>
+                    <td>420</td>
+                    <td>1463</td>
+                    <td>1463</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>02</td>
+                    <td>FA045373.05</td>
+                    <td>AVM16RA164J6</td>
+                    <td>pak</td>
+                    <td>1421</td>
+                    <td></td>
+                    <td></td>
+                    <td>420</td>
+                    <td>1421</td>
+                    <td>1421</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>03</td>
+                    <td>FA045373.05</td>
+                    <td>AVM16RA164J6</td>
+                    <td>pak</td>
+                    <td>1421</td>
+                    <td></td>
+                    <td></td>
+                    <td>420</td>
+                    <td>1421</td>
+                    <td>1421</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>04</td>
+                    <td>FA045373.05</td>
+                    <td>AVM16RA164J6</td>
+                    <td>pak</td>
+                    <td>1421</td>
+                    <td></td>
+                    <td></td>
+                    <td>420</td>
+                    <td>1421</td>
+                    <td>1421</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>05</td>
+                    <td>FA045373.05</td>
+                    <td>AVM16RA164J6</td>
+                    <td>pak</td>
+                    <td>1421</td>
+                    <td></td>
+                    <td></td>
+                    <td>420</td>
+                    <td>1421</td>
+                    <td>1421</td>
+                    <td>-</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Note: Tidak ada selisih / Balance<br />
+        </p>
+
+        <div class="signature col6">
+            <div class="sign">
+                <p>
+                    Disiapkan &<br />diperiksa oleh,<br />Stock Taking Team
+                </p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+            <div class="sign">
+                <p><br /><br />&nbsp;</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+            <div class="sign">
+                <p><br /><br />&nbsp;</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+            <div class="sign text-center">
+                <p><br /><br />Stock Admin Area</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+            <div class="sign text-center">
+                <p>Mengetahui,<br />Owner Warehouse (DC/SAD)</p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+            <div class="sign text-center">
+                <p>(Manager Regional Distribution)<br /><strong>(Khusus surprise visit)</strong></p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;Nama&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+        </div>
+
+        <h3 class="title noline">STOCK COUNT RECONCILE</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>: 04-May-2017</span></li>
+            <li><label>Plant</label><span>: ZD4A-DC Karawang Lot 17</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Operational Shift</label><span>: 2</span></li>
+            <li><label>UOM</label><span>: CS</span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Speaking Code</th>
+                    <th>Batch</th>
+                    <th>Unrestricted Qty</th>
+                    <th>QI Qty</th>
+                    <th>Total SAP Qty</th>
+                    <th>Manual Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017017</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017018</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>UML12RA</td>
+                    <td>PB-2017008</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Remark</p>
+        <textarea rows="6" cols="form-control" style="width: 100%;resize: none;">Loading PO Hari senin 220507</textarea>
+
+        <div class="signature col3">
+            <div class="sign text-center">
+                <p>
+                    Distribution Assistant Shift 2
+                </p>
+                <p class="name"><strong>Kristian Praba</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp;</p>
+                <p class="name"><strong>Berlina Novayanti</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>
+                    Mengetahui, Supervisor Area Distribution
+                </p>
+                <p class="name"><strong>Ria Ratnaningsih</strong></p>
+            </div>
+        </div>
+
+        <hr class="bold" />
+        <p class="printed" style="width: 50%; float: left;">Printed by : KSISWOAD on 19-May-2017 09:19</p>
+        <p class="printed" style="width: 50%; float: left; text-align: right;">Submitted by : KSISWOAD on 19-May-2017 09:19</p>
+    </main>
+</body>

@@ -1,0 +1,463 @@
+﻿
+@{
+    ViewBag.Title = " Master Data > Master Finished Good > Brand";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<div class="title-deck wmb" >
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>*@
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>FA Code</th>
+            <th>Speaking Code</th>
+            @*<th>Type</th>*@
+            <th>Stick/Box</th>
+            <th>Pack/Box</th>
+            <th>Stick/Pack</th>
+            <th>HJE</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+
+            <th>FA Code</th>
+            <th>Speaking Code</th>
+            @*<th>Type</th>*@
+            <th>Stick/Box</th>
+            <th>Pack/Box</th>
+            <th>Stick/Pack</th>
+            <th>HJE</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+
+</table>
+<!-- Modal -->
+
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Master Brand</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>FA Code</label>
+                                <input type="text" id="FACode" class="form-control">
+                                <label>Speaking Code</label>
+                                <input type="text" id="SpeakingCode" class="form-control" />
+                                <label>Stick/Box</label>
+                                <input type="number" id="StickPerBox" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                <label>Pack/Box</label>
+                                <input type="number" id="PackPerBox" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                <label>Stick/Pack</label>
+                                <input type="number" id="StickPerPack" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                <label>HJE</label>
+                                <input type="number" id="HJE" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select class="form-control" id="Type"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Active</label>
+                                <select class="form-control" id="Status">
+                                    <option value="1">YES</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // page   : MasterList
+    // author : hakim
+    // ticket :
+    // date   : 2017-08-11
+
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            generateDropDown();
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+        });
+
+    });
+
+    function resetData() {
+        document.getElementById("FACode").readOnly = false;
+        $('#newData')[0].reset();
+    }
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    generateTable();
+    generateDropDown();
+
+    var input = "TypeCigarette";
+    function generateDropDown() {
+        //get a reference to the select element
+        $select = $('#Type');
+        //request the JSON data and parse into the select element
+        $.ajax({
+            type: 'POST',
+            url: 'MstBrand/GetListForFABrand',
+            dataType: 'JSON',
+            data: { FieldName: "TypeCigarette" },
+            success: function (data) {
+                //clear the current content of the select
+                $select.html('');
+                //iterate over the data and append a select option
+               
+                $.each(data, function (key, val) {
+                    $select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                })
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MstBrand/GetMasterFABrand',
+            method: 'get',
+            dataType: 'json',
+            cache:false,
+            success: function (data) {
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[8, 'desc']],
+                    columns: [
+                         {
+                             "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                                 if (data == true) {
+
+                                     return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                 } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                             }
+                         },
+                         { 'data': 'FACode', 'searchable': true },
+                        { 'data': 'SpeakingCode', 'searchable': true },
+                        //{ 'data': 'Type', 'searchable': true },
+                        { 'data': 'StickPerBox', 'searchable': true },
+                        { 'data': 'PackPerBox', 'searchable': true },
+                        { 'data': 'StickPerPack', 'searchable': true },
+                        { 'data': 'HJE', 'searchable': true },
+
+                              {
+                                  render: function (data, type, row) {
+                                      // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                      var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                      var formatted = date.getFullYear() + "-" +
+                                            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                            ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                            date.getMinutes();
+                                      //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                      //var dtStr = dt.toString();
+                                      //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                      //      dt.getMinutes();
+                                      var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                      return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                                  }
+                              },
+                          { 'data': 'UpdatedDate', 'class': 'hidden' },
+                          {
+                            "data": "FACode", "class": "text-center", "render": function (data) {
+                            return '<div ><a href="#" id="editForm" onclick="return editTable(' + "'" + data + "'" + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                          }
+                       }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 9)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+        $('#inputModal').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+    function save() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var id = $('#newData').find('input[id="FACode"]').val();
+        var stickperbox = $('#newData').find('input[id="StickPerBox"]').val();
+        var speakingcode = $('#newData').find('input[id="SpeakingCode"]').val();
+
+        var packperbox = $('#newData').find('input[id="PackPerBox"]').val();
+        var stickperpack = $('#newData').find('input[id="StickPerPack"]').val();
+        var hje = $('#newData').find('input[id="HJE"]').val();
+        var type = $('#Type :selected').val()
+
+        var remark = $('#newData').find('textarea[id="Remarks"]').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var data = {
+            "new": [{ "FACode": id, "SpeakingCode": speakingcode, "StickPerBox": stickperbox, "PackPerBox": packperbox, "StickPerPack": stickperpack, "Type": type, "HJE": hje, "IsActive": status }],
+            "edit": [{}]
+        };
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: 'MstBrand/InsertFABrand',
+            data: data,
+            success: function (data) {
+               
+
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                            $('#Loading').modal('hide');
+                            resetData();
+
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+
+                    });
+                }
+              
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+
+
+    function editTable(id) {
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        generateDropDown();
+        $.ajax({
+            url: 'MstBrand/GetDataById',
+            typr: "GET",
+            cache: false,
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: { "FACode": id },
+            success: function (json) {
+                document.getElementById("FACode").readOnly = true; // fa code
+                document.getElementById("SpeakingCode").readOnly = true; // Speaking Code
+                document.getElementById("Type").disabled = true; // type
+                document.getElementById("HJE").readOnly = true; // HJE
+                $('#FACode').val(json.FACode);
+                $('#SpeakingCode').val(json.SpeakingCode);
+                $('#StickPerBox').val(json.StickPerBox);
+                $('#PackPerBox').val(json.PackPerBox);
+                $('#StickPerPack').val(json.StickPerPack);
+                $('#HJE').val(json.HJE);
+
+                if (json.IsActive) {
+                    $('#Status').val("1");
+                } else {
+                    $('#Status').val("0");
+                }
+
+                ////close modal
+                $('#inputModal').modal('show');
+
+            }
+        });
+    }
+
+    //update edited data
+    function edit() {
+        $('#Loading').modal('show');
+        var id = $('#newData').find('input[id="FACode"]').val();
+        var stickperbox = $('#newData').find('input[id="StickPerBox"]').val();
+        var speakingcode = $('#newData').find('input[id="SpeakingCode"]').val();
+        var hje = $('#newData').find('input[id="HJE"]').val();
+        var packperbox = $('#newData').find('input[id="PackPerBox"]').val();
+        var stickperpack = $('#newData').find('input[id="StickPerPack"]').val();
+        var type = $('#Type :selected').val()
+
+        var remark = $('#newData').find('textarea[id="Remarks"]').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var data = {
+            "new": [{}],
+            "edit": [{ "FACode": id, "SpeakingCode": speakingcode, "StickPerBox": stickperbox, "PackPerBox": packperbox, "StickPerPack": stickperpack, "Type": type, "HJE": hje, "IsActive": status }]
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'MstBrand/InsertFABrand',
+            data: data,
+            success: function (data) {
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            generateTable();
+                            resetData();
+                            generateDropDown();
+                            $('#Loading').modal('hide');
+                            $('#modalsuccess').modal('show');
+                        } else {
+                            $('#Loading').modal('hide');
+                            $('#modalerror').modal('show');
+                        }
+
+                    });
+                }
+            }
+        });
+    }
+
+</script>

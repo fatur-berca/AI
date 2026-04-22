@@ -1,0 +1,11 @@
+
+INSERT INTO MasterList VALUES('TransportationSummary','Trip',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Cost',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','KM',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Stick',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Re-Class',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','ASDP & SPSI',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Crash Each Vendor',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Crash Rate',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Load Factor',1,'system',GETDATE(),'system',GETDATE(),'')
+INSERT INTO MasterList VALUES('TransportationSummary','Carbon Footprint',1,'system',GETDATE(),'system',GETDATE(),'')

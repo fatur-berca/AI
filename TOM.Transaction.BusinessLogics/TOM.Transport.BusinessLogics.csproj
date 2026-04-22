@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A9D6B98E-8491-4D94-8BCB-1908FDB48D74}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.Transport.BusinessLogics</RootNamespace>
+    <AssemblyName>TOM.Transport.BusinessLogics</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Excel, Version=2.1.2.3, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.2.1.2.3\lib\net45\Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="LinqToExcel, Version=1.11.0.0, Culture=neutral, PublicKeyToken=9c8ea65a58f03f1f, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToExcel.1.11.0\lib\LinqToExcel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToExcel.1.11.0\lib\Remotion.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.Data.Linq, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToExcel.1.11.0\lib\Remotion.Data.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.Interfaces, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToExcel.1.11.0\lib\Remotion.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransportDriverManagementBLL\ITransportDriverManagementBLL.cs" />
+    <Compile Include="TransportDriverManagementBLL\TransportDriverManagementBLL.cs" />
+    <Compile Include="TransportLostClaimDamageBLL\ITransportLostClaimDamageBLL.cs" />
+    <Compile Include="TransportLostClaimDamageBLL\TransportLostClaimDamageBLL.cs" />
+    <Compile Include="TransportMonitoringBLL\ITransportMonitoringBLL.cs" />
+    <Compile Include="TransportMonitoringBLL\TransportMonitoringBLL.cs" />
+    <Compile Include="TransportOrderBLL\ITransportOrderBLL.cs" />
+    <Compile Include="TransportOrderBLL\TransportOrderBLL.cs" />
+    <Compile Include="TransportExecutionBLL\ITransportExecutionBLL.cs" />
+    <Compile Include="TransportExecutionBLL\TransportExecutionBLL.cs" />
+    <Compile Include="TransportPickingListBLL\ITransportPickingListBLL.cs" />
+    <Compile Include="TransportPickingListBLL\TransportPickingListBLL.cs" />
+    <Compile Include="TransportSealBLL\ITransportSealBLL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TransportSealBLL\TransportSealBLL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TransportSummaryBLL\ITransportSummaryBLL.cs" />
+    <Compile Include="TransportSummaryBLL\TransportSummaryBLL.cs" />
+    <Compile Include="TransportTicketNCRBLL\ITransportTicketNCRBLL.cs" />
+    <Compile Include="TransportTicketNCRBLL\TransportTicketNCRBLL.cs" />
+    <Compile Include="TransportTruckArrivalBLL\ITransportTruckArrivalBLL.cs" />
+    <Compile Include="TransportTruckArrivalBLL\TransportTruckArrivalBLL.cs" />
+    <Compile Include="TransportUnitFrequentBLL\ITransportUnitFrequentBLL.cs" />
+    <Compile Include="TransportUnitFrequentBLL\TransportUnitFrequentBLL.cs" />
+    <Compile Include="TransportVehicleDataBLL\ITransportVehicleDataBLL.cs" />
+    <Compile Include="TransportVehicleDataBLL\TransportVehicleDataBLL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Contracts\DFIS.Contracts.csproj">
+      <Project>{139b1b79-3500-4750-97cb-012e6c24ff19}</Project>
+      <Name>DFIS.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Domain\DFIS.Universal.Domain.csproj">
+      <Project>{DF3235EF-6173-4A3D-81BD-D364A48291A6}</Project>
+      <Name>DFIS.Universal.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Repositories\DFIS.Universal.Repositories.csproj">
+      <Project>{74B4510C-2904-4DB6-92BB-AD46ACD546D2}</Project>
+      <Name>DFIS.Universal.Repositories</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Utils\DFIS.Utils.csproj">
+      <Project>{cd65d670-560a-46bc-b974-7d2fe0add040}</Project>
+      <Name>DFIS.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.EntitiesDAL\TOM.EntitiesDAL.csproj">
+      <Project>{6d91578b-a117-4cd7-9886-d3163e926cff}</Project>
+      <Name>TOM.EntitiesDAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Master.BusinessLogics\TOM.Master.BusinessLogics.csproj">
+      <Project>{C82D62EA-97C3-44F2-934B-AFE28E214DFB}</Project>
+      <Name>TOM.Master.BusinessLogics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Master.Domain\TOM.Master.Domain.csproj">
+      <Project>{25BA6530-4120-43BF-8C0F-62761197575A}</Project>
+      <Name>TOM.Master.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Master.Repositories\TOM.Master.Repositories.csproj">
+      <Project>{5BBA8B26-A84C-488B-AD8C-2500F8D101BB}</Project>
+      <Name>TOM.Master.Repositories</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Transport.Domain\TOM.Transport.Domain.csproj">
+      <Project>{D334E4B6-745B-40BD-8F62-3DD3B7D8AB6C}</Project>
+      <Name>TOM.Transport.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Transport.Repositories\TOM.Transport.Repositories.csproj">
+      <Project>{40440CB7-0910-498B-9B2B-7905FA1DF0EF}</Project>
+      <Name>TOM.Transport.Repositories</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+</Project>

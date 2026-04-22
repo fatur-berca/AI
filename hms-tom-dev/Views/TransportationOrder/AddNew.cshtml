@@ -1,0 +1,1378 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Transportation Order > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isTransport = false;
+}
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.RoleUserList.AWT)) || x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.RoleUserList.APT)) || x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.RoleUserList.AOT)) || x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.RoleUserList.SA)))
+    {
+        isTransport = true;
+        break;
+    }
+}
+<style>
+    .form-group.required .control-label:before {
+        /*content: "* ";*/
+        color: red;
+    }
+
+    .control-label {
+        text-transform: capitalize !important;
+        font-size: 10px !important;
+    }
+
+    .spc .form-group label {
+        font-size: 14px !important;
+        font-weight: bold;
+    }
+
+    a.cloneUnit {
+        text-decoration: none;
+    }
+
+    tr.control-label td {
+        padding-bottom: 0px;
+        margin-bottom: 0px;
+    }
+
+    .labelContainer .form-group {
+        margin-bottom: 0px;
+        margin-left: 10px;
+        margin-left: 0px;
+    }
+
+    .addDetailRoute, .removeDetailRoute, .copyDetailRoute, .deleteUnit, .cloneUnit {
+        background: none;
+        border: none;
+    }
+
+    .clonedDetail {
+        padding-left: 0px !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationOrder")'">Back</button>
+                <button type="button" class="btn btn-primary" id="btnAddNewUnit">Add New Unit</button>
+                <button type="button" class="btn btn-primary" id="btnSaveDraft" value="Draft">Save As Draft</button>
+                <button type="button" class="btn btn-primary" id="btnSubmit" value="Submit">Submit</button>
+                <button type="button" class="btn btn-primary" id="btnDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="row spc">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>TOTAL ORDERED UNIT</label>
+                    <h4 class="sub-text totalUnit" id="total-order-unit"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>TOTAL IN PROCESS</label>
+                    <h4 class="sub-text" id="total-in-process"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>TOTAL ON DELIVERY</label>
+                    <h4 class="sub-text" id="tolal-on-delivery"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>TOTAL COMPLETE</label>
+                    <h4 class="sub-text" id="total-complete"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                    <label style="font-size: 14px; font-weight: bold; padding-top: 9px;">Request Number</label>
+            </div>
+            <div class="col-md-4">
+                <input type="text" id="RequestNumber" class="form-control" style="max-width: 200px; font-size: 14px;" disabled>
+            </div>
+        </div>            
+    </div>
+    <div class="clearfix" style="height:110px;"></div>
+    <div class="col-md-12" style="margin-top: 10px;">
+        <ul class="nav nav-pills">
+            <li class="active" id="labelUnit1"><a data-toggle="pill" href="#clonedUnit1">Unit-1</a></li>
+        </ul>
+        <div class="tab-content" id="tab-content" rel="labelUnit1">
+            <div id="clonedUnit1" class="tab-pane fade in active clonedUnit" rel="labelUnit1" seqid="1">
+                <div class="col-panel">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <label class="control-label">Vehicle Type</label>
+                                <select class="form-control VehicleType" id="VehicleType[]"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <label class="control-label">Shipment Date</label>
+                                <input type="text" name="" id="ShipmentDate[]" class="form-control datepicker ShipmentDate">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Zone</label>
+                                <select class="form-control Zone" id="Zone[]"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <span style="font-weight:bold">
+                                <u>Maximum Capacity:</u><br />
+                                CBU = 16 Pallet / 72 Box C48 / 220 Sack<br />
+                                Standard = 12 Pallet / 54 Box C48 / 171 Sack
+                            </span>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn-default btn-s cloneUnit"><i class="fa fa-copy"></i></button>
+                            <button class="btn-default btn-s deleteUnit"><i class="fa fa-close"></i></button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="route" id="route">
+                                <div id="routeUnit1" class="routeUnit">
+                                    <a role="button" class="toggle-collapse collapsed" data-toggle="collapse" data-target="#routeclonedUnit1-1">
+                                        Route 1 <i class="fa fa-angle-up pull-right"></i>
+                                    </a>
+                                    <div class="collapse" id="routeclonedUnit1-1">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-body">
+                                                <table width="93%" border="0">
+                                                    <tr>
+                                                        <td width="5%">&nbsp;</td>
+                                                        <td width="95%" colspan="8">
+                                                            <button type="button" class="btn btn-primary btnUpload" id="btnUpload">Upload</button>
+                                                            @if (isTransport)
+                                                            {
+                                                                <button type="button" class="btn btn-primary btnUpdateStatus" id="btnUpdateStatus" style="display:none;">Update Status</button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="control-label">
+                                                        <td width="5%"><input type="checkbox" class="removeRoute" name="routeUnit1" rel="clonedUnit1"></td>
+                                                        <td width="14%">Order Number/STO</td>
+                                                        <td width="14%">Parent Order Number/STO</td>
+                                                        <td width="14%">Order Type</td>
+                                                        <td width="14%">Sender</td>
+                                                        <td width="14%">Receiver</td>
+                                                        <td width="14%">Cost Center</td>
+                                                        <td width="*">Order Status</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>&nbsp;</td>
+                                                        <td style="padding-right:10px;">
+                                                            <input type="text" id="OrderNumber[]" class="form-control OrderNumber" disabled>
+                                                        </td>
+                                                        <td style="padding-right:10px;">
+                                                            <input type="text" class="form-control ParentOrderNumber" id="ParentOrderNumber[]">
+                                                        </td>
+                                                        <td style="padding-right:10px;">
+                                                            <input type="text" id="OrderType[]" class="form-control OrderType" disabled>
+                                                        </td>
+                                                        <td style="padding-right:10px;">
+                                                            <select class="Sender form-group" id="Sender[]"></select>
+                                                        </td>
+                                                        <td style="padding-right:10px;">
+                                                            <select class="Receiver form-group" id="Receiver[]"></select>
+                                                        </td>
+                                                        <td style="padding-right:10px;">
+                                                            <input type="text" id="CostCenter[]" class="form-control CostCenter" disabled>
+                                                        </td>
+                                                        <td>
+                                                            @if (isTransport)
+                                                            {
+                                                                <select class="form-control OrderStatus" id="OrderStatus[]"></select>
+                                                            }
+                                                            else
+                                                            {
+                                                                <select class="form-control OrderStatus" id="OrderStatus[]" disabled></select>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <div class="clearfix"></div>
+                                                <div class="col-md-1" style="width:3%"></div>
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Order Remark</label>
+                                                        <input type="text" id="OrderRemark[]" class="form-control OrderRemark" maxlength="1000">
+                                                    </div>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                                <div class="labelContainer">
+                                                    <div class="col-md-1" style="width:3%"></div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group required">
+                                                            <label class="control-label">Material Type</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group required">
+                                                            <label class="control-label">Code</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group required">
+                                                            <label class="control-label">Description</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group required">
+                                                            <label class="control-label">Quantity</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group required">
+                                                            <label class="control-label">UoM</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                                <div class="detailRoute" id="detailRoute">
+                                                    <div class="col-md-12 clonedDetail" id="clonedDetail1">
+                                                        <div class="col-md-1" style="width:3%"></div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group required">
+                                                                <select class="form-control MaterialType" id="MaterialType[]"></select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group required">
+                                                                <input type="text" id="Code[]" class="form-control Code" maxlength="15">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group required">
+                                                                <input type="text" id="Description[]" class="form-control Description" maxlength="15">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group required">
+                                                                <input type="number" id="Quantity[]" class="form-control Quantity" step="0.01" min="0" max="99999999.99">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group required">
+                                                                <select class="form-control UoM" id="UoM[]"></select>
+                                                            </div>
+                                                        </div>
+                                                        <button class="btn-default btn-s copyDetailRoute"><i class="fa fa-copy"></i></button>
+                                                        <button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix" style="height:20px;"></div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary btnAddNew" id="btnAddNew">Add New</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!---- TEMPLATE ADD UNIT ----->
+<div id="clonedUnitX" class="tab-pane fade in active clonedUnit" hidden>
+    <div class="col-panel">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="form-group required">
+                    <label class="control-label">Vehicle Type</label>
+                    <select class="form-control VehicleType" id="VehicleType[]"></select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group required">
+                    <label class="control-label">Shipment Date</label>
+                    <input type="text" name="" id="ShipmentDate[]" class="form-control datepicker ShipmentDate">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="control-label">Zone</label>
+                    <select class="form-control Zone" id="Zone[]"></select>
+                </div>
+            </div>
+            <div class="col-md-5">
+                Max Capacity:<br />
+                CBU = 16 Pallet / 72 Box (C-48) / 220 Sack<br />
+                Standard = 12 Pallet / 54 box (C-48) / 171 Sack
+            </div>
+            <div class="col-md-1">
+                <button class="btn-default btn-s cloneUnit"><i class="fa fa-copy"></i></button>
+                <button class="btn-default btn-s deleteUnit"><i class="fa fa-close"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="route">
+                    <div id="routeUnit1" class="routeUnit">
+                        <a role="button" class="toggle-collapse collapsed" data-toggle="collapse" data-target="#routeclonedUnit1-1">
+                            Route 1 <i class="fa fa-angle-up pull-right"></i>
+                        </a>
+                        <div class="collapse" id="routeclonedUnit1-1">
+                            <div class="panel panel-primary">
+                                <div class="panel-body">
+                                    <table width="93%" border="0">
+                                        <tr>
+                                            <td width="5%">&nbsp;</td>
+                                            <td width="95%" colspan="8">
+                                                <button type="button" class="btn btn-primary btnUpload" id="btnUpload">Upload</button>
+                                                @if (isTransport)
+                                                {
+                                                    <button type="button" class="btn btn-primary btnUpdateStatus" id="btnUpdateStatus" style="display:none;">Update Status</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr class="control-label">
+                                            <td width="5%"><input type="checkbox" class="removeRoute" name="routeUnit1" rel="clonedUnit1"></td>
+                                            <td width="14%">Order Number/STO</td>
+                                            <td width="14%">Parent Order Number/STO</td>
+                                            <td width="14%">Order Type</td>
+                                            <td width="14%">Sender</td>
+                                            <td width="14%">Receiver</td>
+                                            <td width="14%">Cost Center</td>
+                                            <td width="*">Order Status</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td style="padding-right:10px;">
+                                                <input type="text" id="OrderNumber[]" class="form-control OrderNumber" disabled>
+                                            </td>
+                                            <td style="padding-right:10px;">
+                                                <input type="text" class="form-control ParentOrderNumber" id="ParentOrderNumber[]">
+                                            </td>
+                                            <td style="padding-right:10px;">
+                                                <input type="text" id="OrderType[]" class="form-control OrderType" disabled>
+                                            </td>
+                                            <td style="padding-right:10px;">
+                                                <select class="Sender form-group" id="Sender[]"></select>
+                                            </td>
+                                            <td style="padding-right:10px;">
+                                                <select class="Receiver form-group" id="Receiver[]"></select>
+                                            </td>
+                                            <td style="padding-right:10px;">
+                                                <input type="text" id="CostCenter[]" class="form-control CostCenter" disabled>
+                                            </td>
+                                            <td>
+                                                @if (isTransport)
+                                                {
+                                                    <select class="form-control OrderStatus" id="OrderStatus[]"></select>
+                                                }
+                                                else
+                                                {
+                                                    <select class="form-control OrderStatus" id="OrderStatus[]" disabled></select>
+                                                }
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-1" style="width:3%"></div>
+                                    <div class="col-md-11">
+                                        <div class="form-group">
+                                            <label class="control-label">Order Remark</label>
+                                            <input type="text" id="OrderRemark[]" class="form-control OrderRemark" maxlength="1000">
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="labelContainer">
+                                        <div class="col-md-1" style="width:3%"></div>
+                                        <div class="col-md-2">
+                                            <div class="form-group required">
+                                                <label class="control-label">Material Type</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group required">
+                                                <label class="control-label">Code</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group required">
+                                                <label class="control-label">Description</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group required">
+                                                <label class="control-label">Quantity</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group required">
+                                                <label class="control-label">UoM</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="detailRoute" id="detailRoute">
+                                        <div class="col-md-12 clonedDetail" id="clonedDetail1">
+                                            <div class="col-md-1" style="width:3%"></div>
+                                            <div class="col-md-2">
+                                                <div class="form-group required">
+                                                    <select class="form-control MaterialType" id="MaterialType[]"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group required">
+                                                    <input type="text" id="Code[]" class="form-control Code" maxlength="15">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group required">
+                                                    <input type="text" id="Description[]" class="form-control Description" maxlength="15">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group required">
+                                                    <input type="number" id="Quantity[]" class="form-control Quantity" step="0.01" min="0" max="99999999.99">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group required">
+                                                    <select class="form-control UoM" id="UoM[]"></select>
+                                                </div>
+                                            </div>
+                                            <button class="btn-default btn-s copyDetailRoute"><i class="fa fa-copy"></i></button>
+                                            <button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix" style="height:20px;"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary btnAddNew" id="btnAddNew">Add New</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!---- END TEMPLATE ADD UNIT ----->
+<!---- END TEMPLATE ROUTE ----->
+<div id="routeUnitX" class="routeUnit" hidden>
+    <a role="button" class="toggle-collapse collapsed" data-toggle="collapse" data-target="#routeclonedUnit1-1">
+        Route 1 <i class="fa fa-angle-up pull-right"></i>
+    </a>
+    <div class="collapse" id="routeclonedUnit1-1">
+        <div class="panel panel-primary">
+            <div class="panel-body">
+                <table width="93%" border="0">
+                    <tr>
+                        <td width="5%">&nbsp;</td>
+                        <td width="95%" colspan="8">
+                            <button type="button" class="btn btn-primary btnUpload" id="btnUpload">Upload</button>
+                            @if (isTransport)
+                            {
+                                <button type="button" class="btn btn-primary btnUpdateStatus" id="btnUpdateStatus" style="display:none;">Update Status</button>
+                            }
+                        </td>
+                    </tr>
+                    <tr class="control-label">
+                        <td width="5%"><input type="checkbox" class="removeRoute" name="routeUnit1" rel="clonedUnit1"></td>
+                        <td width="14%">Order <br />Number/STO</td>
+                        <td width="14%">Parent Order Number/STO</td>
+                        <td width="14%">Order Type</td>
+                        <td width="14%">Sender</td>
+                        <td width="14%">Receiver</td>
+                        <td width="14%">Cost Center</td>
+                        <td width="*">Order Status</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="padding-right:10px;">
+                            <input type="text" id="OrderNumber[]" class="form-control OrderNumber" disabled>
+                        </td>
+                        <td style="padding-right:10px;">
+                            <input type="text" class="form-control ParentOrderNumber" id="ParentOrderNumber[]">
+                        </td>
+                        <td style="padding-right:10px;">
+                            <input type="text" id="OrderType[]" class="form-control OrderType" disabled>
+                        </td>
+                        <td style="padding-right:10px;">
+                            <select class="Sender form-group" id="Sender[]"></select>
+                        </td>
+                        <td style="padding-right:10px;">
+                            <select class="Receiver form-group" id="Receiver[]"></select>
+                        </td>
+                        <td style="padding-right:10px;">
+                            <input type="text" id="CostCenter[]" class="form-control CostCenter" disabled>
+                        </td>
+                        <td>
+                            @if (isTransport)
+                            {
+                                <select class="form-control OrderStatus" id="OrderStatus[]"></select>
+                            }
+                            else
+                            {
+                                <select class="form-control OrderStatus" id="OrderStatus[]" disabled></select>
+                            }
+
+                        </td>
+                    </tr>
+                </table>
+                <div class="clearfix"></div>
+                <div class="col-md-1" style="width:3%"></div>
+                <div class="col-md-11">
+                    <div class="form-group">
+                        <label class="control-label">Order Remark</label>
+                        <input type="text" id="OrderRemark[]" class="form-control OrderRemark" maxlength="1000">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-1" style="width:3%"></div>
+                <div class="labelContainer">
+                    <div class="col-md-2">
+                        <div class="form-group required">
+                            <label class="control-label">Material Type</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group required">
+                            <label class="control-label">Code</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group required">
+                            <label class="control-label">Description</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group required">
+                            <label class="control-label">Quantity</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group required">
+                            <label class="control-label">UoM</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="detailRoute" id="detailRoute">
+                    <div class="col-md-12 clonedDetail" id="clonedDetail1">
+                        <div class="col-md-1" style="width:3%"></div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <select class="form-control MaterialType" id="MaterialType[]"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <input type="text" id="Code[]" class="form-control Code" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <input type="text" id="Description[]" class="form-control Description" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <input type="number" id="Quantity[]" class="form-control Quantity" step="0.01" min="0" max="99999999.99">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group required">
+                                <select class="form-control UoM" id="UoM[]"></select>
+                            </div>
+                        </div>
+                        <button class="btn-default btn-s copyDetailRoute"><i class="fa fa-copy"></i></button>
+                        <button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!---- END TEMPLATE ROUTE ----->
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span id="textModalSucess">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function PrepareTab(tab)
+    {
+        //select2-offscreen
+        tab.find("div.select2-container.Receiver").remove();
+        tab.find("select.Receiver").select2({ allowClear: true });
+        tab.find(".select2-container.Receiver").css("width", "100%").removeClass("form-group");
+        tab.find("div.select2-container.Sender").remove();
+        tab.find("select.Sender").select2({ allowClear: true });
+        tab.find(".select2-container.Sender").css("width", "100%").removeClass("form-group");
+    }
+
+    /******  COPY UNIT ******/
+    var cloneIndex = $(".nav-pills").length;
+    var indexnya = ($(".nav-pills").length)+1;
+    function clone() {
+        var lastLabel = $("ul.nav-pills li a").last().html().split("-");
+        var indexLabel = parseInt(lastLabel[1]) + 1;
+        /**** clone current unit ***/
+        var newElem = $(this).parents(".clonedUnit").clone()
+            .appendTo("#tab-content")
+            .attr("id", "clonedUnit" + indexnya)
+            .attr("rel", "labelUnit" + indexnya)
+            .attr("seqid", indexnya)
+            .attr("class", "tab-pane fade in clonedUnit")
+            .on('click', 'button.cloneUnit', clone)
+            .on('click', 'button.deleteUnit', remove)
+            .on('click', 'button#btnAddNewUnit', cloneBlank)
+            .css("background", "#000");
+        newElem.find("input.datepicker").datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+        PrepareTab(newElem);
+        var selectedVehicle = $(this).parents(".clonedUnit").find(".VehicleType option:selected").val();
+        //console.log(selectedVehicle);
+        newElem.find(".VehicleType option[value = '" + selectedVehicle + "']").attr("selected", "selected");
+        var selectedZone = $(this).parents(".clonedUnit").find(".Zone option:selected").val();
+        newElem.find(".Zone option[value = '" + selectedZone + "']").attr("selected", "selected");
+        var unitId = newElem.attr("id");
+        var clonedId = $(this).parents(".clonedUnit").attr("id");
+        //console.log("clonedId:"+clonedId);
+        var lengthRoute = newElem.find(".routeUnit").length;
+        /**** clone route & update index number route by unit ****/
+        newElem.find(".routeUnit").each(function () {
+            var routeId = $(this).find(".collapse").attr("id").split("-");
+            var currentRouteId = $(this).attr("id");
+            //console.log("currentRouteId:" + currentRouteId);
+            $(this).find(".collapse").attr("id", "route" + unitId+"-"+routeId[1]);
+            $(this).find("a[data-toggle='collapse']").attr("data-target", "#route" + unitId+"-"+routeId[1]);
+            $(this).find("input:checkbox").attr("rel", unitId);
+            $(this).find("input:checkbox").attr("toid", "");
+            $(this).find("input:checkbox").attr("reqid", "");
+            /*$(this).find("input:checkbox").removeAttr("toid");
+            $(this).find("input:checkbox").removeAttr("reqid");*/
+            $(this).find(".OrderNumber").val("");
+            $(this).find(".ParentOrderNumber").val("");
+            $(this).find(".OrderStatus").val("");
+            var selectedSender = $("#" + clonedId).find("#" + currentRouteId).find(".Sender option:selected").val();
+            //console.log("sender:"+selectedSender);
+            var selectedReceiver = $("#" + clonedId).find("#" + currentRouteId).find(".Receiver").val();
+            $(this).find(".Sender option[value = '" + selectedSender + "']").attr("selected", "selected");
+            $(this).find(".Receiver option[value = '" + selectedReceiver + "']").attr("selected", "selected");
+            $("#" + clonedId).find("#" + currentRouteId).find(".clonedDetail").each(function () {
+                var currentDetailId = $(this).attr("id");
+                var selectedMaterial = $("#" + clonedId).find("#" + currentRouteId).find("#" + currentDetailId).find(".MaterialType option:selected").val();
+                var selectedUom = $("#" + clonedId).find("#" + currentRouteId).find("#" + currentDetailId).find(".UoM option:selected").val();
+                /*console.log("selectedMaterial:" + selectedMaterial);
+                console.log("selectedUom:" + selectedUom);
+                //console.log($(this).find(".MaterialType").html());
+                console.log("clonedId:" + clonedId);
+                console.log("currentRouteId:" + currentRouteId);
+                console.log("currentDetailId:" + currentDetailId);*/
+
+                newElem.find("#" + currentRouteId).find("#" + currentDetailId).find(".MaterialType").val(selectedMaterial);
+                newElem.find("#" + currentRouteId).find("#" + currentDetailId).find(".UoM").val(selectedUom);
+            });
+        });
+
+        /**** add label tab ****/
+        var templateLabel = '<li id="labelUnit' + indexnya + '"><a data-toggle="pill" href="#clonedUnit' + indexnya + '">Unit-' + indexLabel + '</a></li>';
+        $(".nav-pills").append(templateLabel);
+        setTotalUnit();
+        indexnya++;
+        cloneIndex++;
+    }
+
+    /******  ADD NEW UNIT ******/
+    function cloneBlank() {
+        //console.log($("ul.nav-pills li a").last().html());
+        var unitLength = $("ul.nav-pills li a").length;
+        if (unitLength == 0) {
+            var indexLabel = 1;
+        } else {
+            var lastLabel = $("ul.nav-pills li a").last().html().split("-");
+            var indexLabel = parseInt(lastLabel[1]) + 1;
+        }
+        /**** clone blank unit ***/
+        var newElem = $("#clonedUnitX").clone()
+            .appendTo("#tab-content")
+            .attr("id", "clonedUnit" + indexnya)
+            .attr("rel", "labelUnit" + indexnya)
+            .attr("seqid", indexnya)
+            .attr("class", "tab-pane fade in clonedUnit")
+            .attr("hidden",false)
+            .on('click', 'button.cloneUnit', clone)
+            .on('click', 'button.deleteUnit', remove)
+            .on('click', 'button#btnAddNewUnit', cloneBlank);
+        newElem.find("input.datepicker").datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+        newElem.find(".routeUnit").remove();
+
+        /**** clone route & update index number by unit ****/
+        var unitId = newElem.attr("id");
+        var newRoute = $("#routeUnitX").clone()
+            .appendTo(newElem.find(".route"))
+            .attr("id", "routeUnit1")
+            .attr("hidden",false);
+        newElem.find(".collapse").attr("id", "routeclonedUnit" + indexnya+"-1");
+        newElem.find("a[data-toggle='collapse']").attr("data-target", "#routeclonedUnit" + indexnya+"-1");
+        newElem.find("input:checkbox").attr("rel", unitId);
+        PrepareTab(newElem);
+
+        /**** add label tab ****/
+        var templateLabel = '<li id="labelUnit' + indexnya + '"><a data-toggle="pill" href="#clonedUnit' + indexnya + '">Unit-' + indexLabel + '</a></li>';
+        $(".nav-pills").append(templateLabel);
+        if ($("ul.nav-pills li a").length == 1) {
+            $('ul.nav-pills li a').first().trigger("click");
+        }
+        setTotalUnit();
+        indexnya++;
+        cloneIndex++;
+    }
+
+    /******  DELETE UNIT ******/
+    function remove() {
+        var idUnit = $(this).parents(".clonedUnit").attr("rel");
+        console.log(idUnit);
+        $("#"+idUnit).remove();
+        $(this).parents(".clonedUnit").remove();
+        $('ul.nav-pills li a').first().trigger("click");
+        ReNumberUnit();
+        setTotalUnit();
+    }
+    function ReNumberUnit() {
+        //console.log($("ul.nav-pills li a").length);
+        var i = 1;
+        $("ul.nav-pills li a").each(function () {
+            $(this).html("Unit-" + i);
+            i++;
+        });
+    }
+    function setTotalUnit() {
+        $(".totalUnit").html($("ul.nav-pills li a").length);
+    }
+    $("button.cloneUnit").on("click", clone);
+    $("button#btnAddNewUnit").on("click", cloneBlank);
+    $("button.deleteUnit").on("click", remove);
+
+    /** ADD NEW ROUTE ***/
+    $(document).on("click","button.btnAddNew", function(){
+        var parentUnit = $(this).parents(".clonedUnit").attr("id");
+        //console.log(parentUnit);
+        var routeLength = $(this).parents().eq(2).find(".routeUnit").length;
+        if(routeLength == 0 ){
+            var indexnya = 1;
+            var indexLabel = 1;
+        }else{
+            //console.log($(this).parents().eq(2).find(".routeUnit").last().attr("id"));
+            var idlastRoute = $(this).parents().eq(2).find(".routeUnit").last().attr("id");
+            //console.log(idlastRoute.substring(9));
+            var indexnya = parseInt(idlastRoute.substring(9)) + 1;
+            var lastLabel = $.trim($(this).parents().eq(2).find("a[data-toggle='collapse']").last().html()).split(" ");
+            //console.log(lastLabel);
+            var indexLabel = parseInt(lastLabel[1])+1;
+        }
+        //console.log("length"+routeIndex);
+
+        var newRoute = $("#routeUnitX").clone()
+            .appendTo($(this).parents().eq(2).find(".route"))
+            .attr("id", "routeUnit" + indexnya)
+            .attr("hidden",false);
+        var splitCollapseId = newRoute.find(".collapse").attr("id").split("-");
+        //console.log(splitCollapseId);
+        var collapseId = parseInt(splitCollapseId[1])+1;
+        var str = "<i class=\"fa fa-angle-up pull-right\"></i>";
+        newRoute.find("a[data-toggle='collapse']").attr("data-target", "#route"+parentUnit+"-"+indexnya);
+        newRoute.find("a[data-toggle='collapse']").html("Route " + indexLabel + " <i class=\"fa fa-angle-up pull-right\"></i>");
+        newRoute.find(".collapse").attr("id", "route"+parentUnit+"-"+indexnya);
+        newRoute.find("input:checkbox").attr("name", "routeUnit" + indexnya);
+        var idUnit = $(this).parents().eq(2).find("input:checkbox").attr("rel");
+        //console.log(idUnit);
+        newRoute.find("input:checkbox").attr("rel", idUnit);
+        PrepareTab(newRoute);
+    })
+
+    /** DELETE ROUTE ***/
+    $("button#btnDelete").on("click", function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        /*cekRouteStatus = validateDeleteRoute();
+        if (cekRouteStatus === false) {
+            dialog.modal('hide');
+            $("#textModalError").html("");
+            $("#textModalError").append("Status Submit can not deleted.");
+            $('#modalerror').modal('show');
+            return false;
+        }*/
+        listDelete = new Array();
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            //var reqid = $(this).attr("reqid");
+            var toid = $(this).attr("toid");
+            if(toid){
+                listDelete.push(toid);
+            }
+            dialog.modal('hide');
+            $("#" + idUnit).find("#" + idRoute).remove();
+            ReNumberRoute(idUnit);
+        });
+        if (listDelete.length > 0) {
+            console.log(listDelete)
+            $.ajax({
+                url: '@Url.Action("DeleteRouteUnit", "TransportationOrder")',
+                method: 'post',
+                dataType: 'json',
+                cache: false,
+                data: { deleteData: listDelete },
+                success: function (data) {
+                    if(data == true){
+                        dialog.modal('hide');
+                        $("#textModalSucess").html("");
+                        $("#textModalSucess").html("Your data has been successfully deleted");
+                        $('#modalsuccess').modal('show');
+                    }
+                }
+            });
+        }
+    });
+    function ReNumberRoute(idUnit) {
+        var i = 1;
+        $("#" + idUnit).find(".routeUnit").each(function () {
+            $(this).find("a[data-toggle='collapse']").html("Route " + i + " <i class=\"fa fa-angle-up pull-right\"></i>");
+            i++;
+        });
+    }
+
+    /**** COPY ROW MATERIAL ****/
+    $(document).on("click","button.copyDetailRoute", function(){
+        var detailLength = $(this).parents().eq(2).find(".clonedDetail").length;
+        //console.log(detailLength);
+        if(detailLength == 0 ){
+            var indexDetail = 1;
+        }else{
+            var idlastDetail = $(this).parents().eq(2).find(".clonedDetail").last().attr("id");
+            //console.log(idlastDetail.substring(12));
+            var indexDetail = parseInt(idlastDetail.substring(12)) + 1;
+        }
+        var newDetail = $(this).parents(".clonedDetail").clone()
+            .appendTo($(this).parents("#detailRoute"))
+            .attr("id", "clonedDetail" + indexDetail);
+        newDetail.find(".copyDetailRoute").remove();
+        newDetail.find(".removeDetailRoute").remove();
+        newDetail.find(".addDetailRoute").remove();
+        newDetail.append('<button class="btn-default btn-s copyDetailRoute"><i class="fa fa-copy"></i></button>'+
+                        '<button class="btn-default btn-s removeDetailRoute"><i class="fa fa-close"></i></button>' +
+                        '<button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>');
+        var getMaterial = $(this).parents(".clonedDetail").find(".MaterialType").val();
+        //console.log(getMaterial);
+        console.log(getMaterial);
+        if (getMaterial == "Cigarette") {
+            newDetail.find(".MaterialType").val("Cigarette");
+            newDetail.find(".MaterialType").attr("disabled", true);
+        } else {
+            newDetail.find(".MaterialType").val("");
+            newDetail.find(".MaterialType option[value='Cigarette']").remove();
+            newDetail.find(".MaterialType").val(getMaterial);
+        }
+        var getUoM = $(this).parents(".clonedDetail").find(".UoM").val();
+        newDetail.find(".UoM").val(getUoM);
+        //var elementPrev = newDetail.prev().attr("id");
+        //$("#" + elementPrev).find(".addDetailRoute").remove();
+        var parentUnit = $(this).parents(".clonedUnit").attr("id");
+        var parentRoute = $(this).parents().eq(5).attr("id");
+        var elementPrev = newDetail.prev().attr("id");
+        $("#" + parentUnit).find("#" + parentRoute).find("#" + elementPrev).find(".addDetailRoute").remove();
+    });
+
+    /**** DELETE ROW MATERIAL ****/
+    $(document).on("click", "button.removeDetailRoute", function () {
+        //console.log($(this).parents(".clonedDetail").siblings(":last").find("button").hasClass("addDetailRoute"));
+        //var isAddBtn = $(this).parents(".clonedDetail").siblings(":last").find("button").hasClass("addDetailRoute");
+        //console.log(isAddBtn);
+        if ($(this).parents(".clonedDetail").siblings(":last").find("button").hasClass("addDetailRoute") == false) {
+            $(this).parents(".clonedDetail").siblings(":last").append('<button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>');
+        }
+        $(this).parents(".clonedDetail").remove();
+    });
+
+    /**** ADD NEW ROW MATERIAL ****/
+    $(document).on("click", "button.addDetailRoute", function () {
+        var detailLength = $(this).parents().eq(2).find(".clonedDetail").length;
+        if (detailLength == 0) {
+            var indexDetail = 1;
+        } else {
+            var idlastDetail = $(this).parents().eq(2).find(".clonedDetail").last().attr("id");
+            var indexDetail = parseInt(idlastDetail.substring(12)) + 1;
+        }
+        var newDetail = $(this).parents(".clonedDetail").clone()
+            .appendTo($(this).parents("#detailRoute"))
+            .attr("id", "clonedDetail" + indexDetail);
+        newDetail.find(".Code").val("");
+        newDetail.find(".Description").val("");
+        newDetail.find(".Quantity").val("");
+        newDetail.find(".UoM").attr("value", "");
+        newDetail.find(".copyDetailRoute").remove();
+        newDetail.find(".removeDetailRoute").remove();
+        newDetail.find(".addDetailRoute").remove();
+        newDetail.append('<button class="btn-default btn-s copyDetailRoute"><i class="fa fa-copy"></i></button>' +
+                        '<button class="btn-default btn-s removeDetailRoute"><i class="fa fa-close"></i></button>' +
+                        '<button class="btn-default btn-s addDetailRoute"><i class="fa fa-plus"></i></button>');
+        var getMaterial = $(this).parents(".clonedDetail").find(".MaterialType").val();
+        //console.log(getMaterial);
+        if (getMaterial == "Cigarette") {
+            newDetail.find(".MaterialType").val("Cigarette");
+            newDetail.find(".MaterialType").attr("disabled", true);
+        } else {
+            newDetail.find(".MaterialType").val("");
+            newDetail.find(".MaterialType option[value='Cigarette']").remove();
+        }
+        var parentUnit = $(this).parents(".clonedUnit").attr("id");
+        var parentRoute = $(this).parents().eq(5).attr("id");
+        var elementPrev = newDetail.prev().attr("id");
+        //var elementPrev = newDetail.prev().html();
+        /*console.log("parentUnit:" + parentUnit);
+        console.log("parentRoute:" + parentRoute);
+        console.log("elementPrev:" + elementPrev);*/
+        //$("#" + elementPrev).find(".addDetailRoute").remove();
+        $("#"+parentUnit).find("#"+parentRoute).find("#" + elementPrev).find(".addDetailRoute").remove();
+    });
+
+    $(document).on("change", "select.MaterialType", function () {
+        var selectMaterial = $(this).val();
+        var routeId = $(this).parents().eq(7).attr("id");
+        var unitId = $(this).parents().eq(12).attr("id");
+        //console.log(unitId);
+        var selectSender = $("#" + unitId).find("#" + routeId).find(".Sender").val();
+        var selectReceiver = $("#" + unitId).find("#" + routeId).find(".Receiver").val();
+        var selectUom = $("#" + unitId).find("#" + routeId).find(".UoM");
+        selectUom.html('');
+        selectUom.append('<option value=""></option>');
+        $.ajax({
+            url: '@Url.Action("GetOrderTypeCostCenterUom", "TransportationOrder")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: { SenderIDLocation: selectSender, ReceiverIDLocation: selectReceiver, MaterialType: selectMaterial },
+            success: function (data) {
+                //console.log(data);
+                $("#" + unitId).find("#" + routeId).find(".OrderType").val(data.OrderType);
+                $("#" + unitId).find("#" + routeId).find(".CostCenter").val(data.CostCenter);
+                $.each(data.Uom, function (key, val) {
+                    selectUom.append('<option value="' + val["IDUoM"] + '">' + val["UoM"] + '</option>');
+                });
+                if (selectMaterial == "Cigarette") {
+                    $("#" + unitId).find("#" + routeId).find(".OrderNumber").attr("disabled", false);
+                    $("#" + unitId).find("#" + routeId).find(".OrderNumber").attr("maxlength", 10);
+                    $("#" + unitId).find("#" + routeId).find(".OrderType").val("Finished Good");
+                } else {
+                    $("#" + unitId).find("#" + routeId).find(".OrderNumber").attr("disabled", true);
+                    $("#" + unitId).find("#" + routeId).find(".OrderType").val("Raw Material");
+                    //var currentDate = new Date();
+                    //var twoDigitMonth = ((currentDate.getMonth() + 1) >= 10) ? (currentDate.getMonth() + 1) : '0' + (currentDate.getMonth() + 1);
+                    //$("#" + unitId).find("#" + routeId).find(".OrderNumber").val("ON" +  currentDate.getFullYear()+twoDigitMonth + "0001");
+                }
+            }
+        });
+    });
+    function getSpeakingCode() {
+        var routeId = $(this).parents().eq(7).attr("id");
+        var unitId = $(this).parents().eq(12).attr("id");
+        var detailId = $(this).parents().eq(2).attr("id");
+        //console.log(detailId);
+        var selectMaterial = $("#" + unitId).find("#" + routeId).find(".MaterialType").val();
+        var CodeMaterial = $(this).val();
+        if (selectMaterial == "Cigarette") {
+            $.ajax({
+                url: '@Url.Action("GetSpeakingCode", "TransportationOrder")',
+                method: 'get',
+                dataType: 'json',
+                cache: false,
+                data: { Code: CodeMaterial },
+                success: function (data) {
+                    $("#" + unitId).find("#" + routeId).find("#" + detailId).find(".Description").val(data);
+                }
+            });
+        }
+    }
+
+    $(document).on("blur", "input.Code", getSpeakingCode);
+    $(document).on("keypress", "input.Code", function (e) {
+        if (e.keyCode == 13) {
+            var routeId = $(this).parents().eq(7).attr("id");
+            var unitId = $(this).parents().eq(12).attr("id");
+            var detailId = $(this).parents().eq(2).attr("id");
+            //console.log(detailId);
+            var selectMaterial = $("#" + unitId).find("#" + routeId).find(".MaterialType").val();
+            var CodeMaterial = $(this).val();
+            if (selectMaterial == "Cigarette") {
+                $.ajax({
+                    url: '@Url.Action("GetSpeakingCode", "TransportationOrder")',
+                    method: 'get',
+                    dataType: 'json',
+                    cache: false,
+                    data: { Code: CodeMaterial },
+                    success: function (data) {
+                        $("#" + unitId).find("#" + routeId).find("#" + detailId).find(".Description").val(data);
+                    }
+                });
+            }
+        }
+    });
+
+
+    // ?=document.ready
+    $(document).ready(function () {
+        generateDropDownList();
+        generateDropDownLocation();
+        $(".ShipmentDate").val(moment(new Date()).format("DD/MM/YYYY"));
+        PrepareTab($(".routeUnit"));
+    });
+    function generateDropDownList() {
+        var selectVechType = $('.VehicleType');
+        selectVechType.html('');
+        selectVechType.append('<option value=""></option>');
+        var selectMaterial = $('.MaterialType');
+        selectMaterial.html('');
+        selectMaterial.append('<option value=""></option>');
+        var selectZone = $('.Zone');
+        selectZone.html('');
+        selectZone.append('<option value=""></option>');
+        var selectOrderStatus = $('.OrderStatus');
+        selectOrderStatus.html('');
+        selectOrderStatus.append('<option value=""></option>');
+        $.ajax({
+            url: '@Url.Action("GetList", "TransportationOrder")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $.each(data, function (key, val) {
+                    if (val["FieldName"] == "VehicleType")
+                        selectVechType.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    if (val["FieldName"] == "MaterialType")
+                        selectMaterial.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    if (val["FieldName"] == "Zone")
+                        selectZone.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    if (val["FieldName"] == "TransportationStatus")
+                        selectOrderStatus.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                });
+                //$('.VehicleType').val(valueVechicle);
+                //$('.MaterialType').val(valueMaterial);
+                //$('.Zone').val(valueZone);
+            }
+        });
+    }
+    function generateDropDownLocation() {
+        var selectSender = $('.Sender');
+        selectSender.html('<option value=" ">&nbsp;</option>');
+        var selectReceiver = $('.Receiver');
+        selectReceiver.html('<option value=" ">&nbsp;</option>');
+        $.ajax({
+            url: '@Url.Action("GetLocation", "TransportationOrder")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $.each(data, function (key, val) {
+                    selectSender.append('<option value="' + val["IDLocation"] + '">' + val["LocationName"] + '</option>');
+                    selectReceiver.append('<option value="' + val["IDLocation"] + '">' + val["LocationName"] + '</option>');
+                });
+                //$('.Sender').val(sender);
+                //$('.Receiver').val(receiver);
+            }
+        });
+    }
+
+    $("button#btnSaveDraft,button#btnSubmit").on("click", function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        cekRoute = validateSelectedRoute();
+        //console.log(listError);
+        if (cekRoute === false) {
+            dialog.modal('hide');
+            $("#textModalError").html("");
+            $("#textModalError").append("Please select route");
+            $('#modalerror').modal('show');
+            return false;
+        }
+        cekMandatoryTOR = validateFormTORequest();
+        if (cekMandatoryTOR === false) {
+            dialog.modal('hide');
+            $("#textModalError").html("");
+            $("#textModalError").append("Vehicle Type and shipment date must be filled");
+            $('#modalerror').modal('show');
+            return false;
+        }
+        cekMandatoryTO = validateFormTO();
+        if (cekMandatoryTO === false) {
+            dialog.modal('hide');
+            $("#textModalError").html("");
+            $("#textModalError").append("Sender and receiver must be filled");
+            $('#modalerror').modal('show');
+            return false;
+        }
+        cekMandatoryTOD = validateFormTOD();
+        if (cekMandatoryTOD === false) {
+            dialog.modal('hide');
+            $("#textModalError").html("");
+            $("#textModalError").append("Material Type, Code, Description, Quantity and UoM must be filled.<br><span style='padding-left:45px;'></span>If Material type CIgarette Order number must be filled");
+            $('#modalerror').modal('show');
+            return false;
+        }
+        isStatus = $(this).val();
+        listSave = new Array();
+        var selectedRoute = new Object();
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            var reqid = $(this).attr("reqid");
+            var seqid = $("#" + idUnit).attr("seqid");
+            var toid = $(this).attr("toid");
+            $("#" + idUnit).find("#" + idRoute).find(".OrderStatus").val(isStatus);
+            $("#" + idUnit).find("#" + idRoute).find(".clonedDetail").each(function () {
+                //console.log($(this).find(".MaterialType").val());
+                var selectedRoute = new Object();
+                selectedRoute.VehicleType = $("#" + idUnit).find(".VehicleType").val();
+                var ShipDate = $("#" + idUnit).find(".ShipmentDate").val();
+                selectedRoute.ShipmentDate = ShipDate.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                selectedRoute.Zone = $("#" + idUnit).find(".Zone").val();
+                selectedRoute.OrderNumber = $("#" + idUnit).find("#" + idRoute).find(".OrderNumber").val();
+                //selectedRoute.ParentOrderNumber = $("#" + idUnit).find("#" + idRoute).find(".ParentOrderNumber").val();
+                selectedRoute.OrderType = $("#" + idUnit).find("#" + idRoute).find(".OrderType").val();
+                //selectedRoute.ActualSenderIDLocation = $("#" + idUnit).find("#" + idRoute).find(".Sender").val();
+                selectedRoute.SenderIDLocation = $("#" + idUnit).find("#" + idRoute).find(".Sender").select2('val');
+                selectedRoute.ReceiverIDLocation = $("#" + idUnit).find("#" + idRoute).find(".Receiver").select2('val');
+                selectedRoute.CostCenter = $("#" + idUnit).find("#" + idRoute).find(".CostCenter").val();
+                selectedRoute.OrderStatus = $("#" + idUnit).find("#" + idRoute).find(".OrderStatus").val();
+                selectedRoute.Remarks = $("#" + idUnit).find("#" + idRoute).find(".OrderRemark").val();
+                selectedRoute.MaterialType = $(this).find(".MaterialType").val();
+                selectedRoute.Code = $(this).find(".Code").val();
+                selectedRoute.Description = $(this).find(".Description").val();
+                selectedRoute.Qty = $(this).find(".Quantity").val();
+                selectedRoute.UoM = $(this).find(".UoM").val();
+                selectedRoute.IDRequest = reqid;
+                selectedRoute.IDTransportOrder = toid;
+                selectedRoute.RequestNo = $("#RequestNumber").val();
+                selectedRoute.UnitID = idUnit;
+                selectedRoute.SeqID = seqid;
+                listSave.push(selectedRoute);
+            });
+        });
+        console.log(listSave);
+        $.ajax({
+            url: '@Url.Action("SubmitDraftRequestUnit", "TransportationOrder")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: { saveData: listSave, isStatus: isStatus },
+            success: function (data) {
+                console.log(data);
+                dialog.modal("hide");
+                var i = 0;
+                $("input:checkbox:checked").each(function () {
+                    var idUnit = $(this).attr("rel");
+                    var idRoute = $(this).attr("name");
+                    var seqid = $("#" + idUnit).attr("seqid");
+                    //console.log(data[i]);
+                    //console.log(idUnit + "-" + idRoute);
+                    //$(this).attr("reqid", data[i].IDRequest);
+                    //$(this).attr("toid", data[i].IDTransportOrder);
+                    $("#" + idUnit).find("#" + idRoute).find("input:checkbox").attr("reqid", data[i].IDRequest);
+                    $("#" + idUnit).find("#" + idRoute).find("input:checkbox").attr("toid", data[i].IDTransportOrder);
+                    $("#" + idUnit).find("#" + idRoute).find(".OrderNumber").val(data[i].STONo);
+                    if (data[i].DefaultSeqNo == "") {
+                        $("#" + idUnit).attr("seqid", seqid);
+                    } else {
+                        $("#" + idUnit).attr("seqid", data[i].DefaultSeqNo);
+                    }
+                    if (isStatus == 'Submit') {
+                        $("#" + idUnit).find("#" + idRoute).find(".OrderNumber").attr("disabled", true);
+                        $("#" + idUnit).find("#" + idRoute).find(".btnUpdateStatus").show();
+                    }
+                    if($("#" + idUnit).attr("seqid").includes("TO")){
+                        $("#" + idUnit).find(".ShipmentDate").attr("disabled", true);
+                    }
+                    i++;
+                });
+                var splitRQ = data[0].RequestNo;
+                $("#RequestNumber").val(splitRQ);
+                dialog.modal('hide');
+                $("#textModalSucess").html("");
+                $("#textModalSucess").html("Your data has been successfully saved");
+                $('#modalsuccess').modal('show');
+            },
+            error: function ()
+            {
+                dialog.modal("hide");
+                $("#textModalError").html("Failed to save data");
+                $('#modalerror').modal('show');
+            }
+        });
+    });
+    function validateSelectedRoute() {
+        var valid = true;
+        var lengthUnit = $("input:checkbox:checked").length;
+        if (lengthUnit == 0) {
+            valid = false;
+            return false;
+        }
+        return valid;
+    }
+    function validateFormTORequest() {
+        var valid = true;
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            var VehicleType = $("#" + idUnit).find(".VehicleType").val();
+            var ShipmentDate = $("#" + idUnit).find(".ShipmentDate").val();
+            if (VehicleType == '' || ShipmentDate == '') {
+                valid = false;
+                return false;
+            }
+        });
+        return valid;
+    }
+    function validateFormTO() {
+        var valid = true;
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            var Sender = $("#" + idUnit).find("#" + idRoute).find(".Sender").select2('val').trim();
+            var Receiver = $("#" + idUnit).find("#" + idRoute).find(".Receiver").select2('val').trim();
+            //console.log($("#" + idUnit).find("#" + idRoute).find(".Sender"), $("#" + idUnit).find("#" + idRoute).find(".Receiver"));
+            if (Sender == '' || Receiver == '') {
+                valid = false;
+                return false;
+            }
+        });
+        return valid;
+    }
+    function validateFormTOD() {
+        var valid = true;
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            var OrderNumber = $("#" + idUnit).find("#" + idRoute).find(".OrderNumber").val();
+            var OrderType = $("#" + idUnit).find("#" + idRoute).find(".OrderType").val();
+            if (OrderType == 'Finished Good' && OrderNumber == '') {
+                valid = false;
+                return false;
+            }
+            $("#" + idUnit).find("#" + idRoute).find(".clonedDetail").each(function () {
+                var MaterialType = $(this).find(".MaterialType").val();
+                var Code = $(this).find(".Code").val();
+                var Description = $(this).find(".Description").val();
+                var Qty = $(this).find(".Quantity").val();
+                var UoM = $(this).find(".UoM").val();
+                if (MaterialType == '' || Code == '' || Description == '' || Qty == '' || UoM == '') {
+                    valid = false;
+                    return false;
+                }
+            });
+        });
+        return valid;
+    }
+    function validateDeleteRoute() {
+        var valid = true;
+        $("input:checkbox:checked").each(function () {
+            var idUnit = $(this).attr("rel");
+            var idRoute = $(this).attr("name");
+            var OrderStatus = $("#" + idUnit).find("#" + idRoute).find(".OrderStatus").val();
+            if (OrderStatus == 'Submit') {
+                valid = false;
+                return false;
+            }
+        });
+        return valid;
+    }
+
+    $(document).on("click", "button.btnUpdateStatus", function() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        var idRoute = $(this).parents().eq(7).attr("id");
+        var idUnit = $(this).parents().eq(12).attr("id");
+        var changeStatus = $("#" + idUnit).find("#" + idRoute).find(".OrderStatus").val();
+        var idTO = $("#" + idUnit).find("#" + idRoute).find("input:checkbox").attr("toid");
+        /*console.log("idUnit" + idUnit);
+        console.log("idRoute" + idRoute);
+        console.log("status" + changeStatus);
+        console.log("idTO" + idTO);*/
+        $.ajax({
+            url: '@Url.Action("UpdateOrderStatus", "TransportationOrder")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: { IDTransportOrder: idTO, OrderStatus:changeStatus },
+            success: function (data) {
+                console.log(data);
+                if (data == true) {
+                    dialog.modal('hide');
+                    $("#textModalSucess").html("");
+                    $("#textModalSucess").html("Your data has been successfully saved");
+                    $('#modalsuccess').modal("show");
+                }
+            }
+        });
+    });
+</script>

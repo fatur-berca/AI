@@ -1,0 +1,866 @@
+@{
+    ViewBag.Title = " Master Data > Distance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+        <button id="uploadDistance" class="btn btn-primary" type="button" data-toggle="modal" onclick="
+        $('.jfilestyle').find('input').val('');
+        $('#fileInput').val('');
+    " data-target="#uploadDistanceModal">
+            Upload
+        </button>
+        @*Nicco added*@
+        <a href="#" id="exportLink">
+            <button id="btnExport" class="btn btn-primary">Export</button>
+        </a>
+
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <input type="text" name="" id="FilterFrom" class="form-control datepicker">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Sender</label>
+                        <select id="FilterSenderLocation" class="select2" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Data Type</th>
+            <!--
+            <th style="min-width: 130px">Transportation Mode</th>
+                -->
+            <th>Sender</th>
+            <th>Through</th>
+            <th>Receiver</th>
+            <th>Via</th>
+            <th>Distance</th>
+            <th>Buffer</th>
+            <th>Total</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Data Type</th>
+            <!--
+            <th>Transportation Mode</th>
+                -->
+            <th>Sender</th>
+            <th>Through</th>
+            <th>Receiver</th>
+            <th>Via</th>
+            <th>Distance</th>
+            <th>Buffer</th>
+            <th>Total</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Distance</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>IDDistance</label>
+                                    <input type="text" id="IDDistance" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Data Type</label>
+                                    <select id="DistanceType" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="divTm" hidden>
+                                <div class="form-group">
+                                    <label>Transportation Mode</label>
+                                    <select id="TransportMode" class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sender</label>
+                                    <select id="idSender" class="select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Receiver</label>
+                                    <select id="idReceiver" class="select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6" id="divThrough">
+                                <div class="form-group">
+                                    <label>Through</label>
+                                    <select id="idThrough" class="select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="divVia">
+                                <div class="form-group">
+                                    <label>Via</label>
+                                    <select id="Via" class="select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Distance</label>
+                                    <input type="hidden" id="crBy" />
+                                    <input type="hidden" id="CreatedDate" />
+
+                                    <div class=" input-group">
+                                        <div class="col-md-9" style="padding-right: 0px; padding-left: 0px; padding-bottom: 10px;">
+                                            <input type="number" id="Distance" step="0.01" class="form-control">
+                                        </div>
+                                        <div class="col-md-3" style="padding-left: 5px; padding-top:10px">
+                                            <span class="">KM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="divBuffer">
+                                <div class="form-group">
+                                    <label>Buffer</label>
+                                    <div class="col-md-9" style="padding-right: 0px; padding-left: 0px; padding-bottom: 10px;">
+                                        <input type="number" id="Buffer" class="form-control">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left: 5px; padding-top:10px">
+                                        <span class="">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input type="text" id="StartDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <label class="hidden-sm hidden-xs">&nbsp;</label>
+                                    <label>To</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="hidden-sm hidden-xs">&nbsp;</label>
+                                    <input type="text" id="EndDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-3" hidden>
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="uploadDistanceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadLead">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input type="file" id="fileInput" class="filestyle" accept=".xls, .xlsx">
+                                <a href="#" id="DownloadTemplateSeaRail">Download Template Sea, Rail, KM Based and Box Based</a> <br />
+                                <!--<a href="#" id="DownloadTemplateKmBased">Download Template KM Based</a> <br />-->
+                                <a href="#" id="DownloadTemplateTripBased">Download Template Trip Based</a> <br />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadDistance" class="btn btn-primary">Upload</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="labelsuccess">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="warningMessage">Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalconfirm" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <input hidden id="keyID" value="">
+                <img src="assets/images/danger.png" alt="">
+                <span>Are you sure to delete ?</span>
+            </div>
+            <div class="modal-footer">
+                <button id="delConfirm" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+
+<script>
+    //Nicco Add
+    $("#btnExport").on("click", function () {
+        Export();
+    });
+     function Export() {
+        ez.Modals.BeginLoading();
+        $.ajax({
+            url: "@Url.Action("ExportTO")",
+            method: "POST",
+            success: function (res) {
+                ez.Modals.EndLoading();
+                window.location.assign('@Url.Content("~/Assets/Download/")' + res);
+            },
+            error: function () {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to export data");
+            }
+        });
+    }
+    @*function Export()
+{
+    $.ajax({
+        url: "@Url.Action("ExportTO")",
+        method: "POST",
+        success: function (res) {
+            window.location.assign('@Url.Content("~/Assets/Download/")' + res)
+        },
+        error: function() {
+        }
+    });
+
+
+}*@
+</script>
+
+<script type="text/javascript">
+    ez.Form.AddFieldDef(
+        "id: DistanceType; class: req doe dd; label: Distance Type",
+        "id: TransportMode; class: dd; label: Transportation Mode; json:TransportationMode",
+        "id: idSender; class: req doe dd; label: Sender; json:IDSender",
+        "id: idReceiver; class: req doe dd; label: Receiver; json:IDReceiver",
+        "id: Distance; class: req num; label: Distance; json:Distance",
+        "id: Buffer; class: req num; label: Buffer; json:Buffer",
+        "id: StartDate; class: req; label: Effective Date (Start); json:EffectiveStartDate; dataType: date; displayFormat: DD/MM/YYYY; default: " + moment(new Date()).format("DD/MM/YYYY"),
+        "id: EndDate; class: req; label: Effective Date (End); json:EffectiveEndDate; dataType: date; displayFormat: DD/MM/YYYY; default: 31/12/2999",
+        "id: idThrough; class:doe dd; label: Through; json:Through",
+        "id: Via; class:doe dd; label: Via; json:Via",
+        "id: divThrough; class: container trip",
+        "id: divVia; class: container trip"
+    );
+    ez.Form.debugMode = true;
+    $(document).ready(function () {
+        getUserWarehouse();
+        //ez.Form.RegisterDropDown("FilterSenderLocation", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName", "FieldValue");
+        ez.Form.RegisterDropDown("DistanceType", "@Url.Action("GetDropDownType")", "FieldValue", "FieldValue");
+        ez.Form.RegisterDropDown("idSender", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName", "FieldValue");
+        ez.Form.RegisterDropDown("idReceiver", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName", "FieldValue");
+        ez.Form.RegisterDropDown("idThrough", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName");
+        ez.Form.RegisterDropDown("Via", "@Url.Action("GetDropDownVia")", "FieldValue", "FieldValue");
+        ez.Form.RegisterDropDown("TransportMode", "@Url.Action("GetDropDownTm")", "FieldValue", "FieldValue");
+
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+
+        $('#addNew').click(function () {
+            ez.Form.Enable("doe");
+            ez.Form.Hide("trip");
+
+            ez.Form.RemoveProp("Via", "req");
+            ez.Form.RemoveProp("idThrough", "req");
+
+            $('#InsertOrUpdate').val("INSERT");
+
+            $('#newData')[0].reset();
+            ez.Form.Clear();
+            $("#idSender").val(null).trigger("change");
+            $("#idReceiver").val(null).trigger("change");
+        });
+
+        ez.Form.NumberOnly('Buffer');
+
+
+        //generateTable();
+    });
+
+    $("#Distance").change(function () {
+        this.value = parseFloat(this.value).toFixed(2);
+    });
+
+    $(document).on('click', '#delConfirm', function () {
+        $('#modalconfirm').modal('hide');
+        del();
+    });
+    //generate table
+    function generateTable() {
+        var filterdate = $('#filter').find('input[id="FilterFrom"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        $.ajax({
+            url: '@Url.Action("GetMasterDistance")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "filterDate": filterdate,
+                "filterSenderLocation": $('#FilterSenderLocation').val()
+            },
+            success: function (data) {
+                console.log(data);
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[2, 'asc'], [4, 'asc'], [3, 'asc'], [5, 'asc'], [9, 'desc']],
+                    columns: [
+                       {
+                            "data": "IsActive", 'sortable': false, "class": "text-center", "render": function (data) {
+
+                               if (data == true) {
+
+                                   return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                               } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                           }
+                       },
+                        { 'data': 'DistanceType', 'searchable': true },
+                        //{ 'data': 'TransportationMode', 'searchable': true },
+                        {
+                            'data': 'SenderName', 'searchable': true, "render": function (data, type, row) {
+                                if (row['IDSender'])
+                                    return row['SenderName'];
+                            }
+                        },
+                        {
+                            'data': 'ThroughName', 'searchable': true, "render": function (data, type, row) {
+                                if (row['Through'])
+                                    return row['ThroughName'];
+                                return "";
+                            }
+                        },
+                        {
+                            'data': 'ReceiverName', 'searchable': true, "render": function (data, type, row) {
+                                if (row['IDReceiver'])
+                                    return row['ReceiverName'];
+                            }
+                        },
+                        { 'data': 'Via', 'searchable': true },
+                        { 'data': 'Distance', 'searchable': true },
+                        { 'data': 'Buffer', 'searchable': true },
+                        { 'data': 'Total', 'searchable': true, "render": function (data) { return Math.round(data); } },
+                        {
+                           'data': 'EffectiveStartDate', 'searchable': true, "render": function (data, type, row) {
+                               return moment(row['EffectiveStartDate']).format("DD-MMM-YYYY");
+                           }
+                       },
+                       {
+                           'data': 'EffectiveEndDate', 'searchable': true, "render": function (data, type, row) {
+                               return moment(row['EffectiveEndDate']).format("DD-MMM-YYYY");
+                           }
+                       },
+                       {
+                           'data': 'UpdatedDate', 'searchable': true, "render": function (data, type, row) {
+                               var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                               return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                           }
+                       },
+                       { 'data': 'UpdatedDate', 'class': 'hidden' },
+                            {
+                                "data": "IDDistance", 'sortable': false, "render": function (data) {
+                                    return '<div align="center"><a href="#" id="editForm" onclick="return editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a>' + '<a href="#" style="margin-left:5px" onclick="confirm(' + data + ');" title="Delete"><i data-toggle="modal" class="fa fa-trash"></i></a></div>';
+                                }
+                            }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 11)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function confirm(ID) {
+        $('#modalconfirm').modal('show');
+        $('#keyID').val(ID);
+    }
+
+    $("#DistanceType").change(function () {
+        var valType = $("#DistanceType").val();
+        if (valType == "Sea" || valType == "Rail" || valType == "KM Based" || valType == "Box Based") {
+            ez.Form.Hide("trip");
+
+            ez.Form.RemoveProp("Via", "req");
+            ez.Form.RemoveProp("idThrough", "req");
+        }
+        if (valType == "Trip Based") {
+            ez.Form.Show("trip");
+            ez.Form.RefreshDropDown("Via");
+            ez.Form.RefreshDropDown("idThrough");
+
+            //ez.Form.AddProp("Via", "req");
+            //ez.Form.AddProp("idThrough", "req");
+            console.log(ez.Form._fields);
+        }
+    });
+
+    function getUserWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetUserWarehouse")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (response) {
+                $('#idSender,#idReceiver,#idThrough,#FilterSenderLocation').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="">&nbsp;</option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                });
+                $('#idSender,#idReceiver,#idThrough,#FilterSenderLocation').html(options).select2();
+
+                $('#FilterSenderLocation').select2('val', data[0].IDLocation);
+                generateTable();
+            },
+            error: function () {
+                $('#idSender,#idReceiver,#idThrough,#FilterSenderLocation').select2("destroy");
+                $('#idSender,#idReceiver,#idThrough,#FilterSenderLocation').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        edit(false);
+        $('#setinactive').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        if ($('#InsertOrUpdate').val() == "UPDATE") {
+            if (Validate())
+                $('#setinactive').modal('show');
+        } else {
+            edit(true);
+            $('#setinactive').modal('hide');
+        }
+    });
+
+    $("#EndDate").blur(function () {
+        if ($("#EndDate").val() === "") {
+            $("#EndDate").val("31/12/2999");
+        }
+    });
+
+    function Validate() {
+        if (ez.Form.Validate()) {
+            return true;
+        }
+        $("#textModalError").html("");
+        $("#textModalError").append(ez.Form.error);
+        $('#modalerror').modal('show');
+        return false;
+    }
+
+    //update edited data
+    function edit(statusSave) {
+        //$('#Loading').modal('show');
+        var id = $('#IDDistance').val();
+        var pulled = ez.Form.GetData();
+        if (Validate()) {
+            // fill hidden data
+            pulled['CreatedBy'] = $("#crBy").val() || "Me";
+            pulled['CreatedDate'] = $("#CreatedDate").val();
+            pulled['IsActive'] = true;
+            pulled['TransportationMode'] = "-";
+            pulled['Via'] = $("#Via").val();
+            pulled['Through'] = $("#idThrough").val();
+            if (!statusSave)
+                pulled['IDDistance'] = id;
+            pulled["Distance"] = ez_trunc((Number(pulled["Distance"]) || Number(pulled["Distance"].replace(",", "."))) * 100);
+            var data =  {
+                "new": statusSave ? [pulled] : [{}],
+                "edit": !statusSave ? [pulled] : [{}]
+            }
+            console.log("Data: ", data);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("InsertDistance")',
+                data: data,
+                success: function (result) {
+                    if (result.IsSuccess) {
+                        generateTable();
+                        $('#labelsuccess').html('Your data has been successfully saved');
+                        $('#modalsuccess').modal('show');
+                        $('#inputModal').modal('hide');
+                        $('#addnew').modal('hide');
+                    }
+                    else {
+                        $("#textModalError").html('<strong style="font- size:larger">Failed to save data!</strong><br/>' + result.ErrorMessage);
+                        $('#modalerror').modal('show');
+                    }
+                },
+                error: function (msg) {
+                    $("#textModalError").html("Failed to save data.");
+                    $('#modalerror').modal('show');
+                }
+            });
+        }
+    }
+
+    function del(id) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete")',
+            data: { keyID: $("#keyID").val() },
+            success: function (result) {
+                if (result.IsSuccess == false) {
+                    $("#textModalError").html("Failed to delete data!");
+                    $('#modalerror').modal('show');
+                }
+                else
+                {
+                    $('#labelsuccess').html('Your data has been successfully deleted');
+                    $('#modalsuccess').modal('show');
+                }
+                generateTable();
+            }
+        });
+    }
+
+    ez.debugMode = true;
+    function editTable(id) {
+        ez.Form.Disable("doe");
+        $('#InsertOrUpdate').val("UPDATE");
+        $.ajax({
+            url: 'MstDistance/GetDataById',
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            cache: false,
+            data: { "IDDistance": id },
+            success: function (json) {
+                json.Buffer = json.Buffer == 0 ? "0" : json.Buffer;
+                ez.Form.SetData(json);
+                $("#StartDate").val(moment(json.EffectiveStartDate).format("DD/MM/YYYY")).trigger("change");
+                $("#EndDate").val(moment(json.EffectiveEndDate).format("DD/MM/YYYY")).trigger("change");
+                $("#IDDistance").val(json.IDDistance);
+                $("#CreatedDate").val(dateParse(json.CreatedDate, "DD MMM YYYY"));
+                $('#addnew').modal('show');
+            }
+        });
+    }
+    $("#DownloadTemplateSeaRail").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/MasterDistanceSeaRail.xlsx");
+        dialog.modal('hide');
+    });
+    $("#DownloadTemplateKmBased").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/MasterDistanceTripBased.xlsx");
+        dialog.modal('hide');
+    });
+    $("#DownloadTemplateTripBased").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/MasterDistanceTripBased.xlsx");
+        dialog.modal('hide');
+    });
+
+    $("#fileInput").on("change", function () {
+        $("#btnUploadDistance").prop("disabled", false);
+    });
+    $("#uploadDistance").click(function () {
+        $("#btnUploadDistance").prop("disabled", true);
+        $("#fileInput").jfilestyle('clear');
+    });
+    $("#btnUploadDistance").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $("#btnUpload").prop("disabled", true);
+        if ($("#fileInput").val() == '' || $("#fileInput").val() == null) {
+            dialog.modal('hide');
+            $('#textModalError').html("Please select File First !");
+            $('#modalerror').modal('show');
+        } else {
+            if (window.FormData !== undefined) {
+
+                var fileData = new FormData();
+                var fileUpload = document.getElementById('fileInput').files;
+                if (fileUpload.length > 0) {
+                    fileUpload = fileUpload[0];
+                    fileData.append('FileUpload', fileUpload);
+                } else {
+                    $('#textModalWarning').html('No file to be uploaded');
+                    $('#warningModal').modal('show');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("UploadDistance")',
+                    dataType: 'JSON',
+                    data: fileData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        console.log(res);
+                        if (res.IsSuccess) {
+                            $("#Upload").val('');
+                            dialog.modal('hide');
+                            $("#uploadDistanceModal").modal("hide");
+                            $('#labelsuccess').html('Your data has been successfully uploaded');
+                            $("#modalsuccess").modal("show");
+                            generateTable();
+                        }
+                        else
+                        {
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/cancel.png" style="max-height: 50px; max-width:50px" alt="" /><strong style="font-size: x-large"> Failed!</strong><br />' + res.ErrorMessage);
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            dialog.modal('hide');
+                        }
+                        $("#btnUploadDistance").prop("disabled", true);
+                        $("#fileInput").jfilestyle('clear');
+                    },
+                    error: function () {
+                        $('#notificationModal').modal('show');
+                        $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Failed!</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        dialog.modal('hide');
+                        $("#btnUpload").prop("disabled", false);
+                    }
+                });
+
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    });
+    $("#fileInput").on("change", function (e) {
+        $("#btnUpload").prop("disabled", false);
+    });
+    $(".search-filter").on("click", function (e) {
+        generateTable();
+        e.preventDefault();
+    });
+    $(".reset-search-filter").on("click", function (e) {
+        //$("form#filter")[0].reset();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+        e.preventDefault();
+    });
+
+
+
+
+</script>
+
+

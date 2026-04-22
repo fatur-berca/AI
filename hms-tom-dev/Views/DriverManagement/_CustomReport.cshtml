@@ -1,0 +1,390 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<!-- Custom Report Modal Dialog -->
+<div class="modal fade" id="customReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div class="ui-draggable" data-field="ID">ID</div>
+                        <div class="ui-draggable" data-field="Name">Driver Name</div>
+                        <div class="ui-draggable" data-field="IDVendor">Vendor Name</div>
+                        <div class="ui-draggable" data-field="DrivingLicensePeriod">DRIVING LICENSE VALIDITY PERIOD</div>
+                        <div class="ui-draggable" data-field="RoleDriver">Role Driver</div>
+                        <div class="ui-draggable" data-field="IsActive">Is Active</div>
+                        <div class="ui-draggable" data-field="CreatedBy">Created By</div>
+                        <div class="ui-draggable" data-field="CreatedDate">Created Date</div>
+                        <div class="ui-draggable" data-field="UpdatedBy">Updated By</div>
+                        <div class="ui-draggable" data-field="UpdatedDate">Updated Date</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="saveLayoutButton" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+                {
+                    <button class="btn btn-primary" id="exportCustomReport">Export</button>
+                }               
+                    <button class="btn btn-purple" data-dismiss="modal">Close</button>                
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+
+<script type="text/javascript">
+    $("#fieldChooser .ui-draggable").prop("draggable", true);
+    $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+    $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+    $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#sourceFields,#destinationFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+    $("#destinationFields, #sourceFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#destinationFields, #sourceFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#saveLayoutButton', function (e) {
+            saveLayout();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#left', function (e) {
+            moveItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#right', function (e) {
+            moveItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftall', function (e) {
+            moveAllItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightall', function (e) {
+            moveAllItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#customReportButton', function (e) {
+            $("#layoutName").val('');
+            $('#chkGlobalCustomReport').prop('checked', false);
+            generateLayoutSelect();
+            moveAllItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $('#layoutSelect').on('change', function () {
+            for (var j = 1; j < layoutIsGlobal.length; j++) {
+                if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                    $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                }
+            }
+            var sourceFieldNames = [
+                    { 'field': 'ID', 'label': 'RECIDENCE ID NUMBER (KTP)' },
+                    { 'field': 'Name', 'label': 'Driver Name' },
+                    { 'field': 'DateOfBirth', 'label': 'Birth Date' },
+                    { 'field': 'Gender', 'label': 'Gender' },
+                    { 'field': 'Address', 'label': 'Address' },
+                    { 'field': 'MobilePhone', 'label': 'Mobile Phone' },
+                    { 'field': 'IDVendor', 'label': 'Vendor Name' },
+                    { 'field': 'JoinDate', 'label': 'Join Date' },
+                    { 'field': 'DrivingLicenseNumber', 'label': 'DRIVING LICENSE NUMBER (SIM)' },
+                    { 'field': 'DrivingLicensePeriod', 'label': 'DRIVING LICENSE VALIDITY PERIOD' },
+                    { 'field': 'BaseTown', 'label': 'BaseTown' },
+                    { 'field': 'PerformanceLevel', 'label': 'Performance Level' },
+                    { 'field': 'AttachmentKTP', 'label': 'Attachment KTP' },
+                    { 'field': 'AttachmentSIM', 'label': 'Attachment SIM' },
+                    { 'field': 'AttachmentFoto', 'label': 'Attachment Foto' },
+                    { 'field': 'BPJSKetenagaKerjaan', 'label': 'BPJS KetenagaKerjaan' },
+                    { 'field': 'BPJSKesehatan', 'label': 'BPJS Kesehatan' },
+                    { 'field': 'DrugFreeTest', 'label': 'Drug Free Test' },
+                    { 'field': 'FatiqueTest', 'label': 'Fatique Test' },
+                    { 'field': 'InductionTest', 'label': 'Induction Test' },
+                    { 'field': 'DefensiveDrivingTest', 'label': 'Defensive Driving Test' },
+                    { 'field': 'RoleDriver', 'label': 'Role Driver' },
+                    { 'field': 'DriverContractValidityPeriod', 'label': 'Driver Contract Validity Period' },
+                    { 'field': 'IsActive', 'label': 'Is Active' },
+                    { 'field': 'CreatedBy', 'label': 'Created By' },
+                    { 'field': 'CreatedDate', 'label': 'Created Date' },
+                    { 'field': 'UpdatedBy', 'label': 'Updated By' },
+                    { 'field': 'UpdatedDate', 'label': 'Updated Date' },
+                    { 'field': 'Remarks', 'label': 'Remarks' }
+                ],
+                sourceFields = '',
+                destinationFieldNames = this.value != "" ? this.value.split(',') : "",
+                destinationFields = '',
+                destinationfieldLabels = [];
+
+            for (i = 0; i < sourceFieldNames.length; ++i) {
+                if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                    // the element is not in the array
+                    sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                }
+            }
+            $("#fieldChooser #sourceFields").html(sourceFields);
+
+            for (i = 0; i < destinationFieldNames.length; ++i) {
+                destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+            }
+            $("#fieldChooser #destinationFields").html(destinationFields);
+        });
+
+        $(document).on('click', '#exportCustomReport', function (e) {
+            exportCustomToExcel();
+            e.preventDefault();
+        });
+    });
+
+    var layoutIsGlobal = [];
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function generateLayoutSelect() {
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TransportDriverManagement" },
+            success: function (response) {
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = "<option value='";
+
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            thenLayout = response[i].LayoutName;
+                            ++k;
+                            layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    $("#layoutSelect").html(options);
+                } else {
+                    options = options + "'<option></option>";
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    function saveLayout() {
+        var nonvalid = false;
+
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutName").val(),
+                isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+            $('#destinationFields .fc-field').each(function () {
+                fieldNames = fieldNames + $(this).data('field') + ',';
+            });
+            fieldNames = fieldNames.slice(0, -1);
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            jQuery.ajax({
+                url: '@Url.Action("InsertRecords", "CustomReportState")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TransportDriverManagement", "isGlobal": isGlobal },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobal) {
+                            SaveChangesButton(dialog);
+                        } else {
+                            alertCrSaveSuccess();
+                            dialog.modal('hide');
+                            $("#chkGlobalCustomReport").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        alertCrPleaseFill();
+                    }
+
+                    if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                        $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '',
+            isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TransportDriverManagement", "isGlobal": isGlobal },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    function exportCustomToExcel() {
+        var id = $("#IDCardNumberOrDrivingLicenseNumber").val(),
+            idvendor = jQuery("#IDVendor").val() == null ? null : jQuery("#IDVendor").val().toString(),
+            name = $("#Name").val(),
+            roleDriver = $("#RoleDriver").val(),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+        var isExportOrSearch;
+        if (myParam == "firstload") {
+            isExportOrSearch = false;
+        } else if (myParam == "advSearch") {
+            isExportOrSearch = true
+        }
+
+        var columns = "",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "Columns": columns,
+                "VendorID": idvendor,
+                "Name": name,
+                "RoleDriver": roleDriver,
+                "IncludeInActive": includeInActive,
+                "IsExportOrSearch": isExportOrSearch
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+</script>

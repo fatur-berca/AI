@@ -1,0 +1,392 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6D91578B-A117-4CD7-9886-D3163E926CFF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.EntitiesDAL</RootNamespace>
+    <AssemblyName>TOM.EntitiesDAL</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="EDMX\TOMContextDB.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TOMContextDB.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="EDMX\TOMContextDB.edmx.diagram">
+      <DependentUpon>TOMContextDB.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EDMX\CheckSNTruckSeal_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\CustomReportState.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\FnTransportationSummaryCRate_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\FnTransportationSummary_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\FN_TRANSPORT_EXECUTION_LIST_ADD_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\GeneralBuildingFacility.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\GPDetail.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\GPDetail_temp.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\GPHeader.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\GPHeader_temp.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\HRD_EMP_V2.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\KPILoadFactorAvg_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\LoadingUnloadingExportView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterConfiguration.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterConfigurationEmail.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterCost.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterCostCenter.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterCostLatestEffectiveDateDataView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterDistance.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterFABrand.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterFunction.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterGenWeek.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterIMDLRole.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterIMDLRoleLocation.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterKilometer.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterLeadTime.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterList.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterLoadFactorCFP.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterLocation.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterMapping.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterMappingLocation.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterRole.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterRoleFunctionTreeListView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterRolesFunctionMapping.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterServicePo.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterTransportRegion.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterTruckSealStock.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUom.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUser.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUserLocationMapping.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUserLocationMapTreeListView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUserRoleDelegation.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUserRoleDelegationView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterUserRoleMapping.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterVendor.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\MasterVendorSuggestion.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\NotificationSystem.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\SchemaVersion.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\SP_GetTransportOrderRequest_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagramdefinition1_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagramdefinition2_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagramdefinition3_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagramdefinition_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagrams1_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagrams2_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagrams3_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\sp_helpdiagrams_Result.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TOMContextDB.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TOMContextDB.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TOMContextDB.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TOMContextDB.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TOMContextDB.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransactionLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportDriverManagement.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportExecution.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportExecutionStatusLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportExecutionTemp.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportLostClaimDamage.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportLostClaimFACode.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportLostClaimUploadBox.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportMonitoringTruckTrainList.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportMonitoringView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrder.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderChangeLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderDetail.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderDetailChangeLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderRequest.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderRequestHeader.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportOrderRequestSummary.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportPickingListLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportPickingListView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportPositionDetail.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportRoute.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportSeal.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportSummaryReclassView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportTicketNCR.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportTruckArrival.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportVehicleData.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportVendorChangeLog.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TransportVesselMonitoring.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TruckArrivalHistory.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\TruckArrivalTemp.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\UserLocationDelegation.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EDMX\UserRolesSecurityView.cs">
+      <DependentUpon>TOMContextDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ITOMGenericRepository.cs" />
+    <Compile Include="TOMGenericRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EDMX\TOMContextDB.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TOMContextDB.edmx</DependentUpon>
+      <LastGenOutput>TOMContextDB.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="EDMX\TOMContextDB.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TOMContextDB.edmx</DependentUpon>
+      <LastGenOutput>TOMContextDB.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Contracts\DFIS.Contracts.csproj">
+      <Project>{139B1B79-3500-4750-97CB-012E6C24FF19}</Project>
+      <Name>DFIS.Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

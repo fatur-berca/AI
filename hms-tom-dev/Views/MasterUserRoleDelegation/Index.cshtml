@@ -1,0 +1,711 @@
+﻿@using System.Web.Mvc.Html
+@{
+    ViewBag.Title = " Master Data > User Role Delegation";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Delegate From</th>
+            <th>Delegate To</th>
+            <th>Delegate Role</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Delegate From</th>
+            <th>Delegate To</th>
+            <th>Delegate Role</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- BEGIN : MODAL INSERTORUPDATE -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Role Delegation</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input hidden id="keyID" value="">
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>IDUserDelegation</label>
+                                    <input type="text" id="IDUserDelegation" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Delegate From</label>
+                                    <select class="select2" id="delegatefrom" onchange="generateDelegateRole(); generateDelegateLocation();"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Delegate To</label>
+                                    <select class="select2" id="delegateto"></select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Delegate Role</label>
+                                    <select class="select2" id="delegaterole"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Delegate Location</label>
+                                    <select class="select2" id="delegatelocation" multiple="multiple"></select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input id="EffectiveDate" type="text" class="form-control datepicker" style="padding-left: 30px; background-image: url('assets/images/date.png'); background-repeat: no-repeat; background-position: center left 10px;">
+                                </div>
+                            </div>
+                            <div class="col-lg-1">
+                                <label>&nbsp;</label>
+                                <div style="padding-top: 10px">TO</div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label></label>
+                                    <input id="ExpiredDate" type="text" class="form-control datepicker" style="padding-left: 30px; background-image: url('assets/images/date.png'); background-repeat: no-repeat; background-position: center left 10px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalconfirm" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <input hidden id="keyID" value="">
+                <img src="assets/images/danger.png" alt="">
+                <span>Are you sure to delete ?</span>
+                <div>Please enter the reason of deletion:</div>
+                <div>
+                    <textarea class="form-control" maxlength="500" id="delReason"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="delConfirm" type="button" class="btn btn-primary"> Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">Are you sure want to Edit Data?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError">Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- END : MODAL INSERTORUPDATE-->
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+    // page   : MasterUserRoleDelegation
+    // author : Hakim
+    // ticket : http://tp.voxteneo.co.id/entity/125131
+    // date   : 2018-08-03
+
+    ez.Form.AddFieldDef(
+        "id: delegatefrom; class: req doe; label: Delegate From",
+        "id: delegateto; class: req doe; label: Delegate To",
+        "id: delegaterole; class: req doe; label: Delegate Role",
+        "id: delegatelocation; class: req doe; label: Location",
+        "id: EffectiveDate; class: req doe; label: Effective Date (Start); dataType: date; displayFormat: DD/MM/YYYY; default: " + moment(new Date()).format("DD/MM/YYYY"),
+        "id: ExpiredDate; class: req doe; label: Effective Date (End); dataType: date; displayFormat: DD/MM/YYYY; default: " + moment(new Date()).format("DD/MM/YYYY")
+    );
+
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+        });
+        // END : GENERAL Logic
+        generateDelegateTo();
+        generateTable();
+
+        $("#ExpiredDate").on("change", function () {
+            var val = $("#ExpiredDate").val();
+            if (val === "")
+                $("#ExpiredDate").val("31/12/2999");
+        });
+    });
+    var dialogloading = "";
+
+    //global variable
+    function resetData() {
+        ez.Form.Enable("doe");
+        $('#newData')[0].reset();
+        $('#delegatefrom').select2('val', "");
+        $('#delegateto').select2('val', "");
+        $('#delegaterole').select2('val', "");
+        $('#delegatelocation').select2('val', "");
+        ez.Form.Clear();
+    }
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+
+    function generateDelegateTo(selectedData1, selectedData2) {
+        /*
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        */
+        console.log("Delegate User Start");
+        //get a reference to the select element
+        $select = $('#delegatefrom');
+        $select2 = $('#delegateto');
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MasterUserRoleDelegation/GetDelegateTo',
+            method: 'get',
+            dataType: 'JSON',
+            success: function (data) {
+                console.log("Delegate User", data);
+
+                //clear the current content of the select
+                $select.html('');
+                $select2.html('');
+                //iterate over the data and append a select option
+                $select.html('<option value="ez:null"></option>').trigger('change');
+                $select2.html('<option value="ez:null"></option>').trigger('change');
+
+                $.each(data, function (key, val) {
+                    $select.append('<option value="' + val.IDUser + '">' + val.IDUser + ' - ' + val.FullName + '</option>');
+                    $select2.append('<option value="' + val.IDUser + '">' + val.IDUser + ' - ' + val.FullName + '</option>');
+                });
+                $select.select2('val', selectedData1);
+                $select2.select2('val', selectedData2);
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select.html('<option value="ez:null">none available</option>');
+                $select2.html('<option value="ez:null">none available</option>');
+            }
+        });
+    }
+
+    function generateDelegateRole(selectedData) {
+        console.log("Delegate Role Start");
+        //get a reference to the select element
+        $select1 = $('#delegaterole');
+        var selecteduser = $('#delegatefrom :selected').val();
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MasterUserRoleDelegation/GetDelegateRole',
+            method: 'get',
+            dataType: 'JSON',
+            data: { "IDUser": selecteduser },
+            success: function (data1) {
+                console.log("Delegate Role", data1);
+                //clear the current content of the select
+                $select1.html('');
+                //iterate over the data and append a select option
+                $select1.html('<option value="ez:null"></option>').trigger('change');
+
+                $.each(data1, function (key, val) {
+                    $select1.append('<option value="' + val.IDRole + '">' + val.RoleName + '</option>');
+                });
+                $select1.select2('val', selectedData);
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select1.html('<option value="ez:null">none available</option>');
+            }
+        });
+    }
+
+    var generateDelegateLocation = function () {
+        //dialogloading = bootbox.dialog({
+        //    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+        //    closeButton: false
+        //});
+        console.log("Delegate Location Start");
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetDelegateLocation")',
+            data: { "Type": "Warehouse", "IdUser" :  $('#delegatefrom :selected').val() },
+            success: function (result) {
+                console.log("Delegate Location", result);
+                var options = '<option value="ez:null"></option>';
+                if (result.length) {
+                    for (i = 0; i < result.length; i++) {
+                        options = options + '<option value="' + result[i].IDLocation + '">' + result[i].IDLocation + ' - ' + result[i].LocationName + '</option>';
+                    }
+                }
+                $('#delegatelocation').html(options);
+            }
+        });
+    };
+
+    var generateEditDelegateLocation = function () {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetUserLocationById", "MasterUserRoleDelegation")',
+            data: { "IDUserDelegation": $('#IDUserDelegation').val() },
+            success: function (result) {
+
+                var options = '<option value="-"></option>';
+                if (result.length) {
+                    for (i = 0; i < result.length; i++) {
+
+                        options = options + '<option value="' + result[i].MasterLocation.IDLocation + '" selected>' + result[i].MasterLocation.IDLocation + ' - ' + result[i].MasterLocation.LocationName + '</option>';
+                    }
+                }
+                $("#delegatelocation").select2('destroy');
+                $('#delegatelocation').html(options);
+                $("#delegatelocation").select2();
+            }
+        });
+    };
+
+    //generate table
+    function generateTable() {
+        console.log("Generate Table Start");
+        $.ajax({
+            url: 'MasterUserRoleDelegation/GetData',
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                console.log("Generate Table", json);
+                var table = $('#dtFilterMaster').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [],
+                    'searching': true,
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "sortable": false, "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            "data": "IDUserFrom", "render": function (data, type, row) {
+                                return row["IDUserFrom"]+" - "+row["UserFromName"];
+                            }
+                        },
+                        {
+                            "data": "IDUserTo", "render": function (data, type, row) {
+                                return row["IDUserTo"] + " - " + row["UserToName"];
+                            }
+                        },
+                        { 'data': 'RoleName', 'searchable': true },
+                        {
+                            render: function (data, type, row) {
+                                var date = new Date(parseInt(row['EffectiveStartDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                      ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                      date.getMinutes();
+                                var jamtanggal = moment(row['EffectiveStartDate']).format("DD-MMM-YYYY");
+                                return '<label hidden>' + row['EffectiveStartDate'] + '</label>' + jamtanggal;
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var date = new Date(parseInt(row['EffectiveEndDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                      ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                      date.getMinutes();
+                                var jamtanggal = moment(row['EffectiveEndDate']).format("DD-MMM-YYYY");
+                                return '<label hidden>' + row['EffectiveEndDate'] + '</label>' + jamtanggal;
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                      ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                      date.getMinutes();
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": null, "class": "text-center", "sortable": false, "render": function (data) {
+                                console.log(data);
+                                var id = data["IDUserDelegation"];
+                                var dateStart = new Date(parseInt(data['EffectiveStartDate'].substr(6)));
+                                var dateEnd   = new Date(parseInt(data['EffectiveEndDate'].substr(6)) + (3600 * 24 * 1000));
+                                var dateNow = new Date();
+
+                                var onclick = 'onclick="return editTable(' + id + ')"';
+                                if (dateNow > dateEnd) onclick = 'onclick="editTable(' + id + ', true)"';
+                                if (dateNow < dateStart) onclick = 'onclick="editTable(' + id + ', false)"';
+                                if (dateNow <= dateEnd && dateNow >= dateStart)
+                                    onclick = 'onclick="editTable(' + id + ', false)"';
+                                var color = dateNow > dateEnd ? "color: gray" : '';
+
+                                return '<div ><a href="javascript:void(0)" id="editForm" ' + onclick + '><i data-toggle="modal" class="fa fa-pencil-square-o" style="' + color + '" ></i></a>'
+                                    + (dateNow < dateStart ? '<a href="javascript:void(0)" style="margin-left:5px" onclick="confirm(' + id + ');" title="Delete"><i data-toggle="modal" class="fa fa-trash"></i></a></div>' : '');
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 6)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+
+        });
+
+    }
+    // END : JQUERY SELECT TO DataTable
+
+
+    function confirm(ID) {
+        $('#modalconfirm').modal('show');
+        $('#keyID').val(ID);
+        $('#delReason').val(null);
+    }
+
+    $(document).on('click', '#delConfirm', function () {
+        if ($('#delReason').val() == "" ||
+            $('#delReason').val() == null) {
+            $("#textModalError").html("Please enter a reason for deletion!");
+            $('#modalerror').modal('show');
+            return;
+        }
+        else {
+            $('#modalconfirm').modal('hide');
+            del();
+        }
+    });
+
+    function del(id) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete")',
+            data: { keyID: $("#keyID").val() },
+            success: function (result) {
+                if (result.IsSuccess == false) {
+                    $("#textModalError").html("Failed to delete data!");
+                    $('#modalerror').modal('show');
+                }
+                else
+                {
+                    $('#labelsuccess').html('Your data has been successfully deleted');
+                    $('#modalsuccess').modal('show');
+                }
+                generateTable();
+                $('#modalconfirm').modal('hide');
+            },
+            error: function () {
+                $("#textModalError").html("Failed to delete data!");
+                $('#modalerror').modal('show');
+            }
+        });
+    }
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save();
+        $('#setinactive').modal('hide');
+        $('#inputModal').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        if (!Validate()) return;
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+
+    function Validate() {
+        if (ez.Form.Validate()) {
+            return true;
+        }
+        $("#textModalError").html(ez.Form.error);
+        $('#modalerror').modal('show');
+        return false;
+    }
+
+    function save() {
+        var p1 = $('#EffectiveDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            p2 = $('#ExpiredDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            p3 = $('#delegateto :selected').val(),
+            p4 = $('#delegaterole :selected').val(),
+            p5 = $('#delegatelocation').val().toString(),
+            p6 = true,// $('#Status :selected').val() == 1 ? true : false,
+        p7 = $('#delegatefrom :selected').val(),
+        p8 = $('#IDUserDelegation').val(),
+        nonvalid = false;
+        var data = {
+            "EffectiveStartDate": p1,
+            "EffectiveEndDate": p2,
+            "IDUserTo": p3,
+            "DelegationIDRole": p4,
+            "DelegationIDLocation": p5,
+            "IsActive": p6,
+            "IDUserFrom": p7,
+            "IDUserDelegation": p8
+        }
+
+        var startdate = moment(p1);
+        var enddate = moment(p2);
+        var now = moment();
+        console.log(p8);
+
+        if (enddate < startdate) {//ktp
+            $('#ExpiredDate').css('border-color', 'orange');
+            nonvalid = true;
+        }
+        else {
+            $('#ExpiredDate').css('border-color', '#ccc');
+            nonvalid = false;
+        }
+
+        if (nonvalid === true) {
+            alertDate();
+            return false;
+        } else {
+            $('#Loading').modal('show');
+            $.ajax({
+                type: 'POST',
+                url: 'MasterUserRoleDelegation/InputData',
+                data: data,
+                success: function (data) {
+                    if (data.IsSuccess) {
+                        generateTable();
+                        $('#Loading').modal('hide');
+                        $('#labelsuccess').html('Data saved successfully');
+                        $('#modalsuccess').modal('show');
+                        $('#inputModal').modal('hide');
+                        $('#addnew').modal('hide');
+                    }
+                    else {
+                        $("#textModalError").html('<strong style="font- size:larger">Failed to save data!</strong><br/>' + data.ErrorMessage);
+                        $('#modalerror').modal('show');
+                        $('#Loading').modal('hide');
+                    }
+                }
+            });
+        }
+    }
+    // END : Insert New Data
+
+    function editTable(id, cannotSave) {
+        //resetData();
+        $('#btnSaveNew').prop('disabled', cannotSave === true);
+        $('#InsertOrUpdate').val("UPDATE");
+        var currentDate = new Date();
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDUserDelegation').val(data["IDUserDelegation"]);
+
+            var startdate = moment(data["EffectiveStartDate"]);
+            var enddate = moment(data["EffectiveEndDate"]).add(1,'days');
+            var now = moment();
+            if (now < startdate) {
+                // if start & end <= now : disable
+                $('#ExpiredDate').prop('disabled', false);
+                $('#Status').prop('disabled', false);
+                $('#EffectiveDate').prop('disabled', false);
+                $('#delegatefrom').prop('disabled', false);
+                $('#delegateto').prop('disabled', false);
+                $('#delegaterole').prop('disabled', false);
+                $('#delegatelocation').prop('disabled', false);
+            } else if (startdate <= now && enddate >= now) {
+                // if start <= now & end <= now $('#EffectiveDate').prop('disabled', true);
+                $('#ExpiredDate').prop('disabled', false);
+                $('#Status').prop('disabled', false);
+                $('#EffectiveDate').prop('disabled', true);
+                $('#delegatefrom').prop('disabled', true);
+                $('#delegateto').prop('disabled', true);
+                $('#delegaterole').prop('disabled', true);
+                $('#delegatelocation').prop('disabled', true);
+            }
+
+            if (cannotSave === true)
+            {
+                $('#ExpiredDate').prop('disabled', true);
+                $('#Status').prop('disabled', true);
+                $('#EffectiveDate').prop('disabled', true);
+                $('#delegatefrom').prop('disabled', true);
+                $('#delegateto').prop('disabled', true);
+                $('#delegaterole').prop('disabled', true);
+                $('#delegatelocation').prop('disabled', true);
+            }
+
+            $('#ExpiredDate').val(moment(Number(data["EffectiveEndDate"].match(/\d+/)[0])).format('DD/MM/YYYY'));
+
+
+            $('#EffectiveDate').val(moment(Number(data["EffectiveStartDate"].match(/\d+/)[0])).format('DD/MM/YYYY'));
+            $('#delegatefrom').select2('val', data["IDUserFrom"]);
+            $('#delegateto').select2('val', data["IDUserTo"]);
+            generateDelegateRole(data["DelegationIDRole"]);
+            generateEditDelegateLocation();
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+        });
+
+        $('#inputModal').modal('show');
+    }
+    // END : Edit Data
+</script>

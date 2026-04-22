@@ -1,0 +1,354 @@
+﻿@{
+    ViewBag.Title = "KPI Carbon Footprint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="col-panel">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Total Kg CO2</label>
+                    <h4 class="sub-text" id="TotalKgCO2"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Total FG Delivery</label>
+                    <h4 class="sub-text" id="TotalFGDelivery"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Total Kg CO2 / mio sticks</label>
+                    <h4 class="sub-text" id="TotalKgCO2PerMioSticks"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" id="exportDefaultButton">Export</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <form id="filter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>GP Date</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepickerFromHaveFuture" id="DateFrom">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepickerToHaveFuture" id="DateTo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Dept/Regional</label>
+                        <select class="select2" multiple="multiple" id="Regions"></select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Vehicle Type</label>
+                        <select class="select2" multiple="multiple" id="VehicleTypes"></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>GP Number</th>
+            <th>GP Date</th>
+            <th>GP Week</th>
+            <th>GP Month</th>
+            <th>Year</th>
+            <th>Region</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>KM</th>
+            <th>Transport</th>
+            <th>Stick (Delivery)</th>
+            <th>Liter (Mode Land) / TKM (Tonne KM) (Sea / Train)</th>
+            <th>KGCO2</th>
+            <th>Delivery Qty / Mio Stick</th>
+            <th>Total KG CO2 / Mio Stick</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>GP Number</th>
+            <th>GP Date</th>
+            <th>GP Week</th>
+            <th>GP Month</th>
+            <th>Year</th>
+            <th>Region</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>KM</th>
+            <th>Transport</th>
+            <th>Stick (Delivery)</th>
+            <th>Liter (Mode Land) / TKM (Tonne KM) (Sea / Train)</th>
+            <th>KGCO2</th>
+            <th>Delivery Qty / Mio Stick</th>
+            <th>Total KG CO2 / Mio Stick</th>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script type="text/javascript">
+    var dateFrom = moment(new Date()).add(-30, 'days').format('DD/MM/YYYY');
+    var dateTo = moment(new Date()).format('DD/MM/YYYY');
+    jQuery(function ($) {
+        jQuery("#DateFrom").val(dateFrom);
+        jQuery("#DateTo").val(dateTo);
+        generateTable();
+
+        generateDropdownVehicleType();
+
+        generateDropdownRegion();
+
+        $(document).on('click', '.search-filter', function (e) {
+            generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '.reset-search-filter', function (e) {
+            $('form#filter')[0].reset();
+            $("form#filter select.select2").select2("val", "");
+            generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#exportDefaultButton', function (e) {
+            exportToExcel("default");
+            e.preventDefault();
+        });
+    });
+
+    function generateDropdownVehicleType() {
+        jQuery.ajax({
+            type: 'POST',
+            cache: false,
+            data: {
+                FieldName: "vehicletype"
+            },
+            url: '@Url.Action("GetMasterList")',
+            success: function (response) {
+                jQuery('#VehicleTypes').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+                jQuery('#VehicleTypes').html(options).select2();
+            },
+            error: function () {
+                jQuery('#VehicleTypes').select2("destroy");
+                jQuery('#VehicleTypes').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function generateDropdownRegion() {
+        return jQuery.ajax({
+            type: 'POST',
+            cache: false,
+            url: '@Url.Action("GetRegions")',
+            success: function (response) {
+                jQuery('#Regions').select2("destroy");
+                
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '',
+                    transReg = '',
+                    GPNumbers = {};
+
+                jQuery.each(data, function (key, val) {
+                    if (GPNumbers[val.TransportRegion] == null) {
+                        GPNumbers[val.TransportRegion] = val.GPNumber;
+                    } else {
+                        GPNumbers[val.TransportRegion] += ',' + val.GPNumber;
+                    }
+                });
+
+                jQuery.each(GPNumbers, function (key, val) {
+                    options = options + '<option value="' + val + '">' + key + '</option>';
+                });
+                jQuery('#Regions').html(options).select2();
+            },
+            error: function () {
+                jQuery('#Regions').select2("destroy");
+                jQuery('#Regions').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function exportToExcel(exportType) {
+        var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            }),
+            DateFrom = jQuery("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateTo = jQuery("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            Regions = (jQuery("#Regions").val()) ? jQuery("#Regions").val().join(",") : "",
+            VehicleTypes = (jQuery("#VehicleTypes").val()) ? jQuery("#VehicleTypes").val().join(",") : "";
+
+        jQuery('#checkall').attr('checked', false);
+
+        var columns = "";
+        if (exportType == "custom") {
+            $('#destinationFields .fc-field').each(function () {
+                columns = columns + $(this).text() + ',';
+            });
+            columns = columns.slice(0, -1);
+        }
+        if (exportType == "default") {
+            columns = "GP Number,GP Date,Year,Month,Week,Origin,Destination,KM,Transport";
+        }
+
+        jQuery.ajax({
+            url: '@Url.Action("exportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "Columns": columns,
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "Regions": Regions,
+                "VehicleTypes": VehicleTypes
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function generateTable() {
+        var DateFrom = jQuery("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateTo = jQuery("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            Regions = (jQuery("#Regions").val()) ? jQuery("#Regions").val().join(",") : "",
+            VehicleTypes = (jQuery("#VehicleTypes").val()) ? jQuery("#VehicleTypes").val().join(",") : "";
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        jQuery("#TotalKgCO2e, #TotalFGDelivery, #TotalKgCO2ePerMioSticks").html('<i class="fa fa-spin fa-refresh"></i>');
+
+        jQuery('#checkall').attr('checked', false);
+
+        jQuery.ajax({
+            url: '@Url.Action("GetRecords")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "Regions": Regions,
+                "VehicleTypes": VehicleTypes
+            },
+            success: function (response) {
+                var table = $('#dtFilter').DataTable({
+                    data: response.viewModel,
+                    "cache": false,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "GPNumber", "class": "text-center", "render": function (datum) {
+                                return '<div class="checkbox-deck"><input name="isActiveRecord" type="checkbox" value="' + datum + '" id="' + datum + '"><label for="' + datum + '"></label></div>';
+                            }
+                        },
+                        { 'data': 'GPNumber', 'searchable': true },
+                        {
+                            'data': 'Date', 'searchable': true, "render": function (datum) {
+                                return moment(datum).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'Week', 'searchable': true },
+                        {
+                            'data': 'Month', 'searchable': true, "render": function (datum) {
+                                var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                                return months[(parseInt(datum)-1)];
+                            }
+                        },
+                        { 'data': 'Year', 'searchable': true },
+                        { 'data': 'Region', 'searchable': true },
+                        { 'data': 'Origin', 'searchable': true },
+                        { 'data': 'Destination', 'searchable': true },
+                        { 'data': 'KM', 'searchable': true },
+                        { 'data': 'Transport', 'searchable': true },
+                        { 'data': 'DelivertyQty', 'searchable': true },
+                        { 'data': 'LitreOrTKM', 'searchable': true },
+                        { 'data': 'KGCO2', 'searchable': true },
+                        { 'data': 'DeliveryQtyMioStick', 'searchable': true },
+                        { 'data': 'KGCO2MioStick', 'searchable': true },
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                jQuery('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                jQuery('#dtFilter thead.filters th').each(function (index) {
+                    if (index == 0) {
+                        $(this).text('Filter');
+                    } else {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+               
+                jQuery("#TotalKgCO2").html(response.totalKGCO2);
+                jQuery("#TotalFGDelivery").html(response.totalFGDelivery);
+                jQuery("#TotalKgCO2PerMioSticks").html(response.totalKgCO2PerMioSticks);
+
+                dialog.modal("hide");
+            }
+        });
+    }
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+</script>

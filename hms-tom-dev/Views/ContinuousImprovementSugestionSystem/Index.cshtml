@@ -1,0 +1,1367 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.General.ContinuousImprovementSugestionSystemViewModel
+@{
+    ViewBag.Title = "General > Continuous Improvement > Suggestion System > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button class="btn btn-primary" onclick="window.location.href ='@Url.Action("ContinuousImprovementSugestionSystemInput", "ContinuousImprovementSugestionSystem")'">Add New</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+        {
+            <button class="btn btn-primary" id="btnSetInactive" type="button">Delete</button>
+        }
+        <button class="btn btn-primary" id="btnExportReport">Export</button>
+        <button class="btn btn-primary" type="button" id="btnCustomReport" data-toggle="modal" data-target="#customReport">Custom Report</button>
+        <!--<button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('Recovery')">Recovery</button>-->
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.UploadFile)))
+        {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalUpload" id="uploadFileButton">Upload File</button>
+        }
+        
+    </div>
+    <a href="#searchfilter" id="advSearch" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="frmFilter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" id="dtFilterFrom" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" id="dtFilterTo" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="filterStatus" class="form-control" style="width: 120px">
+                            <option value="-1">ALL</option>
+                            <option value="2">Approved</option>
+                            <option value="1">Waiting</option>
+                            <option value="0">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Sub-Department</label>
+                        <select id="filterSubDepartment" class="form-control" style="width: 120px">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button id="btnSearch" class="btn btn-primary">Search</button>
+                    <button id="btnReset" class="btn btn-purple">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+</table>
+
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="SubmitMonth">Submit Month</div>
+                        <div data-field="SubmitYear">Submit Year</div>
+                        <div data-field="Department">Department</div>
+                        <div data-field="Sub_Department">Sub Department</div>
+                        <div data-field="Title">Title</div>
+                        <div data-field="Category1">Category1</div>
+                        <div data-field="Category2">Category2</div>
+                        <div data-field="ProposedDate">Proposed Date</div>
+                        <div data-field="ImplementationDate">Implementation Date</div>
+                        <div data-field="CostSaving_IDR">CostSaving - IDR</div>
+                        <div data-field="CostSaving_USD">CostSaving - USD</div>
+                        <div data-field="EmployeeID">Employee ID</div>
+                        <div data-field="EmployeeName">Employee Name</div>
+                        <div data-field="Facilitator">Facilitator</div>
+                        <div data-field="Supervisor">Supervisor</div>
+                        <div data-field="FirstLineAssessor">First Line Assessor</div>
+                        <div data-field="SecondLineAssessor">Second Line Assessor</div>
+                        <div data-field="ProductivityScore">Productivity Score</div>
+                        <div data-field="QualityScore">Quality Score</div>
+                        <div data-field="WorkingHourScore">Working Hour Score</div>
+                        <div data-field="SafetyScore">Safety Score</div>
+                        <div data-field="EnvironmentScore">Environment Score</div>
+                        <div data-field="Ergonomic_HygieneScore">Ergonomic Hygiene Score</div>
+                        <div data-field="UsabilityScore">Usability Score</div>
+                        <div data-field="EffortScore">Effort Score</div>
+                        <div data-field="ProActivenessScore">ProActiveness Score</div>
+                        <div data-field="CreativityScore">Creativity Score</div>
+                        <div data-field="FinalScore">Final Score</div>
+                        <div data-field="Voucher_IDR">Voucher - IDR</div>
+                        <div data-field="ABCDAwards">ABCDAwards</div>
+                        <div data-field="VoucherNo">Voucher No</div>
+                        <div data-field="Usability">Usability</div>
+                        <div data-field="IdeaSource">Idea Source</div>
+                        <div data-field="ModifiedFrom">Modified From</div>
+                        <div data-field="CopyBy">Copy By</div>
+                        <div data-field="Keywords">Keywords</div>
+                        <div data-field="Status">Status</div>
+                        <div data-field="CreatedBy">CreatedBy</div>
+                        <div data-field="CreatedDate">CreatedDate</div>
+                        <div data-field="UpdatedBy">UpdatedBy</div>
+                        <div data-field="UpdatedDate">UpdatedDate</div>
+                        <div data-field="Remarks">Remarks</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayout" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+
+                <button class="btn btn-primary" id="btnExportCustomReport" onclick="exportToExcel()">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnExportCustomReport">Export</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUpload" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload Continuous Improvement Sugestion System</label>
+                                <input id="fileSS" type="file" class="filestyle" data-buttonname="btn-primary" data-icon="false" data-buttontext="Browse" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/ContinuousImprovementSSTemplate.xlsx" id="downloadTemplate">Download Template</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Execute</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">General Continuous Improvement Sugestion System</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccesslayout" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabellayout">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your layout has been successfully saved.</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNoDelete" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarningDelete">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNoDelete"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSaveDelete" onclick="ChangeIsActive()">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancelDelete">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+<script>
+    var tgl = (new Date()).getDate();
+    var bln = (new Date()).getMonth()+1;
+    var thn = (new Date()).getFullYear();
+    var dateFrom = tgl+"/"+bln+"/"+(thn-1);
+    var dateTo = tgl + "/" + bln + "/" + thn;
+    //console.log(dateFrom);
+    //console.log(dateTo);
+    var subDep = "ALL";
+    var statusFilter = -1;
+    $("#Month").val(1);
+    $("#ListYears").val((new Date()).getFullYear());
+    $("#filterStatus").val(-1);
+    var $sourceFields = $("#sourceFields");
+    var $destinationFields = $("#destinationFields");
+    $(function () {
+        function moveItems(origin, dest) {
+            $(origin).find('.fc-selected').appendTo(dest);
+        }
+
+        function moveAllItems(origin, dest) {
+            $(origin).children().appendTo(dest);
+        }
+        
+        $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+        
+        $('#left').click(function () {
+            moveItems('#destinationFields', '#sourceFields');
+        });
+
+        $('#right').on('click', function () {
+            moveItems('#sourceFields', '#destinationFields');
+        });
+
+        $('#leftall').on('click', function () {
+            moveAllItems('#destinationFields', '#sourceFields');
+        });
+
+        $('#rightall').on('click', function () {
+            moveAllItems('#sourceFields', '#destinationFields');
+        });
+        
+        $('#layoutSelect').on('change', function () {
+            for (var j = 1; j < layoutIsGlobal.length; j++) {
+                if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                    $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                    //console.log(layoutIsGlobal[j].isGlobal);
+                }
+
+            }
+            var sourceFieldNames = [
+                    { 'field': 'SubmitMonth', 'label': 'Submit Month' },
+                    { 'field': 'SubmitYear', 'label': 'Submit Year' },
+                    { 'field': 'Department', 'label': 'Department' },
+                    { 'field': 'Sub_Department', 'label': 'Sub Department' },
+                    { 'field': 'Title', 'label': 'Title' },
+                    { 'field': 'Category1', 'label': 'Category1' },
+                    { 'field': 'Category2', 'label': 'Category2' },
+                    { 'field': 'ProposedDate', 'label': 'Proposed Date' },
+                    { 'field': 'ImplementationDate', 'label': 'Implementation Date' },
+                    { 'field': 'CostSaving_IDR', 'label': 'CostSaving - IDR' },
+                    { 'field': 'CostSaving_USD', 'label': 'CostSaving - USD' },
+                    { 'field': 'EmployeeID', 'label': 'Employee ID' },
+                    { 'field': 'EmployeeName', 'label': 'Employee Name' },
+                    { 'field': 'Facilitator', 'label': 'Facilitator' },
+                    { 'field': 'Supervisor', 'label': 'Supervisor' },
+                    { 'field': 'FirstLineAssessor', 'label': 'First Line Assessor' },
+                    { 'field': 'SecondLineAssessor', 'label': 'Second Line Assessor' },
+                    { 'field': 'ProductivityScore', 'label': 'Productivity Score' },
+                    { 'field': 'QualityScore', 'label': 'Quality Score' },
+                    { 'field': 'WorkingHourScore', 'label': 'Working Hour Score' },
+                    { 'field': 'SafetyScore', 'label': 'Safety Score' },
+                    { 'field': 'EnvironmentScore', 'label': 'Environment Score' },
+                    { 'field': 'Ergonomic_HygieneScore', 'label': 'Ergonomic Hygiene Score' },
+                    { 'field': 'UsabilityScore', 'label': 'Usability Score' },
+                    { 'field': 'EffortScore', 'label': 'Effort Score' },
+                    { 'field': 'ProActivenessScore', 'label': 'ProActiveness Score' },
+                    { 'field': 'CreativityScore', 'label': 'Creativity Score' },
+                    { 'field': 'FinalScore', 'label': 'Final Score' },
+                    { 'field': 'Voucher_IDR', 'label': 'Voucher - IDR' },
+                    { 'field': 'ABCDAwards', 'label': 'ABCDAwards' },
+                    { 'field': 'VoucherNo', 'label': 'Voucher No' },
+                    { 'field': 'Usability', 'label': 'Usability' },
+                    { 'field': 'IdeaSource', 'label': 'Idea Source' },
+                    { 'field': 'ModifiedFrom', 'label': 'Modified From' },
+                    { 'field': 'CopyBy', 'label': 'Copy By' },
+                    { 'field': 'Keywords', 'label': 'Keywords' },
+                    { 'field': 'Status', 'label': 'Status' },
+                    { 'field': 'CreatedBy', 'label': 'CreatedBy' },
+                    { 'field': 'CreatedDate', 'label': 'CreatedDate' },
+                    { 'field': 'UpdatedBy', 'label': 'UpdatedBy' },
+                    { 'field': 'UpdatedDate', 'label': 'UpdatedDate' },
+                    { 'field': 'Remarks', 'label': 'Remarks' }
+                ],
+                sourceFields = '',
+                destinationFieldNames = this.value.split(','),
+                destinationFields = '',
+                destinationfieldLabels = [];
+            var i;
+            for (i = 0; i < sourceFieldNames.length; ++i) {
+                if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                    // the element is not in the array
+                    sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                }
+                ;
+            }
+            $("#fieldChooser #sourceFields").html(sourceFields);
+
+            for (i = 0; i < destinationFieldNames.length; ++i) {
+                destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+            }
+            $("#fieldChooser #destinationFields").html(destinationFields);
+        });
+    });
+    var kolom = new Array();
+    generateTable();
+    dropdownSubDepartmentFilter();
+    function generateTable() {
+        //console.log('generate table');
+        $.ajax({
+            url: 'ContinuousImprovementSugestionSystem/GetFieldContinuousImprovementSS',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if(kolom.length == 0 ){
+                    $("#dtFilterMaster").html('');
+                    var htmlStringHeader = "<thead><tr>";
+                    var htmlStringFilter = "<thead class='filters'><tr class='filter-row'>";
+                    kolom.push({ data: "chkDelete" });
+                    kolom.push({ data: "Status" });
+                    htmlStringHeader = htmlStringHeader + "<th data-orderable='false' class='text-center'><div class='checkbox-deck'><input type='checkbox' id='checkAllData' onClick=checkBtn()><label for='checkAllData'></label></div></th>";
+                    htmlStringHeader = htmlStringHeader + "<th>Status</th>";
+                    htmlStringFilter = htmlStringFilter + "<th>Filter</th>";
+                    htmlStringFilter = htmlStringFilter + "<th></th>";
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i] == "SubmitMonth") {
+                            htmlStringHeader = htmlStringHeader + "<th>Submit Month</th>";
+                            htmlStringFilter = htmlStringFilter + "<th>Submit Month</th>";
+                            kolom.push({ data: "DisplaySubmitMonth" });
+                        }
+                        else if (data[i] != "IsActive" && data[i] != "Status") {
+                            var str = data[i].replace("-"," "); //untuk tampilan di header
+                            str = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+                            str = str.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+                            if (str == "ID Cont Improv SS") str = "ID";
+                            if (str == "Category1") str = "Category 1";
+                            if (str == "Category2") str = "Category 2";
+                            if (str == "Cost Saving IDR") str = "Cost Saving(IDR)";
+                            if (str == "Cost Saving USD") str = "Cost Saving(USD)";
+                            if (str == "Voucher IDR") str = "Voucher(IDR)";
+                            if (str == "Attachment2") str = "Attachment 2";
+                            if (str == "Attachment3") str = "Attachment 3";
+                            if (str == "Attachment4") str = "Attachment 4";
+                            htmlStringHeader = htmlStringHeader + "<th>" + str + "</th>";
+                            htmlStringFilter = htmlStringFilter + "<th>" + str + "</th>";
+                            var input = data[i].replace("-", "_"); // untuk ngisi data di datatable
+                            kolom.push({ data:input });
+                        }
+                    }
+                    htmlStringHeader = htmlStringHeader + "</tr></thead>";
+                    htmlStringFilter = htmlStringFilter + "</tr></thead>";
+                    //console.log('generate header');
+                    $("#dtFilterMaster").append(htmlStringHeader + htmlStringFilter);
+                }
+            },
+            complete: function () {
+                //console.log('complete');
+                $.ajax({
+                    url: '@Url.Action("GetGeneralContinuousImprovementSugestionSystemBySubmitMonthYearStatus", "ContinuousImprovementSugestionSystem")',
+                    method: 'get',
+                    data: { dtfr: dateFrom, dtto: dateTo, subdep: subDep, status: statusFilter },
+                    cache: false,
+                    success: function (json) {
+                        var listBaru = new Array();
+                        for (var i = 0; i < json.length; i++) {
+                            var newObject = json[i];
+                            newObject.chkDelete = "statusCheckDelete";
+                            listBaru.push(newObject);
+                        }
+                        //console.log('buat tabel');
+                        var indexSort = $.map(kolom,
+                            function(obj, index) {
+                                if (obj.data == "UpdatedDate") {
+                                    return index;
+                                }
+                            });
+                        //= kolom.findIndex(i => i.data === "UpdatedDate");
+                        //console.log(json);
+                        var table = $('#dtFilterMaster').DataTable({
+                            'destroy': true,
+                            'empty': true,
+                            data: json,
+                            order: [[ indexSort[0], "desc" ]],
+                            'searching': true,
+                            'autoWidth': false,
+                            "iDisplayLength": 25,
+                            columns: kolom.map(function (a) {
+                                //console.log(a);
+                                return a;
+                            }),
+                            "dom": 'lf<"table-overflow"t>ip',
+                            orderCellsTop: true,
+                            "rowCallback": function (row, data, index) {
+                                //console.log(data);
+                                for (var temp in data) {//for propert yang ada di object data
+                                    //console.log(temp);
+                                    var index = $.map(kolom,
+                                        function (obj, index) {
+                                            if (obj.data === temp) {
+                                                return index;
+                                            }
+                                        });
+                                    if (temp == "chkDelete") {
+                                        console.log("idcheck = " + data['IDContImprovSS']);
+                                        $('td:eq(' + index[0] + ')', row).html('<div class="checkbox-deck"><input type="checkbox" id="check[' + data["IDContImprovSS"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + data["IDContImprovSS"] + ']"></label></div>');
+                                    }
+                                    if (temp == "Title") {
+                                        //= kolom.findIndex(i => i.data === temp);
+                                        $('td:eq(' + index[0] + ')', row).html('<a href="ContinuousImprovementSugestionSystem/ContinuousImprovementSugestionSystemInput?id=' + data["IDContImprovSS"] + '">' + data[temp] + '</a>');
+                                    }
+                                    if (temp == "SubmitMonth") {
+                                        if(data[temp] == 1)
+                                            $('td:eq(' + index[0] + ')', row).html("January");
+                                        else if(data[temp] == 2)
+                                            $('td:eq(' + index[0] + ')', row).html("February");
+                                        else if(data[temp] == 3)
+                                            $('td:eq(' + index[0] + ')', row).html("March");
+                                        else if(data[temp] == 4)
+                                            $('td:eq(' + index[0] + ')', row).html("April");
+                                        else if(data[temp] == 5)
+                                            $('td:eq(' + index[0] + ')', row).html("May");
+                                        else if(data[temp] == 6)
+                                            $('td:eq(' + index[0] + ')', row).html("June");
+                                        else if(data[temp] == 7)
+                                            $('td:eq(' + index[0] + ')', row).html("July");
+                                        else if(data[temp] == 8)
+                                            $('td:eq(' + index[0] + ')', row).html("August");
+                                        else if(data[temp] == 9)
+                                            $('td:eq(' + index[0] + ')', row).html("September");
+                                        else if(data[temp] == 10)
+                                            $('td:eq(' + index[0] + ')', row).html("October");
+                                        else if(data[temp] == 11)
+                                            $('td:eq(' + index[0] + ')', row).html("November");
+                                        else if(data[temp] == 12)
+                                            $('td:eq(' + index[0] + ')', row).html("December");
+                                    }
+                                    if (temp.toLowerCase().indexOf("date") != -1) {//jika property ada kata date
+                                        //= kolom.findIndex(i => i.data === temp);
+                                        if (data[temp] != null) {//cek nilainya tidak null
+                                            var pattern = /Date\(([^)]+)\)/;
+                                            var results = pattern.exec(data[temp]);
+                                            if (results != null) {//cek apakah isi property date json atau bukan(karena ada propert dengan nama upDATEd name)
+                                                if (temp == "ProposedDate" || temp == "ImplementationDate")
+                                                    $('td:eq(' + index[0] + ')', row).html(moment(data[temp]).format("DD-MMM-YYYY"));
+                                                else
+                                                    $('td:eq(' + index[0] + ')', row).html(moment(data[temp]).format("DD-MMM-YYYY HH:mm"));
+                                            }
+                                        }
+                                    }
+                                    if (temp == "CostSaving_IDR" || temp == "Voucher_IDR") {
+                                        var komaSeparator = Comma(data[temp]);
+                                        if (komaSeparator != "null")
+                                            $('td:eq(' + index[0] + ')', row).html(komaSeparator);
+                                    }
+                                    //if (temp == "Attachment") {
+                                    //    var displayAtta = "";
+                                    //    var attachment = data[temp];
+                                    //    if (attachment != null) { 
+                                    //        var splitLink = attachment.split(";");
+                                    //        for (var j = 0; j < splitLink.length-1; j++) {
+                                    //            var splitNamaFileExt = splitLink[j].split("/");
+                                    //            var splitNamaFile = splitNamaFileExt[splitNamaFileExt.length - 1].split(".");
+                                    //            if (j == splitLink.length - 2)
+                                    //                displayAtta = displayAtta + splitNamaFile[0];
+                                    //            else
+                                    //                displayAtta = displayAtta + splitNamaFile[0] + ', ';
+                                    //        }
+                                    //        $('td:eq(' + index[0] + ')', row).html(displayAtta);
+                                    //    }
+                                    //}
+                                    if (temp == "CopyBy") {
+                                        if(data[temp] != null){
+                                            var split = data[temp].split(',');
+                                            var count = 1;
+                                            var value = "";
+                                            for (var i = 0; i < split.length; i++) {
+                                                //console.log(split[i]);
+                                                    if (count == split.length) {
+                                                        value = value + split[i];
+                                                    } else {
+                                                        value = value + split[i] + ", ";
+                                                    }
+                                                    count++;
+                                            }
+                                            $('td:eq(' + index[0] + ')', row).html(value);
+                                        }
+                                    }
+                                    if (temp == "Status") {
+                                        //= kolom.findIndex(i => i.data === temp);
+                                        if (data[temp] == 0)
+                                            $('td:eq(' + index[0] + ')', row).html('<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>');
+                                        else if (data[temp] == 1)
+                                            $('td:eq(' + index[0] + ')', row).html('<div><img src="assets/images/circleyellow.png" alt=""height="15" width="15"></div>');
+                                        else if (data[temp] == 2)
+                                            $('td:eq(' + index[0] + ')', row).html('<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>');
+                                    }
+                                    if (temp == "Attachment" || temp == "Attachment2" || temp == "Attachment3" || temp == "Attachment4") {
+                                        if(data[temp] != null){
+                                            var splitAttachment = data[temp].split('/');
+                                            $('td:eq(' + index[0] + ')', row).html(splitAttachment[splitAttachment.length-1]);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        $('.dataTables_filter input').attr("placeholder", "Search Here");
+                        // Setup - add a text input to each footer cell
+                        $('#dtFilterMaster thead.filters th').each(function (index) {
+                            if (index > 1) {
+                                //console.log('masuk buat text box search');
+                                var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                            }
+                        });
+                        table.columns().every(function (index) {
+                            $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                                //console.log($(this).parent().index());
+                                //console.log(this.value);
+                                //if ($(this).parent().index() == 2) {
+                                //    var month = this.value;
+                                //    //var search  = month.search((Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?));
+                                //}
+                                table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function dropdownSubDepartmentFilter() {
+        $.ajax({
+            url: 'ContinuousImprovementSugestionSystem/GetMasterList',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            async: false,
+            data: { "fieldName": "SuggestionSystemSub-Department" },
+            success: function (data) {
+                var select = document.getElementById("filterSubDepartment");
+                var len = document.getElementById("filterSubDepartment").length;
+                var option;
+                if (len > 0)
+                    select.empty().append('');
+                option = document.createElement('option');
+                option.value = "ALL";
+                option.text = "ALL";
+                select.add(option);
+                for (var i = 0; i < data.length; i++) {
+                    option = document.createElement('option');
+                    option.value = data[i]["FieldValue"];
+                    option.text = data[i]["FieldValue"];
+                    select.add(option);
+                }
+            }
+        });
+    }
+
+    $("#advSearch").click(function () {
+        $("#dtFilterFrom").val(moment(new Date()).subtract(1, 'year').format("DD/MM/YYYY"));
+        $("#dtFilterTo").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#filterStatus").val(-1);
+        $("#filterSubDepartment").val("ALL");
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearch', function (e) {
+            dateFrom = $("#dtFilterFrom").val();
+            dateTo = $("#dtFilterTo").val();
+            subDep = $("#filterSubDepartment").val();
+            statusFilter = $("#filterStatus").val();
+            generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnReset', function (e) {
+            dateFrom = tgl + "/" + bln + "/" + (thn - 1);
+            dateTo = tgl + "/" + bln + "/" + thn;
+            subDep = "ALL";
+            statusFilter = -1;
+            $("#dtFilterFrom").val(moment(new Date()).subtract(1, 'year').format("DD/MM/YYYY"));
+            $("#dtFilterTo").val(moment(new Date()).format("DD/MM/YYYY"));
+            $("#filterStatus").val(-1);
+            $("#filterSubDepartment").val("ALL");
+            generateTable();
+            e.preventDefault();
+        });
+    });
+
+    $("#uploadFileButton").click(function() {
+        resetData();
+    });
+
+    var fileSS;
+    $('#fileSS').on('change', function (e) {
+        $("#btnUpload").prop("disabled", false);
+        fileSS = e.target.files;
+    });
+
+    $("#btnUpload").click(function() {
+        var data = new FormData();
+        for (var x = 0; x < fileSS.length; x++) {
+            data.append("filegenss", fileSS[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'ContinuousImprovementSugestionSystem/UploadFile',
+            contentType: false,
+            processData: false,
+            data: data,
+            cache: false,
+            success: function (data) {
+                //console.log(data);
+                if (data == null) {
+                    $('#modalerror').modal('show');
+                }
+                else{
+                    if (data.length > 0) {
+                        if (data[0] == "Success" && data.length == 1) {
+                            $('#modalUpload').modal('hide');
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                        }
+                        else if (data[0] == "Success" && data.length > 1) {
+                            $("#textModalWarning").html('');
+                            $("#textModalWarning").append("Theres already data in database<br />");
+                            for (var t = 1; t < data.length; t++) {
+                                $("#textModalWarning").append("Title: " + data[t] + "<br />");
+                            }
+                            $('#warningModal').modal('show');
+                        }
+                        else
+                        {
+                            $("#textModalWarning").html('');
+                            $("#textModalWarning").append("There is no Column in database<br />");
+                            console.log(data.length, data[0]);
+                            for (var s = 0; s < data.length; s++) {
+                                if (data.length == 13) {
+                                    $("#textModalWarning").append(data[s]);
+                                } else {
+                                    $("#textModalWarning").append(data[s] + "<br />");
+                                }
+                            }
+                            $('#warningModal').modal('show');
+                        }
+                    }
+                }
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+
+    $("#ConfirmationCancel").click(function () {
+        $('#warningModalYesNo').modal('hide');
+        $('#modalUpload').modal('show');
+    });
+
+    function resetData() {
+        $('#formUpload')[0].reset();
+    }
+
+    $("#btnExportReport").click(function () {
+        location.href = '@Url.Action("ExportReport", "ContinuousImprovementSugestionSystem")?dtfr=' + dateFrom + '&dtto=' + dateTo + '&subdep=' + subDep + '&status=' + statusFilter;
+    });
+
+    //function saveLayout() {
+    //    var fieldNames = '',
+    //        layoutName = $("#layoutName").val();
+    //    $('#destinationFields .fc-field').each(function () {
+    //        fieldNames = fieldNames + $(this).text() + ',';
+    //    });
+    //    fieldNames = fieldNames.slice(0, -1);
+    //    $.ajax({
+    //        url: 'CustomReportState/InsertRecords',
+    //        method: 'post',
+    //        dataType: 'json',
+    //        cache: false,
+    //        data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "GeneralContImprovSS" },
+    //        success: function (response) {
+    //            $("#modalsuccesslayout").modal('show');
+    //        }
+    //    });
+    //}
+    
+    // begin : custom report
+    
+    $(document).on('click', '#btnSaveLayout', function (e) {
+        saveLayout();
+        e.preventDefault();
+    });
+
+    //$("#btnExportCustomReport").click(function () {
+    //    var children = [].slice.call(document.getElementById('destinationFields').getElementsByTagName('*'), 0);
+    //    var elements = [];
+    //    var arrayLength = children.length;
+    //    for (var i = 0; i < arrayLength; i++) {
+    //        var name = children[i].getAttribute("id");
+    //        elements.push(name);
+    //    }
+    //    var form = document.createElement("form");
+    //    form.setAttribute("method", "post");
+    //    form.setAttribute("action", "ContinuousImprovementSugestionSystem/ExportReport");
+    //    var hiddenField = document.createElement("input");
+    //    hiddenField.setAttribute("type", "hidden");
+    //    hiddenField.setAttribute("name", "list");
+    //    hiddenField.setAttribute("value", elements);
+    //    form.appendChild(hiddenField);
+    //    document.body.appendChild(form);
+    //    form.submit();
+    //});
+    
+    function exportToExcel() {
+        var columns = '';
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: { "Columns": columns, "dtfr": dateFrom, "dtto": dateTo, "subdep": subDep, "status": statusFilter },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    }
+
+    $("#btnCustomReport").click(function () {
+        //GetFieldContinuousImprovementSS();
+        $('#chkGlobalCustomReport').prop('checked', false);
+        $("#layoutName").val("");
+        generateLayoutSelect();
+    });
+
+    function GetFieldContinuousImprovementSS() {
+        $('#sourceFields').empty().append('');
+        $('#destinationFields').empty().append('');
+        $.ajax({
+            url: 'ContinuousImprovementSugestionSystem/GetFieldContinuousImprovementSS',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                for (var i = 0; i < json.length; i++) {
+                    var temp = json[i];
+                    $("#sourceFields").append('<div id="' + temp + '" class="generatedCustomReport">' + temp + '</div>');
+                }
+            }
+        });
+    }
+
+    function saveLayout() {
+        var nonvalid = false;
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            bootbox.alert({
+                size: "small",
+                title: "DFIS Notification Center",
+                message: "<img src='assets/images/danger.png' alt=''>Please fill yellow field",
+                callback: function () { /* your callback code */
+                }
+            });
+            return false;
+        } else {
+
+            var fieldNames = '',
+                layoutName = $("#layoutName").val();
+            var isGlobal;
+            if ($("#chkGlobalCustomReport").prop('checked'))
+                isGlobal = true;
+            else
+                isGlobal = false;
+
+            $('#destinationFields .fc-field').each(function () {
+                fieldNames = fieldNames + $(this).data('field') + ',';
+            });
+            fieldNames = fieldNames.slice(0, -1);
+            
+            $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+            $('#notificationModal').modal('show');
+
+            jQuery.ajax({
+                url: '@Url.Action("../CustomReportState/InsertRecords")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "GeneralContImprovSS", "isGlobal": isGlobal },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobal) {
+                            SaveChangesButton();
+                        } else {
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            $("#chkGlobalCustomReport").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Please fill layout name.</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>');
+                    }
+
+                    if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                        $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton() {
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+        $('#notificationModal').modal('show');
+
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '';
+        var isGlobal;
+        if ($("#chkGlobalCustomReport").prop('checked'))
+            isGlobal = true;
+        else
+            isGlobal = false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+        
+        $.ajax({
+            url: '@Url.Action("../CustomReportState/SaveSelectedLayout")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "GeneralContImprovSS", "isGlobal": isGlobal },
+            success: function (response) {
+                if (response == "Success") {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                } else {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span>' + response + '</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                }
+            }
+        });
+    }
+
+    //$("#layoutSelect").on('change', function () {
+    //    var fieldNames = $("#layoutSelect").val();
+    //    var split = fieldNames.split(",");
+    //    //tidak menggunakan fungsi function GetFieldContinuousImprovementSS(), karena untuk remove id dari source field, datanya harus keload semua/ complete
+    //    //kalau menggunakan fungsi function GetFieldContinuousImprovementSS(), div idnya belum ada ketika menjalankan $('#' + split[i] + '').remove();
+    //    $('#sourceFields').empty().append('');
+    //    $('#destinationFields').empty().append('');
+    //    $.ajax({
+    //        url: 'ContinuousImprovementSugestionSystem/GetFieldContinuousImprovementSS',
+    //        method: 'get',
+    //        dataType: 'json',
+    //        cache: false,
+    //        success: function (json) {
+    //            for (var i = 0; i < json.length; i++) {
+    //                var temp = json[i];
+    //                $("#sourceFields").append('<div id="' + temp + '" class="generatedCustomReport">' + temp + '</div>');
+    //            }
+    //        },
+    //        complete: function () {
+    //            for (var i = 0; i < split.length; ++i) {
+    //                $('#' + split[i] + '').remove();
+    //                $("#destinationFields").append('<div id="' + split[i] + '" class="generatedCustomReport">' + split[i] + '</div>');
+    //            }
+    //            $("#fieldChooser").fieldChooser().destroy();
+    //            $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+    //        }
+    //    });
+    //});
+    
+    var layoutIsGlobal = [];
+    function generateLayoutSelect() {
+        var firstLayout = "", thenLayout = "";
+        var k = 0;
+        jQuery.ajax({
+            url: '@Url.Action("../CustomReportState/GetLayouts")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: { "PageName": "GeneralContImprovSS" },
+            success: function (response) {
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = '';
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            if (firstLayout == "") {
+                                firstLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            if (firstLayout != response[i].LayoutName) {
+                                thenLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    jQuery("#layoutSelect").html(options.slice(11)).ready(function () {
+                        // Load selected layout
+                        jQuery.ajax({
+                            url: '@Url.Action("../CustomReportState/GetSelectedLayout")',
+                            method: 'post',
+                            dataType: 'json',
+                            data: { "PageName": "GeneralContImprovSS" },
+                            success: function (json) {
+                                $('#layoutSelect').val(json[0].FieldName);
+                                for (var j = 1; j < layoutIsGlobal.length; j++) {
+                                    //console.log(json[0].FieldName + " = " + $('#layoutSelect option:selected').text() + " - " + layoutIsGlobal[j].LayoutName);
+                                    if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                                        $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                                        //console.log(layoutIsGlobal[j].isGlobal);
+                                    }
+
+                                }
+                                var sourceFieldNames = [
+                                        { 'field': 'SubmitMonth', 'label': 'Submit Month' },
+                                        { 'field': 'SubmitYear', 'label': 'Submit Year' },
+                                        { 'field': 'Department', 'label': 'Department' },
+                                        { 'field': 'Sub_Department', 'label': 'Sub Department' },
+                                        { 'field': 'Title', 'label': 'Title' },
+                                        { 'field': 'Category1', 'label': 'Category1' },
+                                        { 'field': 'Category2', 'label': 'Category2' },
+                                        { 'field': 'ProposedDate', 'label': 'Proposed Date' },
+                                        { 'field': 'ImplementationDate', 'label': 'Implementation Date' },
+                                        { 'field': 'CostSaving_IDR', 'label': 'CostSaving - IDR' },
+                                        { 'field': 'CostSaving_USD', 'label': 'CostSaving - USD' },
+                                        { 'field': 'EmployeeID', 'label': 'Employee ID' },
+                                        { 'field': 'EmployeeName', 'label': 'Employee Name' },
+                                        { 'field': 'Facilitator', 'label': 'Facilitator' },
+                                        { 'field': 'Supervisor', 'label': 'Supervisor' },
+                                        { 'field': 'FirstLineAssessor', 'label': 'First Line Assessor' },
+                                        { 'field': 'SecondLineAssessor', 'label': 'Second Line Assessor' },
+                                        { 'field': 'ProductivityScore', 'label': 'Productivity Score' },
+                                        { 'field': 'QualityScore', 'label': 'Quality Score' },
+                                        { 'field': 'WorkingHourScore', 'label': 'Working Hour Score' },
+                                        { 'field': 'SafetyScore', 'label': 'Safety Score' },
+                                        { 'field': 'EnvironmentScore', 'label': 'Environment Score' },
+                                        { 'field': 'Ergonomic_HygieneScore', 'label': 'Ergonomic Hygiene Score' },
+                                        { 'field': 'UsabilityScore', 'label': 'Usability Score' },
+                                        { 'field': 'EffortScore', 'label': 'Effort Score' },
+                                        { 'field': 'ProActivenessScore', 'label': 'ProActiveness Score' },
+                                        { 'field': 'CreativityScore', 'label': 'Creativity Score' },
+                                        { 'field': 'FinalScore', 'label': 'Final Score' },
+                                        { 'field': 'Voucher_IDR', 'label': 'Voucher - IDR' },
+                                        { 'field': 'ABCDAwards', 'label': 'ABCDAwards' },
+                                        { 'field': 'VoucherNo', 'label': 'Voucher No' },
+                                        { 'field': 'Usability', 'label': 'Usability' },
+                                        { 'field': 'IdeaSource', 'label': 'Idea Source' },
+                                        { 'field': 'ModifiedFrom', 'label': 'Modified From' },
+                                        { 'field': 'CopyBy', 'label': 'Copy By' },
+                                        { 'field': 'Keywords', 'label': 'Keywords' },
+                                        { 'field': 'Status', 'label': 'Status' },
+                                        { 'field': 'CreatedBy', 'label': 'CreatedBy' },
+                                        { 'field': 'CreatedDate', 'label': 'CreatedDate' },
+                                        { 'field': 'UpdatedBy', 'label': 'UpdatedBy' },
+                                        { 'field': 'UpdatedDate', 'label': 'UpdatedDate' },
+                                        { 'field': 'Remarks', 'label': 'Remarks' }
+                                    ],
+                                    sourceFields = '',
+                                    destinationFieldNames = json[0].FieldName.split(','),
+                                    destinationFields = '',
+                                    destinationfieldLabels = [];
+
+                                for (i = 0; i < sourceFieldNames.length; ++i) {
+                                    if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                                        // the element is not in the array
+                                        sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                                    } else {
+                                        destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                                    }
+                                }
+                                $("#fieldChooser #sourceFields").html(sourceFields);
+
+                                for (i = 0; i < destinationFieldNames.length; ++i) {
+                                    destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+                                }
+
+                                $("#fieldChooser #destinationFields").html(destinationFields);
+                            }
+                        });
+                    });
+                } else {
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+    
+    //var layoutIsGlobal = [];
+    //function generateLayoutSelect() {
+    //    var firstLayout = "", thenLayout = "";
+    //    var k = 0;
+    //    $.ajax({
+    //        url: 'CustomReportState/GetLayouts',
+    //        method: 'post',
+    //        dataType: 'json',
+    //        cache: false,
+    //        data: { "PageName": "GeneralContImprovSS" },
+    //        success: function (response) {
+    //            var layoutName = '',
+    //                options = '';
+    //            options = "'></option><option value='";
+    //            for (var i = 0; i < response.length; ++i) {
+    //                if (layoutName != response[i].LayoutName) {
+    //                    options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+    //                    layoutName = response[i].LayoutName;
+    //                } else {
+    //                    options = options + "," + response[i].FieldName;
+    //                }
+    //            }
+    //            options = options + "'>" + layoutName + "</option>";
+    //            $("#layoutSelect").html(options.slice(11)).ready(function () {
+    //                if ($('#layoutSelect').find("option:first-child").val()) {
+    //                    var fieldNames = $('#layoutSelect').find("option:first-child").val().split(','), fields = '';
+    //                    for (var i = 0; i < fieldNames.length; ++i) {
+    //                        $('#' + fieldNames[i] + "").remove();
+    //                        $("#destinationFields").append('<div id="' + fieldNames[i] + '" class="generatedCustomReport">' + fieldNames[i] + '</div>');
+    //                    }
+    //                }
+    //            });
+    //        },
+    //        complete: function () {
+    //            $("#fieldChooser").fieldChooser().destroy();
+    //            $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+    //        }
+    //    });
+
+    //}
+
+    // end : custom report
+    
+
+    $("#confirmationSave").click(function () {
+        $.ajax({
+            type: 'POST',
+            url: 'ContinuousImprovementSugestionSystem/ConfirmationSaveUpload',
+            cache: false,
+            success: function (result) {
+                $('#warningModalYesNo').modal('hide');
+                $('#modalUpload').modal('hide');
+                if (result == "Success") {
+                    $('#modalsuccess').modal('show');
+                    generateTable();
+                }
+                else
+                    $('#modalerror').modal('show');
+            }
+        });
+    });
+
+    function Comma(input) { //function to add commas to textboxes
+        var num = input;
+        num += '';
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        var x = num.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1))
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        return x1 + x2;
+    }
+    
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    var tempid = [];
+    var filter = new Object();
+    $("#btnSetInactive").click(function () {
+        
+        if (tempid.length > 0) {
+            $("#textModalWarningYesNoDelete").html("");
+            $("#textModalWarningYesNoDelete").append("Are you sure to delete this data?");
+            $('#warningModalYesNoDelete').modal('show');
+        } else if (tempid.length == 0) {
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    });
+
+    function checkBtn() {
+        $(".chkList").prop('checked', $("#checkAllData").prop('checked'));
+        if ($("#checkAllData").prop('checked')) {
+            var table = $('#dtFilterMaster').DataTable();
+            //table.column(1).nodes().each(function (cell, i) {
+            //    tempid.push(table.cell(i, 1).data());
+            //});
+            //tempid = tempid.filter(onlyUnique);
+            $(table.$('input[type="checkbox"]').map(function () {
+                var tempor = $(this).prop("checked")? $(this).closest('tr').context.id : "";
+                tempor = tempor.match(/[^[\]]+(?=])/g);
+                //console.log(tempor);
+                tempid.push(tempor);
+            }));
+            tempid = tempid.filter(onlyUnique);
+            //console.log("tempid = "+ tempid);
+            
+        } else {
+            tempid = [];
+        }
+    }
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+    function ChangeIsActive() {
+        //console.log(tempid);
+        $.ajax({
+            url: "ContinuousImprovementSugestionSystem/SetStatusResult",
+            method: 'post',
+            dataType: 'json',
+            data: {listid: tempid},
+            cache: false,
+            success: function (response) {
+                if (response == "Success") {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Success your data has been Deleted !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                } else {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Error your data cannot be Deleted !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                }
+                generateTable();
+                $('#checkAllData').prop("checked", false);
+                tempid = [];
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var id = data["IDContImprovSS"];
+            var result = $.grep(tempid, function (e) { return e == id; });
+            if (result.length == 0) {
+                tempid.push(id);
+            } else if (result.length == 1) {
+                tempid = tempid.filter(function (obj) {
+                    return obj !== id;
+                });
+            }
+        });
+    }
+
+</script>

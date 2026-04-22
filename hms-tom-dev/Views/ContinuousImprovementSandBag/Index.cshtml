@@ -1,0 +1,625 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.General.ContinuousImprovementSandBagViewModel
+@{
+    ViewBag.Title = "General > Continuous Improvement > SandBag > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<div class="tab-content">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+            {
+                <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("AddNew")'">Add New</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+            {
+                 <button class="btn btn-primary" id="btnSetInactive" type="button" onclick="SetIsActive('delete')">Delete</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+            {
+                <button class="btn btn-primary" id="exportDefaultButton">Export</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+            {
+                <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)))
+            {
+                <button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('recovery')">Recovery</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+            {
+                <button class="btn btn-primary" data-toggle="modal" data-target="#uploadFileModal" id="uploadFileButton" onclick="clearUploadFile();">Upload File</button>
+            }
+        </div>
+        <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <div class="filter-deck">
+        <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel">
+                <form id="SearchForm">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Submit Date</label>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input type="text" id="StartDate" class="form-control datepickerFromHaveFuture">
+                                </div>
+                                <div class="col-md-2 to-bi">
+                                    <label>To</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="EndDate" class="form-control datepickerToHaveFuture">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Submit Month</label>
+                            @Html.DropDownListFor(model => Model.ListMonths,
+                                new SelectList(Enumerable.Range(1, 12)
+                            .Select(r => new
+                            {
+                                Text = new DateTime(2000, r, 1).ToString("MMM"),
+                                Value = r.ToString()
+                            }),
+                            "Value", "Text", Model.ListMonths),
+                                new { @class = "form-control", @id = "Month" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Submit Year</label>
+                            <select class="form-control" id="Year"></select>
+                            @*@Html.DropDownListFor(model => Model.ListYears,
+                                new SelectList(Enumerable.Range(-1, 6)
+                            .Select(r => new
+                            {
+                                Text = (DateTime.Now.Year + r).ToString(),
+                                Value = (DateTime.Now.Year + r).ToString()
+                            }),
+                            "Value", "Text", Model.ListYears),
+                                new { @class = "form-control", @id = "Year" })*@
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Sub Department</label>
+                            <select class="form-control" id="SubDepartment"></select>
+                        </div>
+                    </div>
+                    <!--div class="col-md-3">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <select class="form-control" id="Location" disabled><option value="">-- Select --</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Owner</label>
+                            <input type="text" id="Owner" class="form-control">
+                        </div>
+                    </div-->
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="Status">
+                                <option value="">-- Select --</option>
+                                <option value="Proposal">Proposal</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+                    @if (isSuperUser)
+                    {
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="input-type">Status</label>
+                                <div id="input-type" class="row">
+                                    <div class="col-sm-3">
+                                        <label class="radio-inline">
+                                            <input name="IncludeInActive" value="all" type="radio" checked />All
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="radio-inline">
+                                            <input name="IncludeInActive" value="deleted" type="radio" />Deleted
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="radio-inline">
+                                            <input name="IncludeInActive" value="not-deleted" type="radio" />Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <input name="IncludeInActive" value="not-deleted" type="radio" style="display: none;" checked />
+                    }
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Search)))
+                        {
+                            <button class="btn btn-primary search-filter">Search</button>
+                        }
+                        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Reset)))
+                        {
+                            <button class="btn btn-purple" id="resetButton">Reset</button>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table id="dtFilterMaster" class="display table dataTable">
+        <thead>
+            <tr>
+                <th data-orderable="false" class="text-center">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" name="checkall" id="checkall">
+                        <label for="checkall"></label>
+                    </div>
+                </th>
+                <th>Active</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Department</th>
+                <th>Sub Department</th>
+                <th>Title</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Idea Source</th>
+                <th>Location Name</th>
+                <th>Implementation Date</th>
+                <th>Employee Status</th>
+            </tr>
+        </thead>
+        <thead class="filters">
+            <tr class="filter-row">
+                <th class="text-center">Filter</th>
+                <th></th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Department</th>
+                <th>Sub Department</th>
+                <th>Title</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Idea Source</th>
+                <th>Location Name</th>
+                <th>Implementation Date</th>
+                <th>Employee Status</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label">Upload Continuous Improvement SandBag</label>
+                                <input type="file" class="filestyle" id="fileInputContinuousImprovementSandBag" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/ContinuousImprovementSandBagTemplate.xlsx" id="downloadTemplate">Download Template</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+<script type="text/javascript">
+    var tampilanNoSearchResult = false;
+    jQuery(function ($) {
+        $('select#SubmitYear, select#SubmitMonth, select#Year, select#Month').prepend('<option value="0">-- Select --</option>').val('0');
+
+        generateDropDownSubDepartment();
+
+        generateTable();
+
+        GenerateYear();
+
+        $(document).on('click', '.search-filter', function (e) {
+            tampilanNoSearchResult = true;
+            generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#resetButton', function (e) {
+            $('#searchfilter select#SubDepartment, #searchfilter select#Location, #searchfilter select#Status, #searchfilter input:not(input[name=IncludeInActive])').val('');
+            $('#searchfilter select#Year, #searchfilter select#Month').val('0');
+            $("input[name=IncludeInActive][value=all]").prop("checked", true);
+
+            setTimeout(function () {
+                generateTable();
+            }, 500);
+
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#exportDefaultButton', function (e) {
+            exportToExcel();
+            e.preventDefault();
+        });
+
+        $("#StartDate").on('dp.change', function () {
+            $("#EndDate").val($("#StartDate").val());
+        });
+
+        $(document).on('change', '#fileInputContinuousImprovementSandBag', function () {
+            $("#btnUpload").prop("disabled", false);
+        });
+
+        $(document).on('click', '#btnUpload', function (e) {
+            var dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Uploading...</div>',
+                    closeButton: false
+                }),
+                uploadfile = $('#fileInputContinuousImprovementSandBag').val(),
+                fileInput = document.getElementById('fileInputContinuousImprovementSandBag'),
+                fileNameSandBag = '',
+                fileSandBag = '';
+
+            if (uploadfile) {
+                fileNameSandBag = fileInput.files[0].name;
+                fileSandBag = fileInput.files[0];
+            }
+
+            var formData = new FormData();
+
+            formData.append(fileNameSandBag, fileSandBag);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', 'ContinuousImprovementSandBag/Upload');
+
+            xhr.setRequestHeader('X-File-Name-SandBag', fileNameSandBag);
+
+            xhr.send(formData);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        dialog.modal('hide');
+                        bootbox.alert({
+                            message: '<i class="fa fa-check-circle fa-2x" style="color:green"></i><font class="text-success">  Upload Successfully</font>',
+                            size: 'small',
+                            callback: function () {
+                                generateTable();
+                                $("#uploadFileModal").modal('hide');
+                            }
+                        });
+                    } else {
+                        var message = "";
+                        if (xhr.statusText == "The given ColumnName 'Type' does not match up with any column in data source.") {
+                            message = "Excel Template error : the data line should start from row 6. Check the correct excel template on Download Template link below!";
+                        } else {
+                            message = xhr.statusText;
+                        }
+                        dialog.modal('hide');
+                        bootbox.alert({
+                            message: '<i class="fa fa-times-circle-o fa-2x" style="color:red"></i><font class="text-danger">' + '  ' + 'Upload Failed, ' + message + '</font>',
+                            size: 'small'
+                        });
+                    }
+                }
+            };
+
+            e.preventDefault();
+        });
+
+        $(document).on('change', '#SubDepartment', function (e) {
+            var SubDepartment = $(this).val();
+
+            $('#Location').html('<option value="">Loading...</option>').prop("disabled", true);
+
+            if (SubDepartment) {
+                $.ajax({
+                    url: '@Url.Action("GetMasterLocation")',
+                    dataType: 'JSON',
+                    data: { "ParentLocation": SubDepartment },
+                    cache: false,
+                    success: function (data) {
+                        var options = '<option value="">-- Select --</option>';
+                        $.each(data, function (key, val) {
+                            options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                        });
+                        $('#Location').html(options).prop("disabled", false);
+                    },
+                    error: function () {
+                        $('#Location').html('<option value="NULL">none available</option>').prop("disabled", true);
+                    }
+                });
+            } else {
+                $('#Location').html('<option value="">-- Select --</option>').prop("disabled", true);
+            }
+        });
+    });
+
+    function generateDropDownSubDepartment() {
+        return $.ajax({
+            url: '@Url.Action("GetMasterLocation")',
+            dataType: 'JSON',
+            data: {"Type": "Region"},
+            cache: false,
+            success: function (data) {
+                var options = '<option value="">-- Select --</option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                });
+                $('#SubDepartment').html(options);
+            },
+            error: function () {
+                $('#SubDepartment').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function GenerateYear() {
+        var year = (new Date()).getFullYear() - 5;
+        var options = '';
+        for (i = 1; i < 11 ; i++) {
+            options += '<option value="' + (year + i) + '">' + (year + i) + '</option>';
+        }
+        $('#Year').append(options);
+    }
+
+    function generateTable() {
+        var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            }),
+            subdepartment = $('#SubDepartment :selected').val(),
+            month = $('#Month :selected').val(),
+            year = $('#Year :selected').val(),
+            location = $('#Location :selected').val(),
+            status = $('#Status :selected').val(),
+            owner = $('#SearchForm').find('input[id="Owner"]').val(),
+            StartDate = $('#SearchForm').find('input[id="StartDate"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            EndDate = $('#SearchForm').find('input[id="EndDate"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            IncludeInActive = $("input[name=IncludeInActive]:checked").val();
+
+        $('#checkall').prop('checked', false);
+
+        $.ajax({
+            url: '@Url.Action("GetContinuousImprovementSandBags")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "SubDepartment": subdepartment,
+                "Month": month,
+                "Year": year,
+                "IDLocation": location,
+                "Status": status,
+                "Owner": owner,
+                "StartDate": StartDate,
+                "EndDate": EndDate,
+                "IncludeInActive": IncludeInActive
+            },
+            success: function (json) {
+                if (json.viewmodel.length < 1 && tampilanNoSearchResult == true) {
+                    alertSearchNoResult();
+                    tampilanNoSearchResult = false;
+                }
+                var table = $('#dtFilterMaster').DataTable({
+                    data: json.viewmodel,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columnDefs: [
+                        { orderable: false, targets: 1 }
+                    ],
+                    columns: [
+                        {
+                            "data": "IDContImprovSandBag", "class": "text-center", "render": function (data, type, row, meta) {
+                                return '<td><div class="checkbox-deck"><input type="checkbox" id="' + data + '" class="chkList"><label for="' + data + '"></label></div></td>';
+                            }
+                        },
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else {
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                                }
+                            }
+                        },
+                        { 'data': 'Year', 'searchable': true },
+                        {
+                            'data': 'Month', 'searchable': true, "render": function (datum, type, record) {
+                                var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                                return months[(parseInt(datum) - 1)];
+                            }
+                        },
+                        { 'data': 'Department', 'searchable': true },
+                        { 'data': 'SubDepartment', 'searchable': true },
+                        {
+                            'data': 'Title', 'searchable': true, "render": function (data, type, row) {
+                                return '<div ><a href="@Url.Action("AddNew")?IDContImprovSandBag=' + row['IDContImprovSandBag'] + '">' + row['Title'] + '</a></div>';
+                            }
+                        },
+                        { 'data': 'Owner', 'searchable': true },
+                        { 'data': 'Status', 'searchable': true },
+                        { 'data': 'IdeaSource', 'searchable': true },
+                        {
+                            'data': 'IDLocation', 'searchable': true, "render": function (datum, type, row) {
+                                return row.MasterLocation.LocationName;
+                            }
+                        },
+                        {
+                            'data': 'ImplementationDate', 'searchable': true, "render": function (data) {
+                                return moment(data).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'EmployeeStatus', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 2) && (index < 13)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+
+                dialog.modal("hide");
+            }
+        });
+    }
+
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    function SetIsActive(status) {
+        var ids = [];
+        jQuery('.chkList').each(function () {
+            if (jQuery(this).is(':checked')) {
+                ids.push(jQuery(this).attr('id'));
+            }
+        });
+
+        if (ids.length > 0) {
+            bootbox.confirm({
+                title: "DFIS Notification Center",
+                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Are you sure that you want to " + status + " the selected item(s)?</div>",
+                closeButton: false,
+                buttons: {
+                    confirm: {
+                        label: 'OK',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        className: 'btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        ChangeIsActive(ids, status);
+                    }
+                }
+            });
+        } else {
+            alertPleaseSelect();
+        }
+    }
+    
+    function ChangeIsActive(ids, status) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        return $.ajax({
+            url: '@Url.Action("SetStatusResult")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "ListIsActiveId": ids,
+                "Isactive": (status == "recovery") ? true : false
+            },
+            cache: false,
+            success: function (response) {
+                dialog.modal("hide");
+                var msg = (status === "recovery") ? "Recovered" : "Deleted",
+                    signal = "Error, your data can't be " + msg + " !";
+
+                if (response == "Success") {
+                    signal = "Data has been successfully " + msg + " from the database.";
+                }
+                bootbox.alert({
+                    title: "DFIS Notification Center",
+                    message: signal,
+                    callback: function () {
+                        generateTable();
+                    }
+                });
+            },
+            error: function () {
+                dialog.modal("hide");
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    function exportToExcel() {
+        var subdepartment = $('#SubDepartment :selected').val(),
+            month = $('#Month :selected').val(),
+            year = $('#Year :selected').val(),
+            location = $('#Location :selected').val(),
+            status = $('#Status :selected').val(),
+            owner = $('#SearchForm').find('input[id="Owner"]').val(),
+            StartDate = $('#SearchForm').find('input[id="StartDate"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            EndDate = $('#SearchForm').find('input[id="EndDate"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+
+        var columns = "Year,Month,Department,Sub Department,Title,Owner,Status,Idea Source,Location Name,Implementation Date,Employee Status",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: { "Columns": columns, "SubDepartment": subdepartment, "Month": month, "Year": year, "IDLocation": location, "Status": status, "Owner": owner, "StartDate": StartDate, "EndDate": EndDate },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function clearUploadFile() {
+        $('#fileInputContinuousImprovementSandBag').val("");
+    }
+</script>

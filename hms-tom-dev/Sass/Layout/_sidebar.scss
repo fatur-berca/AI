@@ -1,0 +1,133 @@
+// sidebar
+
+.sidebar{
+	width: 270px;
+	left: 0px;
+	background-color: $dblue3;
+	position: fixed;
+	top: 60px;
+	height: calc(100% - 60px);
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 1px solid rgba(128, 142, 167, 0.1);
+	@include transition(all, 0.3s, ease);
+	.filter-title{
+		font-size: 15px;
+		white-space: nowrap;
+		margin: 0px 0 30px 0;
+		padding-bottom: 20px;
+		border-bottom: 1px solid rgba(128, 142, 167, 0.1);
+		img{
+			margin-right: 5px;
+			display: inline-block;
+			vertical-align: middle;
+			@include transition(all, 0.3s, ease);
+		}
+	}
+
+	.breadcrumb{
+		margin: 0;
+		padding: 17px 20px 13px 20px;
+		width: 270px;
+		background-color: transparent;
+		overflow: visible;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+		@include border-radius(0);
+		@include transition(all, 0.3s, ease);
+		li{
+			float: left;
+			font-size: 12px;
+			text-transform: uppercase;
+    		padding-right: 10px;
+			color: rgba(255, 255, 255, 0.6);
+			a{
+				color: $wt;
+				&:hover, &:focus{
+					text-decoration: none;
+				}
+			}
+		}
+		li + li{
+			padding-left: 0px;
+			&:before{
+				content: "> ";
+				padding-left: 0px;
+				color: rgba(255, 255, 255, 0.6);
+			}
+		}
+	}
+
+	.menu{
+		padding: 20px;
+		width: 270px;
+		margin: 0px;
+		@include transition(all, 0.3s, ease);
+		li{
+			list-style: none;
+			margin-bottom: 15px;
+			a{
+				font-size: 13px;
+				color: $wt;
+				opacity: 0.6;
+				display: block;
+				position: relative;
+				@include transition(all, 0.3s, ease);
+				&:before{
+					content: "";
+					position: absolute;
+					left: -20px;
+					top: -6px;
+					width: 3px;
+					opacity: 0;
+					height: 35px;
+					background-color: $wt;
+					@include transition(all, 0.3s, ease);
+				}
+				i{
+					display: inline-block;
+					vertical-align: middle;
+					margin-right: 20px;
+					width: 15px;
+					&:before{
+						font-size: 17px;
+						margin: 0px auto;
+					}
+				}
+				&:hover, &:focus, &:active{
+					text-decoration: none;
+					opacity: 1;
+				}
+			}
+		}
+		li:last-child{
+			margin-bottom: 0px;
+		}
+		li.active{
+			a{
+				opacity: 1;
+				&:before{
+					opacity: 1;
+				}
+			}
+		}
+	}
+	
+	&.closed{
+		width: 65px;
+		.breadcrumb{
+			height: 0px;
+			padding: 0px;
+			overflow: hidden;
+		}
+		.menu{
+			padding: 20px 20px 20px 26px;
+			li.active{
+				a{
+					&:before{
+						left: -25px;
+					}
+				}
+			}
+		}
+	}
+}

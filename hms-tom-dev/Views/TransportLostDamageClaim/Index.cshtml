@@ -1,0 +1,1433 @@
+﻿@using hms_tom_dev.Helper
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport Lost & Damage Claim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)) && ViewBag.PageAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportLostDamageClaim)))
+        {
+            <button class="btn btn-primary" onclick="location.href='@Url.Action("Add", "TransportLostDamageClaim")'">Add New</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)) && ViewBag.PageAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportLostDamageClaim)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#inputModal">Upload</button>
+        }
+        @*<button id="btnUpload" class="btn btn-primary" data-toggle="modal" data-target="#inputModal">Upload</button>*@
+
+        <button class="btn btn-primary" id="btnSetInactive" type="button" onclick="SetIsActive('Delete')">Delete</button>
+        <button class="btn btn-primary" id="btnExportExcel">Export</button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)))
+        { 
+            <button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('Recovery')">Recovery</button>
+        }
+        
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Lost & Claim Damage (Process/Invoice/Dispose)</h4>
+            </div>
+            <div class="col-md-12">
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Upload Template</label>
+                            <input type="file" id="Upload" class="filestyle" accept=".xls, .xlsx">
+                            <a href="#" id="DownloadTemplateProcess">Download Template Process</a> <br />
+                            <a href="#" id="DownloadTemplateInvoicing">Download Template Invoicing</a> <br />
+                            <a href="#" id="DownloadTemplateDispose">Download Template Dispose</a> <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Report Modal Dialog -->
+<div class="modal fade" id="customReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        @*<div data-field="SJDate">Date of Receipt</div>*@
+                        <div data-field="OriginWarehouse">Origin</div>
+                        <div data-field="DestinationWarehouse">Destination</div>
+                        <div data-field="STONumber">Order Number/STO</div>
+                        <div data-field="DeliveryNumberNote">DN Number</div>
+                        <div data-field="PoliceRegNumber">Police Reg. Number</div>
+                        <div data-field="TransportationVendor">Vendor Name</div>
+                        <div data-field="GPNumber">Transportation Number</div>
+                        <div data-field="Status">Status</div>
+                        <div data-field="ClaimType">Claim Type</div>
+                        <div data-field="DateOfDelivery">Delivery Date</div>
+                        <div data-field="DateOfIncident">Incident Date</div>
+                        <div data-field="Driver">Driver 1</div>
+                        <div data-field="Driver">Driver 2</div>
+                        <div data-field="CoDriver">CoDriver</div>
+                        <div data-field="Receiver">Receiver</div>
+                        <div data-field="Witness">Witness</div>
+                        <div data-field="ClaimExpense">Claim Expense</div>
+                        <div data-field="Supervisor">Supervisor</div>
+                        <div data-field="TransportationMode">Transportation Mode</div>
+                        <div data-field="Attachment">Attachment</div>
+                        <div data-field="MaterialCode">Material Code</div>
+                        <div data-field="MaterialDescription">Material Description</div>
+                        <div data-field="Category">Category</div>
+                        <div data-field="Pack">Pack</div>
+                        <div data-field="Remark">Remark</div>
+                        <div data-field="GoodsCategory">Goods Category</div>
+                        <div data-field="InitClaimedAmount">Initial Claimed Amount (IDR)</div>
+                        <div data-field="ClaimCategory">Claim Category</div>
+                        <div data-field="TotalClaimInPack">Total Claim In Pack</div>
+                        <div data-field="TotalClaimInStick">Total Claim In Stick</div>
+                        <div data-field="BSWarehouseReceiveDate">BS Warehouse Receive Date</div>
+                        <div data-field="HMSMemoNumber">HMS Memo Number</div>
+                        <div data-field="HMSMemoDate">HMS Memo Date</div>
+                        <div data-field="HMSMemoFile">HMS Memo File</div>
+                        <div data-field="InvoiceNumber">Invoice Number</div>
+                        <div data-field="InvoiceDate">Invoice Date</div>
+                        <div data-field="InvoiceAmount">Invoice Amount</div>
+                        <div data-field="VendorPaymentDate">Vendor Payment Date</div>
+                        <div data-field="GrossLossAmount">Gross Loss Amount</div>
+                        <div data-field="NetClaim">Net Claim (IDR)</div>
+                        <div data-field="InsurancePaymentProof">Insurance Payment Proof</div>
+                        <div data-field="EDPSNumber">eDPS Number</div>
+                        <div data-field="EDPSDate">eDPS Date</div>
+                        <div data-field="IncinerationReportDate">Incineration Report Date</div>
+                        <div data-field="IncinerationReportFile">Incineration Report File</div>
+                        <div data-field="Remarks">Remarks</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="saveLayoutButton" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @if (isSuperUser)
+                {
+                    <div class="form-group pull-left">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" id="chkGlobalCustomReport">
+                            <label for="chkGlobalCustomReport"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Global Custom Report</span>
+                    </div>
+                }
+
+                <button class="btn btn-primary" id="exportCustomReport" onclick="exportToExcel()">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <div class="col-md-6">
+                <div class="form-group">
+                        <label>Date of Incident</label>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input id="dateReceiptFrom" type="text" name="" class="form-control datepicker">
+                        </div>
+                        <div class="col-md-2 to-bi">
+                            <label>To</label>
+                        </div>
+                        <div class="col-md-5">
+                            <input id="dateReceiptTo" type="text" name="" class="form-control datepicker">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownOriginWarehouse">Sender</label>
+                    <select id="DropDownOriginWarehouse" class="select2" multiple="multiple">
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownDestinationWarehouse">Receiver</label>
+                    <select id="DropDownDestinationWarehouse" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownSTONumber">Order Number / STO</label>
+                    <input type="hidden" style="width:250px" id="DropDownSTONumber" />
+                        @* <select id="DropDownSTONumber" class="select2" multiple="multiple"></select> *@
+                        @* <input id="stoNumberInput" type="text" class="form-control" data-role="tagsinput" /> *@
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownDeliveryNoteNumber">Delivery Note Number</label>
+                    <select id="DropDownDeliveryNoteNumber" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownPoliceRegNumber">Police Reg. Number</label>
+                    <select id="DropDownPoliceRegNumber" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="DropDownVendor">Vendor</label>
+                    <select id="DropDownVendor" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            @*<div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" id="chkInactive">
+                        <label for="chkInactive"></label>
+                    </div>
+                    <span class="checkbox-deck-span">Include deleted data</span>
+                </div>
+            </div>*@
+            @if (isSuperUser)
+            {
+                <div class="clearfix"></div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label for="input-type">Active</label>
+                        <div id="input-type" class="row">
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="all" value="1" type="radio" checked/>All
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <button class="btn btn-primary" id="btnSearch">Search</button>
+                <button class="btn btn-purple" onclick="resetSearch()">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="gridTransportLostClaim" class="display table dataTable no-placeholder-filter table-condensed compact nowrap">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="select_all" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>Status</th>
+            <th align="center">Claim Status</th>
+            <th align="center">STO Number</th>
+            <th align="center">Transport No</th>
+            <th align="center">Origin</th>
+            <th align="center">Destination</th>
+            <th align="center">DN Number</th>
+            <th align="center">Police Reg. Number</th>
+            <th align="center">Vendor</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th></th>
+            <th>Claim Status</th>
+            <th>STO Number</th>
+            <th>Transport No</th>
+            <th>Origin</th>
+            <th>Destination</th> 
+            <th>DN Number</th>
+            <th>Police Reg. Number</th>
+            <th>Vendor</th>
+        </tr>
+    </thead>
+</table>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave" onclick="ChangeIsActive()">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+
+<script type="text/javascript">
+    function resetSearch() {
+        var d = new Date();;
+        d.setDate(d.getDate()-7);
+        var dm = d.getMonth() + 1;
+        $("#DropDownOriginWarehouse").select2("val", "");
+        $("#DropDownDestinationWarehouse").select2("val", "");
+        $("#DropDownSTONumber").val("");
+        // $("#stoNumberInput").val("");
+        $("#DropDownDeliveryNoteNumber").select2("val", "");
+        $("#DropDownPoliceRegNumber").select2("val", "");
+        $("#DropDownVendor").select2("val", "");
+        $("#all").prop('checked',true);
+        $("#dateReceiptFrom").val('');
+        $("#dateReceiptTo").val('');
+        //$("#dateReceiptFrom").val(new Date().getDate() - 7  + "/" + ((new Date().getMonth() + 1) < 10 ? '0' : '') + (new Date().getMonth() +1) + "/" + new Date().getFullYear());
+        $("#dateReceiptFrom").val(d.getDate()  + "/" + ("0" + dm).slice(-2) + "/" + new Date().getFullYear());
+        $("#dateReceiptTo").val(new Date().getDate()  + "/" + ((new Date().getMonth() + 1) < 10 ? '0' : '') + (new Date().getMonth() +1) + "/" + new Date().getFullYear());
+        generateGridLostClaim();
+        //generateGridLostClaimDefault();
+    }
+
+    // $( "#dateReceiptFrom" ).datepicker({ defaultDate: -7 });
+    // $( "#dateReceiptTo" ).datepicker({ defaultDate: new Date() });
+
+    var d = new Date();;
+    d.setDate(d.getDate()-7);
+    var dm = d.getMonth() + 1;
+    //$("#dateReceiptFrom").val(d.getDate());
+    //$("#dateReceiptFrom").val(new Date().getDate() - 7  + "/" + ((new Date().getMonth() + 1) < 10 ? '0' : '') + (new Date().getMonth() +1) + "/" + new Date().getFullYear());
+    $("#dateReceiptFrom").val(d.getDate()  + "/" + ("0" + dm).slice(-2) + "/" + new Date().getFullYear());
+    $("#dateReceiptTo").val(new Date().getDate()  + "/" + ((new Date().getMonth() + 1) < 10 ? '0' : '') + (new Date().getMonth() +1) + "/" + new Date().getFullYear());
+
+    $(document).ready(function() {
+        $("#all").prop('checked',true);
+        $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+        $(document).on('click', '#saveLayoutButton', function(e) {
+            saveLayout();
+            e.preventDefault();
+        })
+
+        //$(document).on('click', '#exportbutton', function(e) {
+        //    exporttoexceldefault();
+        //    e.preventdefault();
+        //});
+
+        $('#inputModal').on('hidden.bs.modal', function () {
+            $('#Warehouse').select2("close");
+            $('#Warehouse').select2("val", "null");
+
+        });
+
+        $(document).on('click', '#left', function(e) {
+            moveItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#right', function(e) {
+            moveItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftall', function(e) {
+            moveAllItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightall', function(e) {
+            moveAllItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#customReportButton', function (e) {
+            $('#chkGlobalCustomReport').prop('checked', false);
+            $("#layoutName").val('');
+            generateLayoutSelect();
+            e.preventDefault();
+        });
+
+        $('#layoutSelect').on('change', function() {
+            for (var j = 1; j < layoutIsGlobal.length; j++) {
+                if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                    $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                    //console.log(layoutIsGlobal[j].isGlobal);
+                }
+            }
+            var sourceFieldNames = [
+                //{ 'field': 'SJDate', 'label': 'Date of Receipt' },
+                { 'field': 'OriginWarehouse', 'label': 'Origin' },
+                { 'field': 'DestinationWarehouse', 'label': 'Destination' },
+                { 'field': 'STONumber', 'label': 'Order Number/STO' },
+                { 'field': 'DeliveryNumberNote', 'label': 'DN Number' },
+                { 'field': 'PoliceRegNumber', 'label': 'Police Reg. Number' },
+                { 'field': 'TransportationVendor', 'label': 'Vendor Name' },
+                { 'field': 'GPNumber', 'label': 'Transportation Number' },
+                //{ 'field': 'SJNumber', 'label': 'SJNumber' },
+                { 'field': 'Status', 'label': 'Status' },
+                { 'field': 'ClaimType', 'label': 'Claim Type' },
+                { 'field': 'DateOfDelivery', 'label': 'Delivery Date' },
+                { 'field': 'DateOfIncident', 'label': 'Incident Date' },
+                { 'field': 'Driver1', 'label': 'Driver 1' },
+                { 'field': 'Driver2', 'label': 'Driver 2' },
+                { 'field': 'CoDriver', 'label': 'CoDriver' },
+                { 'field': 'Receiver', 'label': 'Receiver' },
+                { 'field': 'Witness', 'label': 'Witness' },
+                { 'field': 'ClaimExpense', 'label': 'Claim Expense' },
+                { 'field': 'Supervisor', 'label': 'Supervisor' },
+                { 'field': 'TransportationMode', 'label': 'Transportation Mode' },
+                { 'field': 'Attachment', 'label': 'Attachment' },
+                { 'field': 'MaterialCode', 'label': 'Material Code' },
+                { 'field': 'MaterialDescription', 'label': 'Material Description' },
+                { 'field': 'Category', 'label': 'Category' },
+                { 'field': 'Pack', 'label': 'Pack' },
+                { 'field': 'Remark', 'label': 'Remark' },
+                { 'field': 'GoodsCategory', 'label': 'Goods Category' },
+                { 'field': 'InitClaimedAmount', 'label': 'Initial Claimed Amount (IDR)' },
+                { 'field': 'ClaimCategory', 'label': 'Claim Category' },
+                { 'field': 'TotalClaimInPack', 'label': 'Total Claim In Pack' },
+                { 'field': 'TotalClaimInStick', 'label': 'Total Claim In Stick' },
+                { 'field': 'BSWarehouseReceiveDate', 'label': 'BS Warehouse Receive Date' },
+                { 'field': 'HMSMemoNumber', 'label': 'HMS Memo Number' },
+                { 'field': 'HMSMemoDate', 'label': 'HMS Memo Date' },
+                { 'field': 'HMSMemoFile', 'label': 'HMS Memo File' },
+                { 'field': 'InvoiceNumber', 'label': 'Invoice Number' },
+                { 'field': 'InvoiceDate', 'label': 'Invoice Date' },
+                { 'field': 'InvoiceAmount', 'label': 'Invoice Amount' },
+                { 'field': 'VendorPaymentDate', 'label': 'Vendor Payment Date' },
+                { 'field': 'GrossLossAmount', 'label': 'Gross Loss Amount' },
+                { 'field': 'NetClaim', 'label': 'Net Claim (IDR)' },
+                { 'field': 'InsurancePaymentProof', 'label': 'Insurance Payment Proof' },
+                { 'field': 'EDPSNumber', 'label': 'eDPS Number' },
+                { 'field': 'EDPSDate', 'label': 'eDPS Date' },
+                { 'field': 'IncinerationReportDate', 'label': 'Incineration Report Date' },
+                { 'field': 'IncinerationReportFile', 'label': 'Incineration Report File' },
+                { 'field': 'Remarks', 'label': 'Remarks' }
+            ],
+                sourceFields = '',
+                destinationFieldNames = this.value.split(','),
+                destinationFields = '',
+                destinationfieldLabels = [];
+            var i;
+            for (i = 0; i < sourceFieldNames.length; ++i) {
+                if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                    // the element is not in the array
+                    sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                }
+            }
+            $("#fieldChooser #sourceFields").html(sourceFields);
+
+            for (i = 0; i < destinationFieldNames.length; ++i) {
+                destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+            }
+            $("#fieldChooser #destinationFields").html(destinationFields);
+        });
+    });
+
+    //DOWNLOAD TEMPLATE
+    $("#DownloadTemplateProcess").click(function () {
+        var dialog = bootbox.dialog({
+            title: "TOM Notification Center",
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/TranspostLostClaimDamageTemplateProcess.xlsx");
+        dialog.modal('hide');
+    });
+    $("#DownloadTemplateInvoicing").click(function () {
+        var dialog = bootbox.dialog({
+            title: "TOM Notification Center",
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/TranspostLostClaimDamageTemplateInvoicing.xlsx");
+        dialog.modal('hide');
+    });
+    $("#DownloadTemplateDispose").click(function () {
+        var dialog = bootbox.dialog({
+            title: "TOM Notification Center",
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("Assets/Download/TemplateExcel/TranspostLostClaimDamageTemplateDispose.xlsx");
+        dialog.modal('hide');
+    });
+
+    //$("#btnUpload").click(function () {
+    //    $("Upload").val('');
+    //});
+
+    $("#btnSaveNew").click(function () {
+        var dialog = bootbox.dialog({
+            title: "TOM Notification Center",
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if ($("#Upload").val() == '') {
+            dialog.modal('hide');
+            $('#ErrMsg').html("Please Upload File First !");
+            $('#modalerror').modal('show');
+
+        } else if ($("#Upload").val() == null)
+        {
+            dialog.modal('hide');
+            $('#ErrMsg').html("Please Upload File First !");
+            $('#modalerror').modal('show');
+        } else {
+            if (window.FormData !== undefined) {
+
+                var fileData = new FormData();
+                var fileUpload = document.getElementById('Upload').files;
+
+                if(fileUpload.length > 0){
+                    fileUpload = fileUpload[0];
+                    fileData.append('FileUpload', fileUpload);
+                } else{
+                    $('#textModalWarning').html('No file to be uploaded');
+                    $('#warningModal').modal('show');
+                    return;
+                }
+
+                $.ajax({
+                    type        : 'POST',
+                    url         : 'TransportLostDamageClaim/UploadTransport',
+                    dataType    : 'JSON',
+                    data        : fileData,
+                    cache       : false,
+                    contentType : false,
+                    processData : false,
+                    success     : function (res) {
+                        if(res == "No Access"){
+                            dialog.modal('hide');
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> User is not Authorized!</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        }
+                        else if(res.split("-")[0] == "Data error in rows "){
+                            dialog.modal('hide');
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span>'+res+'</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        }
+                        else if (res == "No Update") {
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> No data updated!</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            dialog.modal('hide');
+                        }
+                        else if(res == "No Sheet"){
+                            dialog.modal('hide');
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Wrong File!</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        }
+                        else if(res == "Empty" || res == "Kosong"){
+                            dialog.modal('hide');
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> No Data!</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        }
+                        else{
+                            dialog.modal('hide');
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> '+res+' data have been succesfully updated! </span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        }
+
+                        $("#Upload").val('');
+                        //generateGridLostClaimDefault();
+                        generateGridLostClaim();
+                    },
+                    error: function () {
+                        $('#notificationModal').modal('show');
+                        $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Failed!</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        dialog.modal('hide');
+                    }
+                });
+
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    });
+
+    // BEGIN : CUSTOM REPORT
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    var layoutIsGlobal = [];
+    function generateLayoutSelect() {
+        var firstLayout = "", thenLayout = "";
+        var k = 0;
+        jQuery.ajax({
+            url: '@Url.Action("../CustomReportState/GetLayouts")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: { "PageName": "TransportLostClaimDamage" },
+            success: function (response) {
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = '';
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            if (firstLayout == "") {
+                                firstLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            if (firstLayout != response[i].LayoutName) {
+                                thenLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    jQuery("#layoutSelect").html(options.slice(11)).ready(function () {
+                        // Load selected layout
+                        jQuery.ajax({
+                            url: '@Url.Action("../CustomReportState/GetSelectedLayout")',
+                            method: 'post',
+                            dataType: 'json',
+                            data: { "PageName": "TransportLostClaimDamage" },
+                            success: function (json) {
+                                $('#layoutSelect').val(json[0].FieldName);
+                                for (var j = 1; j < layoutIsGlobal.length; j++) {
+                                    if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                                        $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                                    }
+                                }
+
+                                var sourceFieldNames = [
+                                        //{ 'field': 'SJDate', 'label': 'Date of Receipt' },
+                                        { 'field': 'OriginWarehouse', 'label': 'Origin' },
+                                        { 'field': 'DestinationWarehouse', 'label': 'Destination' },
+                                        { 'field': 'STONumber', 'label': 'Order Number/STO' },
+                                        { 'field': 'DeliveryNumberNote', 'label': 'DN Number' },
+                                        { 'field': 'PoliceRegNumber', 'label': 'Police Reg. Number' },
+                                        { 'field': 'TransportationVendor', 'label': 'Vendor Name' },
+                                        { 'field': 'GPNumber', 'label': 'Transportation Number' },
+                                        //{ 'field': 'SJNumber', 'label': 'SJNumber' },
+                                        { 'field': 'Status', 'label': 'Status' },
+                                        { 'field': 'ClaimType', 'label': 'Claim Type' },
+                                        { 'field': 'DateOfDelivery', 'label': 'Delivery Date' },
+                                        { 'field': 'DateOfIncident', 'label': 'Incident Date' },
+                                        { 'field': 'Driver1', 'label': 'Driver 1' },
+                                        { 'field': 'Driver2', 'label': 'Driver 2' },
+                                        { 'field': 'CoDriver', 'label': 'CoDriver' },
+                                        { 'field': 'Receiver', 'label': 'Receiver' },
+                                        { 'field': 'Witness', 'label': 'Witness' },
+                                        { 'field': 'ClaimExpense', 'label': 'Claim Expense' },
+                                        { 'field': 'Supervisor', 'label': 'Supervisor' },
+                                        { 'field': 'TransportationMode', 'label': 'Transportation Mode' },
+                                        { 'field': 'Attachment', 'label': 'Attachment' },
+                                        { 'field': 'MaterialCode', 'label': 'Material Code' },
+                                        { 'field': 'MaterialDescription', 'label': 'Material Description' },
+                                        { 'field': 'Category', 'label': 'Category' },
+                                        { 'field': 'Pack', 'label': 'Pack' },
+                                        { 'field': 'Remark', 'label': 'Remark' },
+                                        { 'field': 'GoodsCategory', 'label': 'Goods Category' },
+                                        { 'field': 'InitClaimedAmount', 'label': 'Initial Claimed Amount (IDR)' },
+                                        { 'field': 'ClaimCategory', 'label': 'Claim Category' },
+                                        { 'field': 'TotalClaimInPack', 'label': 'Total Claim In Pack' },
+                                        { 'field': 'TotalClaimInStick', 'label': 'Total Claim In Stick' },
+                                        { 'field': 'BSWarehouseReceiveDate', 'label': 'BS Warehouse Receive Date' },
+                                        { 'field': 'HMSMemoNumber', 'label': 'HMS Memo Number' },
+                                        { 'field': 'HMSMemoDate', 'label': 'HMS Memo Date' },
+                                        { 'field': 'HMSMemoFile', 'label': 'HMS Memo File' },
+                                        { 'field': 'InvoiceNumber', 'label': 'Invoice Number' },
+                                        { 'field': 'InvoiceDate', 'label': 'Invoice Date' },
+                                        { 'field': 'InvoiceAmount', 'label': 'Invoice Amount' },
+                                        { 'field': 'VendorPaymentDate', 'label': 'Vendor Payment Date' },
+                                        { 'field': 'GrossLossAmount', 'label': 'Gross Loss Amount' },
+                                        { 'field': 'NetClaim', 'label': 'Net Claim (IDR)' },
+                                        { 'field': 'InsurancePaymentProof', 'label': 'Insurance Payment Proof' },
+                                        { 'field': 'EDPSNumber', 'label': 'eDPS Number' },
+                                        { 'field': 'EDPSDate', 'label': 'eDPS Date' },
+                                        { 'field': 'IncinerationReportDate', 'label': 'Incineration Report Date' },
+                                        { 'field': 'IncinerationReportFile', 'label': 'Incineration Report File' },
+                                        { 'field': 'Remarks', 'label': 'Remarks' }
+                                ],
+                                sourceFields = '',
+                                destinationFieldNames = json[0].FieldName.split(','),
+                                destinationFields = '',
+                                destinationfieldLabels = [];
+
+                                for (i = 0; i < sourceFieldNames.length; ++i) {
+                                    if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                                        // the element is not in the array
+                                        sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                                    } else {
+                                        destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                                    }
+                                }
+                                $("#fieldChooser #sourceFields").html(sourceFields);
+
+                                for (i = 0; i < destinationFieldNames.length; ++i) {
+                                    destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+                                }
+
+                                $("#fieldChooser #destinationFields").html(destinationFields);
+                            }
+                        });
+                    });
+                } else {
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    function saveLayout() {
+        var nonvalid = false;
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            bootbox.alert({
+                size: "small",
+                title: "TOM Notification Center",
+                message: "<img src='assets/images/danger.png' alt=''>Please fill yellow field",
+                callback: function () { /* your callback code */
+                }
+            });
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutName").val();
+            var isGlobal;
+            if ($("#chkGlobalCustomReport").prop('checked'))
+                isGlobal = true;
+            else
+                isGlobal = false;
+
+            $('#destinationFields .fc-field').each(function () {
+                fieldNames = fieldNames + $(this).data('field') + ',';
+            });
+            fieldNames = fieldNames.slice(0, -1);
+
+            $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+            $('#notificationModal').modal('show');
+
+            jQuery.ajax({
+                url: '@Url.Action("../CustomReportState/InsertRecords")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TransportLostClaimDamage", "isGlobal": isGlobal },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobal) {
+                            SaveChangesButton();
+                        } else {
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            $("#chkGlobalCustomReport").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Please fill layout name.</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>');
+                    }
+
+                    if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                        $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton() {
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+        $('#notificationModal').modal('show');
+
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '';
+        var isGlobal;
+        if ($("#chkGlobalCustomReport").prop('checked'))
+            isGlobal = true;
+        else
+            isGlobal = false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("../CustomReportState/SaveSelectedLayout")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TransportLostClaimDamage", "isGlobal": isGlobal },
+            success: function (response) {
+                if (response == "Success") {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                } else {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span>' + response + '</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                }
+            }
+        });
+    }
+
+    function exportToExcel() {
+        var columns = '';
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+
+        var dateReceiptFrom = $("#dateReceiptFrom").val();
+        var dateReceiptTo = $("#dateReceiptTo").val();
+        var origWH = $("#DropDownOriginWarehouse").val() == null ? $("#DropDownOriginWarehouse").val() : $("#DropDownOriginWarehouse").val().toString();
+        var desWH = $("#DropDownDestinationWarehouse").val() == null ? $("#DropDownDestinationWarehouse").val() : $("#DropDownDestinationWarehouse").val().toString();
+        var sto = $("#DropDownSTONumber").val() == null ? "" : $("#DropDownSTONumber").val().toString();
+        var delvNote = $("#DropDownDeliveryNoteNumber").val() == null ? "" : $("#DropDownDeliveryNoteNumber").val().toString();
+        var polReg = $("#DropDownPoliceRegNumber").val()  == null ? "" : $("#DropDownPoliceRegNumber").val().toString();
+        var vendor = $('#DropDownVendor').find(":selected").text();
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcelCustom")',
+            method: 'post',
+            dataType: 'json',
+            data: { "Columns": columns,
+                "DateReceiptFrom": dateReceiptFrom,
+                "DateReceiptTo": dateReceiptTo,
+                "OriginWarehouse": origWH,
+                "DestinationWarehouse": desWH,
+                "STONumber": sto,
+                "DeliveryNoteNumber": delvNote,
+                "PoliceRegNumber": polReg,
+                "Vendor": vendor
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    }
+
+    // END : CUSTOM REPORT
+
+    var getDropDownOriginWarehouse = function(){
+        $.ajax({
+            url: '@Url.Action("GetListOriginWarehouse", "TransportLostDamageClaim")',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                var options = '';
+                for (var i = 0; i < data.length; i++) {
+                    var arrdata = data[i].split(" - ", 2);
+                    
+                    options += '<option value="' + data[i] + '">' + arrdata[1] + '</option>';
+                }
+                $('#DropDownOriginWarehouse').append(options);
+
+                //console.log(data[i]);
+            }
+        });
+    }
+
+    var getDropDownDestWarehouse = function(){
+        $.ajax({
+            url: '@Url.Action("GetListDestWarehouse", "TransportLostDamageClaim")',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                var options = '';
+                for (var i = 0; i < data.length; i++) {
+                    var arrdata = data[i].split(" - ", 2);
+
+                    options += '<option value="' + data[i] + '">' + arrdata[1] + '</option>';
+                }
+                $('#DropDownDestinationWarehouse').append(options);
+            }
+        });
+    }
+
+    $("#DropDownSTONumber").select2({
+        ajax: {
+            url: '@Url.Action("GetListSTONumber", "TransportLostDamageClaim")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    stono: params
+                };
+            },
+            results: function (data) {
+                var myResults = [];
+                $.each(data, function (index, item) {
+                    myResults.push({
+                        'id': item,
+                        'text': item
+                    });
+                });
+                return {
+                    results: myResults
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Order Number',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    // var getDropDownSTONumber = function(){
+    //    $.ajax({
+    //        url: '@Url.Action("GetListSTONumber", "TransportLostDamageClaim")',
+    //        method: 'post',
+    //        dataType: 'json',
+    //        success: function (data) {
+    //            var options = '';
+    //            for (var i = 0; i < data.length; i++) {
+    //                options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+    //            }
+    //            $('#DropDownSTONumber').append(options);
+    //        }
+    //    });
+    // }
+
+    var getDropDownDeliveryNoteNumber = function(){
+        $.ajax({
+            url: '@Url.Action("GetListDeliveryNoteNumber", "TransportLostDamageClaim")',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                var options = '';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                }
+                $('#DropDownDeliveryNoteNumber').append(options);
+            }
+        });
+    }
+
+    var getDropDownPoliceRegNumber = function() {
+        $.ajax({
+            url: '@Url.Action("GetListPoliceRegNumber", "TransportLostDamageClaim")',
+            method: 'post',
+            dataType: 'json',
+            success: function(data) {
+                var options = '';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                }
+                $('#DropDownPoliceRegNumber').append(options);
+            }
+        });
+    };
+
+    var getDropDownVendor = function() {
+        $.ajax({
+            url: '@Url.Action("GetListVendor", "TransportLostDamageClaim")',
+            method: 'post',
+            dataType: 'json',
+            success: function(data) {
+                var options = '';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                }
+                $('#DropDownVendor').append(options);
+            }
+        });
+    };
+
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    var tempid = [];
+    var filter = new Object();
+    var stat = false;
+    function SetIsActive(param) {
+        if (tempid.length > 0) {
+            $("#textModalWarningYesNo").html("");
+            $("#textModalWarningYesNo").append("Are you sure to "+param+" this data?");
+            $('#warningModalYesNo').modal('show');
+            stat = (param == "Delete") ? false : true;
+        } else if (tempid.length == 0) {
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    }
+
+    function ChangeIsActive() {
+        filter.ListIsActiveIdString = tempid;
+        filter.Isactive = stat;
+        $.ajax({
+            url: "TransportLostDamageClaim/SetStatusResult",
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (response) {
+                var msg = stat ? "Recovered" : "Deleted";
+                if (response == "Success") {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Success your data has been ' + msg + ' !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                } else {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Error your data cannot be ' + msg + ' !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                }
+                $("#btnOK").click(function () {
+                    var dateReceiptFrom = $("#dateReceiptFrom").val(),
+                        dateReceiptTo = $("#dateReceiptTo").val(),
+                        origWH = $("#DropDownOriginWarehouse").val() == null ? $("#DropDownOriginWarehouse").val() : $("#DropDownOriginWarehouse").val().toString(),
+                        desWH = $("#DropDownDestinationWarehouse").val() == null ? $("#DropDownDestinationWarehouse").val() : $("#DropDownDestinationWarehouse").val().toString(),
+                        sto = $("#DropDownSTONumber").val() == null ? $("#DropDownSTONumber").val() : $("#DropDownSTONumber").val().toString(),
+                        // sto = $("#stoNumberInput").val() == null ? $("#stoNumberInput").val() : $("#stoNumberInput").val().toString(),
+                        delvNote = $("#DropDownDeliveryNoteNumber").val() == null ? $("#DropDownDeliveryNoteNumber").val() : $("#DropDownDeliveryNoteNumber").val().toString(),
+                        polReg = $("#DropDownPoliceRegNumber").val()  == null ? $("#DropDownPoliceRegNumber").val() : $("#DropDownPoliceRegNumber").val().toString(),
+                        vendor = $('#DropDownVendor').find(":selected").text(),
+                        deleted = $('#deleted').is(':checked');
+
+                    //if (dateReceiptFrom || dateReceiptTo || origWH || desWH || sto || delvNote || polReg || vendor || deleted) {
+                    generateGridLostClaim();
+                    //} else {
+                    //    generateGridLostClaimDefault();
+                    //}
+                    filter.ListIsActiveIdString = null;
+                    tempid = [];
+                });
+
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#gridTransportLostClaim').DataTable();
+        $('#gridTransportLostClaim tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var id = data["GPNumber"] + "-" + data["SJNumber"];
+            var result = $.grep(tempid, function (e) { return e == id; });
+            if (result.length == 0) {
+                tempid.push(id);
+            } else if (result.length == 1) {
+                tempid = tempid.filter(function (obj) {
+                    return obj !== id;
+                });
+            }
+        });
+    }
+
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#gridTransportLostClaim').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempid.push(table.cell(i, 1).data());
+            });
+            tempid = tempid.filter(onlyUnique);
+        } else {
+            tempid = [];
+        }
+    });
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+    var oTable;
+
+    var newchar = '~';
+
+    function generateGridLostClaim() {
+        if (oTable != null) {
+            oTable.destroy();
+        }
+
+        var dateReceiptFrom = $("#dateReceiptFrom").val();
+        var dateReceiptTo = $("#dateReceiptTo").val();
+        var origWH = $("#DropDownOriginWarehouse").val() == null ? $("#DropDownOriginWarehouse").val() : $("#DropDownOriginWarehouse").val().toString();
+        var desWH = $("#DropDownDestinationWarehouse").val() == null ? $("#DropDownDestinationWarehouse").val() : $("#DropDownDestinationWarehouse").val().toString();
+        var sto = $("#DropDownSTONumber").val() == null ? $("#DropDownSTONumber").val() : $("#DropDownSTONumber").val().toString();
+        // var sto = $("#stoNumberInput").val() == null ? $("#stoNumberInput").val() : $("#stoNumberInput").val().toString();
+        var delvNote = $("#DropDownDeliveryNoteNumber").val() == null ? $("#DropDownDeliveryNoteNumber").val() : $("#DropDownDeliveryNoteNumber").val().toString();
+        var polReg = $("#DropDownPoliceRegNumber").val()  == null ? $("#DropDownPoliceRegNumber").val() : $("#DropDownPoliceRegNumber").val().toString();
+        var vendor = $('#DropDownVendor').find(":selected").text();
+
+        //var includeDeleted = $("#chkInactive").prop('checked');
+        var includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        oTable = $('#gridTransportLostClaim').DataTable({
+            "processing": true,
+            "language": {
+                "loadingRecords": '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Loading...</div>'
+            },
+            "pageLength": 25,
+            "paging": true,
+            "sort": true,
+            "searching": true,
+            "ajax": {
+                "url": @Html.BaseUrl("TransportLostDamageClaim/LoadDataGrid"),
+                "method": 'GET',
+                "dataType": 'json',
+                "data": {
+                    DateReceiptFrom: dateReceiptFrom,
+                    DateReceiptTo: dateReceiptTo,
+                    OriginWarehouse: origWH,
+                    DestinationWarehouse: desWH,
+                    STONumber: sto,
+                    DeliveryNoteNumber: delvNote,
+                    PoliceRegNumber: polReg,
+                    Vendor: vendor,
+                    IncludeInActive:includeInActive
+                },
+                "dataSrc": function (data) {
+                    return data;
+                }
+            },
+            "dom": 'lf<"table-overflow"t>ip',
+            "orderCellsTop": true,
+            "columnDefs":[
+                { "targets" : 0, "orderable":false},
+                { "targets" : 1, "orderable":false}
+            ],
+            "columns":
+            [
+                {
+                    "data": "SJNumber", "class": "text-center", "render": function (data, type, row, meta) {
+                        return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["SJNumber"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["SJNumber"] + ']"></label></div></td>';
+                    }
+                },
+                {
+                    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        if (data) {
+                            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        } else {
+                            return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                        }
+                    }
+                },
+                { "data": 'RealStatus', 'searchable': false},
+                {
+                    "data": 'SJNumber',
+                    'searchable': true,
+                    "render": function (data, type, row, meta) {
+                        return '<a href="@Url.Action("Edit", "TransportLostDamageClaim")?id=' + row.GPNumber.split('/').join(newchar) + '$' + row.SJNumber.split('/').join(newchar) + '">' + data + '</a>';
+                    }
+                },
+                { "data": 'GPNumber', 'searchable': true },
+                { "data": 'OriginWarehouse', 'searchable': true },
+                { "data": 'DestinationWarehouse', 'searchable': true },
+                //{ "data": 'STONumber', 'searchable': true },
+                { "data": 'DeliveryNumberNote', 'searchable': true },
+                { "data": 'PoliceRegNumber', 'searchable': true },
+                { "data": 'TransportationVendorName', 'searchable': true },
+            ]
+        });
+
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        // Setup - add a text input to each footer cell
+        $('#gridTransportLostClaim thead.filters th').each(function (index) {
+            if ((index >= 2) && (index <= 11)) {
+                var title = $('#gridTransportLostClaim thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        // Apply the search
+        oTable.columns().every(function (index) {
+            $('#gridTransportLostClaim thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                oTable.column($(this).parent().index() + ':visible')
+                    .search(this.value)
+                    .draw();
+            });
+        });
+
+        //$('#gridTransportLostClaim').on("click", ".editAboveOvertime", function (event) {
+
+        //    event.preventDefault();
+
+        //    var url = $(this).attr("href");
+
+        //    $.get(url, function (data) {
+        //        $('#editContainer').html(data);
+
+        //        $('#editModalAboveReg').modal('show');
+        //    });
+
+        //});
+    }
+
+    function generateGridLostClaimDefault() {
+        if (oTable != null) {
+            oTable.destroy();
+        }
+
+        oTable = $('#gridTransportLostClaim').DataTable({
+            "processing": true,
+            "language": {
+                "loadingRecords": '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Loading...</div>'
+            },
+            "pageLength": 25,
+            "paging": true,
+            "sort": true,
+            "searching": true,
+            "ajax": {
+                "url": @Html.BaseUrl("TransportLostDamageClaim/LoadGridDefault"),
+                "method": 'GET',
+                "dataType": 'json',
+                "dataSrc": function (data) {
+                    return data;
+                }
+            },
+            "dom": 'lf<"table-overflow"t>ip',
+            "orderCellsTop": true,
+            "columnDefs":[
+                { "targets" : 0, "orderable":false},
+                { "targets" : 1, "orderable":false}
+            ],
+            "columns":
+            [
+                {
+                    "data": "SJNumber", "class": "text-center", "render": function (data, type, row, meta) {
+                        return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["SJNumber"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["SJNumber"] + ']"></label></div></td>';
+                    }
+                },
+                {
+                    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        if (data) {
+                            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        } else {
+                            return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                        }
+                    }
+                },
+                { "data": 'RealStatus', 'searchable': true},
+                {
+                    "data": 'SJNumber',
+                    'searchable': true,
+                    "render": function (data, type, row, meta) {
+                        return '<a href="@Url.Action("Edit", "TransportLostDamageClaim")?id=' + row.GPNumber.split('/').join(newchar) + '$' + row.SJNumber.split('/').join(newchar) + '">' + data + '</a>';
+                    }
+                },
+                { "data": 'GPNumber', 'searchable': true },
+                { "data": 'OriginWarehouse', 'searchable': true },
+                { "data": 'DestinationWarehouse', 'searchable': true },
+                //{ "data": 'STONumber', 'searchable': true },
+                { "data": 'DeliveryNumberNote', 'searchable': true },
+                { "data": 'PoliceRegNumber', 'searchable': true },
+                { "data": 'TransportationVendor', 'searchable': true,
+                    "render": function (data, type, row, meta) {
+                        return '<p>'+row.TransportationVendorName+'</p>';
+                    }
+                }
+            ]
+        });
+
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        // Setup - add a text input to each footer cell
+        $('#gridTransportLostClaim thead.filters th').each(function (index) {
+            if ((index >= 2) && (index <= 11)) {
+                var title = $('#gridTransportLostClaim thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        // Apply the search
+        oTable.columns().every(function (index) {
+            $('#gridTransportLostClaim thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                oTable.column($(this).parent().index() + ':visible')
+                    .search(this.value)
+                    .draw();
+            });
+        });
+
+        //$('#gridTransportLostClaim').on("click", ".editAboveOvertime", function (event) {
+
+        //    event.preventDefault();
+
+        //    var url = $(this).attr("href");
+
+        //    $.get(url, function (data) {
+        //        $('#editContainer').html(data);
+
+        //        $('#editModalAboveReg').modal('show');
+        //    });
+
+        //});
+    }
+
+    $("#btnExportExcel").on("click", function() {
+        ExportExcel();
+    });
+
+    function ExportExcel(){
+
+        var dateReceiptFrom = $("#dateReceiptFrom").val();
+        var dateReceiptTo = $("#dateReceiptTo").val();
+        var origWH = $("#DropDownOriginWarehouse").val() == null ? $("#DropDownOriginWarehouse").val() : $("#DropDownOriginWarehouse").val().toString();
+        var desWH = $("#DropDownDestinationWarehouse").val() == null ? $("#DropDownDestinationWarehouse").val() : $("#DropDownDestinationWarehouse").val().toString();
+        var sto = $("#DropDownSTONumber").val() == null ? $("#DropDownSTONumber").val() : $("#DropDownSTONumber").val().toString();
+        var delvNote = $("#DropDownDeliveryNoteNumber").val() == null ? $("#DropDownDeliveryNoteNumber").val() : $("#DropDownDeliveryNoteNumber").val().toString();
+        var polReg = $("#DropDownPoliceRegNumber").val()  == null ? $("#DropDownPoliceRegNumber").val() : $("#DropDownPoliceRegNumber").val().toString();
+        var vendor = $('#DropDownVendor').find(":selected").text();
+
+        $.ajax({
+            url: 'TransportLostDamageClaim/ExportToExcel',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "DateReceiptFrom": dateReceiptFrom,
+                "DateReceiptTo": dateReceiptTo,
+                "OriginWarehouse": origWH,
+                "DestinationWarehouse": desWH,
+                "STONumber": sto,
+                "DeliveryNoteNumber": delvNote,
+                "PoliceRegNumber": polReg,
+                "Vendor": vendor
+            },
+            success: function (data) {
+                window.location.assign("Assets/Download/" + data);
+            }
+        });
+    }
+
+    $("#btnSearch").on("click", function() {
+        var dateReceiptFrom = $("#dateReceiptFrom").val(),
+            dateReceiptTo = $("#dateReceiptTo").val(),
+            origWH = $("#DropDownOriginWarehouse").val() == null ? $("#DropDownOriginWarehouse").val() : $("#DropDownOriginWarehouse").val().toString(),
+            desWH = $("#DropDownDestinationWarehouse").val() == null ? $("#DropDownDestinationWarehouse").val() : $("#DropDownDestinationWarehouse").val().toString(),
+            sto = $("#DropDownSTONumber").val() == null ? $("#DropDownSTONumber").val() : $("#DropDownSTONumber").val().toString(),
+            // sto = $("#stoNumberInput").val() == null ? $("#stoNumberInput").val() : $("#stoNumberInput").val().toString(),
+            delvNote = $("#DropDownDeliveryNoteNumber").val() == null ? $("#DropDownDeliveryNoteNumber").val() : $("#DropDownDeliveryNoteNumber").val().toString(),
+            polReg = $("#DropDownPoliceRegNumber").val()  == null ? $("#DropDownPoliceRegNumber").val() : $("#DropDownPoliceRegNumber").val().toString(),
+            vendor = $('#DropDownVendor').find(":selected").text(),
+            deleted = $('#deleted').is(':checked');
+
+        //if (dateReceiptFrom || dateReceiptTo || origWH || desWH || sto || delvNote || polReg || vendor || deleted) {
+        generateGridLostClaim();
+        //} else {
+        //    generateGridLostClaimDefault();
+        //}
+    });
+
+    getDropDownOriginWarehouse();
+    getDropDownDestWarehouse();
+    // getDropDownSTONumber();
+    getDropDownDeliveryNoteNumber();
+    getDropDownPoliceRegNumber();
+    getDropDownVendor();
+    generateGridLostClaim();
+    //generateGridLostClaimDefault();
+
+</script>

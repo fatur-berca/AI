@@ -1,0 +1,468 @@
+﻿@using hms_tom_dev.Helper
+@model hms_tom_dev.Models.Common.ViewModelBase
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "General Budget Monitoring";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int[] months = Enumerable.Range(1, 12).ToArray();
+    int curMonth = DateTime.Today.Month;
+}
+
+<div class="filter-deck">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+            {
+                <button class="btn btn-primary" id="btnExport">Export</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+            {
+                <input class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModal" id="customReportButton" value="Custom Report">
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+            {
+                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadfile" onclick="ClearFile()">Upload</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Download)))
+            {
+                <button class="btn btn-primary" id="download">Download</button>
+            }
+        </div>
+        <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="AdvancedSrc"><b>Advanced Search</b><i class="fa fa-angle-down"></i></a>
+    </div>
+
+    <div class="filter-deck nmb">
+        <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel wmb wbt">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Date of Transaction</label>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label>Month</label>
+                                    @Html.DropDownListFor(x => x.ListMonths, months.Select(x =>
+                                        new SelectListItem
+                                        {
+                                            Text = new DateTime(2000, x, 1).ToString("MMM"), //x.ToString(),
+                                            Value = x.ToString()
+                                        }), new { @class = "form-control", @id = "filterMonthFrom" })
+                                </div>
+                                <div class="col-md-2 to-bi">
+                                    <label></label>
+                                    <label>To</label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Month</label>
+                                    @Html.DropDownListFor(x => x.ListMonths, months.Select(x =>
+                                        new SelectListItem
+                                        {
+                                            Text = new DateTime(2000, x, 1).ToString("MMM"), //x.ToString(),
+                                            Value = x.ToString()
+                                        }), new { @class = "form-control", @id = "filterMonthTo" })
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Year</label>
+                                    @Html.DropDownListFor(model => Model.ListYears,
+                                        new SelectList(Enumerable.Range(-3, 7)
+                                            .Select(r => new
+                                            {
+                                                Text = (DateTime.Now.Year + r).ToString(),
+                                                Value = r.ToString()
+                                            }),
+                                            "Value", "Text", Model.ListYears),
+                                        new { @class = "form-control", @id = "filterYearFrom" })
+                                </div>
+                                @*<div class="col-md-2">
+                                    <label>Year</label>
+                                    @Html.DropDownListFor(model => Model.ListYears,
+                                        new SelectList(Enumerable.Range(-3, 7)
+                                            .Select(r => new
+                                            {
+                                                Text = (DateTime.Now.Year + r).ToString(),
+                                                Value = r.ToString()
+                                            }),
+                                            "Value", "Text", Model.ListYears),
+                                        new { @class = "form-control", @id = "filterYearTo" })
+                                </div>*@
+                                <div class="col-md-12">
+                                    <hr />
+                                    <button class="btn btn-primary" onclick="advSearch()">Search</button>
+                                    <button class="btn btn-purple" onclick="advReset()">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-overflow-outer">
+            <table id="dtFilterBudget" class="display table dataTable nowrap">
+                <thead>
+                    <tr>
+                        <th>Rows</th>
+                        <th>Actual</th>
+                        <th>Budget</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Custom Report</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="MonthFrom">From Month</label>
+                            @Html.DropDownListFor(x => x.ListMonths, months.Select(x =>
+                                new SelectListItem
+                                {
+                                    Text = new DateTime(2000, x, 1).ToString("MMM"), //x.ToString(),
+                                    Value = x.ToString(),
+                                    Selected = (x == curMonth)
+                                }), new { @class = "form-control", @id = "customFilterMonthFrom" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="MonthTo">To Month</label>
+                            @Html.DropDownListFor(x => x.ListMonths, months.Select(x =>
+                                new SelectListItem
+                                {
+                                    Text = new DateTime(2000, x, 1).ToString("MMM"), //x.ToString(),
+                                    Value = x.ToString(),
+                                    Selected = (x == curMonth)
+                                }), new { @class = "form-control", @id = "customFilterMonthTo" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="exportData('CustomExport')">Export</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="uploadfile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">                               
+                                <label class="control-label">Upload</label>
+                                <input id="fileInput" type="file" class="filestyle" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onchange="checkfile(this);">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled="true">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var today = new Date();
+    var paramExport = "exportAll";
+    (function ($) {
+        $('#filterYearFrom').val(0);
+        $('#filterMonthFrom').val(today.getMonth()+1);
+        $('#filterMonthTo').val(today.getMonth()+1);
+
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        
+        generateTable();
+
+        $(document).on('click', '#download', function (e) {
+            window.location.href = 'Assets/Uploads/GenBudgetMonitoring/BudgetMonitoringUploadedFile.xlsx';
+            e.preventDefault();
+        });
+
+        $("#fileInput").change(function () {
+            $("#btnUpload").prop("disabled", false);
+        });
+
+        $("#AdvancedSrc").click(function() {
+            //$("#filterYearFrom").val(0);
+            paramExport = "AdvSearch";
+        });
+
+        $("#btnExport").click(function(){
+            exportData(paramExport);
+        });
+
+        $("#btnUpload").on("click", function() {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Uploading...</div>',
+                closeButton: false
+            });
+
+            var uploadfile = $('#fileInput').val();
+
+            var fileInput = document.getElementById('fileInput');
+
+            var fileNameCost = "";
+
+            var fileCost = "";
+
+            if (uploadfile) {
+                fileNameCost = fileInput.files[0].name;
+                fileCost = fileInput.files[0];
+            }
+
+            var formData = new FormData();
+            //Appending each file to FormData object
+            formData.append(fileNameCost, fileCost);
+
+            //Creating an XMLHttpRequest and sending
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', 'BudgetMonitoring/Upload');
+
+            xhr.send(formData);
+
+            xhr.onreadystatechange = function() {
+                dialog.modal("hide");
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: xhr.responseText,
+                        size: "small",
+                        closeButton: false
+                    });
+                    $("#uploadfile").modal('hide');
+                }
+            };
+        });
+
+        //$("#exportAll").on("click", function() {
+        //    exportData("All");
+        //});
+
+        //$("#exportCustom").on("click", function() {
+        //    exportData("Custom");
+        //});
+
+    })(jQuery);
+
+    function checkfile(sender) {
+        var validExts = new Array(".xlsx", ".xls");
+        var fileExt = sender.value;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            bootbox.alert({
+                title: "DFIS Notification Center",
+                message: "Invalid file selected, valid files are of " + validExts.toString() + " types.",
+                size: "small",
+                closeButton: false,
+                callback: function () {
+                    ClearFile();
+                }
+            });
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function ClearFile() {
+        $('#fileInput').val("");
+        $('#fileInput').jfilestyle('clear');
+        $("#btnUpload").prop("disabled", true);
+    }
+
+    function exportData(paramXport) {
+        console.log(paramXport);
+        param2 = today.getMonth()+1;
+        var filterMonthFrom = 0;
+        var filterMonthTo = 0;
+        var QuarterNum = 0;
+        var filterYear = 0;
+        
+        if (paramXport == "exportAll")
+        {
+            filterYear = $("#filterYearFrom option:selected").text();
+            if ((param2 == 1) || (param2 == 2) || (param2 == 3))
+            {
+                filterMonthFrom = 1;
+                filterMonthTo = 3;
+                QuarterNum = 1;
+            }
+            else if ((param2 == 4) || (param2 == 5) || (param2 == 6))
+            {
+                filterMonthFrom = 4;
+                filterMonthTo = 6;
+                QuarterNum = 2;
+            }
+            else if ((param2 == 7) || (param2 == 8) || (param2 == 9))
+            {
+                filterMonthFrom = 7;
+                filterMonthTo = 9;
+                QuarterNum = 3;
+            }
+            else if ((param2 == 10) || (param2 == 11) || (param2 == 12))
+            {
+                filterMonthFrom = 10;
+                filterMonthTo = 12;
+                QuarterNum = 4;
+            }
+        }
+        else {
+            if(paramXport == "AdvSearch"){
+                filterMonthFrom = $("#filterMonthFrom").val()*1;
+                filterMonthTo = $("#filterMonthTo").val()*1;
+                filterYear = $("#filterYearFrom option:selected").text();
+            }
+            else{
+                filterMonthFrom = $("#customFilterMonthFrom option:selected").val();
+                filterMonthTo = $("#customFilterMonthTo option:selected").val();
+                filterYear = today.getFullYear();
+                console.log(filterYear);
+            }
+            
+            var delta = filterMonthTo - filterMonthFrom;
+            if (delta == 2) {
+                QuarterNum = 1;
+            }else if (delta == 5) {
+                QuarterNum = 2;
+            }else if (delta == 8) {
+                QuarterNum = 3;
+            }else if (delta == 11) {
+                QuarterNum = 4;
+            }
+        }
+        
+        $.ajax({
+            url: @Html.BaseUrl("BudgetMonitoring/Export"), 
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "filterMonthFrom": filterMonthFrom,
+                "filterMonthTo": filterMonthTo,
+                "filterYear": filterYear,
+                "typeExp" : paramXport,
+                "QuarterNum" : QuarterNum
+            },
+            success: function (data) {
+                console.log(data);
+                window.location.assign("Assets/Download/" + data);
+                $("#customReportModal").modal('hide');
+            }
+        });
+        
+        @*//'@Url.Action("Export")',*@
+    }
+
+    function advSearch() {
+        var monthFrom   = $("#filterMonthFrom").val()*1;
+        var monthTo     = $("#filterMonthTo").val()*1;
+        
+        if(monthFrom < monthTo || monthFrom == monthTo){
+            generateTable("advSearch");
+        } else{
+            bootbox.alert({
+                title: "DFIS Notification Center",
+                message: '<img src="assets/images/danger.png" alt=""><span> "Month to" must be greater than "month from"! </span>',
+                size: 'small',
+                closeButton: false
+            });
+        }
+    }
+
+    function advReset() {
+        $("#filterMonthFrom").val(today.getMonth()+1);
+        $("#filterMonthTo").val(today.getMonth()+1);
+        $("#filterYearFrom").val(0);
+        generateTable("advReset");
+    }
+
+    function generateTable(param) {
+        var search = "";
+        var filterYear = $("#filterYearFrom option:selected").text();
+        if (param == "advSearch") {
+            dialogloading = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            search = param;
+        }
+        else if (param == "advReset") {
+            search = "Search";
+            filterYear = today.getFullYear();
+        }
+        else {
+            search = "Search";
+            filterYear = today.getFullYear();
+        }
+        $.ajax({
+            criteria: {
+                SortExpression: "Year",
+                SortOrder: "ASC",
+            },
+            url: '@Url.Action("GetData")',
+            data: {
+                "filterMonthFrom": $("#filterMonthFrom option:selected").val(),
+                "filterMonthTo": $("#filterMonthTo option:selected").val(),
+                "filterYearFrom": filterYear,
+                "filterYearTo": filterYear,
+                "generateType": search
+            },
+            method: 'GET',
+            dataType: 'json',
+            cache:false,
+            success: function (json) {
+                var result = JSON.parse(json);
+                var dataJson = {
+                    dataid: "An optional sourcetable identifier",
+                    columns: [
+                        { colvalue: "Func ", coltext: "Func ", header: "Row Label ", sortbycol: "Func ", groupbyrank: 1, pivot: false, result: false },
+                        { colvalue: "Dept ", coltext: "Dept ", header: " ", sortbycol: "Dept ", groupbyrank: 2, pivot: false, result: false },
+                        { colvalue: "Category ", coltext: "Category ", header: " ", sortbycol: "Category ", groupbyrank: 3, pivot: false, result: false },
+                        { colvalue: "val ", coltext: "val ", header: "val ", sortbycol: "val ", groupbyrank: null, pivot: false, result: true },
+                        { colvalue: "res ", coltext: "res ", header: "ac ", sortbycol: "res ", groupbyrank: null, pivot: true, result: false }],
+                    rows: result, // json data
+                };
+                $('#dtFilterBudget').pivot({
+                    source: dataJson,
+                    formatFunc: function (n) {
+                        return jQuery.fn.pivot.formatUK(n, 2);
+                    },
+                    bCollapsible:true,
+                    //parseNumFunc: function (n) {
+                    //    return +((typeof n === "string") ? +n.replace('.', '').replace(',', '.') : n);
+                    //},
+                    onResultCellClicked: function (data) {
+
+                    },
+                    sortPivotColumnHeaders: false //we want months non sorted to get them in the right order.
+                });
+                dialogloading.modal("hide");
+            }
+        });
+    }
+</script>

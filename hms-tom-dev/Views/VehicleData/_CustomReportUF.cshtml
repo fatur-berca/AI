@@ -1,0 +1,383 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<!-- Custom Report Modal Dialog -->
+<div class="modal fade" id="customReportModalUF" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelectUF" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooserUF" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFieldsUF" class="source">
+                        <div data-field="policenumber">Police Registration Number</div>
+                        <div data-field="VehicleType">Vehicle Type</div>
+                        <div data-field="Vendor">Vendor</div>
+                        <div data-field="C1">Day 1</div>
+                        <div data-field="C2">Day 2</div>
+                        <div data-field="C3">Day 3</div>
+                        <div data-field="C4">Day 4</div>
+                        <div data-field="C5">Day 5</div>
+                        <div data-field="C6">Day 6</div>
+                        <div data-field="C7">Day 7</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="leftUF" value="<">
+                            <input class="btn btn-info mini" type="button" id="rightUF" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFieldsUF" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightallUF" value=">>">
+                            <input class="btn btn-info" type="button" id="leftallUF" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="saveLayoutButtonUF" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutNameUF">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReportUF">
+                                <label for="chkGlobalCustomReportUF"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+                {
+                    <button class="btn btn-primary" id="exportCustomReportUF">Export</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Close)))
+                {
+                    <button class="btn btn-purple" data-dismiss="modal">Close</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#fieldChooserUF").fieldChooser($("#sourceFieldsUF"), $("#destinationFieldsUF"));
+
+        $(document).on('click', '#saveLayoutButtonUF', function (e) {
+            saveLayoutUF();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftUF', function (e) {
+            moveItems('#destinationFieldsUF', '#sourceFieldsUF');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightUF', function (e) {
+            moveItems('#sourceFieldsUF', '#destinationFieldsUF');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftallUF', function (e) {
+            moveAllItems('#destinationFieldsUF', '#sourceFieldsUF');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightallUF', function (e) {
+            moveAllItems('#sourceFieldsUF', '#destinationFieldsUF');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#customReportButtonUF', function (e) {
+            $("#layoutNameUF").val('');
+            $('#chkGlobalCustomReportUF').prop('checked', false);
+            generateLayoutSelectUF();
+            e.preventDefault();
+        });
+
+        $('#layoutSelectUF').on('change', function () {
+            for (var j = 1; j < layoutIsGlobalUF.length; j++) {
+                if ($('#layoutSelectUF option:selected').text() == layoutIsGlobalUF[j].LayoutName) {
+                    $('#chkGlobalCustomReportUF').prop('checked', layoutIsGlobalUF[j].isGlobalUF);
+                }
+            }
+            var sourceFieldNamesUF = [
+                    { 'field': 'policenumber', 'label': 'Police Registration Number' },
+                    { 'field': 'VehicleType', 'label': 'Vehicle Type' },
+                    { 'field': 'Vendor', 'label': 'Vendor' },
+                    { 'field': 'C1', 'label': 'Day 1' },
+                    { 'field': 'C2', 'label': 'Day 2' },
+                    { 'field': 'C3', 'label': 'Day 3' },
+                    { 'field': 'C4', 'label': 'Day 4' },
+                    { 'field': 'C5', 'label': 'Day 5' },
+                    { 'field': 'C6', 'label': 'Day 6' },
+                    { 'field': 'C7', 'label': 'Day 7' }
+                ],
+                sourceFieldsUF = '',
+                destinationFieldNamesUF = this.value.split(','),
+                destinationFieldsUF = '',
+                destinationfieldLabels = [];
+
+            for (i = 0; i < sourceFieldNamesUF.length; ++i) {
+                if (jQuery.inArray(sourceFieldNamesUF[i]['field'], destinationFieldNamesUF) == -1) {
+                    // the element is not in the array
+                    sourceFieldsUF = sourceFieldsUF + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNamesUF[i]['field'] + "'>" + sourceFieldNamesUF[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNamesUF[i]['field']] = sourceFieldNamesUF[i]['label'];
+                }
+            }
+            $("#fieldChooserUF #sourceFieldsUF").html(sourceFieldsUF);
+
+            for (i = 0; i < destinationFieldNamesUF.length; ++i) {
+                destinationFieldsUF = destinationFieldsUF + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNamesUF[i] + "'>" + destinationfieldLabels[destinationFieldNamesUF[i]] + "</div>";
+            }
+            $("#fieldChooserUF #destinationFieldsUF").html(destinationFieldsUF);
+        });
+
+        $(document).on('click', '#exportCustomReportUF', function (e) {
+            exportCustomToExcelUF();
+            e.preventDefault();
+        });
+    });
+
+    var layoutIsGlobalUF = [];
+
+    function generateLayoutSelectUF() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TransportUnitFrequent" },
+            success: function (response) {
+                dialog.modal("hide");
+
+                var layoutNameUF = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = '';
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutNameUF != response[i].LayoutName) {
+                            if (firstLayout == "") {
+                                firstLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobalUF[k] = { "isGlobalUF": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            if (firstLayout != response[i].LayoutName) {
+                                thenLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobalUF[k] = { "isGlobalUF": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            options = options + "'>" + layoutNameUF + "</option><option value='" + response[i].FieldName;
+                            layoutNameUF = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutNameUF + "</option>";
+                    jQuery("#layoutSelectUF").html(options.slice(11)).ready(function () {
+                        // Load selected layout
+                        jQuery.ajax({
+                            url: '@Url.Action("GetSelectedLayout", "CustomReportState")',
+                            method: 'post',
+                            dataType: 'json',
+                            data: { "PageName": "TransportUnitFrequent" },
+                            success: function (json) {
+                                $('#layoutSelectUF').val(json[0].FieldName);
+                                for (var j = 1; j < layoutIsGlobalUF.length; j++) {
+                                    if ($('#layoutSelectUF option:selected').text() == layoutIsGlobalUF[j].LayoutName) {
+                                        $('#chkGlobalCustomReportUF').prop('checked', layoutIsGlobalUF[j].isGlobalUF);
+                                    }
+                                }
+                                var sourceFieldNamesUF = [
+                                    { 'field': 'policenumber', 'label': 'Police Registration Number' },
+                                    { 'field': 'VehicleType', 'label': 'Vehicle Type' },
+                                    { 'field': 'Vendor', 'label': 'Vendor' },
+                                    { 'field': 'C1', 'label': 'Day 1' },
+                                    { 'field': 'C2', 'label': 'Day 2' },
+                                    { 'field': 'C3', 'label': 'Day 3' },
+                                    { 'field': 'C4', 'label': 'Day 4' },
+                                    { 'field': 'C5', 'label': 'Day 5' },
+                                    { 'field': 'C6', 'label': 'Day 6' },
+                                    { 'field': 'C7', 'label': 'Day 7' }
+                                ],
+                                sourceFieldsUF = '',
+                                destinationFieldNamesUF = json[0].FieldName.split(','),
+                                destinationFieldsUF = '',
+                                destinationfieldLabels = [];
+
+                                for (i = 0; i < sourceFieldNamesUF.length; ++i) {
+                                    if (jQuery.inArray(sourceFieldNamesUF[i]['field'], destinationFieldNamesUF) == -1) {
+                                        // the element is not in the array
+                                        sourceFieldsUF = sourceFieldsUF + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNamesUF[i]['field'] + "'>" + sourceFieldNamesUF[i]['label'] + "</div>";
+                                    } else {
+                                        destinationfieldLabels[sourceFieldNamesUF[i]['field']] = sourceFieldNamesUF[i]['label'];
+                                    }
+                                }
+                                $("#fieldChooserUF #sourceFieldsUF").html(sourceFieldsUF);
+
+                                for (i = 0; i < destinationFieldNamesUF.length; ++i) {
+                                    destinationFieldsUF = destinationFieldsUF + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNamesUF[i] + "'>" + destinationfieldLabels[destinationFieldNamesUF[i]] + "</div>";
+                                }
+
+                                $("#fieldChooserUF #destinationFieldsUF").html(destinationFieldsUF);
+                            }
+                        });
+                    });
+                } else {
+                    jQuery("#layoutSelectUF").html(options);
+                }
+            }
+        });
+    }
+
+    function saveLayoutUF() {
+        var nonvalid = false;
+
+        if ($("#layoutNameUF").val() == "") { //layout name
+            $("#layoutNameUF").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutNameUF").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNamesUF = '',
+                layoutNameUF = $("#layoutNameUF").val(),
+                isGlobalUF = ($("#chkGlobalCustomReportUF").prop('checked')) ? true : false;
+
+            $('#destinationFieldsUF .fc-field').each(function () {
+                fieldNamesUF = fieldNamesUF + $(this).data('field') + ',';
+            });
+            fieldNamesUF = fieldNamesUF.slice(0, -1);
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            jQuery.ajax({
+                url: '@Url.Action("InsertRecords", "CustomReportState")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutNameUF, "fieldNames": fieldNamesUF, "pageName": "TransportUnitFrequent", "isGlobal": isGlobalUF },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobalUF) {
+                            SaveChangesButton(dialog);
+                        } else {
+                            alertCrSaveSuccess();
+                            dialog.modal('hide');
+                            $("#chkGlobalCustomReportUF").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        alertCrPleaseFill();
+                        dialog.modal('hide');
+                    }
+
+                    if ($("#layoutNameUF").val() != $("#layoutSelectUF option:selected").text()) {
+                        $("#layoutSelectUF").append('<option value="' + fieldNamesUF + '">' + layoutNameUF + '</option>').val(fieldNamesUF);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutNameUF = $("#layoutNameUF").val(),
+            destinationFieldsUF = '',
+            isGlobalUF = ($("#chkGlobalCustomReportUF").prop('checked')) ? true : false;
+
+        $('#destinationFieldsUF .fc-field').each(function () {
+            destinationFieldsUF = destinationFieldsUF + $(this).data("field") + ',';
+        });
+        destinationFieldsUF = destinationFieldsUF.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutNameUF, "fieldNames": destinationFieldsUF, "pageName": "TransportUnitFrequent", "isGlobal": isGlobalUF },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    function exportCustomToExcelUF() {
+        var columnsUF = "",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        $('#destinationFieldsUF .fc-field').each(function () {
+            columnsUF = columnsUF + $(this).text() + ',';
+        });
+        columnsUF = columnsUF.slice(0, -1);
+        
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcelUF")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "Columns": columnsUF,
+                "Vendor": $('#Vendor').val(),
+                "VehicleType": $('#VehicleType').val(),
+                "TransactionDate": $('#TransactionDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1")
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+</script>

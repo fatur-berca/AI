@@ -1,0 +1,33 @@
+// box panel
+
+.box{
+	padding: 25px;
+	margin-bottom: 20px;
+	background-color: $wt;
+	@include border-radius(5px);
+	.box-title{
+		text-transform: uppercase;
+		font-weight: normal;
+		margin-bottom: 20px;
+		font-size: 12px;
+		margin-top: 0px;
+		font-family: $r;
+	}
+	hr{
+		margin-bottom: 20px;
+	}
+	&.map-deck{
+		padding: 0px;
+		#map{
+			height: 225px;
+			width: 100%;
+		}
+		form{
+			padding: 25px;
+		}
+	}
+	&.with-overflow{
+		overflow-y: auto;
+    	max-height: 815px;
+	}
+}

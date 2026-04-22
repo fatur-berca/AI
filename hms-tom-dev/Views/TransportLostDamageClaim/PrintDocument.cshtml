@@ -1,0 +1,202 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">
+
+<style>
+    .imgPdf {
+        width:200px !important;
+        height:200px !important;
+    }
+</style>
+
+<body class="report-page">
+    <main>
+
+        <h3 class="title">BERITA ACARA (BA) ROKOK RUSAK/HILANG DALAM PENGIRIMAN</h3>
+        <h5 class="renumber">No: ZD4A/2017/5/4701153523</h5>
+
+        <ul class="col-data">
+            <li><label>From</label><span>: @Model.OriginWarehouse</span></li>
+            <li><label>Destination</label><span>: @Model.DestinationWarehouse</span></li>
+            <li><label>STO Number</label><span>: @Model.STONumber</span></li>
+            <li><label>DN Number</label><span>: @Model.DeliveryNumberNote</span></li>
+            <li><label>Date of Delivery</label><span>: @Model.DateOfDelivery</span></li>
+            <li><label>Date of Receipt</label><span>: @Model.DateOfIncident</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Transportation Vendor</label><span>: @Model.TransportationVendor</span></li>
+            <li><label>Police Reg. Number</label><span>: @Model.PoliceRegNumber</span></li>
+            <li><label>Driver & Co-Driver Name</label><span>: @Model.Driver & @Model.CoDriver</span></li>
+            <li><label>GP Number</label><span>: @Model.GPNumber</span></li>
+            <li><label>SJ Number</label><span>: @Model.SJNumber</span></li>
+            <li><label>SJ Date</label><span>: @Model.SJDate</span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th rowspan="2">No</th>
+                    <th colspan="2">Item Detail</th>
+                    <th rowspan="2">Lost/Damage</th>
+                    <th rowspan="2">Lost/Total Packs</th>
+                    <th rowspan="2">Remarks</th>
+                </tr>
+                <tr>
+                    <th>FA Code</th>
+                    <th>Speaking Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var no = 1;}
+                @for (var i = 0; i < Model.ListFACode.Count(); i++)
+                {
+                 <tr>
+                    <td>@no</td>
+                    <td>@Model.ListFACode[i].FACode</td>
+                    <td>@Model.ListFACode[i].SpeakingCode</td>
+                    <td>@Model.ListFACode[i].LostOrDamage</td>
+                    <td>@Model.ListFACode[i].Pack</td>
+                    <td>@Model.ListFACode[i].Description</td>
+                </tr>
+                    { no++; }
+                }
+               
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">Total</td>
+                    <td></td>
+                    <td>@Model.ListFACode.Where(c => c.Pack != null || c.Pack != "").Sum(c => Convert.ToInt32(c.Pack))</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        <h4 class="section-title">Additional Notes (Pictures)</h4>
+        <em>Position on Truck</em>
+        <div class="images-wrap" style="min-height:200px">
+            @if (!String.IsNullOrEmpty(Model.ImageUploadPositionTruckPath1))
+            {
+                <img src="@Model.ImageUploadPositionTruckPath1_Img64Base" alt="" class="imgPdf">
+            }
+            @if (!String.IsNullOrEmpty(Model.ImageUploadPositionTruckPath2))
+            {
+                <img src="@Server.MapPath(Model.ImageUploadPositionTruckPath2)" alt="" class="imgPdf">
+            }
+            @if (!String.IsNullOrEmpty(Model.ImageUploadPositionTruckPath3))
+            {
+                <img src="@Server.MapPath(Model.ImageUploadPositionTruckPath3)" alt="" class="imgPdf">
+            }
+
+        </div>
+        <em>Boxes Condition</em>
+        <div class="images-wrap" style="min-height:200px">
+            @if (!String.IsNullOrEmpty(Model.ImageUploadConditionBoxPath1))
+            {<img src="@Server.MapPath(Model.ImageUploadConditionBoxPath1)" alt="" class="imgPdf">}
+            @if (!String.IsNullOrEmpty(Model.ImageUploadConditionBoxPath2))
+            {<img src="@Server.MapPath(Model.ImageUploadConditionBoxPath2)" alt="" class="imgPdf">}
+            @if (!String.IsNullOrEmpty(Model.ImageUploadConditionBoxPath3))
+            {<img src="@Server.MapPath(Model.ImageUploadConditionBoxPath3)" alt="" class="imgPdf">}
+        </div>
+
+        <em>Final Result</em>
+        <div class="images-wrap" style="min-height:200px">
+            @if (!String.IsNullOrEmpty(Model.ImageUploadFinalResultPath1))
+                {<img src="@Server.MapPath(Model.ImageUploadFinalResultPath1)" alt="" class="imgPdf">}
+            else
+            { <img src="" alt="" class="imgPdf" style="display:none">}
+            @if (!String.IsNullOrEmpty(Model.ImageUploadFinalResultPath2))                             
+                {<img src="@Server.MapPath(Model.ImageUploadFinalResultPath2)" alt="" class="imgPdf">}
+            else
+            { <img src="" alt="" class="imgPdf" style="display:none">}
+            @if (!String.IsNullOrEmpty(Model.ImageUploadFinalResultPath3))                             
+                {<img src="@Server.MapPath(Model.ImageUploadFinalResultPath3)" alt="" class="imgPdf">}
+            else
+            { <img src="" alt="" class="imgPdf" style="display:none">}
+        </div>
+
+        <div class="signature">
+            <div class="sign">
+                <p>Driver/Transporter</p>
+                <p class="name">AJI/BAYU</p>
+            </div>
+            <div class="sign text-center">
+                <p>Receiver</p>
+                <p class="name">@Model.Receiver</p>
+            </div>
+            <div class="sign text-center">
+                <p>Witness</p>
+                <p class="name">@Model.Witness</p>
+            </div>
+            <div class="sign text-center">
+                <p>Supervisor Area</p>
+                <p class="name">@Model.Supervisor</p>
+            </div>
+        </div>
+
+        <em>*created by Hendrik Suhendar</em><br />
+        <em>*printed by ASUSWOAD on @DateTime.Now.ToShortDateString() @DateTime.Now.ToShortTimeString()</em>
+        <div style="page-break-after: always;"></div>
+        <h3 class="title nu">No: ZD4A/2017/5/4701153523</h3>
+        <h3 class="title bmb">SERAH TERIMA ROKOK RUsak</h3>
+
+        <p>Telah dikirimkan 1 pack rokok dari DC Karawang Lot 17 kepada pihak Reversal Logistics pada tanggal 26 May, 2017 dengan no DN tujuan Reversal Logistics : 15014172027</p>
+
+        <h4 class="section-title">KELENGKAPAN DATA BACR</h4>
+
+        <ul class="col-data">
+            <li><label>From</label><span>: @Model.OriginWarehouse</span></li>
+            <li><label>Destination</label><span>: @Model.DestinationWarehouse</span></li>
+            <li><label>STO Number</label><span>: @Model.STONumber</span></li>
+            <li><label>DN Number</label><span>: @Model.DeliveryNumberNote</span></li>
+            <li><label>Date of Delivery</label><span>: @Model.DateOfDelivery</span></li>
+            <li><label>Date of Receipt</label><span>: @Model.DateOfIncident</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Transportation Vendor</label><span>: @Model.TransportationVendor</span></li>
+            <li><label>Police Reg. Number</label><span>: @Model.PoliceRegNumber</span></li>
+            <li><label>Driver & Co-Driver Name</label><span>: @Model.Driver & @Model.CoDriver</span></li>
+            <li><label>GP Number</label><span>: @Model.GPNumber</span></li>
+            <li><label>SJ Number</label><span>: @Model.SJNumber</span></li>
+            <li><label>SJ Date</label><span>: @Model.SJDate</span></li>
+        </ul>
+
+        <div class="signature col3">
+            <div class="sign text-center">
+                <p>Driver/Transporter</p>
+                <p class="name">AJI/BAYU</p>
+            </div>
+            <div class="sign text-center">
+                <p>
+                    Pengirim<br />
+                    Area Warehouse/Depo
+                </p>
+                <p class="name">(Zaenal Fatoni)</p>
+            </div>
+            <div class="sign text-center">
+                <p>
+                    Receiver<br />
+                    Reversal Logistics
+                </p>
+                <p class="name">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</p>
+            </div>
+        </div>
+
+        <p>
+            Note: <br />
+            Dokumen ini dibuat rangkap 3 (Distribusi: 1. Pengirim 2. Transporter 3.Penerima (Reversal Logistics))
+        </p>
+        <div style="page-break-after: always;"></div>
+        <h4 class="section-title">Checklist kelengkapan Dokumen Claim Rokok</h4>
+
+        <ul class="cb-list">
+            <li><span class="boxed"></span> <span>Berita Acara Rokok (Asli)</span></li>
+            <li><span class="boxed"></span> <span>Surat Jalan TOM Pengiriman FG (Copy)</span></li>
+            <li><span class="boxed"></span> <span>DN to Reversal Logistics (Asli)</span></li>
+            <li><span class="boxed"></span> <span>DN to Area Warehouse Penerima FG (Copy)</span></li>
+            <li><span class="boxed"></span> <span>GR/GI Slip (Copy)</span></li>
+            <li><span class="boxed"></span> <span>Serah Terima Rokok Claim (Asli)</span></li>
+        </ul>
+    </main>
+</body>

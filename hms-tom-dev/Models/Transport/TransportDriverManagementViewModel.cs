@@ -1,0 +1,46 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using DFIS.Universal.Domain.DTOs;
+using hms_tom_dev.Models.Common;
+using TOM.Master.Domain.DTOs;
+
+namespace hms_tom_dev.Models.Transport
+{
+    public class TransportDriverManagementViewModel : ViewModelBase
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public List<string> Names { get; set; }
+        public Nullable<System.DateTime> DateOfBirth { get; set; }
+        public string Gender { get; set; }
+        public string Address { get; set; }
+        public string MobilePhone { get; set; }
+        public string IDVendor { get; set; }
+        public Nullable<System.DateTime> JoinDate { get; set; }
+        public string DrivingLicenseNumber { get; set; }
+        public Nullable<System.DateTime> DrivingLicensePeriod { get; set; }
+        public string BaseTown { get; set; }
+        public string PerformanceLevel { get; set; }
+        public string AttachmentKTP { get; set; }
+        public string AttachmentSIM { get; set; }
+        public string AttachmentFoto { get; set; }
+        public bool BPJSKetenagaKerjaan { get; set; }
+        public bool BPJSKesehatan { get; set; }
+        public bool DrugFreeTest { get; set; }
+        public bool FatiqueTest { get; set; }
+        public bool InductionTest { get; set; }
+        public bool DefensiveDrivingTest { get; set; }
+        public bool IsActive { get; set; }
+        public string CreatedBy { get; set; }
+        public System.DateTime CreatedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public System.DateTime UpdatedDate { get; set; }
+        public string Remarks { get; set; }
+        public string RoleDriver { get; set; }
+        public Nullable<System.DateTime> DriverContractValidityPeriod { get; set; }
+
+        public virtual MasterVendorTOMDTO MasterVendor { get; set; }
+    }
+}

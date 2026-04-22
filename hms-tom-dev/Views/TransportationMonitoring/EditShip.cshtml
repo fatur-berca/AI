@@ -1,0 +1,637 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport Monitoring > Detail Ship";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .route-scroll-container {
+        height: auto; 
+        overflow-x: hidden; 
+        overflow-y: visible; 
+        position: relative;
+    }
+
+    .route-main-container {
+        min-width: 1680px;
+        overflow-y: visible; 
+    }
+
+    .header-label {
+        text-transform: uppercase;
+        font-weight: normal;
+        font-size: 12px;
+        width: 100%;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                @*@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "VesselMonitoring")'">Back</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton" disabled>Save</button>
+                }*@
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationMonitoring")'">Back</button>
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+{
+                <button class="btn btn-primary" id="editButton" }
+                        }>Edit</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+{
+                <button class="btn btn-primary" id="saveButton" onclick="confirmSave()">Save</button>
+}
+            </div>
+            @*<div class="button-wrap pull-right">
+                <button class="btn btn-primary" id="ShipLocation">Ship Location</button>
+            </div>*@
+        </div>
+    </div>
+
+    <!-- map deck -->
+    <div class="col-md-12">
+        <div class="map-deck vessel">
+            <a id="MarineTrafficView" role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#mapwrap" aria-expanded="true" aria-controls="mapwrap">
+                Marine Traffic View
+                <i class="fa fa-angle-up pull-right"></i>
+            </a>
+            <div id="mapwrap" class="collapse" role="tabpanel" aria-labelledby="mapwrap"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="box">
+            <form id="editData">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="TransportationStatus">Transportation Status</label>
+                            <input id="TransportationStatus" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="TransportationNumber">Transportation Number</label>
+                            <input id="TransportationNumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="DateOfStuffing">Stuffing Date</label>
+                            <input id="DateOfStuffing" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="VehicleType">Vehicle Type</label>
+                            <input id="VehicleType" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="IDVendor">vendor name</label>
+                            <input id="IDVendor" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="VesselName">Vessel name</label>
+                            <input id="VesselName" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ContainerNumber">container number</label>
+                            <input id="ContainerNumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ContainerSeal">container seal</label>
+                            <input id="ContainerSeal" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="StartLocation">Start Location</label>
+                            <input id="StartLocation" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="FinishLocation">Finish Location</label>
+                            <input id="FinishLocation" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETD1">estimated time departure(etd) 1</label>
+                            <input id="ETD1" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETD2">estimated time departure(etd) 2</label>
+                            <input id="ETD2" type="text" class="form-control datepicker" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ATD">actual time departure (atd)</label>
+                            <input id="ATD" type="text" class="form-control datepicker" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETA1">estimated time arrival (eta) 1</label>
+                            <input id="ETA1" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETA2">estimated time arrival (eta) 2 </label>
+                            <input id="ETA2" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ATA">actual time arrival (ata)</label>
+                            <input id="ATA" type="text" class="form-control datepicker" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ATB">actual time Berthing</label>
+                            <input id="ATB" type="text" class="form-control datepicker" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="EstimationReceived">estimated received </label>
+                            <input id="EstimationReceived" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    
+                    <div class="clearfix"></div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="Remarks">Remarks</label>
+                            <textarea id="Remarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-2"><label class="header-label">Order Number</label></div>
+                            <div class="col-md-2"><label class="header-label">Order Status</label></div>
+                            <div class="col-md-2"><label class="header-label">Sender</label></div>
+                            <div class="col-md-2"><label class="header-label">Receiver</label></div>
+                            <div class="col-md-1"><label class="header-label">PO Week (Agent)</label></div>
+                            <div class="col-md-3">
+                                <div class="col-md-6"><label class="header-label">GI</label></div>
+                                <div class="col-md-6"><label class="header-label">GR</label></div>
+                            </div>
+                        </div>
+                        <div id="transportOrderDetail"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmationSave">Save</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var TotalOrder;
+    $(document).ready(function () {
+        reset();
+        disableEnableInput(true);
+        generateTransportStatus();
+
+        $("#ETD2").on('blur', function (e) {
+            var month = "JanFebMarAprMayJunJulAugSepOctNovDec";
+            var monETD1 = (month.indexOf($("#ETD1").val().split('-')[1]) / 3) + 1;
+            var ETD1 = moment($("#ETD1").val().split('-')[2] + '/' + monETD1 + '/' + $("#ETD1").val().split('-')[0]);
+            var ETD2 = moment($(this).val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3/$2/$1"));
+            var monETA1 = (month.indexOf($("#ETA1").val().split('-')[1]) / 3) + 1;
+            var ETA1 = moment($("#ETA1").val().split('-')[2] + '/' + monETA1 + '/' + $("#ETA1").val().split('-')[0]);
+            var ETA2 = moment(ETA1 + (ETD2 - ETD1)).format("DD-MMM-YYYY");
+            $("#ETA2").val($(this).val() != "" ? ETA2 : "");
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetMstConfigurationRecords")',
+                data: { "PageName": "VesselMonitoringDetail", "Description": "est. received" },
+                success: function (response) {
+                    var additionalDays = (response.length > 0) ? parseInt(response[0].Value) : 3;
+                    var estReceived = moment(ETA1 + (ETD2 - ETD1)).add(additionalDays, 'days').format("DD-MMM-YYYY");
+                    if ($("#ETA2").val() == "")
+                        estReceived = $("#ETA1").val() != "" ? moment(ETA1).add(additionalDays, 'days').format("DD-MMM-YYYY") : "";
+                    $("#EstimationReceived").val(estReceived);
+                }
+            });
+        });
+    });
+
+    $('body').on('focus', ".datepicker", function () {
+        $(this).datetimepicker();
+    });
+
+    //jQuery(function ($) {
+    //    reset();
+    //    disableEnableInput(true);
+    //    generateTransportStatus();
+    //});
+
+    $('#editButton').on('click', function (e) {
+        disableEnableInput(false);
+        
+        for (var i = 0; i < TotalOrder; i++){
+            //if (!$("#OrderType-" + i).val().includes("Finished Good") && !$("#OrderType-" + i).val().includes("Bad Stock")) {
+            //    if (!$("#OrderStatus-"+i).val().includes("Process") && !$("#OrderStatus-"+i).val().includes("Delivery")) {
+            if ('@ViewBag.UserRole' == '') {
+                $("#GI-" + i).prop("disabled", false);
+                $("#GR-" + i).prop("disabled", false);
+            }
+            //    }
+            //}
+        }
+    });
+
+    function generateTransportStatus(selectedData) {
+        $.ajax({
+            type: 'POST',
+            data: { "FieldName": "TransportationStatus", "IsActive": true },
+            url: '@Url.Action("GetTransportStatus")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#OrderStatus').html(options);
+                generateUpdateData();
+            }
+        });
+
+    }
+
+    function generateUpdateData() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var idTransportExecution = gup('te'),
+            idTransportVessel = gup('tv'),
+            stono = gup('on'),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        var input = {
+            "IDTransportExecution": idTransportExecution,
+            "IDTransportVesselMonitoring": idTransportVessel,
+            "STONo": stono == "null" ? null : stono,
+            "IncludeInActive": includeInActive
+        };
+        //console.log("input");
+        //console.log(input);
+        $.ajax({
+            url: '@Url.Action("GetDataShip")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: input,
+            success: function (json) {
+                //console.log(json);
+
+                $("#buttonEdit").prop("disabled", json[0].TransportExecution.TransportStatus == "Close");
+                dialog.modal('hide');
+                $('#TransportationStatus').val(json[0].TransportExecution.TransportStatus);
+                $('#TransportationNumber').val(json[0].TransportExecution.TransportNo);
+                //$('#DateOfStuffing').val(moment(Number(json.TransportDate.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                if (json[0].TransportExecution.TransportDate) {
+                    $('#DateOfStuffing').val(moment(Number(json[0].TransportExecution.TransportDate.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                $('#VehicleType').val(json[0].TransportExecution.ActualVehicleType);
+                if (json[0].TransportExecution.MasterVendor != null)
+                    $('#IDVendor').val(json[0].TransportExecution.MasterVendor.VendorName);
+
+                $('#VesselName').val(json[0].VesselName);
+                $('#ContainerNumber').val(json[0].ContainerNo);
+                $('#ContainerSeal').val(json[0].ContainerSeal);
+                $('#StartLocation').val(json[0].StartLocationName);
+                $('#FinishLocation').val(json[0].FinishLocationName);
+                if (json[0].ETD1) {
+                    $('#ETD1').val(moment(Number(json[0].ETD1.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].ETD2) {
+                    $('#ETD2').val(moment(Number(json[0].ETD2.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+
+                if (json[0].ATD) {
+                    $('#ATD').val(moment(Number(json[0].ATD.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].ETA1) {
+                    $('#ETA1').val(moment(Number(json[0].ETA1.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].ETA2) {
+                    $('#ETA2').val(moment(Number(json[0].ETA2.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].ATA) {
+                    $('#ATA').val(moment(Number(json[0].ATA.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].ActualTimeBerthing) {
+                    $('#ATB').val(moment(Number(json[0].ActualTimeBerthing.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                if (json[0].EstReceived) {
+                    $('#EstimationReceived').val(moment(Number(json[0].EstReceived.match(/\d+/)[0])).format('DD-MMM-YYYY'));
+                }
+                $('#Remarks').val(json[0].Remarks);
+
+                var dataTO = json[0].TransportExecution.TransportOrderList;
+                TotalOrder = json[0].TransportExecution.TransportOrderList.length;
+                var str = "";
+                for (var i = 0; i < json[0].TransportExecution.TransportOrderList.length; i++) {
+                    var POWeek = dataTO[i].POWeek == null ? "" : dataTO[i].POWeek;
+                    var GIDate = moment(dataTO[i].GIDate).format("YY") == '01' || dataTO[i].GIDate == null ? "" : moment(dataTO[i].GIDate).format("DD-MMM-YYYY HH:mm:ss");
+                    var GRDate = moment(dataTO[i].GRDate).format("YY") == '01' || dataTO[i].GRDate == null ? "" : moment(dataTO[i].GRDate).format("DD-MMM-YYYY HH:mm:ss");
+
+                    var status = ["In Process", "On Delivery", "Arrive At Destination and Waiting For Confirmation", "Complete", "Close"];
+                    str += '<div class="row">';
+                        str += '<input type="hidden" class="IDTO" id="IDTO-'+i+'" value="'+dataTO[i].IDTransportOrder+'" />';
+                        str += '<input type="hidden" id="OrderType-'+i+'" class="OrderType" value="'+dataTO[i].OrderType+'" />';
+                        str += '<div class="col-md-2"><input id="OrderNumber-'+i+'" type="text" class="form-control" value="'+ dataTO[i].STONo +'" disabled /></div>';
+                        str += '<div class="col-md-2"><select class="form-control OrderStatus" onchange="orderStatusTrigger(this.value, ' + i + ')" id="OrderStatus-' + i + '" disabled>';
+                            for (var j = 0; j < status.length; j++) {
+                                if (status[j] == dataTO[i].OrderStatus) str += '<option selected value="'+status[j]+'">'+status[j]+'</option>';
+                                else str += '<option value="' + status[j] + '">' + status[j] + '</option>';
+                            }
+                            str += '</select></div>';
+                        str += '<div class="col-md-2"><input id="Sender" type="text" class="form-control" value="' + dataTO[i].ActualSenderLocationName + '" disabled /></div>';
+                        str += '<div class="col-md-2"><input id="Receiver" type="text" class="form-control" value="' + dataTO[i].ActualReceiverLocationName + '" disabled /></div>';
+                        str += '<div class="col-md-1"><input id="POWeek'+i+'" type="text" class="form-control POWeek" value="' + POWeek + '" disabled /></div>';
+                        str += '<div class="col-md-3">';
+                        str += '<div class="col-md-6"><input type="text" class="form-control GI datepicker" id="GI-' + i + '" data-date-format="DD/MM/YYYY HH:mm:ss" value="' + GIDate + '" disabled /></div>';
+                        str += '<div class="col-md-6"><input type="text" class="form-control GR datepicker" id="GR-' + i + '" data-date-format="DD/MM/YYYY HH:mm:ss" value="' + GRDate + '" disabled /></div>';
+                        str += '</div>';
+                        str += '</div> </br>';
+                }
+
+                $("#transportOrderDetail").html(str);
+
+                if ($("#TransportationStatus").val() == "Close") {
+                    $("#editButton").prop("disabled", true);
+                } else {
+                    $("#editButton").prop("disabled", false);
+                }
+                SetShipLocation();
+            },
+            error: function (event, jqxhr, settings) {
+                console.log(event);
+                console.log(jqxhr);
+                console.log(settings);
+                bootbox.hideAll();
+                bootbox.alert(settings);
+            }
+        });
+    }
+
+    function orderStatusTrigger(val, order) {
+        if (true || (!$("#OrderType-" + order).val().includes("Finished Good") && !$("#OrderType-" + order).val().includes("Bad Stock"))) {
+            if (val.includes("Delivery")) {
+                $("#GI-" + order).prop("disabled", false);
+                $("#GR-" + order).prop("disabled", true);
+            }
+            else if (val.includes("Arrive")) {
+                $("#GI-" + order).prop("disabled", false);
+                $("#GR-" + order).prop("disabled", false);
+            }
+            else if (val.includes("Complete")) {
+                $("#GI-" + order).prop("disabled", false);
+                $("#GR-" + order).prop("disabled", false);
+            }
+            else {
+                $("#GI-" + order).prop("disabled", true);
+                $("#GR-" + order).prop("disabled", true);
+            }
+        }
+    }
+
+    function Save() {
+        var etd2 = $('#ETD2'),
+            atd = $('#ATD'),
+            ata = $('#ATA'),
+            atb = $('#ATB'),
+            poweek = $('#POWeek'),
+            orderstatus = $('#OrderStatus option:selected'),
+            idexecution = gup('te'),
+            idevessel = gup('tv'),
+            cargoreceived = $('#CargoReceived'),
+            //orderno = gup('on'),
+            remark = $('#Remarks');
+
+        var err = "";
+        for (var i = 0; i < TotalOrder; i++) {
+            if (true || (!$("#OrderType-" + i).val().includes("Finished Good") && !$("#OrderType-" + i).val().includes("Bad Stock")))
+            {
+                if ($("#OrderStatus-" + i).val().includes("Delivery")) {
+                    if ($("#GI-" + i).val() == "") {
+                        err += "&bull; " + $("#OrderNumber-" + i).val() + " - GI is required<br />";
+                    }
+                }
+                else if ($("#OrderStatus-" + i).val().includes("Arrive")) {
+                    if ($("#GI-" + i).val() == "") {
+                        err += "&bull; " + $("#OrderNumber-" + i).val() + " - GI is required<br />";
+                    }
+                }
+                else if ($("#OrderStatus-" + i).val().includes("Complete")) {
+                    if ($("#GI-" + i).val() == "") {
+                        err += "&bull; " + $("#OrderNumber-" + i).val() + " - GI is required<br />";
+                    }
+                    if ($("#GR-" + i).val() == "") {
+                        err += "&bull; " + $("#OrderNumber-" + i).val() + " - GR is required<br />";
+                    }
+                }
+            }
+        }
+
+        if(err != ""){
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: '<div><img src="../assets/images/cancel.png" alt=""> <b style="font-size: larger">Invalid inputs!</b><br /> '+err+' </div>',
+                backdrop: true
+            });
+            return false;
+        }
+        else {
+            var to = [];
+            for (var i = 0; i < TotalOrder; i++){
+                var o = {};
+                o.IDTransportOrder = $("#IDTO-" + i).val();
+                o.STONo = $("#OrderNumber-" + i).val();
+                o.OrderStatus = $("#OrderStatus-" + i).val();
+                o.POWeek = $("#POWeek" + i).val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                o.GIDate = $("#GI-" + i).val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                o.GRDate = $("#GR-" + i).val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                to.push(o);
+            }
+            var datum = {
+                "ETD2": etd2.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "ATD": atd.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "ATA": ata.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "ActualTimeBerthing": atb.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "POWeek": poweek.val(),
+                "OrderStatus": orderstatus.val(),
+                "IDTransportExecution": idexecution,
+                "IDTransportVesselMonitoring": idevessel,
+                //"STONo": orderno,
+                "Remarks": remark.val(),
+                "CargoReceived": cargoreceived.val(),
+                "TransportOrderList": to
+            };
+            //console.log("datum");
+            //console.log(datum);
+
+            return jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateDataShip")',
+                data: datum,
+                success: function (res) {
+                    if (res == "Success") {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully saved to the database! </div>',
+                            backdrop: true
+                        });
+                        disableEnableInput(true);
+                        generateUpdateData();
+                    } else {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: '<div><img src="../assets/images/cancel.png" alt=""> <b style="font-size: larger">Save failed!</b><br /> </div>',
+                            backdrop: true
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    function disableEnableInput(param) {
+        $('#saveButton').prop("disabled", param);
+        $('#editButton').prop("disabled", !param);
+        $('#ETD2').prop("disabled", param);
+        $('#ATD').prop("disabled", param);
+        $('#ATA').prop("disabled", param);
+        $('#ATB').prop("disabled", param);
+        $('#Remarks').prop("disabled", param);
+
+        if ('@ViewBag.UserRole' == '') {
+            $('.OrderStatus').prop("disabled", param);
+        }
+        
+        $('.POWeek').prop("disabled", param);
+    }
+
+    function reset() {
+        $('#ETD2').val("");
+        $('#ATD').val("");
+        $('#ATA').val("");
+        $('#ATB').val("");
+        $('#POWeek').val("");
+        $('#Remarks').val("");
+        //$('#OrderStatus').prop("disabled", param);
+        $('#CargoReceived').prop("checked", false);
+    }
+
+    function confirmSave() {
+        var msg = "Do you want to save the data? </br> Press Ok to continue, or Cancel to stay on the current page";
+
+        bootbox.confirm({
+            title: "TOM Notification Center",
+            message: msg,
+            buttons: {
+                confirm: {
+                    label: 'Ok',
+                    className: 'btn btn-primary'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn btn-purple'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    Save();
+                }
+            }
+        });
+    }
+
+    function SetShipLocation() {
+        var extract_shipdata = $("#VesselName").val().split('-');
+
+        var mmsi = extract_shipdata.length > 0 ? extract_shipdata[0] : '';
+        if (mmsi != '') $("#mapwrap").html("<iframe src='https://www.marinetraffic.com/en/ais/details/ships/mmsi:" + mmsi + "' width='100%' height='475px'>Sorry your browser does not support inline frames.</iframe>");
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+</script>

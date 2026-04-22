@@ -1,0 +1,500 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Loading & Unloading";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<hr class="lmtop" />
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Unload Working Time/Box</label>
+            <h4 class="sub-text" id="WorkingTIme"></h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Load Working Time/Box</label>
+            <h4 class="sub-text" id="WorkingTimeLoad"></h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Total Truck Unload</label>
+            <h4 class="sub-text" id="TotalTruck"></h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Total Truck Load</label>
+            <h4 class="sub-text" id="TotalTruckLoad"></h4>
+        </div>
+    </div>
+</div>
+<hr class="lmtop" />
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="btnExport">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        }
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <form id="FormFilter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" name="" class="form-control datepicker" id="DateFrom">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" name="" class="form-control datepicker" id="DateTo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Loading/Unloading</label>
+                        <select class="form-control" id="LoadUnload">
+                            <option></option>
+                            <option value="LOAD">LOAD</option>
+                            <option value="UNLOAD">UNLOAD</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Origin</label>
+                        @Html.DropDownList("WhsName", (SelectList)ViewBag.ListLocation, string.Empty, new { @class = "select2" })
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Destination</label>
+                        @Html.DropDownList("Destination", (SelectList)ViewBag.ListLocation, string.Empty, new { @class = "select2" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>GP Number</label>
+                        @*<select class="select2" multiple="multiple">
+                            <option value="12345">12345</option>
+                            <option value="45678">45678</option>
+                        </select>*@
+                        <input type="text" class="form-control" id="GPNumber">
+                    </div>
+                </div>
+                @*<div class="clearfix"></div>*@
+                @*<div class="col-md-3">
+                    <div class="form-group">
+                        <label>Seal Number</label>
+                        <select class="select2" multiple="multiple">
+                        <option value="12345">12345</option>
+                        <option value="45678">45678</option>
+                    </select>
+                        <input type="text" class="form-control" id="SealNumber">
+                    </div>
+                </div>*@
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        @Html.DropDownList("Vendor", (SelectList)ViewBag.ListVendor, string.Empty, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="form-control" id="Status">
+                            <option></option>
+                            <option value="GPIN">GP IN</option>
+                            <option value="GP OUT">GP OUT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary" id="btnSearch">Search</button>
+                    <button class="btn btn-purple" id="btnFilter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th>GPNumber</th>
+            @*<th>SJNumber</th>*@         
+            <th>Warehouse ID</th>
+            <th>Warehouse Name</th>
+            <th>Police Reg Number</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Load/Unload</th>
+            <th>Status</th>
+            <th>Qty</th>
+            <th>Destination</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th>GPNumber</th>
+            @*<th>SJNumber</th>*@  
+            <th>Warehouse ID</th>
+            <th>Warehouse Name</th>
+            <th>Police Reg Number</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Load/Unload</th>
+            <th>Status</th>
+            <th>Qty</th>
+            <th>Destination</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        dateRange();
+
+        generateTable();
+
+        //GenerateDropDown();
+
+        $(document).on('click', '#btnSearch', function (e) {
+            generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnFilter', function (e) {
+            $('#FormFilter')[0].reset();
+            dateRange();
+            generateTable();
+            $('#Destination').select2('val', '');
+            $('#WhsName').select2('val', '');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnExport', function (e) {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            }),
+            DateTo = ($('#DateTo').val() != null) ? $('#DateTo').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null,
+            DateFrom = ($('#DateFrom').val() != null) ? $('#DateFrom').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null;
+
+            $.ajax({
+                url: '@Url.Action("ExportToExcel")',
+                method: 'post',
+                data: {
+                    "Columns": "GPNumber,Warehouse ID,Warehouse Name,Police Reg Number,Type,Date,Load/Unload,Status,Qty,Destination",
+                    "StatusLoadUnload": $('#LoadUnload').val(),
+                    "DateFrom": DateFrom,
+                    "DateTo": DateTo,
+                    "Destination": $('#Destination').val(),
+                    "Status": $('#Status').val(),
+                    "IDVendor": $('#Vendor').val(),
+                    "SealNumber": $('#SealNumber').val(),
+                    "GPNumber": $('#GPNumber').val()
+                },
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    window.location.assign("Assets/Download/" + data);
+                    dialog.modal('hide');
+                }
+            });
+            e.preventDefault();
+        });
+    });
+
+    function generateTable() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        }),
+        DateTo = ($('#DateTo').val() != null) ? $('#DateTo').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null,
+        DateFrom = ($('#DateFrom').val() != null) ? $('#DateFrom').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null;
+
+        $.ajax({
+            url: '@Url.Action("getDataLoadUnload")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "StatusLoadUnload": $('#LoadUnload').val(),
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "WarehouseName": $('#WhsName').val(),
+                "Destination": $('#Destination').val(),
+                "Status": $('#Status').val(),
+                "IDVendor": $('#Vendor').val(),
+                "SealNumber": $('#SealNumber').val(),
+                "GPNumber": $('#GPNumber').val()
+            },
+            success: function (json) {
+                dialog.modal('hide');
+                var table = $('#dtFilterMaster').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, 'All']],
+                    columns: [
+                        {
+                            render: function (data, type, row) {
+                                return '<a href="@Url.Action("Detail")?Origin=' + row['Additionalinfo'] + '&GPNumber=' + row['GPNumber'] + '&SJNumber=' + row['SJNumber'] + '&StatusLoadingUnloading=' + row['StatusLoadUnload'] + '" target="_blank">' + row['GPNumber'] + '</a>';
+                            }
+                        },
+                        @*{
+                            "data": "SJNumber", "class": "text-center", "render": function (datum) {
+                                return '<a href="@Url.Action("Detail")?SJNumber=' + datum + '">' + datum + '</a>';
+                            }
+                        },*@
+                        { 'data': 'Origin', 'searchable': true },
+                        { 'data': 'WarehouseName', 'searchable': true },
+                        { 'data': 'PoliceRegNumber', 'searchable': true },
+                        { 'data': 'UnitType', 'searchable': true },
+                        {
+                            render: function (data, type, row) {
+                                return (row['Date']) ? moment(row['Date']).format("DD-MMM-YYYY") : "";
+                            }
+                        },
+                        { 'data': 'StatusLoadUnload', 'searchable': true },
+                        { 'data': 'Status', 'searchable': true },
+                        { 'data': 'Quantity', 'searchable': true },
+                        { 'data': 'Destination', 'searchable': true },
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 0) && (index <= 11)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+
+        $WorkingTIme = $('#WorkingTIme');
+        $WorkingTIme.html('<i class="fa fa-spin fa-spinner"></i>');
+        $WorkingTImeLoad = $('#WorkingTimeLoad');
+        $WorkingTImeLoad.html('<i class="fa fa-spin fa-spinner"></i>');
+        $TotalTruck = $('#TotalTruck');
+        $TotalTruck.html('<i class="fa fa-spin fa-spinner"></i>');
+        $TotalTruckLoad = $('#TotalTruckLoad');
+        $TotalTruckLoad.html('<i class="fa fa-spin fa-spinner"></i>');
+
+        $.ajax({
+            url: '@Url.Action("GetWorkingTimeBox")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "StatusLoadUnload": $('#LoadUnload').val(),
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "WarehouseName": $('#WhsName').val(),
+                "Destination": $('#Destination').val(),
+                "Status": $('#Status').val(),
+                "IDVendor": $('#Vendor').val(),
+                "SealNumber": $('#SealNumber').val(),
+                "GPNumber": $('#GPNumber').val()
+            },
+            success: function (data) {
+                $WorkingTIme.html(data.WorkingUnload + ' Second/Box');
+                $WorkingTImeLoad.html(data.WorkingLoad + ' Second/Box');
+                $TotalTruck.html(data.TruckUnload + ' Truck');
+                $TotalTruckLoad.html(data.TruckLoad + ' Truck');
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                //$select.html('<option value="NULL">none available</option>');
+                $WorkingTIme.html('No Data');
+                $WorkingTImeLoad.html('No Data');
+                $TotalTruck.html('No Data');
+                $TotalTruckLoad.html('No Data');
+            }
+        });
+     
+        @*$.ajax({
+            url: '@Url.Action("GetWorkingTimeBoxLoad")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "StatusLoadUnload": $('#LoadUnload').val(),
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "WarehouseName": $('#WhsName').val(),
+                "Destination": $('#Destination').val(),
+                "Status": $('#Status').val(),
+                "IDVendor": $('#Vendor').val(),
+                "SealNumber": $('#SealNumber').val(),
+                "GPNumber": $('#GPNumber').val()
+            },
+            success: function (data) {
+                $WorkingTImeLoad.html(data + ' Second/Box');
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                //$select.html('<option value="NULL">none available</option>');
+                $WorkingTImeLoad.html('No Data');
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetTotalTruck")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "StatusLoadUnload": $('#LoadUnload').val(),
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "WarehouseName": $('#WhsName').val(),
+                "Destination": $('#Destination').val(),
+                "Status": $('#Status').val(),
+                "IDVendor": $('#Vendor').val(),
+                "SealNumber": $('#SealNumber').val(),
+                "GPNumber": $('#GPNumber').val()
+            },
+            success: function (data) {
+                $TotalTruck.html(data + ' Truck');
+
+
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                //  $select.html('<option value="NULL">none available</option>');
+                $TotalTruck.html('No Data');
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetTotalTruckLoad")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "StatusLoadUnload": $('#LoadUnload').val(),
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "WarehouseName": $('#WhsName').val(),
+                "Destination": $('#Destination').val(),
+                "Status": $('#Status').val(),
+                "IDVendor": $('#Vendor').val(),
+                "SealNumber": $('#SealNumber').val(),
+                "GPNumber": $('#GPNumber').val()
+            },
+            success: function (data) {
+                $TotalTruckLoad.html(data + ' Truck');
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                //  $select.html('<option value="NULL">none available</option>');
+                $TotalTruckLoad.html('No Data');
+            }
+        });*@
+    }
+
+    function GenerateDropDown() {
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstVendor/GetMasterVendor',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                $('#Vendor').append('<Option></Option>');
+                for (var key in data) {
+                    $('#Vendor').append('<Option value ="' + data[key].VendorName + '">' + data[key].VendorName + '</Option>');
+                }
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $('#Vendor').html('<option value="NULL">none available</option>');
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetWarehouseLocation")',
+            dataType: 'JSON',
+            success: function (data) {
+                $('#Destination').append('<Option ></Option>');
+                for (var key in data) {
+                    $('#Destination').append('<Option value ="' + data[key].IDLocation + '">' + data[key].IDLocation + ' - ' + data[key].LocationName + '</Option>');
+                }
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $('#Destination').html('<option value="NULL">none available</option>');
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetWarehouseLocation")',
+            dataType: 'JSON',
+            success: function (data) {
+                $('#WhsName').append('<Option ></Option>');
+                for (var key in data) {
+                    $('#WhsName').append('<Option value ="' + data[key].IDLocation + '">' + data[key].IDLocation + ' - ' + data[key].LocationName + '</Option>');
+                }
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $('#WhsName').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function dateRange() {
+        jQuery('#DateFrom').val(moment().format('DD/MM/YYYY'));
+        jQuery('#DateTo').val(moment().format('DD/MM/YYYY'));
+    }
+</script>

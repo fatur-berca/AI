@@ -1,0 +1,584 @@
+﻿@model hms_tom_dev.Models.Transport.TransportExecutionPrintViewModel
+<link rel="stylesheet" href="../Assets/Css/app-new.css" media="screen">
+<style>
+    /*.report-page.watermarks main {
+        background-image: url("../../Assets/images/watermarks.jpg");
+    }*/
+    .watermarks {
+        background-image: url("../../Assets/images/watermarks.jpg");
+        background-size: 100% auto;
+        background-repeat: repeat;
+        background-position-y: 20px;
+        background-position: center top;         
+    }
+    .report-data {
+        padding: 50px;
+        padding-top: 20px;
+    }
+    body {
+        background-color: #ffffff;
+        color: black!important;
+        font-family: sans-serif;
+        font-size: 15px;
+        font-weight: normal;
+    }
+    table.detail-data {
+        color: black;
+        font-size: 13px;
+        border-collapse: collapse
+    }
+    table.detail-data td, table.detail-data th {
+        padding: 8px 12px;
+        border: none
+    }
+    table.detail-data tr {
+        border: none;
+    }
+    table.detail-data td.separator, table.detail-data th.separator {
+        border: none;
+    }
+    table.detail-data td.data, table.detail-data th.data {
+        border: 1px solid black;
+    }
+
+    table.pass-data {
+        color: black;
+        font-size: 13px;
+        border-collapse: collapse;
+    }
+    table.pass-data td, table.pass-data th {
+        padding: 8px 12px;
+        border: 1px solid black;
+    }
+
+    thead {
+        display: table-header-group
+    }
+
+    tfoot {
+        display: table-row-group
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+
+    .nobreak {
+        page-break-inside: avoid;
+        position: relative;
+    }
+
+    .nobreak * {
+        page-break-inside: avoid;
+    }
+
+    .toppad {
+        margin-top: 20px !important;
+    }
+</style>
+<body class="report-page">
+    
+@for (var i = 0; i < @Model.TotalPage; i++)
+{
+    //var OrderDetails = @item.OrderDetails;
+    //var idto = @Model.ListTOGroup[i].IDTransportOrder;
+    //var OrderDetails = @Model.ListTOD.Where(x => x.IDTransportOrder == idto).ToList();
+    var idte = @Model.ListTOGroup[i].IDTransportExecution;
+    var sender = @Model.ListTOGroup[i].SenderIDLocation;
+    var receiver = @Model.ListTOGroup[i].ReceiverIDLocation;
+    var OrderDetails = @Model.ListTOD.Where(x => x.IDTransportExecution == idte && x.SenderIDLocation == sender && x.ReceiverIDLocation == receiver).OrderBy(f => f.IDTransportOrder).ThenBy(_ => _.STONo).ToList();
+    int TotalPage = (int)OrderDetails.Count / (int)@Model.MAX_ROW_PER_PAGE;
+    int take = @Model.MAX_ROW_PER_PAGE;
+    var base64String = "data:image/png;base64," + @Model.ListTOGroup[i].TNBarcode;
+    <main class="watermarks">
+        <div class="row report-data">
+            <div class="col-md-12">
+                <div class="col-md-9">
+                    <h2 class="title">Transportation Delivery Note</h2>
+                </div>
+                <div class="col-md-3">
+                    <img src="@base64String" class="preview_barcode" style="width: 200px; height: 35px;"><br />
+                    <h4 style="font-weight:bold;">@Model.ListTOGroup[i].TransportNo </h4>
+                </div>
+            </div>
+            <br />
+            <div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Transportation Date</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : @Model.ListTOGroup[i].TransportDate.ToString("dd-MMM-yyyy")
+                    </div>
+                        <div class="col-md-3">
+                            <strong>Vessel Name</strong>
+                        </div>
+                        @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].VesselName))
+                        {
+                            <div class="col-md-3">
+                                : @Model.ListTOGroup[i].VesselName
+                            </div>
+                        }
+                        else 
+                        {
+                            <div class="col-md-3">
+                                : ...................
+                            </div>
+                        }
+                    </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Vehicle Type</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : @Model.ListTOGroup[i].ActualVehicleType
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Container Number</strong>
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].ContainerNo))
+                    {
+                        <div class="col-md-3">
+                            : @Model.ListTOGroup[i].ContainerNo
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3">
+                            : ...................
+                        </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Police Registration Number</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : @Model.ListTOGroup[i].PoliceRegNo
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Container Seal</strong>
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].ContainerSeal))
+                    {
+                        <div class="col-md-3">
+                            : @Model.ListTOGroup[i].ContainerSeal
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3">
+                            : ...................
+                        </div>
+                    }
+
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Vendor</strong>
+                    </div>
+                    <div class="col-md-9">
+                        : @Model.ListTOGroup[i].VendorName
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-3">
+                        <strong>No DN</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : ...................
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-3">
+                        <strong>No Segel</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : ...................
+                    </div>
+                </div>
+                <div class="clearfix" style="height:10px;"></div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Driver 1 ID/Name</strong>
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].DriverName1))
+                    {
+                        <div class="col-md-3">
+                            : @Model.ListTOGroup[i].DriverName1
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3">
+                            : ...................
+                        </div>
+                    }
+                    <div class="col-md-3">
+                        <strong>Start Address</strong>
+                    </div>
+                    <div class="col-md-3">
+                        : @Model.ListTOGroup[i].StartLocation
+                    </div>
+                </div>
+                  
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Driver 2 ID/Name</strong>
+                        </div>
+                        @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].DriverName2))
+                        {
+                            <div class="col-md-3">
+                                : @Model.ListTOGroup[i].DriverName2
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-3">
+                                : ...................
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Co-Driver ID/Name</strong>
+                        </div>
+                        @if (!String.IsNullOrEmpty(Model.ListTOGroup[i].CoDriverName))
+                        {
+                            <div class="col-md-3">
+                                : @Model.ListTOGroup[i].CoDriverName
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-3">
+                                : ...................
+                            </div>
+                        }
+                    </div>
+                
+            </div>
+            <div class="clearfix" style="height:20px;border-bottom:1px solid black"></div>
+            <br />
+            <div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <h5 class="title" style="font-weight:bold;">Sender</h5>
+                    </div>
+                    <div class="row" style="margin:10px 5px 10px 0;">
+                        <span class="content_mid_bold" style="font-weight:bold;">@Model.ListTOGroup[i].SenderLocationName</span>
+                    </div>
+                    <div class="row" style="border:1px solid black;margin:10px 5px 10px 0;padding:10px 5px;">
+                        @Model.ListTOGroup[i].WarehouseAddressSender
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <h5 class="title" style="font-weight:bold;">Receiver</h5>
+                    </div>
+                    <div class="row" style="margin:10px 5px 10px 0;">
+                        <span class="bold" style="font-weight:bold;">@Model.ListTOGroup[i].ReceiverLocationName</span>
+                    </div>
+                    <div class="row" style="border:1px solid black;margin:10px 5px 10px 0;padding:10px 5px;">
+                        @Model.ListTOGroup[i].WarehouseAddressReceiver
+                    </div>
+                </div>
+                <div class="clearfix" style="height:20px;"></div>
+                @*<div class="col-md-12">
+                    <div class="row" style="margin:10px 5px 10px 0;">
+                        Order Remarks
+                    </div>
+                    <div class="row" style="border:1px solid black;margin:10px 5px 10px 0;padding:10px 5px;">
+                        @Model.ListTOGroup[i].Remarks
+                    </div>
+                </div>*@
+            </div>
+            <div class="clearfix" style="height:40px;"></div>
+            <div class="col-md-12" style="left:15px;padding-left:0px !important;">
+                <table border="0" style="width: 98%;" class="detail-data">
+                    <thead class="toppad">
+                        <tr>
+                            <th style="width: 10%" class="data">Order Number/STO</th>
+                            <th style="width: 10%" class="data">Type</th>
+                            <th style="width: 7%" class="data">Qty</th>
+                            <th style="width: 9%" class="data">UoM</th>
+                            <th style="width: 12%" class="data">FA Code</th>
+                            <th style="width: 12%" class="data">Description</th>
+                            <th style="width: 2%" class="data">KPS</th>
+                            <th class="data">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ 
+                            var page = 0;
+                            double row = 1;
+                            var firstPageLimit = 25;
+                            var pageLimit = 40;
+                        }
+                        @for (var j = 0; j < OrderDetails.Count; j++)
+                        {
+                        <tr>
+                            <td class="data">@OrderDetails[j].STONo</td>
+                            <td class="data">@OrderDetails[j].MaterialType</td>
+                            <td class="data">
+                                @if (OrderDetails[j].Qty.HasValue)
+                                {@Math.Round(OrderDetails[j].Qty.Value, 2).ToString("N0")}
+                            </td>
+                            <td class="data">@OrderDetails[j].UoM</td>
+                            <td class="data">@OrderDetails[j].Code</td>
+                            <td class="data">@OrderDetails[j].Description</td>
+                            <td class="data"></td>
+                            <td class="data">@OrderDetails[j].Remarks</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if(((page == 0 && row > (firstPageLimit - 4)) || (page > 0 && row > (pageLimit - 4))) && false)
+            {
+                <div style="page-break-before:always;" class="numbering"></div>
+            }
+            <div class="clearfix" style="margin-bottom: 20px;"></div>
+            <div class="nobreak toppad">
+                <div class="clearfix" style="height:20px;"></div>
+                <div class="col-md-3 sign text-center">
+                    <p>Sampoerna PIC</p>
+                    <div class="clearfix" style="height:60px;"></div>
+                    <p class="name">(@Model.SampoernaPIC)</p>
+                    <p style="text-align:left;padding-left:40px;">Date: @DateTime.Now.ToString("dd/MM/yyyy")</p>
+                </div>
+                <div class="col-md-3 sign text-center">
+                    <p>Driver</p>
+                    <div class="clearfix" style="height:60px;"></div>
+                    <p class="name">(______________)</p>
+                    <p style="text-align:left;padding-left:40px;">Date: </p>
+                </div>
+                <div class="col-md-3 sign text-center">
+                    <p>Receiver</p>
+                    <div class="clearfix" style="height:60px;"></div>
+                    <p class="name">(______________)</p>
+                    <p style="text-align:left;padding-left:40px;">Date: </p>
+                </div>
+                <div class="col-md-3 sign text-center">
+                    <p>Sender</p>
+                    <div class="clearfix" style="height:60px;"></div>
+                    <p class="name">(______________)</p>
+                    <p style="text-align:left;padding-left:40px;">Date: </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div style="page-break-before:always;" class="numbering"></div>
+    }
+
+    <!-- BEGIN GATE PASS -->
+        @{ 
+            var hdr = Model.ListTONoGroup.FirstOrDefault();
+            if (hdr == null) { hdr = new hms_tom_dev.Models.Transport.TransportOrderTransportExecutionPrintViewModel(); }
+        }
+
+        @for (var i = 0; i < @Model.TotalGatePass; i++)
+        {
+            var idte = hdr.IDTransportExecution;
+            var base64String = "data:image/png;base64," + hdr.TNBarcode;
+            <main class="watermarks">
+                <div class="row report-data">
+                    <div class="col-md-12">
+                        <div class="col-md-9">
+                            <h2 class="title">Transportation Gate Pass</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <img src="@base64String" class="preview_barcode" style="width: 200px; height: 35px;"><br />
+                            <h4 style="font-weight:bold;">@hdr.TransportNo </h4>
+                        </div>
+                    </div>
+                    <br />
+                    <div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Transportation Date</strong>
+                            </div>
+                            <div class="col-md-3">
+                                : @hdr.TransportDate.ToString("dd-MMM-yyyy")
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Vessel Name</strong>
+                            </div>
+                            @if (!String.IsNullOrEmpty(hdr.VesselName))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.VesselName
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Vehicle Type</strong>
+                            </div>
+                            <div class="col-md-3">
+                                : @hdr.ActualVehicleType
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Container Number</strong>
+                            </div>
+                            @if (!String.IsNullOrEmpty(hdr.ContainerNo))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.ContainerNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Police Registration Number</strong>
+                            </div>
+                            <div class="col-md-3">
+                                : @hdr.PoliceRegNo
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Container Seal</strong>
+                            </div>
+                            @if (!String.IsNullOrEmpty(Model.ListTONoGroup[i].ContainerSeal))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.ContainerSeal
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Vendor</strong>
+                            </div>
+                            <div class="col-md-9">
+                                : @hdr.VendorName
+                            </div>
+                        </div>
+                        <div class="clearfix" style="height:10px;"></div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Driver 1 ID/Name</strong>
+                            </div>
+                            @if (!String.IsNullOrEmpty(hdr.DriverName1))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.DriverName1
+                                </div>
+                            }
+                            else 
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                                <div class="col-md-3">
+                                    <strong>Start Address</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    : @hdr.StartLocation
+                                </div>
+                            </div>
+                      
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Driver 2 ID/Name</strong>
+                            </div>
+                            @if (!String.IsNullOrEmpty(hdr.DriverName2))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.DriverName2
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Co-Driver ID/Name</strong>
+                            </div>
+
+                            @if (!String.IsNullOrEmpty(hdr.CoDriverName))
+                            {
+                                <div class="col-md-3">
+                                    : @hdr.CoDriverName
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3">
+                                    : ...................
+                                </div>
+                            }
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="clearfix" style="margin-right:20px;height:20px;border-bottom:1px solid black"></div>
+                    <br />
+                    <table border="1" class="pass-data" width="98%">
+                        <thead>
+                            <tr>
+                                <th>Order Number/STO</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var k = 0; k < @Model.ListTOGate.Count; k++)
+                            {
+                                <tr>
+                                    <td>@Model.ListTOGate[k].STONo</td>
+                                    <td>@Model.ListTOGate[k].SenderLocationName</td>
+                                    <td>@Model.ListTOGate[k].ReceiverLocationName</td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                    <div class="clearfix" style="height:20px;"></div>
+                    <div>
+                        <div class="col-md-3 sign text-center">
+                            <p>Security</p>
+                            <div class="clearfix" style="height:60px;"></div>
+                            <p class="name">(______________)</p>
+                            <p style="text-align:left;padding-left:40px;">Date: </p>
+                        </div>
+                        <div class="col-md-3 sign text-center">
+                            <p>Driver</p>
+                            <div class="clearfix" style="height:60px;"></div>
+                            <p class="name">(______________)</p>
+                            <p style="text-align:left;padding-left:40px;">Date: </p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        }
+    
+</body>

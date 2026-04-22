@@ -1,0 +1,605 @@
+﻿@model hms_tom_dev.Models.Transport.TransportOrderViewModel
+@using EnumHelper = DFIS.Utils.EnumHelper
+
+@{
+    ViewBag.Title = "Transport > Picking List > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var TOchangeLog = Model.TransportOrderChangeLogs.ToList();
+}
+
+<style>
+    .generateDetail {
+        overflow-y: auto;
+        min-height: 250px;
+    }
+
+    .row-generate-detail {
+        margin-right: 0;
+    }
+
+    .differentYellow {
+        border: 1px solid yellow !important;
+        border-width: medium !important;
+    }
+
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+    .btn-s {
+        background: none;
+        border: none;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="row">
+<div class="col-md-12">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportPickingList")'">Back</button>
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+            {
+                <button type="button" class="btn btn-primary" id="btnEdit">Edit</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+            {
+                <button type="button" class="btn btn-primary" id="btnSave" disabled>Save</button>
+            }
+        </div>
+    </div>
+</div>
+<div class="col-md-12">
+<div class="box">
+<form>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>STO Number</label>
+            <input type="text" id="STONumber" class="form-control" value="@(Model.STONo ?? "")" disabled>
+        </div>
+    </div>
+    @*<div class="col-md-3">
+        <div class="form-group">
+            <label>Supplier</label>
+            @if (Model.SupplierColor == null)
+            {
+                <input type="text" id="Supplier" class="form-control" value="@(Model.Supplier ?? "")" disabled>
+            }
+            else
+            {
+                <input type="text" id="Supplier" class="form-control differentYellow" value="@(Model.Supplier ?? "")" disabled>
+            }
+        </div>
+    </div>*@
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Shipment Date</label>
+            <input type="hidden" id="OrderStatus" value="@Model.OrderStatus" />
+            @if (Model.ShipmentDateColor == null)
+            {
+                <input type="text" id="ShipmentDate" class="form-control" value="@Model.ShipmentDate.ToString("dd-MMM-yyyy")" disabled>
+            }
+            else
+            {
+                <input type="text" id="ShipmentDate" class="form-control differentYellow" value="@Model.ShipmentDate.ToString("dd-MMM-yyyy")" disabled>
+            }
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Vehicle Type</label>
+            @Html.DropDownListFor(model => Model.VehicleType, Model.VehicleTypeList, new { @class = "form-control", @disabled = "disabled" })
+            @*<select class="form-control" id="VehicleType"></select>*@
+        </div>
+    </div>
+    <div class="col-md-1">
+        <div class="form-group">
+            <label>Zone</label>
+            @*@if (Model.IDTransportOrder == 0)
+            {*@
+                <input type="text" id="Zone" class="form-control" value="@(Model.ZoneBased ?? "")" disabled>
+            @*}
+            else
+            {
+                <input type="text" id="Zone" class="form-control differentYellow" value="@(Model.ZoneBased ?? "")" disabled>
+            }*@
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Sequence</label>
+            @if (string.IsNullOrEmpty(Model.SeqNo))
+            {
+                <input type="text" id="Sequence" class="form-control" value="" disabled>
+            }
+            else
+            {
+                <input type="text" id="Sequence" class="form-control" value="@(Model.SeqNo)" disabled>
+            }
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Sender</label>
+            @if (Model.SenderLocationColor == null)
+            {
+                <input type=text id="Sender" class="form-control" value="@(Model.MasterLocation2 == null ? "" : Model.MasterLocation2.LocationName)" disabled>
+            }
+            else
+            {
+                <input type=text id="Sender" class="form-control differentYellow" value="@(Model.MasterLocation2 == null ? "" : Model.MasterLocation2.LocationName)" disabled>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Receiver</label>
+            @if (Model.ReceiverLocationColor == null)
+            {
+                <input type=text id="Receiver" class="form-control" value="@(Model.MasterLocation3 == null ? "" : Model.MasterLocation3.LocationName)" disabled>
+            }
+            else
+            {
+                <input type=text id="Receiver" class="form-control differentYellow" value="@(Model.MasterLocation3 == null ? "" : Model.MasterLocation3.LocationName)" disabled>
+            } 
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>Remarks</label>
+            <textarea id="Remarks" class="form-control" style="height: 70px;" disabled>@(Model.Remarks ?? "")</textarea>
+        </div>
+    </div>
+</div>
+<h3><b><u>Cargo Information</u></b></h3>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <Label>Material Type</Label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <Label>Supplier</Label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Code</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Description</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Quantity</label>
+        </div>
+    </div>
+    <div class="col-md-1" style="padding-right:10px">
+        <div class="form-group">
+            <label>Uom</label>
+        </div>
+    </div>
+    <div class="col-md-1" style="padding-right:10px">
+        <div class="form-group">
+            <label>Action</label>
+        </div>
+    </div>
+</div>
+
+<div id="templateitem" hidden>
+    <div class="row row-generate-detail orderDetail" data-is-active="true">
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="hidden" class="hidden orderIdDetail" value="" />
+                <input type="text" class="form-control MaterialType" value="" disabled>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                    @Html.DropDownListFor(model => Model.TransportOrderDetails.First().Supplier, Model.SupplierList, new { @class = "Supplier form-control editable", @disabled = "disabled" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control editable Code" value="" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control editable Description" value="" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control editable Qty" value="" disabled>
+                </div>
+            </div>
+            <div class="col-md-1" style="padding-left:10px">
+                <div class="form-group">
+                    <input type="text" class="form-control viewable" value="" disabled>
+                    @Html.DropDownListFor(model => Model.TransportOrderDetails.First().UoM, Model.UoMList, new { @class = "form-control editable UoM", @disabled = "disabled", @style = "display:none" })
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn-default btn-s btnAddMat copyDetailRoute editable" title="Add Detail" disabled><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn-default btn-s btnDeleteMat copyDetailRoute editable" title="Delete Detail" disabled><i class="fa fa-trash"></i></button>
+            </div>
+        </div>
+</div>
+
+
+<div id="GenerateDetail" class="generateDetail">
+    @{
+        foreach (var item in Model.TransportOrderDetails)
+        {
+            int i = 0;
+            if (item != null) 
+            { 
+                <div class="row row-generate-detail orderDetail" data-is-active="true">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="hidden" class="hidden orderIdDetail" value="@item.IDTransportOrderDetail" />
+                            <input type="hidden" class="hidden IDTO" value="@item.IDTransportOrder" />
+                            @if (item.MaterialTypeColor == null)
+                            {
+                                <input type="text" class="form-control MaterialType" value="@item.MaterialType" disabled>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control differentYellow MaterialType" value="@item.MaterialType" disabled>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @if (item.SupplierColor == null)
+                            {
+                                @Html.DropDownListFor(model => item.Supplier, new SelectList(Model.SupplierList, "Value", "Text", item.Supplier), new { @class = "Supplier form-control editable", @disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(model => item.Supplier, new SelectList(Model.SupplierList, "Value", "Text", item.Supplier), new { @class = "Supplier form-control editable differentYellow", @disabled = "disabled" })
+                            }
+                        </div>
+                        <!-- input type="text" class="form-control editable" value="@item.Supplier" disabled -->
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @if (item.CodeColor == null)
+                            {
+                                <input type="text" class="form-control editable Code" value="@item.Code" disabled>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control differentYellow editable Code" value="@item.Code" disabled>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @if (item.DescriptionColor == null)
+                            {
+                                <input type="text" class="form-control editable Description" value="@item.Description" disabled>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control differentYellow editable Description" value="@item.Description" disabled>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @{
+                                var qty = item.Qty.HasValue ? item.Qty.Value.ToString("#") : "0";
+                            }
+                            @if (item.QtyColor == null)
+                            {
+                                <input type="text" class="form-control editable Qty" value="@qty" disabled>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control editable Qty differentYellow" value="@qty" disabled>
+
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-1" style ="padding-left:10px">
+                        <div class="form-group">
+                            @if (item.UoMColor == null)
+                            {
+                                <input type="text" class="form-control viewable" value="@item.UoM" disabled>
+                                @Html.DropDownListFor(model => model.TransportOrderDetails[i].UoM, new SelectList(Model.UoMList, "Value", "Text", item.UoM)@*Model.UoMList*@, new { @class = "form-control editable UoM", @disabled = "disabled", @style = "display:none" })
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control viewable differentYellow" value="@item.UoM" disabled>
+                                @Html.DropDownListFor(model => model.TransportOrderDetails[i].UoM, new SelectList(Model.UoMList, "Value", "Text", item.UoM)@*Model.UoMList*@, new { @class = "form-control editable UoM differentYellow", @disabled = "disabled", @style = "display:none" })
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn-default btn-s btnAddMat copyDetailRoute editable" title="Add Detail" disabled><i class="fa fa-plus"></i></button>
+                        <button type="button" class="btn-default btn-s btnDeleteMat copyDetailRoute editable" title="Delete Detail" disabled><i class="fa fa-trash"></i></button>
+                    </div>
+                </div>
+                i++;
+            }
+        }
+    }
+
+
+
+
+    @*<div class="row row-generate-detail">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled>
+                            </div>
+                        </div>
+                    </div>*@
+</div>
+</form>
+</div>
+</div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="location.reload()" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        @foreach (var changes in TOchangeLog)
+        {
+            if(changes.ModifiedField.ToString().ToUpper() == "VEHICLE TYPE")
+            {
+                <text>$("#VehicleType").addClass("differentYellow");</text>
+            }
+            if(changes.ModifiedField.ToString().ToUpper() == "REMARKS")
+            {
+                <text>$("#Remarks").addClass("differentYellow");</text>
+            }
+            if(changes.ModifiedField.ToString().ToUpper() == "SEQUENCE")
+            {
+                <text>$("#Sequence").addClass("differentYellow");</text>
+            }
+        }
+
+        if ($("#OrderStatus").val() == 'Close') {
+            $('#btnEdit').attr('disabled', 'disabled');
+        }
+    });
+    var idFieldMandatory = ["VehicleType", "Sequence"];
+    $("#btnEdit").click(function () {
+        if ($("#OrderStatus").val() == "Submit" || $("#OrderStatus").val() == "Draft")
+            enabledFormNoSeq();
+        else
+            enabledFormNoSeq();
+
+
+        if ($("#Sequence").val() === null || $("#Sequence").val() === undefined || $("#Sequence").val() === "") {
+            //enabledFormNoSeq();
+            idFieldMandatory = ["VehicleType"];
+        }
+        else {
+            //enabledForm();
+            idFieldMandatory = ["VehicleType", "Sequence"];
+        }
+    });
+
+    $(".btnDeleteMat").click(function () {
+        var tod = $(this).parent().parent();
+        tod.attr("data-is-active", "false");
+        tod.hide();
+    });
+
+    $(".btnAddMat").click(function () {
+        var mt = $(this).parent().parent().find(".MaterialType").first().val();
+        var cln = $("#templateitem").children().first().clone(true, true);
+        cln.find(".MaterialType").val(mt);
+        console.log(mt);
+        $("#GenerateDetail").first().append(cln);
+    });
+
+    $(".Code").on("change", function () {
+        var val = $(this).val();
+        var local = this;
+        if (val)
+            $.ajax({
+                url: '@Url.Action("GetSpeakingCode", "TransportationOrder")',
+                data: { code: val },
+                success: function (data) {
+                    console.log(data);
+                    if (data != null && data != "")
+                        $(local).parent().parent().parent().find(".Description").val(data);
+                }
+            });
+    });
+
+    function disabledForm() {
+        $("#btnEdit").removeAttr('disabled', 'disabled');
+        $("#btnSave").attr('disabled', 'disabled');
+        $("#VehicleType").attr('disabled', 'disabled');
+        $("#Sequence").attr('disabled', 'disabled');
+        $("#Remarks").attr('disabled', 'disabled');
+        $("#Qty").attr('disabled', 'disabled');
+        $("#UoM").attr('disabled', 'disabled');
+        $(".editable").attr('disabled', 'disabled');
+        $(".viewable").attr('style', 'display:block');
+        $(".UoM").attr('style', 'display:none');
+    }
+
+    function enabledForm() {
+        $("#btnEdit").attr('disabled', 'disabled');
+        $("#btnSave").removeAttr('disabled', 'disabled');
+        $("#VehicleType").removeAttr('disabled', 'disabled');
+        $("#Sequence").removeAttr('disabled', 'disabled');
+        $("#Remarks").removeAttr('disabled', 'disabled');
+    }
+
+    function enabledFormNoSeq() {
+        $("#btnEdit").attr('disabled', 'disabled');
+        $("#btnSave").removeAttr('disabled', 'disabled');
+        $("#VehicleType").removeAttr('disabled', 'disabled');
+        $("#Sequence").removeAttr('disabled', 'disabled');
+        $("#Remarks").removeAttr('disabled', 'disabled');
+        $("#Qty").removeAttr('disabled', 'disabled');
+        $("#UoM").removeAttr('disabled', 'disabled');
+        $(".editable").removeAttr('disabled', 'disabled');
+        $(".viewable").attr('style', 'display:none');
+        $(".UoM").attr('style', 'display:block');
+    }
+
+    function checkField(arrayField) {
+        var invalid = false;
+        for (var i = 0; i < arrayField.length; i++) {
+            var elemen = document.getElementById(arrayField[i]);
+            if (elemen.value == "" || elemen.value == "null") {
+                invalid = true;
+                elemen.className += " txt-invalid";
+            } else
+                elemen.classList.remove("txt-invalid");
+        }
+        return invalid;
+    }
+
+    function checkMaterial() {
+        var valid = true;
+        var check = ["Qty", "UoM", "Code", "Description", "Supplier"];
+        $("#GenerateDetail").find(".orderDetail").each(function (e) {
+            if (!($(this).attr("data-is-active") == "true" || $(this).attr("data-is-active") === true))
+                return;
+
+            for (var i = 0; i < check.length; i++) {
+                var c = check[i];
+                var val = $(this).find("." + c).val() || "";
+                console.log(val, val == "" || (c == "Qty" && !Number(val)));
+                if (val == "" || (c == "Qty" && !Number(val))) {
+                    $(this).find("." + c).first().addClass("txt-invalid");
+                    valid = false;
+                }
+                else
+                    $(this).find("." + c).first().removeClass("txt-invalid");
+            }
+        });
+        return valid;
+    }
+    
+    $("#btnSave").click(function () {
+        var arr = idFieldMandatory;
+        if (!checkField(arr) && checkMaterial()) {
+            saveData();
+        } else {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please fill field with red mark");
+            $('#warningModal').modal('show');
+        }
+    });
+
+    function saveData() {
+        var objectSave = new Object();
+        if ($("#Sequence").val() === null || $("#Sequence").val() === undefined || $("#Sequence")) {
+            var index = 0;
+            objectSave.TransportOrderDetails = [];
+            $(".orderDetail").each(function (e) {
+                var objectDetail = new Object();
+                objectDetail.Qty = $(this).find(".Qty").val();
+                objectDetail.UoM = $(this).find(".UoM").val();
+                objectDetail.Code = $(this).find(".Code").val();
+                objectDetail.Description = $(this).find(".Description").val();
+                objectDetail.Supplier = $(this).find(".Supplier").val();
+                objectDetail.IDTransportOrderDetail = $(this).find(".orderIdDetail").val();
+                objectDetail.IDTransportOrder = $(".IDTO").first().val();
+                objectDetail.IsActive = $(this).attr("data-is-active") == "true" || $(this).attr("data-is-active") === true;
+                objectSave.TransportOrderDetails.push(objectDetail);
+                index++;
+            });
+            objectSave.TransportOrderDetails.Qty = $("#Qty").val();
+            objectSave.TransportOrderDetails.UoM = $("#UoM").val();
+        }
+        objectSave.STONo = $("#STONumber").val();
+        objectSave.VehicleType = $("#VehicleType").val();
+        objectSave.SeqNo = $("#Sequence").val();
+        objectSave.Remarks = $("#Remarks").val();
+        //console.log(objectSave);
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'InsertList',
+            cache: false,
+            data: { insertData: objectSave },
+            async: false,
+            success: function () {
+                dialog.modal("hide");
+                disabledForm();
+                $('#modalsuccess').modal('show');
+            },
+            error: function () {
+                dialog.modal("hide");
+            }
+        });
+    }
+</script>

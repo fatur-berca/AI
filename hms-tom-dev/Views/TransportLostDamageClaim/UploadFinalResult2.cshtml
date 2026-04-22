@@ -1,0 +1,111 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="uploadFinalResult2" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Final Result</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <canvas id="canvasFinalResult2" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputFinalResult2" type="file" class="filestyle" name="" accept=".jpg">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarkerFinalResult2">Add</button>
+                            <button class="btn btn-purple" id="clearMarkerFinalResult2">Clear All</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="2" id="descFinalResult2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadFinalResult2">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    if ($("#fileInputFinalResult2").val() == '') {
+        $("#btnUploadFinalResult2").prop("disabled", true);
+        $("#addMarkerFinalResult2").prop("disabled", true);
+        $("#clearMarkerFinalResult2").prop("disabled", true);
+        $("#descFinalResult2").prop("disabled", true);
+    } else {
+        $("#btnUploadFinalResult2").prop("disabled", false);
+        $("#addMarkerFinalResult2").prop("disabled", false);
+        $("#clearMarkerFinalResult2").prop("disabled", false);
+        $("#descFinalResult2").prop("disabled", false);
+    }
+
+    var canvasFinalResult2 = new fabric.Canvas('canvasFinalResult2');
+    //canvas.setBackgroundImage('../assets/images/no-image.jpg', canvas.renderAll.bind(canvas), {
+    //    width: canvas.width,
+    //    height: canvas.height,
+    //    originX: 'left',
+    //    originY: 'top'
+    //});
+
+    $('#addMarkerFinalResult2').click(function (e) {
+        var posX = canvasFinalResult2.width / 2; //* Math.random();
+        var posY = canvasFinalResult2.height / 2; //* Math.random();
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvasFinalResult2.add(oImg).setActiveObject(oImg);
+            canvasFinalResult2.renderAll();
+        });
+    });
+
+    $('#clearMarkerFinalResult2').click(function (e) {
+        var canvasObjects = canvasFinalResult2.getObjects();
+        while (canvasObjects.length != 0) {
+            canvasFinalResult2.remove(canvasObjects[0]);
+            canvasFinalResult2.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputFinalResult2").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvasFinalResult2.setBackgroundImage(img, canvasFinalResult2.renderAll.bind(canvasFinalResult2), {
+                    width: canvasFinalResult2.getWidth(),
+                    height: canvasFinalResult2.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadFinalResult2").prop("disabled", false);
+        $("#addMarkerFinalResult2").prop("disabled", false);
+        $("#clearMarkerFinalResult2").prop("disabled", false);
+        $("#descFinalResult2").prop("disabled", false);
+    });
+
+    $('#btnUploadFinalResult2').click(function (e) {
+        var canvas = document.getElementById("canvasFinalResult2");
+        $("#frontFinalResult2").css("background-image", "url('" + canvas.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+
+
+

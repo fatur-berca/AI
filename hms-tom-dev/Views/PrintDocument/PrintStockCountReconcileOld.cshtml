@@ -1,0 +1,132 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountListViewModel
+@{
+//ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+//Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .numberAlign {
+        text-align: right;
+    }
+
+    .A4 {
+      min-width: 21cm;
+      min-height: 29.7cm;
+      max-width: 21cm;
+      max-height: 29.7cm;
+    }
+</style>
+
+
+<body class="report-page watermarks">
+
+@for (int idx = 0; idx < Model.WarehouseStockCounts.Count; idx++)
+{
+    var r = Model.WarehouseStockCounts[idx];
+    var idx_head = 0;
+    
+       foreach (string SLoc in Model.STORE_LOCATIONS)
+        {
+            var StockCountDetails = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).ToList();
+            if (StockCountDetails.Count == 0) { continue; }
+            idx_head++;
+            <main class="A4" style="">
+                <h3 class="title noline">@(idx_head == 1 ? "STOCK COUNT RECONCILE" : "")</h3>
+                <!--<div class="A4">-->
+                <ul class="col-data">
+                    <li><label>Date</label><span>: @r.TransDate.ToString("dd-MM-yyyy")</span></li>
+                    <li><label>Plant</label><span>: @r.IDLocation - @r.MasterLocation.LocationName</span></li>
+                </ul>
+                <ul class="col-data">
+                    <li><label>Operational Shift</label><span>: @r.Shift</span></li>
+                    <li><label>SLoc</label><span>: @SLoc</span></li>
+                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Speaking Code</th>
+                            <th>Batch</th>
+                            <th>Unrestricted Qty</th>
+                            <th>QI Qty</th>
+                            <th>Total SAP Qty Box</th>
+                            <th>Total SAP Qty Pack</th>
+                            <th>Total Man Qty Box</th>
+                            <th>Total Man Qty Pack</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < StockCountDetails.Count; i++)
+                        {
+                            int no = i + 1;
+                            <tr>
+                                <td>@no</td>
+                                <td>@StockCountDetails.ElementAt(i).SpeakingCode</td>
+                                <td>@StockCountDetails.ElementAt(i).Batch</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).Unrestr</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).QualityInsp</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).SAPQtyBox</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).SAPQtyPack</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).ManQtyBox</td>
+                                <td class="numberAlign">@StockCountDetails.ElementAt(i).ManQtyPack</td>
+                            </tr>
+                        }
+                        <tr style="background-color:#d9e0c5;">
+                            <td colspan="3" class="total" style="text-align:center;">Grand Total</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.Unrestr)</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.QualityInsp)</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.SAPQtyBox)</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.SAPQtyPack)</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.ManQtyBox)</td>
+                            <td class="numberAlign total">@StockCountDetails.Sum(f => f.ManQtyPack)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Remark</p>
+                <textarea rows="6" class="form-control" style="width: 100%;resize: none;">@r.Remarks</textarea>
+                <!--<div style="padding-bottom:40px;"></div>-->
+                <!--</div>-->
+            </main>
+        }
+
+}
+        <div class="signature col3">
+            <div class="sign text-center">
+                <p>
+                    Distribution Assistant Shift 2
+                </p>
+                <p class="name"><strong>Kristian Praba</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp;</p>
+                <p class="name"><strong>Berlina Novayanti</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>
+                    Mengetahui, Supervisor Area Distribution
+                </p>
+                <p class="name"><strong>Ria Ratnaningsih</strong></p>
+            </div>
+        </div>
+        <hr class="bold" />
+        <p class="printed" style="width: 50%; float: left;">Printed by : @Model.UserName on @Model.PrintedDate</p>
+        <p class="printed" style="width: 50%; float: left; text-align: right;">Submitted by : @Model.UserName on @Model.PrintedDate</p>
+    </main>
+</body>

@@ -1,0 +1,727 @@
+﻿@{
+    ViewBag.Title = "Master Data > Master Vendor Suggestion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+        <button id="btnPopUpUpload" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalUpload">Upload</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Start Location</label>
+                        <select id="FilterSenderLocation" class="select2" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Start Location</th>
+            <th>Receiver</th>
+            <th style="min-width: 90px;">Order Type</th>
+            <th style="min-width: 150px;">Transportation Category</th>
+            <th style="min-width: 150px;">Transportation Mode</th>
+            <th>Vehicle Type</th>
+            <th style="min-width: 150px;">Suggested Vendor</th>
+            <th style="min-width: 90px;">Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Start Location</th>
+            <th>Receiver</th>
+            <th>Order Type</th>
+            <th>Transportation Category</th>
+            <th>Transportation Mode</th>
+            <th>Vehicle Type</th>
+            <th>Suggested Vendor</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Vendor Suggestion</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IDVendorSuggestion</label>
+                                            <input type="text" id="IDVendorSuggestion" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Start Location</label>
+                                            <select class="select2" id="StartLoc"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Receiver</label>
+                                            <select class="select2" id="Receiver"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Order Type</label>
+                                            <select class="form-control" id="OrderType"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Transportation Category</label>
+                                            <select class="form-control" id="TransCat"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Transportation Mode</label>
+                                            <select class="form-control" id="TransMode"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Vehicle Type</label>
+                                            <select class="select2" id="VechType"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Suggested Vendor</label>
+                                            <select class="select2" id="SuggestVendor"></select>                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select class="form-control" id="Status">
+                                                <option value="1">YES</option>
+                                                <option value="0">NO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedDate</label>
+                                            <input type="text" id="CreatedDate" class="form-control datepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedBy</label>
+                                            <input type="text" id="CreatedBy" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUpload" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titleModalUpload">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUpload">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadMasterVendorSuggestion" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterVendorSuggestion.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnUpload" class="btn btn-primary" disabled>Upload</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="@Url.Content("~/Scripts/validate.js")"></script>
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+    var mandatoryFields = [$('#StartLoc'), $('#Receiver'), $('#OrderType'), $('#TransCat'), $('#TransMode'), $('#VechType'), $("#SuggestVendor"), $('#Status')];
+    var parentIDList;
+    $(document).ready(function () {
+        generateDropDownVendorName();
+        generateDropDown();
+        generateDropDownLocation();
+        $('#addNew').click(function () {
+            resetData();
+            $('#Status').val("1");
+            generateDropDownVendorName();
+            //generateDropDown();
+            generateDropDownLocation();
+            $('#InsertOrUpdate').val("INSERT");
+            EnabledField();
+        });
+
+        ez.Form.GenerateDropDown("SuggestVendor", '@Url.Action("GetVendor", "MstVendorSuggestion")', "IDVendor", "VendorName", null, true);
+    });
+
+    ez.Form.AddField(
+        "StartLoc:req doe>Start Location#StartLocation",
+        "Receiver:req doe>Receiver#ReceiverIDLocation",
+        "OrderType:req doe>Order Type#OrderType",
+        "TransCat:req doe>Transportation Category#TransportationCategory",
+        "TransMode:req doe>Transportation Mode#TransportationMode",
+        "VechType:req doe>Vehicle Type#VehicleType",
+        "Status:req bool>Active#IsActive",
+        "SuggestVendor:req>Suggestion Vendor#SuggestedVendor"
+    );
+
+    function DisabledField() {
+        ez.Form.Disable("doe");
+    }
+
+    function EnabledField() {
+        ez.Form.Enable("doe");
+    }
+
+    function Validate() {
+        if (ez.Form.Validate()) {
+            return true;
+        }
+        $("#textModalError").html("");
+        $("#textModalError").append(ez.Form.error);
+        $('#modalerror').modal('show');
+        return false;
+    }
+
+    function resetData() {
+        $('#newData')[0].reset();
+        ez.Form.Clear();
+        $("#StartLoc").select2('val', null);
+        $("#Receiver").select2('val', null);
+        $("#VechType").select2('val', null);
+        $("#TransMode").select2('val', null);
+    }    
+
+    function generateTable() {
+        $.ajax({
+            url: '@Url.Action("GetMasterVendorSuggestion", "MstVendorSuggestion")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "filterSenderLocation": $('#FilterSenderLocation').val()
+            },
+            success: function (json) {
+                parentIDList = json;
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "sortable": false, "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        { 'data': 'MasterLocation.LocationName', 'searchable': true },
+                        { 'data': 'MasterLocation1.LocationName', 'searchable': true },
+                        { 'data': 'OrderType', 'searchable': true },
+                        { 'data': 'TransportationCategory', 'searchable': true },
+                        { 'data': 'TransportationMode', 'searchable': true },
+                        { 'data': 'VehicleType', 'searchable': true },
+                        { 'data': 'MasterTransportVendor.VendorName', 'searchable': true },
+                        {
+                            render: function (data, type, row) {
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDVendor", "sortable": false, "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 9)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function generateDropDown(selectedValueOrderType, selectedValueTranscat, selectedValueTransmode, selectedValueVechType) {
+        var selectOrderType = $('#OrderType');
+        var selectTranscat = $('#TransCat');
+        var selectTransmode = $('#TransMode');
+        var selectVehicleType = $('#VechType');
+        selectOrderType.html('');
+        selectTranscat.html('');
+        selectTransmode.html('');
+        selectVehicleType.html('');
+        selectOrderType.append('<option value="ez:null"></option>');
+        selectTranscat.append('<option value="ez:null"></option>');
+        selectTransmode.append('<option value="ez:null"></option>');
+        selectVehicleType.append('<option value="ez:null"></option>');
+        $.ajax({
+            url: '@Url.Action("GetDropDown", "MstVendorSuggestion")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $.each(data, function (key, val) {
+                    if (val["FieldName"] == "OrderType") {
+                        selectOrderType.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    }
+                    else if (val["FieldName"] == "TransportationCategory") {
+                        selectTranscat.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    }
+                    else if (val["FieldName"] == "TransportationMode") {
+                        selectTransmode.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    }
+                    else if (val["FieldName"] == "VehicleType") {
+                        selectVehicleType.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    }
+                });
+                $('#OrderType').val(selectedValueOrderType);
+                $('#TransCat').val(selectedValueTranscat);
+                $('#TransMode').val(selectedValueTransmode);
+                $('#VechType').val(selectedValueVechType);
+            }
+        });
+    }
+
+    function generateDropDownLocation(selectedValueStart, selectedValueReceiver) {
+        var IsFilterEmpty = $('#FilterSenderLocation').html() == '';
+        var selectStartLoc = $('#StartLoc');
+        var selectReceiver = $('#Receiver');
+        selectStartLoc.html('');
+        selectReceiver.html('');
+        selectStartLoc.append('<option value="ez:null"></option>');
+        selectReceiver.append('<option value="ez:null"></option>');
+        $.ajax({
+            url: '@Url.Action("GetLocation", "MstVendorSuggestion")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $.each(data, function (key, val) {
+                    selectStartLoc.append('<option value="' + val["IDLocation"] + '">' + val["LocationName"] + '</option>');
+                    selectReceiver.append('<option value="' + val["IDLocation"] + '">' + val["LocationName"] + '</option>');
+                });
+                $('#StartLoc').val(selectedValueStart);
+                $('#Receiver').val(selectedValueReceiver);
+
+                if (IsFilterEmpty) {
+                    $('#FilterSenderLocation').html(selectStartLoc.html());
+                    $('#FilterSenderLocation').select2('val', data[0]["IDLocation"]);
+                    generateTable();
+                }
+            }
+        });
+    }
+
+    $('#btnSaveYes').click(function () {
+        $('#setinactive').modal('hide');
+        save(false);
+    });
+
+    $('#btnSaveNew').click(function () {
+        if ($('#InsertOrUpdate').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save(true);
+        }
+    });
+
+    $('#TransMode').change(function () {
+        //if ($(this).val() != '' &&
+        if ($('#InsertOrUpdate').val() == "INSERT")
+        {
+            $('#SuggestVendor').select2('val', '');
+            generateDropDownVendorName();
+        }
+    });
+
+    function save(statusSave) {
+        var pull_data = [ez.Form.GetData()];
+        if (Validate())
+        {
+            if (!statusSave) {
+                pull_data[0]["IDVendorSuggestion"] = $('#IDVendorSuggestion').val();
+                pull_data[0]["CreatedDate"] = $('#CreatedDate').val();
+                pull_data[0]["CreatedBy"] = $('#CreatedBy').val();
+            }
+
+            var data = {
+                "new": statusSave ? pull_data : [{}],
+                "edit": !statusSave ? pull_data : [{}]
+            }
+
+            console.log(data);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("InsertList", "MstVendorSuggestion")',
+                data: data,
+                success: function (returnVal) {
+                    console.log(returnVal);
+                    if (returnVal.IsSuccess) {
+                        generateTable();
+                        $('#modalsuccess').modal('show');
+                        $('#inputModal').modal('hide');
+                        resetData();
+                    }
+                    else {
+                        $("#textModalError").html("");
+                        $("#textModalError").append('<strong style="font-size:larger">Failed to save data!</strong><br/>' + returnVal.ErrorMessage);
+                        $('#modalerror').modal('show');
+                    };
+                }
+            });
+        }
+    }
+
+    ez.debugMode = true;
+
+    function editTable() {
+        DisabledField();
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            ez.Form.SetData(data);
+            $('#IDVendorSuggestion').val(data["IDVendorSuggestion"]);
+            //generateDropDown(data["OrderType"], data["TransportationCategory"], data["TransportationMode"], data["VehicleType"]);
+            //generateDropDownLocation(data["StartLocation"], data["Receiver"]);
+            //$('#SuggestVendor').val(data["MasterTransportVendor.VendorName"]);
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+
+            console.log(data);
+
+            ez.Form.RefreshDropDown("StartLoc", data["StartLocation"]);
+            ez.Form.RefreshDropDown("Receiver", data["ReceiverIDLocation"]);
+            ez.Form.RefreshDropDown("OrderType", data["OrderType"]);
+            ez.Form.RefreshDropDown("TransCat", data["TransportationCategory"]);
+            ez.Form.RefreshDropDown("TransMode", data["TransportationMode"]);
+            ez.Form.RefreshDropDown("VechType", data["VehicleType"]);
+            ez.Form.RefreshDropDown("SuggestVendor", data["SuggestedVendor"]);
+
+            //generateDropDownVendorName(data["SuggestedVendor"]);
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+        });
+
+        $('#inputModal').modal('show');
+    }
+
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+    /*
+    function DisabledField() {
+        $("#StartLoc").attr('disabled', true);
+        $("#Receiver").attr('disabled', true);
+        $("#OrderType").attr('disabled', true);
+        $("#TransCat").attr('disabled', true);
+        $("#TransMode").attr('disabled', true);
+        $("#VechType").attr('disabled', true);
+        //$("#SuggestVendor").attr('disabled', true);
+    }
+
+    function EnabledField() {
+        $("#StartLoc").attr('disabled', false);
+        $("#Receiver").attr('disabled', false);
+        $("#OrderType").attr('disabled', false);
+        $("#TransCat").attr('disabled', false);
+        $("#TransMode").attr('disabled', false);
+        $("#VechType").attr('disabled', false);
+        $("#SuggestVendor").attr('disabled', false);
+    }
+    */
+    function ResetPopUpUpload() {
+        $("#btnUpload").prop("disabled", true);
+        $("#uploadMasterVendorSuggestion").val("");
+        $("#uploadMasterVendorSuggestion").jfilestyle('clear');
+        fileUpload = "";
+    }
+
+    var fileUpload;
+    $("#btnPopUpUpload").click(function () {
+        ResetPopUpUpload();
+    });
+
+    $('#uploadMasterVendorSuggestion').on('change', function (e) {
+        $("#btnUpload").prop("disabled", false);
+        fileUpload = e.target.files;
+    });
+
+    $("#btnUpload").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        var data = new FormData();
+        for (var x = 0; x < fileUpload.length; x++) {
+            data.append("fileUpload", fileUpload[x]);
+        }
+        $("#btnUpload").prop("disabled", true);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UploadFile", "MstVendorSuggestion")',
+            contentType: false,
+            processData: false,
+            cache: false,
+            //async: false,
+            data: data,
+            success: function (returnVal) {
+                console.log(returnVal);
+                dialog.modal('hide');
+                if (returnVal.IsSuccess) {
+                    generateTable();
+                    $('#modalsuccess').modal('show');
+                    ResetPopUpUpload();
+                    $('#inputModal').modal('hide');
+                }
+                else {
+                    $("#textModalError").html('<strong style="font- size:larger">Failed to save data!</strong><br/>' + returnVal.ErrorMessage);
+                    $('#modalerror').modal('show');
+                    $("#uploadMasterVendorSuggestion").val("");
+                    $("#uploadMasterVendorSuggestion").jfilestyle('clear');
+                }
+                $("#btnUpload").prop("disabled", false);
+            },
+            error: function (xhr, status, p3, p4) {
+                dialog.modal('hide');
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+                $("#btnUpload").prop("disabled", false);
+            }
+        });
+    });
+
+    function generateDropDownVendorName(selectedValue) {
+        var selectVendor = $('#SuggestVendor');
+        selectVendor.html('');
+        selectVendor.append('<option value="ez:null"></option>');
+        $.ajax({
+            url: '@Url.Action("GetVendor", "MstVendorSuggestion")',
+            method: 'get',
+            dataType: 'json',
+            data: { TransportationMode: $('#TransMode').val() },
+            cache: false,
+            success: function (data) {
+                $.each(data, function (key, val) {
+                    selectVendor.append('<option value="' + val["IDVendor"] + '">' + val["VendorName"] + '</option>');
+                });
+                console.log(selectedValue);
+                selectVendor.select2('val', selectedValue).trigger("change");
+            }
+        });
+    }
+
+    $(".search-filter").on("click", function (e) {
+        generateTable();
+        e.preventDefault();
+    });
+
+    $(".reset-search-filter").on("click", function (e) {
+        //$("form#filter")[0].reset();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+        e.preventDefault();
+    });
+</script>

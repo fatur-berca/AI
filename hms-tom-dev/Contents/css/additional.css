@@ -1,0 +1,6 @@
+/* For additional css insert on this file */
+a.grid-menu.disabled {
+   pointer-events: none;
+   cursor: default;
+   opacity: .5
+}

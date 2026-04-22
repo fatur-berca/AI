@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5BBA8B26-A84C-488B-AD8C-2500F8D101BB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.Master.Repositories</RootNamespace>
+    <AssemblyName>TOM.Master.Repositories</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Contracts\DFIS.Contracts.csproj">
+      <Project>{139b1b79-3500-4750-97cb-012e6c24ff19}</Project>
+      <Name>DFIS.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Domain\DFIS.Universal.Domain.csproj">
+      <Project>{df3235ef-6173-4a3d-81bd-d364a48291a6}</Project>
+      <Name>DFIS.Universal.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Repositories\DFIS.Universal.Repositories.csproj">
+      <Project>{74B4510C-2904-4DB6-92BB-AD46ACD546D2}</Project>
+      <Name>DFIS.Universal.Repositories</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Utils\DFIS.Utils.csproj">
+      <Project>{cd65d670-560a-46bc-b974-7d2fe0add040}</Project>
+      <Name>DFIS.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.EntitiesDAL\TOM.EntitiesDAL.csproj">
+      <Project>{6d91578b-a117-4cd7-9886-d3163e926cff}</Project>
+      <Name>TOM.EntitiesDAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Master.Domain\TOM.Master.Domain.csproj">
+      <Project>{25ba6530-4120-43bf-8c0f-62761197575a}</Project>
+      <Name>TOM.Master.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CustomReportState\CustomReportStateRepo.cs" />
+    <Compile Include="MasterConfigurationEmailRepo\IMasterConfigurationEmailRepo.cs" />
+    <Compile Include="MasterConfigurationEmailRepo\MasterConfigurationEmailRepo.cs" />
+    <Compile Include="MasterConfigurationRepo\MasterConfigurationRepo.cs" />
+    <Compile Include="MasterCostCenterAccountRepo\IMasterCostCenterAccountRepo.cs" />
+    <Compile Include="MasterCostCenterAccountRepo\MasterCostCenterAccountRepo.cs" />
+    <Compile Include="MasterCostRepo\IMasterCostRepo.cs" />
+    <Compile Include="MasterCostRepo\MasterCostRepo.cs" />
+    <Compile Include="MasterDistanceRepo\IMasterDistanceRepo.cs" />
+    <Compile Include="MasterDistanceRepo\MasterDistanceRepo.cs" />
+    <Compile Include="MasterServicePO\IMasterServicePORepo.cs" />
+    <Compile Include="MasterServicePO\MasterServicePORepo.cs" />
+    <Compile Include="MasterFABrand\IMasterFABrandRepo.cs" />
+    <Compile Include="MasterFABrand\MasterFABrandRepo.cs" />
+    <Compile Include="MasterFunctionRepo\MasterFunctionRepo.cs" />
+    <Compile Include="MasterGenWeekRepo\IMasterGenWeekRepo.cs" />
+    <Compile Include="MasterGenWeekRepo\MasterGenWeekRepo.cs" />
+    <Compile Include="MasterIMDLRoleLocationRepo\IMasterIMDLRoleLocationRepo.cs" />
+    <Compile Include="MasterIMDLRoleLocationRepo\MasterIMDLRoleLocationRepo.cs" />
+    <Compile Include="MasterIMDLRoleRepo\IMasterIMDLRoleRepo.cs" />
+    <Compile Include="MasterIMDLRoleRepo\MasterIMDLRoleRepo.cs" />
+    <Compile Include="MasterKilometer\IMasterKilometerRepo.cs" />
+    <Compile Include="MasterKilometer\MasterKilometerRepo.cs" />
+    <Compile Include="MasterLeadTimeTomRepo\IMasterLeadTimeTomRepo.cs" />
+    <Compile Include="MasterLeadTimeTomRepo\MasterLeadTimeTomRepo.cs" />
+    <Compile Include="MasterListRepo\IMasterListRepo.cs" />
+    <Compile Include="MasterListRepo\MasterListRepo.cs" />
+    <Compile Include="MasterLoadFactorCFP\IMasterLoadFactorCFPRepo.cs" />
+    <Compile Include="MasterLoadFactorCFP\MasterLoadFactorCFPRepo.cs" />
+    <Compile Include="MasterLocationRepo\IMasterLocationRepo.cs" />
+    <Compile Include="MasterLocationRepo\MasterLocationRepo.cs" />
+    <Compile Include="MasterMappingLocationRepo\IMasterMappingLocationRepo.cs" />
+    <Compile Include="MasterMappingLocationRepo\MasterMappingLocationRepo.cs" />
+    <Compile Include="MasterMappingRepo\IMasterMappingRepo.cs" />
+    <Compile Include="MasterMappingRepo\MasterMappingRepo.cs" />
+    <Compile Include="MasterRoleFunctionRepo\IMasterRoleFunctionRepo.cs" />
+    <Compile Include="MasterRoleFunctionRepo\MasterRoleFunctionRepo.cs" />
+    <Compile Include="MasterTransportRegionRepo\IMasterTransportRegionRepo.cs" />
+    <Compile Include="MasterTransportRegionRepo\MasterTransportRegionRepo.cs" />
+    <Compile Include="MasterTruckSealRepo\IMasterTruckSealRepo.cs" />
+    <Compile Include="MasterTruckSealRepo\MasterTruckSealRepo.cs" />
+    <Compile Include="MasterUomRepo\IMasterUomRepo.cs" />
+    <Compile Include="MasterUomRepo\MasterUomRepo.cs" />
+    <Compile Include="MasterUserLocationMappingRepo\IMasterUserLocationMappingRepo.cs" />
+    <Compile Include="MasterUserLocationMappingRepo\MasterUserLocationMappingRepo.cs" />
+    <Compile Include="MasterUserRepo\IMasterUserRepo.cs" />
+    <Compile Include="MasterUserRepo\MasterUserRepo.cs" />
+    <Compile Include="MasterUserRoleDelegationRepo\IMasterUserRoleDelegationRepo.cs" />
+    <Compile Include="MasterUserRoleDelegationRepo\MasterUserRoleDelegationRepo.cs" />
+    <Compile Include="MasterVendorRepo\IMasterVendorRepo.cs" />
+    <Compile Include="MasterVendorRepo\IMasterVendorTOMRepo.cs" />
+    <Compile Include="MasterVendorRepo\MasterVendorRepo.cs" />
+    <Compile Include="MasterVendorRepo\MasterVendorTOMRepo.cs" />
+    <Compile Include="MasterVendorSuggestionRepo\IMasterVendorSuggestionRepo.cs" />
+    <Compile Include="MasterVendorSuggestionRepo\MasterVendorSuggestionRepo.cs" />
+    <Compile Include="NotificationSystem\INotificationSystemRepo.cs" />
+    <Compile Include="NotificationSystem\NotificationSystemRepo.cs" />
+    <Compile Include="TransactionLogRepo\TransactionLogRepo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

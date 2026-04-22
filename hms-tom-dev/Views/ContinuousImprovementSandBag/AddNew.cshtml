@@ -1,0 +1,785 @@
+@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.General.ContinuousImprovementSandBagViewModel
+@{
+    ViewBag.Title = "General > Continuous Improvement > SandBag > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+</style>
+
+<div id="sandbag" class="tab-pane fade in active">
+    <div class="tab-content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title-deck wmb">
+                    <div class="button-wrap pull-left">
+                        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                        {
+                            <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("../ContinuousImprovementSandBag")'">Back</button>
+                        }
+                        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                        {
+                            <button type="button" class="btn btn-primary" id="btnEdit">Edit</button>
+                        }
+                        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                        {
+                            <button type="button" class="btn btn-primary" id="btnSaveNew">Save</button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="box">
+                    <form id="newData">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Year">Year</label>
+                                    @Html.DropDownListFor(model => Model.ListYears,
+                                        new SelectList(Enumerable.Range(-1, 6)
+                                    .Select(r => new
+                                    {
+                                        Text = (DateTime.Now.Year + r).ToString(),
+                                        Value = (DateTime.Now.Year + r).ToString()
+                                    }),
+                                    "Value", "Text", Model.ListYears),
+                                        new { @class = "form-control", @id = "Year" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Month">Month</label>
+                                    @Html.DropDownListFor(model => Model.ListMonths,
+                                        new SelectList(Enumerable.Range(1, 12)
+                                    .Select(r => new
+                                    {
+                                        Text = new DateTime(2000, r, 1).ToString("MMM"),
+                                        Value = r.ToString()
+                                    }),
+                                    "Value", "Text", Model.ListMonths),
+                                        new { @class = "form-control", @id = "Month" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Department">Department</label>
+                                    <select class="form-control" id="Department">
+                                        <option value="">-- Select --</option>
+                                        <option value="Logistics & Distributions">Logistics & Distributions</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="SubDepartment">Sub Department</label>
+                                    <select class="form-control" id="SubDepartment"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="IDLocation">Location</label>
+                                    <select class="form-control" id="IDLocation" disabled><option value="">-- Select --</option></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="EmployeeStatus">Employee Status</label>
+                                    <select class="form-control" id="EmployeeStatus" disabled></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Owner" class="Owner">Owner</label>
+                                    <select class="select2" id="Owner" disabled><option value="">-- Select --</option></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Title">Title</label>
+                                    <input type="text" class="form-control" id="Title">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Status">Status</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="">-- Select --</option>
+                                        <option value="Proposal">Proposal</option>
+                                        <option value="Resolved">Resolved</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="IdeaSource">Idea Source</label>
+                                    <select class="form-control" id="IdeaSource"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="ImplementationDate">Implementation Date</label>
+                                    <input type="text" name="ImplementationDate" id="ImplementationDate" class="form-control datepicker">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        var getUrlParameter = function(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.when(generateDropDownSubDepartment(), generateDropDownEmployeeStatus(), generateDropDownIdeaSource()).done(function (a1, a2, a3) {
+            $('select#Year, select#Month').prepend('<option value="0">-- Select --</option>').val('0');
+            $("#btnEdit").prop("disabled", true);
+            $("#btnSaveNew").prop("disabled", false);
+
+            if (typeof getUrlParameter('IDContImprovSandBag') === "undefined") {
+                dialog.modal('hide');
+            } else {
+                loadRecord(getUrlParameter('IDContImprovSandBag'), dialog);
+            }
+        });
+
+        $(document).on('click', '#btnSaveNew', function(e) {
+            var Year = $('#Year :selected').val(),
+                Month = $('#Month :selected').val(),
+                Department = $('#Department :selected').val(),
+                SubDepartment = $('#SubDepartment :selected').val(),
+                Title = $('#newData').find('input[id="Title"]').val(),
+                Status = $('#Status :selected').val(),
+                Owner = $("#Owner :selected").val(),
+                EmployeeStatus = $('#EmployeeStatus :selected').val(),
+                IDLocation = $('#IDLocation :selected').val(),
+                ImplementationDate = $('#ImplementationDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                IdeaSource = $('#IdeaSource :selected').val(),
+                notvalid = false;
+
+            if (typeof Owner === "undefined") {
+                Owner = $("#Owner").val();
+            }
+
+            // validation
+            if (parseInt(Year) == 0) {
+                $('#Year').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Year').css('border-color', '#ccc');
+            }
+            if (parseInt(Month) == 0) {
+                $('#Month').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Month').css('border-color', '#ccc');
+            }
+            if (Department == "") {
+                $('#Department').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Department').css('border-color', '#ccc');
+            }
+            if (SubDepartment == "") {
+                $('#SubDepartment').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#SubDepartment').css('border-color', '#ccc');
+            }
+            if (Title == "") {
+                $('#Title').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Title').css('border-color', '#ccc');
+            }
+            if (Status == "") {
+                $('#Status').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Status').css('border-color', '#ccc');
+            }
+            if (Owner == "") {
+                $('#Owner, #s2id_Owner a').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Owner, #s2id_Owner a').css('border-color', '#ccc');
+            }
+            if (EmployeeStatus == "") {
+                $('#EmployeeStatus').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#EmployeeStatus').css('border-color', '#ccc');
+            }
+            if (IDLocation == "") {
+                $('#IDLocation').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#IDLocation').css('border-color', '#ccc');
+            }
+            if (ImplementationDate == "") {
+                $('#ImplementationDate').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ImplementationDate').css('border-color', '#ccc');
+            }
+            if (IdeaSource == "") {
+                $('#IdeaSource').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#IdeaSource').css('border-color', '#ccc');
+            }
+
+            if (notvalid == true) {
+                alertPleaseFill();
+
+                e.preventDefault();
+            } else {
+                if (typeof getUrlParameter('IDContImprovSandBag') === "undefined") { // insert data
+                    bootbox.confirm({
+                        title: "DFIS Notification Center",
+                        message: "Do you want to save the data?<br>Press OK to continue, or Cancel to stay on the current page.",
+                        closeButton: false,
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-primary'
+                            },
+                            cancel: {
+                                label: 'Cancel',
+                                className: 'btn-purple'
+                            }
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                var dialog = bootbox.dialog({
+                                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                                    closeButton: false
+                                });
+
+                                var newRecord = {
+                                    "IDContImprovSandBag": 0,
+                                    "Year": Year,
+                                    "Month": Month,
+                                    "Department": Department,
+                                    "SubDepartment": SubDepartment,
+                                    "Title": Title,
+                                    "Status": Status,
+                                    "Owner": Owner,
+                                    "EmployeeStatus": EmployeeStatus,
+                                    "IDLocation": IDLocation,
+                                    "ImplementationDate": ImplementationDate,
+                                    "IdeaSource": IdeaSource,
+                                    "IsActive": true
+                                };
+
+                                $.ajax({
+                                    url: '@Url.Action("GetContinuousImprovementSandBags")',
+                                    method: 'get',
+                                    dataType: 'json',
+                                    cache: false,
+                                    data: newRecord,
+                                    success: function (response) {
+                                        if (response.viewmodel.length > 0) {
+                                            // if ok will replace record, and field UpdatedDate will change
+                                            // if cancel close modal dialog
+                                            bootbox.confirm({
+                                                title: "DFIS Notification Center",
+                                                message: "Data already exists in the database.<br>Do you want to overwrite it?",
+                                                closeButton: false,
+                                                buttons: {
+                                                    confirm: {
+                                                        label: 'Yes',
+                                                        className: 'btn-primary'
+                                                    },
+                                                    cancel: {
+                                                        label: 'No',
+                                                        className: 'btn-purple'
+                                                    }
+                                                },
+                                                callback: function (result) {
+                                                    if (result) {
+                                                        Overwrite(response.viewmodel[0].IDContImprovSandBag, dialog);
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            CreateUpdate(newRecord, dialog);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else { // edit data
+                    bootbox.confirm({
+                        title: "DFIS Notification Center",
+                        message: "Changes have been made to this record.<br>Do you want to save these changes?",
+                        closeButton: false,
+                        buttons: {
+                            confirm: {
+                                label: 'Yes',
+                                className: 'btn-primary'
+                            },
+                            cancel: {
+                                label: 'No',
+                                className: 'btn-purple'
+                            }
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                var dialog = bootbox.dialog({
+                                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                                    closeButton: false
+                                });
+
+                                var updateRecord = {
+                                    "Year": Year,
+                                    "Month": Month,
+                                    "Department": Department,
+                                    "SubDepartment": SubDepartment,
+                                    "Title": Title,
+                                    "Status": Status,
+                                    "Owner": Owner,
+                                    "EmployeeStatus": EmployeeStatus,
+                                    "IDLocation": IDLocation,
+                                    "ImplementationDate": ImplementationDate,
+                                    "IdeaSource": IdeaSource
+                                };
+
+                                $.ajax({
+                                    url: '@Url.Action("GetContinuousImprovementSandBags")',
+                                    method: 'get',
+                                    dataType: 'json',
+                                    cache: false,
+                                    data: updateRecord,
+                                    success: function (response) {
+                                        if (response.viewmodel.length > 0) {
+                                            dialog.modal("hide");
+                                            // if edit data with same value from another record
+                                            bootbox.alert({
+                                                title: "DFIS Notification Center",
+                                                message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''> Can't be saved data at edit page, identical data already exists in the database.</div>",
+                                                closeButton: false
+                                            });
+                                        } else {
+                                            updateRecord["IDContImprovSandBag"] = getUrlParameter('IDContImprovSandBag');
+                                            CreateUpdate(updateRecord, dialog);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnEdit', function (e) {
+            $("input[type=text], select").prop('disabled', false);
+            $("#btnEdit").prop('disabled', true);
+            $("#btnSaveNew").prop('disabled', false);
+        });
+
+        $(document).on('change', '#SubDepartment', function (e) {
+            var SubDepartment = $(this).val();
+
+            //reset next fields
+            $('#EmployeeStatus').val('').prop("disabled", true);
+            $("#Owner").select2("destroy");
+            $('.Owner').next().remove();
+            $('.Owner').after('<select class="select2" id="Owner" disabled><option value="">-- Select --</option></select>');
+            $("#Owner").select2();
+
+            $('#IDLocation').html('<option value="">Loading...</option>').prop("disabled", true);
+
+            if (SubDepartment) {
+                $.ajax({
+                    url: '@Url.Action("GetMasterLocation")',
+                    dataType: 'JSON',
+                    data: { "ParentLocation": SubDepartment },
+                    cache: false,
+                    success: function (data) {
+                        var options = '<option value="">-- Select --</option>';
+                        $.each(data, function (key, val) {
+                            options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                        });
+                        $('#IDLocation').html(options).prop("disabled", false);
+                    },
+                    error: function () {
+                        $('#IDLocation').html('<option value="NULL">none available</option>').prop("disabled", true);
+                    }
+                });
+            } else {
+                $('#IDLocation').html('<option value="">-- Select --</option>').prop("disabled", true);
+            }
+        });
+
+        $(document).on('change', '#IDLocation', function (e) {
+            //reset next fields
+            if ($(this).val()) {
+                $('#EmployeeStatus').val('').prop("disabled", false);
+            } else {
+                $('#EmployeeStatus').val('').prop("disabled", true);
+            }
+            $("#Owner").select2("destroy");
+            $('.Owner').next().remove();
+            $('.Owner').after('<select class="select2" id="Owner" disabled><option value="">-- Select --</option></select>');
+            $("#Owner").select2();
+        });
+
+        $(document).on('change', '#EmployeeStatus', function (e) {
+            var EmployeeStatus = $(this).val();
+
+            $("#Owner").select2("destroy");
+
+            $('#Owner').html('<option value="">Loading...</option>').prop("disabled", true);
+
+            if (EmployeeStatus === "") {
+                $('.Owner').next().remove();
+                $('.Owner').after('<select class="select2" id="Owner" disabled><option value="">-- Select --</option></select>');
+                $("#Owner").select2();
+            } else if (EmployeeStatus === "Monthly") {
+                generateDropwdownMonthlyEmployee();
+            } else {
+                $('.Owner').next().remove();
+                $('.Owner').after('<input type="text" class="form-control" id="Owner"/>');
+            }
+        });
+    });
+
+    function Overwrite(IDContImprovSandBag, dialog) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var Year = $('#Year :selected').val(),
+            Month = $('#Month :selected').val(),
+            Department = $('#Department :selected').val(),
+            SubDepartment = $('#SubDepartment :selected').val(),
+            Title = $('#newData').find('input[id="Title"]').val(),
+            Status = $('#Status :selected').val(),
+            Owner = $("#Owner :selected").val(),
+            EmployeeStatus = $('#EmployeeStatus :selected').val(),
+            IDLocation = $('#IDLocation :selected').val(),
+            ImplementationDate = $('#ImplementationDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            IdeaSource = $('#IdeaSource :selected').val();
+
+        if (typeof Owner === "undefined") {
+            Owner = $("#Owner").val();
+        }
+
+        var updateRecord = {
+            "IDContImprovSandBag": IDContImprovSandBag,
+            "Year": Year,
+            "Month": Month,
+            "Department": Department,
+            "SubDepartment": SubDepartment,
+            "Title": Title,
+            "Status": Status,
+            "Owner": Owner,
+            "EmployeeStatus": EmployeeStatus,
+            "IDLocation": IDLocation,
+            "ImplementationDate": ImplementationDate,
+            "IdeaSource": IdeaSource,
+            "IsActive": true
+        };
+
+        CreateUpdate(updateRecord, dialog);
+    }
+
+    function generateDropDownSubDepartment() {
+        return $.ajax({
+            url: '@Url.Action("GetMasterLocation")',
+            dataType: 'JSON',
+            cache: false,
+            data: { "Type": "Region" },
+            success: function (data) {
+                var options = '<option value="">-- Select --</option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.LocationName + '">' + val.LocationName + '</option>';
+                });
+                $('#SubDepartment').html(options);
+            },
+            error: function () {
+                $('#SubDepartment').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownEmployeeStatus() {
+        return $.ajax({
+            url: '@Url.Action("GetListForEmployee")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                var options = '<option value="">-- Select --</option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+                $('#EmployeeStatus').html(options);
+            },
+            error: function () {
+                $('#EmployeeStatus').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownIdeaSource() {
+        return $.ajax({
+            url: '@Url.Action("GetMasterListByFieldName")',
+            data: { "fieldName": "SuggestionSystemideasource" },
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                var options = '<option value="">-- Select --</option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+                $('#IdeaSource').html(options);
+            },
+            error: function () {
+                $('#IdeaSource').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownLocation(SubDepartment) {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterLocation")',
+            dataType: 'JSON',
+            data: { "ParentLocation": SubDepartment },
+            cache: false,
+            success: function (data) {
+                var options = '<option value="">-- Select --</option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                });
+                jQuery('#IDLocation').html(options).prop("disabled", false);
+            },
+            error: function () {
+                jQuery('#IDLocation').html('<option value="NULL">none available</option>').prop("disabled", true);
+            }
+        });
+    }
+
+    function generateDropwdownMonthlyEmployee() {
+        $("#Owner").select2("destroy");
+        $('.Owner').next().remove();
+        $('.Owner').after('<select class="select2" id="Owner" disabled><option value="">Loading...</option></select>');
+        $("#Owner").select2();
+
+        var ParentLocation = $("#SubDepartment option:selected").val(),
+            IDLocation = $("#IDLocation option:selected").val();
+
+        return $.ajax({
+            url: '@Url.Action("GetOwnerByLocation")',
+            dataType: 'JSON',
+            method: 'GET',
+            data : {
+                "ParentLocation": ParentLocation,
+                "IDLocation" : IDLocation
+            },
+            cache: false,
+            success: function (response) {
+                var options = '<option value="">-- Select --</option>',
+                    theIDEmployee = '',
+                    theFullName = '';
+
+                $.each(response, function (key, val) {
+                    if (theIDEmployee !== val.IDEmployee && theFullName !== val.FullName) {
+                        theIDEmployee = val.IDEmployee == null || val.IDEmployee == '' ? val.IdUser : val.IDEmployee;
+                        theFullName = val.FullName;
+                        options += '<option value="' + theFullName + '">' + theIDEmployee + " - " + theFullName + '</option>';
+                    }
+                });
+                $('#Owner').select2("destroy").html(options).prop("disabled", false).select2();
+            },
+            error: function () {
+                $('#Owner').html('<option value="NULL">none available</option>').prop("disabled", true);
+            }
+        });
+    }
+
+    function CreateUpdate(record, dialog) {
+        $.ajax({
+            url: '@Url.Action("CreateUpdate")',
+            data: record,
+            method: 'POST',
+            cache: false,
+            success: function (response) {
+                dialog.modal('hide');
+                alertSaveSuccess();
+                reset();
+            }
+        });
+    }
+
+    function reset() {
+        jQuery('#newData')[0].reset();
+
+        jQuery("#Owner").select2("destroy");
+        jQuery('.Owner').next().remove();
+        jQuery('.Owner').after('<select class="select2" id="Owner" disabled><option value="">-- Select --</option></select>');
+        jQuery("#Owner").select2();
+
+        jQuery('#IDLocation').html('<option value="">-- Select --</option>').prop("disabled", true);
+
+        jQuery("#btnSaveNew").attr('disabled', false);
+        jQuery("#btnEdit").attr('disabled', true);
+
+        window.location.replace('@Url.Action("../ContinuousImprovementSandBag")');
+    }
+
+    function resetUpdate() {
+        jQuery("input[type=text], select").attr('disabled', true);
+
+        jQuery("#btnSaveNew").attr('disabled', true);
+        jQuery("#btnEdit").attr('disabled', false);
+    }
+
+    function loadRecord(IDContImprovSandBag, dialog) {
+        $("input[type=text], select").prop('disabled', true);
+
+        jQuery.ajax({
+            url: '@Url.Action("GetContinuousImprovementSandBags")',
+            dataType: 'JSON',
+            cache: false,
+            data: { 'IDContImprovSandBag': IDContImprovSandBag },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response.viewmodel.length) {
+                    var record = response.viewmodel[0];
+
+                    redirectAction(record.IsActive);
+
+                    $('#Year').val(record.Year);
+                    $('#Month').val(record.Month);
+                    $('#Department').val(record.Department);
+                    $('#SubDepartment').val(record.SubDepartment);
+                    $('#Title').val(record.Title);
+                    $('#EmployeeStatus').val(record.EmployeeStatus);
+
+                    if (record.EmployeeStatus != "Monthly") {
+                        $('#Owner').select2("destroy");
+                        $('.Owner').next().remove();
+                        $('.Owner').after('<input type="text" class="form-control" id="Owner"/>');
+                        $('#Owner').val(record.Owner).prop("disabled", true);
+                    }
+
+                    $('#Status').val(record.Status);
+                    $('#IdeaSource').val(record.IdeaSource);
+
+                    $.when(generateDropDownLocation(record.SubDepartment)).done(function (a1) {
+                        $('#IDLocation').val(record.IDLocation).prop("disabled", true);
+                        if (record.EmployeeStatus == "Monthly") {
+                            $.when(generateDropwdownMonthlyEmployee()).done(function (a1) {
+                                $('#Owner').val(record.Owner).trigger('change').prop("disabled", true);
+                            });
+                        }
+                    });
+
+                    $('#ImplementationDate').val(moment(Number(record.ImplementationDate.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    $("#btnEdit").prop("disabled", response.viewbag);
+                    //var createdDate = moment(Number(record.CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                    //setBtnEdit(createdDate, record.IDLocation);
+                } else {
+                    $("#btnSaveNew, #btnEdit").prop("disabled", true);
+                    alertNoRecord("IDContImprovSandBag equal to \"" + IDContImprovSandBag + "\"");
+                }
+            },
+            error: function (jqXHR, exception) {}
+        });
+
+        $("#btnEdit").attr('disabled', false);
+        $("#btnSaveNew").attr('disabled', true);
+    }
+
+    function redirectAction(IsActive) {
+        var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+        var IsSuperAdmin = false;
+
+        for(var i=0; i < listUserRole.length; i++) {
+            if (listUserRole[i] == "SUPER ADMIN") {
+                IsSuperAdmin = true;
+                break;
+            }
+        }
+
+        if (!IsSuperAdmin && !IsActive) {
+            window.location.replace('@Url.Action("Index", "ContinuousImprovementSandBag")');
+        }
+    }
+
+    @*// BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+    var closingPageDate = '@ViewBag.ClosingPageDate';
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        var disabled = true;
+        for (var j = 0; j < listUserRole.length; j++) {
+            if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+                if (listUserRole[j] != "SUPER ADMIN") continue;
+                disabled = false;
+            } else {
+                var closingDateArr = moment(closingPageDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var closingDate = new Date(''+closingDateArr[2]+'-'+closingDateArr[1]+'-'+(closingDateArr[0]-1));
+                var createdDateArr = moment(param1, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var createdDate = new Date(''+createdDateArr[2]+'-'+createdDateArr[1]+'-'+(createdDateArr[0]-1));
+                if (param2 != null) { //begin : untuk page yg memiliki lokasi
+                    for (var i = 0; i < listLocation.length; i++) {
+                        if (listLocation[i] != param2) continue;
+                        if (closingDate < createdDate) {
+                            disabled = false;
+                        } else if(closingDate > createdDate) {
+                            disabled = true;
+                        }
+                    }
+                    //end : untuk page yg memiliki lokasi
+                } else {
+                    if (closingDate < createdDate) {
+                        disabled = false;
+                    } else if(closingDate > createdDate) {
+                        disabled = true;
+                    }
+                }
+            }
+        }
+        $("#btnEdit").prop("disabled", disabled);
+    }*@
+</script>

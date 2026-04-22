@@ -1,0 +1,418 @@
+
+@{
+    ViewBag.Title = "Master Data > Master Setting > Function";  
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr> 
+            <th width=5% nowrap class="text-center">Active</th>                      
+            <th>Type</th>
+            <th>Function Name</th>
+            <th>Parent</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Type</th>
+            <th>Function Name</th>
+            <th>Parent</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>          
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add New Function</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="box sameHeight">
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IDFunction</label>
+                                            <input type="text" id="IDFunction" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select class="form-control" id="Type"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Function Name</label>
+                                        <input type="text" id="Name" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Parent ID</label>
+                                        <select class="form-control" id="ParentId"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Active</label>
+                                        <select class="form-control" id="Status">
+                                            <option value="1">YES</option>
+                                            <option value="0">NO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedDate</label>
+                                            <input type="text" id="CreatedDate" class="form-control datepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedBy</label>
+                                            <input type="text" id="CreatedBy" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            generateDropDownType();
+            $('#ParentId').empty().append('');
+            generateDropDownParentId();
+        });
+    });
+    $('#Type').change(function () {
+        generateDropDownParentId();
+    });
+        function resetData(){
+            $('#newData')[0].reset();
+        }
+        // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+        generateDropDownType();
+        generateTable();
+        //generate table
+        function generateTable() {
+            $.ajax({
+                url: 'MstFunction/GetMasterFunction',
+                method: 'get',
+                dataType: 'json',
+                cache: false,
+                success: function (json) {
+                    var table = $('#dtFilterMaster').DataTable({
+                        'destroy': true,
+                        data: json,
+                        'destroy': true,
+                        'paging': true,
+                        'sort': true,
+                        'searching': true,
+                        "iDisplayLength": 25,
+                        aaSorting: [[5, 'desc']],
+                        columns: [
+                              {
+                                  "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                                      if (data == true) {
+
+                                          return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                      } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                                  }
+                              },
+                            { 'data': 'Type', 'searchable': true },
+                            { 'data': 'FunctionName', 'searchable':true },
+                            { 'data': 'ParentIDFunction', 'searchable': true },                         
+                              {
+                                  render: function (data, type, row) {
+                                      // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                      var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                      var formatted = date.getFullYear() + "-" +
+                                            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                            ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                            date.getMinutes();
+                                      //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                      //var dtStr = dt.toString();
+                                      //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                      //      dt.getMinutes();
+                                      var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                      return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                                  }
+                              },
+                          { 'data': 'UpdatedDate', 'class': 'hidden' },
+                            {
+                                "data": "IDFunction", "class": "text-center", "render": function (data) {
+                                    return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                                }
+                            }
+                        ],
+                        "dom": 'lf<"table-overflow"t>ip',
+                        orderCellsTop: true
+                    });
+
+                    $('.dataTables_filter input').attr("placeholder", "Search Here");
+                    // Setup - add a text input to each footer cell
+                    $('#dtFilterMaster thead.filters th').each(function (index) {
+                        if ((index >= 1) && (index < 5)) {
+                            var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                            $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                        }
+                    });
+                    //searching with column on datatable
+                    table.columns().every(function (index) {
+                        $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                            table.column($(this).parent().index() + ':visible')
+                                .search(this.value)
+                                .draw();
+                        });
+                    });
+                }
+            });
+        }
+        // END : JQUERY SELECT TO DataTable
+
+        // BEGIN :JQUERY INSERT DROPDOWN TYPE
+        function generateDropDownType(selectedValue) {
+            $.ajax({
+                url: 'MstFunction/GetDropDownType',
+                method: 'get',
+                dataType: 'json',
+                success: function (data) {
+                    var select = document.getElementById('Type');
+                    var len = document.getElementById('Type').length;
+                    var option;
+                    if (len > 0)
+                        $('#Type').empty().append('');
+                    for (var i = 0; i < data.length; i++) {
+                        option = document.createElement('option');
+                        option.value = data[i]["FieldValue"];
+                        option.text = data[i]["FieldValue"];
+                        if (option.value == selectedValue)
+                            option.setAttribute("selected", "selected");
+                        select.add(option);
+                    }
+                }
+            });
+        }
+        // END :JQUERY INSERT DROPDOWN TYPE
+
+        // BEGIN :JQUERY INSERT DROPDOWN Parent ID
+        function generateDropDownParentId(selectedValue) {
+            $.ajax({
+                url: 'MstFunction/GetDropDownParentId',
+                method: 'get',
+                dataType: 'json',
+                data: {"Type" : $('#Type :selected').val()},
+                success: function (dataParent) {
+                    if (dataParent.length > 0) {
+                        var selectParent = document.getElementById('ParentId');
+                        selectParent.disabled = false;
+                        var lenParent = document.getElementById('ParentId').length;
+                        var optionParent;
+                        if (lenParent > 0) {
+                            $('#ParentId').empty().append('');
+                        }
+                        for (var i = 0; i < dataParent.length; i++) {
+                            optionParent = document.createElement('option');
+                            optionParent.value = dataParent[i]["IDFunction"];
+                            optionParent.text = dataParent[i]["FunctionName"];
+                            if (optionParent.value == selectedValue)
+                                optionParent.setAttribute("selected", "selected");
+                            selectParent.add(optionParent);
+                        }
+                    } else {
+                        $('#ParentId').empty().append('');
+                        document.getElementById('ParentId').disabled = true;
+                    }
+                }
+            });
+        }
+        // END :JQUERY INSERT DROPDOWN Parent ID
+
+        // BEGIN : Insert New Data
+        $('#btnSaveYes').click(function () {
+            save(false);
+            $('#setinactive').modal('hide');
+            $('#inputModal').modal('hide');
+        });
+
+        $('#btnSaveNew').click(function () {
+            if ($('#InsertOrUpdate').val() == "UPDATE") {
+
+                $('#setinactive').modal('show');
+
+            } else {
+                save(true);
+            }
+        });
+
+        function save(statusSave) {
+            var idfunction = $('#IDFunction').val();
+            var name = $('#Name').val();
+            var parentid = $('#ParentId :selected').val();
+            var type = $('#Type :selected').val();
+            var status = $('#Status :selected').val() == 1 ? true : false;
+            var createddate = $('#CreatedDate').val();
+            var createdby = $('#CreatedBy').val();
+            var data;
+            if (statusSave) {
+                data = {
+                    "new": [{ "FunctionName": name, "ParentIDFunction": parentid, "Type": type, "IsActive": status }],
+                    "edit": [{}]
+                };
+            } else {
+                data = {
+                    "new": [{}],
+                    "edit": [{ "IDFunction": idfunction, "FunctionName": name, "ParentIDFunction": parentid, "Type": type, "IsActive": status, "CreatedDate": createddate, "CreatedBy": createdby }]
+                };
+            }
+            $.ajax({
+                type: 'POST',
+                url: 'MstFunction/InsertList',
+                data: data,
+                success: function () {
+                    generateTable();
+                    $('#modalsuccess').modal('show');
+                    resetData();
+                }
+            });
+        }
+        // END : Insert New Data
+      
+    //BEGIN : Edit Data
+        function editTable(id) {
+            $('#newData')[0].reset();
+            $('#InsertOrUpdate').val("UPDATE");
+            var table = $('#dtFilterMaster').DataTable();
+            $('#dtFilterMaster tbody').one('click', 'tr', function () {
+                var data = table.row(this).data();
+                $('#IDFunction').val(data["IDFunction"]);
+                generateDropDownType(data["Type"].trim());
+                $('#Type').val(data["Type"].trim());
+                $('#Name').val(data["FunctionName"]);
+                if (data["ParentIDFunction"] != 0) {
+                    generateDropDownParentId(data["ParentIDFunction"]);
+                    $('#ParentId').val(data["ParentIDFunction"]);
+                }
+                if (data["IsActive"])
+                    $('#Status').val("1");
+                else
+                    $('#Status').val("0");
+                $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+                $('#CreatedBy').val(data["CreatedBy"]);
+            });
+            $('#inputModal').modal('show');
+        }
+    // END : Edit Data
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+</script>
+
+
+
+

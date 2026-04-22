@@ -1,0 +1,736 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportDriverManagementViewModel
+@{
+    ViewBag.Title = "Transport > Driver Management > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+@*<div class="title-deck wmb">
+    <div class="col-panel" style="padding-bottom: 0">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Total Drivers</label>
+                <h4 id="totalDrivers" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Drivers With Expired Driving License</label>
+                <h4 id="driversWithExpiredDriverLicense" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Drivers With > 5 Years Experience</label>
+                <h4 id="driversWithMore5YearsExperience" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Drivers Without BPJS Ketenagakerjaan</label>
+                <h4 id="driversWithoutBpjsKetenagakerjaan" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Drivers Without BPJS Kesehatan</label>
+                <h4 id="driversWithoutBpjsKesehatan" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4" style="display: none;">
+            <div class="form-group">
+                <label>Drivers Without Defensive Drivers Test</label>
+                <h4 id="driversWithoutDefensiveDriversTest" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4" style="display: none;">
+            <div class="form-group">
+                <label>Drivers Without drug test</label>
+                <h4 id="driversWithoutDrugTest" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4" style="display: none;">
+            <div class="form-group">
+                <label>Drivers Without Fatigue Test</label>
+                <h4 id="driversWithoutFatigueTest" class="sub-text">0</h4>
+            </div>
+        </div>
+        <div class="col-md-4" style="display: none;">
+            <div class="form-group">
+                <label>Drivers Without Induction Test</label>
+                <h4 id="driversWithoutInductionTest" class="sub-text">0</h4>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("AddNew")'">New Driver</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+        {
+            <button class="btn btn-primary" id="btnSetInactive" type="button" onclick="SetIsActive('Delete')">Delete</button>
+        }
+        @*if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.SetInactive)))
+        {
+            <button class="btn btn-primary" id="setInactive">Set Inactive</button>
+        }*@
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="exportButton">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)))
+        {
+            if (isSuperUser)
+            {
+                <button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('Recovery')">Recovery</button>
+            }
+        }
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="IDCardNumberOrDrivingLicenseNumber">ID</label>
+                    @*<input id="IDCardNumberOrDrivingLicenseNumber" type="text" class="form-control" placeholder="" onkeypress="return IsAngka(event)" maxlength="20">*@
+                    <select id="IDCardNumberOrDrivingLicenseNumber" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="IDVendor">Vendor Name</label>
+                    <select id="IDVendor" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="Name">Driver Name</label>
+                    <select id="Name" class="select2" multiple="multiple"></select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="RoleDriver">Role Driver</label>
+                    <select id="RoleDriver" class="form-control">
+                        <option value="">-- Select Role Driver --</option>
+                        <option value="Driver">Driver</option>
+                        <option value="Co-Driver">Co-Driver</option>
+                    </select>
+                </div>
+            </div>
+            @*<div class="col-md-3">
+                <div class="form-group">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" id="chkInactive">
+                        <label for="chkInactive"></label>
+                    </div>
+                    <span class="checkbox-deck-span">Include deleted data</span>
+                </div>
+            </div>*@
+            @if (isSuperUser)
+            {
+                <div class="clearfix"></div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label for="input-type">Status</label>
+                        <div id="input-type" class="row">
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="all" value="1" type="radio"/>All
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="deleted" value="0" type="radio"/> Deleted
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <button class="btn btn-primary " onclick="GenerateSearch()">Search</button>
+                <button class="btn btn-purple" onclick="resetSearch()">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterDriverManagement" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="select_all" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th class="text-left">Driver Name</th>
+            <th class="text-left">Vendor Name</th>
+            <th class="text-left">Driving License Expired Date</th>
+            <th class="text-left">Is Active</th>
+            <th class="text-left">Role Driver</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Driver Name</th>
+            <th>Vendor Name</th>
+            <th>Driving License Expired Date</th>
+            <th>Is Active</th>
+            <th>Role Driver</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Please input Yellow field</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+<script type="text/javascript">
+    var myParam = "firstload";
+    jQuery(function ($) {
+        $("#all").prop('checked', true);
+
+        generateTable('firstload');
+
+        //generateCount();
+
+        generateIDVendor();
+
+        $(document).on('click', '#exportButton', function (e) {
+            exportToExcelDefault();
+            e.preventDefault();
+        });
+
+    });
+
+    //==========================================================================================================
+    // PART A: BEGIN
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+
+    //==========================================================================================================
+    // PART A: END
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART B: BEGIN
+    // This part is to validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    function generateCount() {
+        jQuery.ajax({
+            url: '@Url.Action("CountTransportDriverManagements")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (response) {
+                jQuery("#totalDrivers").text(response[0]);
+                jQuery("#driversWithExpiredDriverLicense").text(response[1]);
+                jQuery("#driversWithMore5YearsExperience").text(response[2]);
+                jQuery("#driversWithoutDrugTest").text(response[3]);
+                jQuery("#driversWithoutFatigueTest").text(response[4]);
+                jQuery("#driversWithoutInductionTest").text(response[5]);
+                jQuery("#driversWithoutDefensiveDriversTest").text(response[6]);
+                jQuery("#driversWithoutBpjsKetenagakerjaan").text(response[7]);
+                jQuery("#driversWithoutBpjsKesehatan").text(response[8]);
+            }
+        });
+    }
+
+    function generateIDVendor() {
+        jQuery(function ($) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetMasterVendor")',
+                cache: false,
+                data: { "IsActive": true },
+                success: function (response) {
+                    var options = '<option value=""></option>';
+                    if (response.length) {
+                        for (i = 0; i < response.length; i++) {
+                            options = options + '<option value="' + response[i].IDVendor + '">' + response[i].VendorName + '</option>';
+                        }
+                    }
+                    $('#IDVendor').html(options);
+                    generatePerformance();
+                }
+            });
+        });
+    }
+
+    var generatePerformance = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "RoleDriver"
+            },
+            url: '@Url.Action("GetMasterList")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#RoleDriver').html(options);
+            }
+        });
+    };
+
+    var generateName = function(response) {
+        var options = '<option value=""></option>';
+        var optionsKTP = '<option value=""></option>';
+        if (response.length) {
+            for (i = 0; i < response.length; i++) {
+                options = options + '<option value="' + response[i].Name + '">' + response[i].Name + '</option>';
+                optionsKTP = optionsKTP + '<option value="' + response[i].ID + '">' + response[i].ID + '</option>';
+            }
+        }
+        $('#Name').html(options);
+        $('#IDCardNumberOrDrivingLicenseNumber').html(optionsKTP);
+    };
+
+    function IsAngka(evt) {
+        var charCode = (evt.which); //? evt.which : event.keyCode
+        //alert(evt.which);
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function resetSearch() {
+        $("#IDCardNumberOrDrivingLicenseNumber").select2("val", "");
+        $("#RoleDriver").val("");
+        $("#Name").select2("val", "");
+        $("#IDVendor").select2("val", "");
+        $("#all").prop("checked", true);
+        generateTable("firstload");
+        excelParam = "firstload";
+    }
+
+    function getAge(dob, todate) {
+        if (todate) todate = new Date(todate);
+        else todate = new Date();
+
+        var age = [], fromdate = new Date(dob),
+        y = [todate.getFullYear(), fromdate.getFullYear()],
+        ydiff = y[0] - y[1],
+        m = [todate.getMonth(), fromdate.getMonth()],
+        mdiff = m[0] - m[1],
+        d = [todate.getDate(), fromdate.getDate()],
+        ddiff = d[0] - d[1];
+
+        if (mdiff < 0 || (mdiff === 0 && ddiff < 0))--ydiff;
+        if (mdiff < 0) mdiff += 12;
+        if (ddiff < 0) {
+            fromdate.setMonth(m[1] + 1, 0);
+            ddiff = fromdate.getDate() - d[1] + d[0];
+            --mdiff;
+        }
+        if (ydiff > 0) age.push(ydiff + ' y');
+        if (mdiff > 0) age.push(mdiff + ' m');
+        //if (ddiff > 0) age.push(ddiff + ' day' + (ddiff > 1 ? 's' : ''));
+        if ((ddiff > 0) && (mdiff <= 0) && (ydiff <= 0)) age.push('0 m');
+        if (age.length > 1) age.splice(age.length - 1, 0, ' and ');
+        return age.join('');
+
+        //getAge("1/25/1974")>> 37 years 8 months and 26 days
+
+        //getAge("9/15/1984")>> 27 years 1 month and 5 days
+
+        //getAge("12/20/1984","10,20,2011")>>26 years  and 9 months
+
+        //getAge(new Date(),"12/25/2011")+' till Christmas'>>
+        //2 months and 5 days till Christmas
+
+        //getAge("6/25/2011")>> 3 months and 25 days
+    }
+
+    //==========================================================================================================
+    // PART B: END
+    // Validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART C: BEGIN
+    // This part is to handle additional function in form
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    var tempid = [];
+    var filter = new Object();
+    var stat = false;
+    function SetIsActive(param) {
+        if (tempid.length > 0) {
+            bootbox.confirm({
+                title: "TOM Notification Center",
+                message: "Are you sure to " + param + " this data?",
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn btn-primary'
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        className: 'btn btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if (result) { ChangeIsActive(); }
+                }
+            });
+            stat = (param == "Delete") ? false : true;
+        } else if (tempid.length == 0) {
+            alertPleaseSelect();
+        }
+    }
+
+    function ChangeIsActive() {
+        filter.ListIsActiveIdString = tempid;
+        filter.Isactive = stat;
+        $.ajax({
+            url: '@Url.Action("SetStatusResult")',
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (response) {
+                var msg = stat ? "Recovered" : "Deleted";
+                if (response == "Success") {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully ' + msg + ' to the database! </div>',
+                        callback: function() {
+                            generateTable("firstload");
+                            filter.ListIsActiveId = null;
+                            tempid = [];
+                        }
+                    });
+                } else {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: '<div><img src="../assets/images/cancel.png" alt=""> Error your data cannot be ' + msg + ' ! </div>',
+                        callback: function () {
+                            generateTable("firstload");
+                            filter.ListIsActiveId = null;
+                            tempid = [];
+                        }
+                    });
+                }
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#dtFilterDriverManagement').DataTable();
+        $('#dtFilterDriverManagement tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var id = data["ID"] + "&" + data["IDVendor"];
+           // var idvendor = data["IDVendor"];
+            var result = $.grep(tempid, function (e) { return e == id; });
+            if (result.length == 0) {
+                tempid.push(id);
+            } else if (result.length == 1) {
+                tempid = tempid.filter(function (obj) {
+                    return obj !== id;
+                });
+            }
+        });
+    }
+
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#dtFilterDriverManagement').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempid.push(table.cell(i, 1).data());
+            });
+            tempid = tempid.filter(onlyUnique);
+        } else {
+            tempid = [];
+        }
+    });
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+    //==========================================================================================================
+    // PART C: END
+    // aaditional function in form
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART D: BEGIN
+    // This part is to control data while vew, edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+
+    function setInactive(param) {
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, updating status.</span>');
+        $('#notificationModal .modal-footer').empty();
+        $('#notificationModal').modal('show');
+        jQuery.ajax({
+            type: 'POST',
+            url: '@Url.Action("SetInactive")',
+            data: { "ID": param.toString() },
+            cache: false,
+            success: function (res) {
+                if (res == "Success") {
+                    generateTable('firstload');
+                    $('#modalsuccess').modal('show');
+                    $('#notificationModal').modal('hide');
+                } else {
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+
+    function generateTable(param) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var id = (param == "firstload") ? $("#IDCardNumberOrDrivingLicenseNumber").val() : ($("#IDCardNumberOrDrivingLicenseNumber").val() == null ? $("#IDCardNumberOrDrivingLicenseNumber").val() : $("#IDCardNumberOrDrivingLicenseNumber").val().toString()),
+            idvendor = jQuery("#IDVendor").val() == null ? null : jQuery("#IDVendor").val().toString(),
+            name = (param == "firstload") ? $("#Name").val() : ($("#Name").val() == null ? $("#Name").val() : $("#Name").val().toString()),
+            roleDriver = $("#RoleDriver").val(),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+        var isExportOrSearch;
+        if (param == "firstload") {
+            isExportOrSearch = false;
+        } else if(param == "advSearch") {
+            isExportOrSearch = true;
+        }
+        var filter = {
+            "ID": id,
+            "IDVendor": idvendor,
+            "Name": name,
+            "RoleDriver": roleDriver,
+            "IncludeInActive": includeInActive,
+            "IsExportOrSearch": isExportOrSearch
+        };
+        var table = $('#dtFilterDriverManagement').DataTable({
+            "paging": true,
+            "ordering": false,
+            "filter": true,
+            "destroy": true,
+            "orderMulti": false,
+            "serverSide": true,
+            "processing": true,
+            "pageLength": 10,
+            "ajax": {
+                    dataType: 'JSON',
+                    type: 'POST',
+                    url: '@Url.Action("GetTransportDriverManagementsTable", "DriverManagement")',
+                    data: function (data) {
+                        data.filter = filter;
+                        return data
+                    },
+                    "complete": function (res) {
+                        if (res.responseJSON.data.length == 0) {
+                            alertSearchNoResult();
+                        }
+                        if (param != "advSearch") {
+                            generateName(res.responseJSON.data);
+                        }
+                        dialog.modal('hide');
+                    },
+                    "error": function (res) {
+                        dialog.modal('hide');
+                    }
+                },
+                "columns": [
+                    {
+                        "data": "ID", "class": "text-center", "render": function (data, type, row, meta) {
+
+                            return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["ID"] + ']&idvendor=check[' + row["IDVendor"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["ID"] + ']&idvendor=check[' + row["IDVendor"] + ']"></label></div></td>';
+                        }
+                    },
+                    {
+                        'data': 'Name', 'searchable': true, "render": function (data, type, row, meta) {
+                            return (type == "display") ? '<a href="@Url.Action("AddNew")?id=' + row.ID + '&idvendor=' + row.IDVendor + '">' + data + '</a>' :
+                            data;
+                        }
+                    },
+
+                    { "data": 'IDVendor', 'searchable': true,
+                        "render": function (data, type, row, meta) {
+                            return '<p>' + row.MasterVendor.VendorName + '</p>';
+                        }
+                    },
+                    {
+                        'data': 'DrivingLicensePeriod', 'searchable': true, "render": function (datum, type, row, meta) {
+                            var output = '';
+                            if (datum != null) {
+                                var datumNumber = Number(datum.match(/\d+/)[0]);
+                                output = (parseInt(datumNumber) < 2209014000000) ? '<label style="font-weight: 200;">' + moment(datum).format("DD-MMM-YYYY") + '</label>' : '';
+                                return output;
+                            } else {
+                                return '<label style="font-weight: 200;"></label>';
+                            }
+
+                        }
+                    },
+                    {
+                        "data": "IsActive", "render": function (data) {
+                            if (data != null) {
+                                return (data) ? '<div>Active</div>' : '<div>In Active</div>';
+                            } else {
+                                return '<div></div>';
+                            }
+
+                        }
+                    },
+                    { 'data': 'RoleDriver', 'searchable': true },
+                ],
+                //"dom": 'lf<"table-overflow"t>ip',
+                orderCellsTop: true
+            });
+            $('.dataTables_filter input').attr("placeholder", "Search Here");
+            $('#dtFilterDriverManagement thead.filters th').each(function (index) {
+                if (index > 0) {
+                    var title = $('#dtFilterDriverManagement thead.filters th').eq($(this).index()).text();
+                    $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                }
+            });
+
+            table.columns().every(function (index) {
+                if (index > 0) {
+                    $('#dtFilterDriverManagement thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.settings()[0].jqXHR.abort();
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                }
+            });
+    }
+    var excelParam;
+
+    function exportToExcelDefault() {
+        bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var id = $("#IDCardNumberOrDrivingLicenseNumber").val(),
+            idvendor = jQuery("#IDVendor").val() == null ? null : jQuery("#IDVendor").val().toString(),
+            name = $("#Name").val() == null ? "" : $("#Name").val(),
+            roleDriver = $("#RoleDriver").val(),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+        if (name != null) {
+            if (name.length > 1) {
+                name = name.join(",")
+            }
+        }
+        var input = {
+            "ID": id,
+            "IDVendor": idvendor,
+            "Name": name,
+            "RoleDriver": roleDriver,
+            "IncludeInActive": includeInActive
+        };
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcelDefault")',
+            method: 'post',
+            dataType: 'json',
+            data: input,
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                bootbox.hideAll();
+            }
+        });
+    }
+    //==========================================================================================================
+    // PART D: END
+    // This part is to control data while edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART E: BEGIN
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    function GenerateSearch() {
+        myParam = "advSearch";
+        generateTable("advSearch");
+        excelParam = "Search";
+    }
+    //==========================================================================================================
+    // PART E: END
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+</script>

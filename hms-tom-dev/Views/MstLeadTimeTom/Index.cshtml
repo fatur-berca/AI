@@ -1,0 +1,791 @@
+@{
+    ViewBag.Title = " Master Data > Lead Time";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+        <button id="uploadDistance" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadDistanceModal" onclick="$('.jfilestyle').find('input').val('');" >Upload</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="text" name="" id="FilterFrom" class="form-control datepicker">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Sender</label>
+                        <select id="FilterSenderLocation" class="select2" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Data Type</th>
+            <!--
+            <th>Transportation Mode</th>-->
+            <th>Vendor Name</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Time (Day)</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Data Type</th>
+            <!--
+            <th>Transportation Mode</th>-->
+            <th>Vendor Name</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Time</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Lead Time</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>IDLeadTime</label>
+                                    <input type="hidden" id="CreatedBy" />
+                                    <input type="hidden" id="CreatedDate" />
+                                    <input type="text" id="IDLeadTime" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Data Type</label>
+                                    <select id="DataType" class="form-control"></select>
+                                </div>
+                            </div>
+                            <!--
+                            <div class="col-md-4" id="divTm">
+                                <div class="form-group">
+                                    <label>Transportation Mode</label>
+                                    <select id="TransportMode" class="form-control"></select>
+                                </div>
+                            </div>
+                                -->
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sender</label>
+                                    <select id="idSender" class="select2"></select>
+                                </div>
+                            </div>
+                            <!--<div class="col-md-4" id="divThrough">
+                                <div class="form-group">
+                                    <label>Through</label>
+                                    <select id="idThrough" class="select2"></select>
+                                </div>
+                            </div>-->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Receiver</label>
+                                    <select id="idReceiver" class="select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!--
+    <div class="col-md-6" id="divVia">
+        <div class="form-group">
+            <label>Via</label>
+            <select id="Via" class="form-control"></select>
+        </div>
+    </div>
+        -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Vendor Name</label>
+                                    <select id="idVendor" class="select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Time</label>
+                                    <div class="col-md-9" style="padding-left: 0px; padding-right: 5px; padding-bottom: 10px;">
+                                        <input type="number" id="TimeLead" class="form-control" maxlength="3" onkeyup="evt_kp_TimeLead(event)">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left: 0px; padding-top:10px">
+                                        <span class="">Day</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input type="text" id="StartDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <label>&nbsp;</label>
+                                <div style="padding-top: 11px; font-size: 12px">TO</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <input type="text" id="EndDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-3" hidden>
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="uploadDistanceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadLead">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input type="file" id="fileInput" class="filestyle" accept=".xls, .xlsx">
+                                <a href="#" id="DownloadTemplateKmBased">Download Template</a> <br />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadLeadTime" class="btn btn-primary">Upload</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalconfirm" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <input hidden id="keyID" value="">
+                <img src="assets/images/danger.png" alt="">
+                <span>Are you sure to delete ?</span>
+            </div>
+            <div class="modal-footer">
+                <button id="okDelete" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+    var tmpVendor = [null,null];
+    ez.Form.AddFieldDef(
+        "id: idSender; class: req doe dd; label: Sender; json: SenderIDLocation",
+        "id: idReceiver; class: req doe dd; label: Receiver; json: ReceiverIDLocation",
+        "id: idVendor; class: req doe; label: Vendor; json: IDVendor",
+        "id: DataType; class: req doe; label: Data Type;",
+        "id: TimeLead; class: req num; label: Time; json:Time",
+        "id: StartDate; class: req; label: Effective Date (Start); json:EffectiveStartDate; dataType: date; displayFormat: DD/MM/YYYY; default: " + moment(new Date()).format("DD/MM/YYYY"),
+        "id: EndDate; class: req; label: Effective Date (End); json:EffectiveEndDate; dataType: date; displayFormat: DD/MM/YYYY; default: 31/12/2999"
+    );
+    $(document).ready(function () {
+        ez.Form.RegisterDropDown("DataType", "@Url.Action("GetDropDownType")", "FieldValue", "FieldValue");
+        ez.Form.RegisterDropDown("idSender", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName");
+        ez.Form.RegisterDropDown("idReceiver", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName");
+        ez.Form.RegisterDropDown("idVendor", "@Url.Action("GetDropDownVendor")", "IDVendor", "VendorName");
+        ez.Form.RegisterDropDown("FilterSenderLocation", "@Url.Action("GetUserWarehouse")", "IDLocation", "LocationName");
+        
+        ez.Form.RefreshDropDown("FilterSenderLocation", null, function () {
+            var initVal = $("#FilterSenderLocation").children();
+            if (initVal.length > 2)
+            {
+                $("#FilterSenderLocation").val(initVal[2].value).trigger("change");
+                generateTable();
+            }
+        });
+
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            $("#btnSaveNew").html("Save");
+            ez.Form.RefreshDropDown("DataType", null);
+        });
+
+        ez.Form.NumberOnly('TimeLead');
+
+        $("#DataType").on("change", function () {
+            var valType = $("#DataType").val();
+            if (valType == "KM Based") {
+                $("#divThrough").hide();
+                $("#divVia").hide();
+            } else {
+                $("#divVia").show();
+            }
+
+            if ($('#InsertOrUpdate').val() == "INSERT") {
+                ez.Form.RefreshDropDown("idVendor", null, null, function (val) {
+                    return val.VendorCategory == $("#DataType").val();
+                });
+            }
+            else
+            {
+                if (tmpVendor[0]) {
+                    $("idVendor").append('<option value="' + tmpVendor[0] + '">' + tmpVendor[1] + '</option>')
+                    $("idVendor").val(tmpVendor[0])
+                    $("idVendor").trigger("change");
+                }
+            }
+        });
+
+        $("#FilterSenderLocation").on("change", function () {
+        });
+
+        
+    });
+
+    function getUserWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetUserWarehouse")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (response) {
+                $('#FilterSenderLocation').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="ez:null"></option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + '">' + val.IDLocation + " - " + val.LocationName + '</option>';
+                });
+                $('#FilterSenderLocation').html(options).select2();
+
+                $('#FilterSenderLocation').select2('val', data[0].IDLocation);
+                generateTable();
+            },
+            error: function () {
+                $('#FilterSenderLocation').select2("destroy");
+                $('#FilterSenderLocation').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+
+        //generate table
+    function generateTable() {
+        var filterdate = $('#filter').find('input[id="FilterFrom"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        var filterLoc = $("#FilterSenderLocation").val();
+        console.log(filterLoc);
+        $.ajax({
+            url: '@Url.Action("GetMasterLeadTimeTom")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "filterDate": filterdate,
+                "filterSenderLocation": filterLoc == null ? null : filterLoc
+            },
+            success: function (json) {
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [6, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", 'sortable': false, "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'MasterTransportVendor.VendorCategory', 'searchable': true },
+                        //{ 'data': 'MasterTransportVendor.TransportationMode', 'searchable': true },
+                        {
+                            'data': 'MasterTransportVendor.VendorName', "render": function (data, type, row) {
+                                if (row['MasterTransportVendor'] != null) {
+                                    return row['MasterTransportVendor']['VendorName'];
+                                } else { return ''; }
+                            }
+                        },
+                        {
+                            'data': 'MasterLocation.IDLocation', "render": function (data, type, row) {
+                                if (row['MasterLocation'] != null) {
+                                    return row['MasterLocation']['LocationName'];
+                                } else { return ''; }
+                            }
+                        },
+                        {
+                            'data': 'MasterLocation1.IDLocation', "render": function (data, type, row) {
+                                if (row['MasterLocation1'] != null) {
+                                    return row['MasterLocation1']['LocationName'];
+                                } else { return ''; }
+                            }
+                        },
+                        //{ 'data': 'Via', 'searchable': true },
+                        { 'data': 'Time', 'searchable': true },
+                        {
+                            'data': 'EffectiveStartDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveStartDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            'data': 'EffectiveEndDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveEndDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDLeadTime", "class": "text-center", 'sortable': false, "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a>' +
+                                    '<a href="#" id="deleteForm"  style="margin-left: 5px;" onclick="deleteTable(' + data + ')"><i data-toggle="modal" class="fa fa-trash-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 9)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#EndDate").blur(function () {
+        if ($("#EndDate").val() == "")
+            $("#EndDate").val("31/12/2999");
+    });
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save(false);
+        $('#setinactive').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        if ($('#InsertOrUpdate').val() == "UPDATE") {
+            if (Validate())
+                $('#setinactive').modal('show');
+        } else {
+            save(true);
+            $('#setinactive').modal('hide');
+        }
+    });
+
+    function evt_kp_TimeLead(evt)
+    {
+        var val = Number($("#TimeLead").val());
+        if (val > 255)
+            $("#TimeLead").val(255);
+        if (val < 0)
+            $("#TimeLead").val(1);
+    }
+
+    function Validate() {
+        if (ez.Form.Validate()) {
+            return true;
+        }
+        $("#textModalError").html("");
+        $("#textModalError").append(ez.Form.error);
+        $('#modalerror').modal('show');
+        return false;
+    }
+
+    function save(asNewData) {
+        var pulled = ez.Form.GetData();
+
+        if (!asNewData) {
+            pulled["IDLeadTime"] = $("#IDLeadTime").val();
+            pulled["CreatedBy"] =$("#CreatedBy").val();
+            pulled["CreatedDate"] = $("#CreatedDate").val();
+        }
+        pulled["IsActive"] = true;
+
+        if (Validate()) {
+            var data = {
+                "new": asNewData ? [pulled] : [{}],
+                "edit": !asNewData ? [pulled] : [{}]
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("InsertLeadTimeTom")',
+                data: data,
+                success: function (result) {
+                    if (result.IsSuccess) {
+                        generateTable();
+                        $('#labelsuccess').html('Data saved successfully');
+                        $('#modalsuccess').modal('show');
+                        $('#inputModal').modal('hide');
+                        $('#addnew').modal('hide');
+                    }
+                    else {
+                        $("#textModalError").html('<strong style="font- size:larger">Failed to save data!</strong><br/>' + result.ErrorMessage);
+                        $('#modalerror').modal('show');
+                    }
+                },
+                error: function (msg) {
+                    $("#textModalError").html("Failed to save data.");
+                    $('#modalerror').modal('show');
+                }
+            });
+        }
+    }
+    // END : Insert New Data
+
+    function resetData() {
+        ez.Form.Clear();
+        ez.Form.Enable("doe");
+        tmpVendor = [null, null];
+    }
+
+    function editTable(id) {
+        ez.Form.Clear();
+        ez.Form.Disable("doe");
+        $('#InsertOrUpdate').val("UPDATE");
+        $.ajax({
+            url: '@Url.Action("GetDataById")',
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            cache: false,
+            data: { "IDLeadTime": id },
+            success: function (json) {
+                ez.Form.SetData(json);
+                tmpVendor = [json.MasterTransportVendor.IDVendor, json.MasterTransportVendor.VendorName];
+                ez.Form.RefreshDropDown("DataType", json.MasterTransportVendor.VendorCategory);
+                $("#StartDate").val(moment(json.EffectiveStartDate).format("DD/MM/YYYY")).trigger("change");
+                $("#EndDate").val(moment(json.EffectiveEndDate).format("DD/MM/YYYY")).trigger("change");
+
+                $("#idVendor").append('<option value="' + tmpVendor[0] + '">' + tmpVendor[1] + '</option>')
+                $("#idVendor").val(tmpVendor[0])
+                $("#idVendor").trigger("change");
+
+                $("#IDLeadTime").val(json.IDLeadTime);
+                $("#CreatedDate").val(dateParse(json.CreatedDate, "DD MMM YYYY"));
+                $("#CreatedBy").val(json.CreatedBy);
+                $('#addnew').modal('show');
+                $('#btnSaveNew').html("Save Changes");
+            }
+        });
+    }
+
+    var delID = null;
+    function deleteTable(id)
+    {
+        delID = id;
+        $("#modalconfirm").modal('show');
+    }
+
+    $("#okDelete").on("click", function() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete")',
+            data: { keyId: delID},
+            success: function (result) {
+                if (result == false) {
+                    $("#textModalError").html("Sorry data is not found or your connection is lost");
+                    $('#modalerror').modal('show');
+                }
+                else {
+                    $('#labelsuccess').html('Data deleted successfully');
+                    $('#modalsuccess').modal('show');
+                }
+                generateTable();
+            }
+        });
+    });
+
+    $("#DownloadTemplateKmBased").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("@Url.Content("~/Assets/Download/TemplateExcel/MasterLeadTime.xlsx")");
+        dialog.modal('hide');
+    });
+    $("#DownloadTemplateTripBased").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        window.location.assign("@Url.Content("~/Assets/Download/TemplateExcel/MasterLeadTime.xlsx")");
+        dialog.modal('hide');
+    });
+
+    $("#fileInput").on("change", function () {
+        $("#btnUploadLeadTime").prop("disabled", false);
+    });
+    $("#uploadDistance").click(function () {
+        $("#btnUploadLeadTime").prop("disabled", true);
+        $("#fileInput").jfilestyle('clear');
+    });
+    $("#btnUploadLeadTime").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        if ($("#fileInput").val() == '' || $("#fileInput").val() == null) {
+            dialog.modal('hide');
+            $('#textModalError').html("Please Select File First !");
+            $('#modalerror').modal('show');
+
+        }  else {
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                var fileUpload = document.getElementById('fileInput').files;
+                if (fileUpload.length > 0) {
+                    fileUpload = fileUpload[0];
+                    fileData.append('FileUpload', fileUpload);
+                } else {
+                    $('#textModalWarning').html('No file to be uploaded');
+                    $('#warningModal').modal('show');
+                    return;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("UploadLeadTime")',
+                    dataType: 'JSON',
+                    data: fileData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                            $("#Upload").val('');
+                            dialog.modal('hide');
+                            $("#uploadDistanceModal").modal("hide");
+                            $("#modalsuccess").modal("show");
+                            generateTable();
+                        }
+                        else {
+                            $('#notificationModal').modal('show');
+                            $('#notificationModal .modal-body').html('<img src="assets/images/cancel.png" style="max-height: 50px; max-width:50px" alt="" /><strong style="font-size: x-large"> Import Failed!</strong><br />&bull; ' + res.ErrorMessage);
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            dialog.modal('hide');
+                        }
+                        $("#btnUploadLeadTime").prop("disabled", true);
+                        $("#fileInput").jfilestyle('clear');
+                    },
+                    error: function () {
+                        $('#notificationModal').modal('show');
+                        $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Upload Failed!</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                        dialog.modal('hide');
+                    }
+                });
+
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    });
+
+    $('#fileInput').on('change', function (e) {
+        $("#btnUpload").prop("disabled", false);
+    });
+    $(".search-filter").on("click", function (e) {
+        generateTable();
+        e.preventDefault();
+    });
+    $(".reset-search-filter").on("click", function (e) {
+        //$("form#filter")[0].reset();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+        e.preventDefault();
+    });
+</script>

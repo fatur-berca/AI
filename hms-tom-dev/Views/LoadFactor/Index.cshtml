@@ -1,0 +1,939 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.KPI.KPILoadFactorCFPViewModel
+@{
+    ViewBag.Title = "KPI Load Factor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    /*table, th, td, tr {
+        border: 1px solid black;
+    }*/
+    th {
+        text-align: center;
+        width: 75%;
+    }
+    td {
+        text-align: left;
+        width: 500px;
+    }
+
+    
+</style>
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" id="exportButton">Export</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <form id="filter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>GP Date</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" id="DateFrom" class="form-control datepicker" value="@DateTime.Now.AddDays(-30).ToString("dd-MM-yyyy")">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" id="DateTo" class="form-control datepicker" value="@DateTime.Now.ToString("dd-MM-yyyy")">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Area</label>
+                        <select class="select2" multiple="multiple" id="ddArea"></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Load Factor</label>
+                        <select class="select2" multiple="multiple" id="ddLoadFactor"></select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Vehicle Type</label>
+                        <select class="select2" multiple="multiple" id="ddVehicleType"></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary" id="btnSearch">Search</button>
+                    <button class="btn btn-purple" onclick="resetSearch()">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="display table dataTable wmb">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>GP NO</th>
+            <th>GP Date</th>
+            <th>GP Week</th>
+            <th>GP Month</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Transporter</th>
+            <th>Mode</th>
+            <th>Vehicle Type</th>
+            <th>Brand</th>
+            <th>Original QTY</th>
+            <th>UOM</th>
+            <th>Delivery</th>
+            <th>Delivery UOM</th>
+            <th>Load Factor</th>
+            
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>GP NO</th>
+            <th>GP Date</th>
+            <th>GP Week</th>
+            <th>GP Month</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Transporter</th>
+            <th>Mode</th>
+            <th>Vehicle Type</th>
+            <th>Brand</th>
+            <th>Original QTY</th>
+            <th>UOM</th>
+            <th>Delivery</th>
+            <th>Delivery UOM</th>
+            <th>Load Factor</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<a href="#searchfilter2" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+
+<div class="filter-deck">
+    <div id="searchfilter2" class="collapse" role="tabpanel" aria-labelledby="searchfilter2">
+        <div class="col-panel">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Year</label>
+                        @Html.DropDownListFor(model => Model.ListYears,
+                                new SelectList(Enumerable.Range(-5, 10)
+                                    .Select(r => new
+                                    {
+                                        Text = (DateTime.Now.Year + r).ToString(),
+                                        Value = (DateTime.Now.Year + r)
+                                    }),
+                                    "Value", "Text", Model.ListYears),
+                                new { @class = "form-control", @id = "ddYear" })
+                    </div>
+                </div>
+                
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary" id="btnSearch2">Search</button>
+                    <button class="btn btn-purple" onclick="resetSearch2()">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@*<table id="dtFilter2" class="display table dataTable wmb">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>January</th>
+            <th>February</th>
+            <th>March</th>
+            <th>April</th>
+            <th>May</th>
+            <th>June</th>
+            <th>July</th>
+            <th>Augustus</th>
+            <th>September</th>
+            <th>October</th>
+            <th>November</th>
+            <th>December</th>
+            <th>Average</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>*@
+<table id="dtFilter2" class="display table dataTable ">
+    <thead>
+        <tr >
+            <th rowspan="2" hidden>RowNumber</th>
+            <th rowspan="2">Category</th>
+            <th colspan="2">January</th>
+            <th colspan="2">February</th>
+            <th colspan="2">March</th>
+            <th colspan="2">April</th>
+            <th colspan="2">May</th>
+            <th colspan="2">June</th>
+            <th colspan="2">July</th>
+            <th colspan="2">August</th>
+            <th colspan="2">September</th>
+            <th colspan="2">October</th>
+            <th colspan="2">November</th>
+            <th colspan="2">December</th>
+        </tr>
+        <tr>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+        </tr>
+
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+        <tr>
+            <th hidden><b>Total</b></th>
+            <th><b>Total</b></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+        </tr>
+    </tfoot>
+    @*<tfoot>
+        <tr>
+            <th rowspan="2" hidden>RowNumber</th>
+            <th rowspan="2">Total</th>
+            <th colspan="2">January</th>
+            <th colspan="2">February</th>
+            <th colspan="2">March</th>
+            <th colspan="2">April</th>
+            <th colspan="2">May</th>
+            <th colspan="2">June</th>
+            <th colspan="2">July</th>
+            <th colspan="2">August</th>
+            <th colspan="2">September</th>
+            <th colspan="2">October</th>
+            <th colspan="2">November</th>
+            <th colspan="2">December</th>
+        </tr>
+    </tfoot>*@
+</table>
+
+@*<div class="box wmt">
+    <form>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Average % Load Factor</label>
+                    <input type="text" class="form-control" disabled>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>*@
+
+<script type="text/javascript">
+    //var dateFrom = moment(new Date()).add(-1, 'months').format('DD/MM/YYYY');
+    //var dateTo = moment(new Date()).format('DD/MM/YYYY');
+    jQuery(function($) {
+        //$("#DateFrom").val("");
+        //$("#DateTo").val("");
+        $("#ddYear").val((new Date()).getFullYear());
+
+        generateVehicleType();
+        generateTable('firstload');
+        generateTable2('firstload');
+
+        $(document).on('click', '#btnSearch', function(e) {
+            generateTable("search");
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnSearch2', function(e) {
+            generateTable2("search");
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#exportButton', function(e) {
+            exportToExcel('firstload');
+            e.preventDefault();
+        });
+    });
+
+    function resetSearch() {
+        $("#ddArea").select2("val", "");
+        $("#ddLoadFactor").select2("val", "");
+        $("#ddVehicleType").select2("val", "");
+        $("#DateFrom").val();
+        $("#DateTo").val();
+        generateTable();
+    }
+
+    function resetSearch() {
+        $("#ddYear").val((new Date()).getFullYear());
+        generateTable2();
+    }
+
+    function generateVehicleType() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "vehicletype"
+            },
+            url: '@Url.Action("GetMasterList")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#ddVehicleType').html(options);
+                generateLoadFactor();
+            }
+        });
+    }
+
+    function generateLoadFactor() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "loadfactorpercentage"
+            },
+            url: '@Url.Action("GetMasterList")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#ddLoadFactor').html(options);
+                generateArea();
+            }
+        });
+    }
+    
+    function generateArea() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMasterTransportRegion")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="GP/' + response[i].GPNumber + '">GP/' + response[i].GPNumber + '</option>';
+                    }
+                }
+                $('#ddArea').html(options);
+            }
+        });
+    }
+    
+    var filter = new Object();
+    function generateTable(param) {
+        if (param != "firstload") {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+        }
+        
+        filter.DateFrom = (param == "firstload") ? moment($('#DateFrom').val(), 'DD-MM-YYYY').format('YYYY-MM-DD') : $("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        filter.DateTo = (param == "firstload") ? moment($('#DateTo').val(), 'DD-MM-YYYY').format('YYYY-MM-DD') : $("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        filter.Area = (param == "firstload") ? $("#ddArea").val() : ($("#ddArea").val() == null ? $("#ddArea").val() : $("#ddArea").val().toString());
+        filter.IDLoadFactorCFP = (param == "firstload") ? $("#ddLoadFactor").val() : ($("#ddLoadFactor").val() == null ? $("#ddLoadFactor").val() : $("#ddLoadFactor").val().toString());
+        filter.VehicleTypes = (param == "firstload") ? $("#ddVehicleType").val() : ($("#ddVehicleType").val() == null ? $("#ddVehicleType").val() : $("#ddVehicleType").val().toString());
+        $.ajax({
+            url: '@Url.Action("GetData")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: filter,
+            success: function (json) {
+                if (json.length == 0)
+                    alertSearchNoResult();
+                var rowsSelected = [];
+                var table = $('#dtFilter').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[4, 'desc']],
+                    'searching': true,
+                    columns: [
+                        {
+                            "data": "GPNumber", "class": "text-center", "render": function (data, type, row, meta) {
+
+                                return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["IDCardNumber"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["IDCardNumber"] + ']"></label></div></td>';
+                            }
+                        },
+                        { 'data': 'GPNumber', 'searchable': true },
+                        {
+                            'data': 'Date', 'searchable': true, "render": function (datum) {
+                                return moment(datum).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'Week', 'searchable': true },
+                        {
+                            'data': 'Month', 'searchable': true, "render": function (datum) {
+                                var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                                return months[(parseInt(datum) - 1)];
+                            }
+                        },
+                        { 'data': 'Origin', 'searchable': true },
+                        { 'data': 'Destination', 'searchable': true },
+                        { 'data': 'Transport', 'searchable': true },
+                        { 'data': 'Mode', 'searchable': true },
+                        { 'data': 'VehicleType', 'searchable': true },
+                        { 'data': 'Brand', 'searchable': true },
+                        { 'data': 'OriginQty', 'searchable': true },
+                        { 'data': 'UOM', 'searchable': true },
+                        { 'data': 'DelivertyQty', 'searchable': true },
+                        {
+                            'data': 'UOM', 'searchable': true, "render": function () {
+                                return '<td>Stick</td>'; // delivery uom hardcode stick
+                            }
+                        },
+                        { 'data': 'avgLoadFactor', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    'rowCallback': function (row, data, dataIndex) {
+                        // Get row ID
+                        var rowId = data.IDCardNumber;
+                        //console.log(data.IDCardNumber);
+                        // If row ID is in the list of selected row IDs
+                        if ($.inArray(rowId, rowsSelected) !== -1) {
+                            $(row).find('input[type="checkbox"]').prop('checked', true);
+                            $(row).addClass('selected');
+                        }
+                    }
+                });
+
+                //start : handle column search
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 17)) {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+
+                if (param != "firstload") {
+                    dialog.modal('hide');
+                }
+                // end : handle column search
+            }
+        });
+    }
+
+    var filter2 = new Object();
+    function generateTable2(param) {
+        if (param != "firstload") {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+        }
+        
+        filter2.year = $("#ddYear option:selected").text();
+        $.ajax({
+            url: '@Url.Action("GetDataAvg")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: filter2,
+            success: function (json) {
+                if (json.length == 0)
+                    alertSearchNoResult();
+                var rowsSelected = [];
+                var table = $('#dtFilter2').DataTable({
+                    
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[0, 'DESC']],
+                    'searching': true,
+                    columns: [
+                        { "data": "RowNumber", "class": "text-center", "visible":false},
+                        { "data": "RowLabels", "class": "text-center"},
+                        {
+                            'data': 'TripJanuary', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'January', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripFebruary', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'February', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripMarch', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'March', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripApril', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'April', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripMay', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'May', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripJune', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'June', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripJuly', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'July', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripAugust', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'August', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripSeptember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'September', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripOctober', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'October', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripNovember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'November', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripDecember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'December', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        }
+                    ],
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(), data;
+                        var intval = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                i : 0;
+                        };
+                        //january
+                        total = api
+                            .column(3)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(3).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //february
+                        total = api
+                            .column(5)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(5).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //maret
+                        total = api
+                            .column(7)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(7).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //april
+                        total = api
+                            .column(9)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(9).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //mei
+                        total = api
+                            .column(11)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(11).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //juni
+                        total = api
+                            .column(13)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(13).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //juli
+                        total = api
+                            .column(15)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(15).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //agustus
+                        total = api
+                            .column(17)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(17).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //september
+                        total = api
+                            .column(19)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(19).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //oktober
+                        total = api
+                            .column(21)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(21).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //november
+                        total = api
+                            .column(23)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(23).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //desember
+                        total = api
+                            .column(25)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(25).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                    },
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    'rowCallback': function (row, data, dataIndex) {
+                        // Get row ID
+                        var rowId = data.IDCardNumber;
+                        //console.log(data.IDCardNumber);
+                        // If row ID is in the list of selected row IDs
+                        if ($.inArray(rowId, rowsSelected) !== -1) {
+                            $(row).find('input[type="checkbox"]').prop('checked', true);
+                            $(row).addClass('selected');
+                        }
+                    },
+                    
+                });
+
+                if (param != "firstload") {
+                    dialog.modal('hide');
+                }
+                // end : handle column search
+            }
+        });
+    }
+
+    /**
+     * JavaScript endsWith is not working in IEv10?
+     * https://stackoverflow.com/questions/37544376/javascript-endswith-is-not-working-in-iev10/37545037?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+     */
+    if (!String.prototype.endsWith) {
+        String.prototype.endsWith = function (searchString, position) {
+            var subjectString = this.toString();
+            if (typeof position !== 'number' || !isFinite(position)
+                || Math.floor(position) !== position || position > subjectString.length) {
+                position = subjectString.length;
+            }
+            position -= searchString.length;
+            var lastIndex = subjectString.indexOf(searchString, position);
+            return lastIndex !== -1 && lastIndex === position;
+        };
+    }
+    
+    function exportToExcel(param) {
+        //untuk implode dan explode
+        var vehicleType = "";
+        $("#s2id_ddVehicleType .select2-choices li div").each(function () {
+            vehicleType += $(this).text() + ",";
+        });
+        if (vehicleType != "" || vehicleType != null) {
+            if (vehicleType.endsWith(",")) {
+                vehicleType = vehicleType.slice(",", vehicleType.length - 1);
+            }   
+        }
+
+        var Area = "";
+        $("#s2id_ddArea .select2-choices li div").each(function () {
+            Area += $(this).text() + ",";
+        });
+        if (Area != "" || Area != null) {
+            if (Area.endsWith(",")) {
+                Area = Area.slice(",", Area.length - 1);
+            }
+        }
+        
+        filter.DateFrom = $("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        filter.DateTo = $("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        filter.Area = Area;
+        filter.IDLoadFactorCFP = $("#ddLoadFactor").val();
+        filter.VehicleTypes = vehicleType;
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    }
+</script>

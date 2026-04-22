@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{25BA6530-4120-43BF-8C0F-62761197575A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.Master.Domain</RootNamespace>
+    <AssemblyName>TOM.Master.Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Contracts\DFIS.Contracts.csproj">
+      <Project>{139b1b79-3500-4750-97cb-012e6c24ff19}</Project>
+      <Name>DFIS.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Domain\DFIS.Universal.Domain.csproj">
+      <Project>{df3235ef-6173-4a3d-81bd-d364a48291a6}</Project>
+      <Name>DFIS.Universal.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Utils\DFIS.Utils.csproj">
+      <Project>{CD65D670-560A-46BC-B974-7D2FE0ADD040}</Project>
+      <Name>DFIS.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.EntitiesDAL\TOM.EntitiesDAL.csproj">
+      <Project>{6D91578B-A117-4CD7-9886-D3163E926CFF}</Project>
+      <Name>TOM.EntitiesDAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DTOs\MappingSigaRoleDTO.cs" />
+    <Compile Include="DTOs\MasterCostCenterAccountDTO.cs" />
+    <Compile Include="DTOs\MasterCostDTO.cs" />
+    <Compile Include="DTOs\MasterDistanceDTO.cs" />
+    <Compile Include="DTOs\MasterKilometerDTO.cs" />
+    <Compile Include="DTOs\MasterLeadTimeTomDTO.cs" />
+    <Compile Include="DTOs\MasterLoadFactorCFPDTO.cs" />
+    <Compile Include="DTOs\MasterServicePoTomDTO.cs" />
+    <Compile Include="DTOs\MasterTransportRegionDTO.cs" />
+    <Compile Include="DTOs\MasterTruckSealDTO.cs" />
+    <Compile Include="DTOs\MasterUomDTO.cs" />
+    <Compile Include="DTOs\MasterVendorDTO.cs" />
+    <Compile Include="DTOs\MasterVendorSuggestionDTO.cs" />
+    <Compile Include="DTOs\MasterVendorTOMDTO.cs" />
+    <Compile Include="DTOs\DummyClasses.cs" />
+    <Compile Include="Inputs\MasterCostCenterAccountInput.cs" />
+    <Compile Include="Inputs\MasterCostInput.cs" />
+    <Compile Include="Inputs\MasterDistanceInput.cs" />
+    <Compile Include="Inputs\MasterLeadTimeTomInput.cs" />
+    <Compile Include="Inputs\MasterLoadFactorCFPInput.cs" />
+    <Compile Include="Inputs\MasterServicePoTomInput.cs" />
+    <Compile Include="Inputs\MasterTransportRegionInput.cs" />
+    <Compile Include="Inputs\MasterTruckSealInput.cs" />
+    <Compile Include="Inputs\MasterUomInput.cs" />
+    <Compile Include="Inputs\MasterVendorInput.cs" />
+    <Compile Include="Inputs\MasterVendorSuggestionInput.cs" />
+    <Compile Include="Inputs\MasterVendorTOMInput.cs" />
+    <Compile Include="TransportEnums.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

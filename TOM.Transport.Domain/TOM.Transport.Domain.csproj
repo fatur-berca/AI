@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D334E4B6-745B-40BD-8F62-3DD3B7D8AB6C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.Transport.Domain</RootNamespace>
+    <AssemblyName>TOM.Transport.Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>..\packages\iTextSharp.5.5.12\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Zen.Barcode.Core">
+      <HintPath>..\packages\Zen.Barcode.Rendering.Framework.3.1.10729.1\lib\Zen.Barcode.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Zen.Barcode.Design">
+      <HintPath>..\packages\Zen.Barcode.Rendering.Framework.Web.3.1.10729.1\lib\Zen.Barcode.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Zen.Barcode.Web">
+      <HintPath>..\packages\Zen.Barcode.Rendering.Framework.Web.3.1.10729.1\lib\Zen.Barcode.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Zen.Barcode.Web.Mvc">
+      <HintPath>..\packages\Zen.Barcode.Rendering.Framework.Web.3.1.10729.1\lib\Zen.Barcode.Web.Mvc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DTOs\FnTransportationSummaryCRateDTO.cs" />
+    <Compile Include="DTOs\FnTransportationSummaryDTO.cs" />
+    <Compile Include="DTOs\KPILoadFactorAvgDTO.cs" />
+    <Compile Include="DTOs\LoadingUnloadingExcelViewDTO.cs" />
+    <Compile Include="DTOs\SP_GetTransportOrderRequestDTO.cs" />
+    <Compile Include="DTOs\TransportDriverManagementDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionDTOMin.cs" />
+    <Compile Include="DTOs\TransportExecutionVendorDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionAddNewDTO.cs" />
+    <Compile Include="DTOs\GenerateETransportCard.cs" />
+    <Compile Include="DTOs\TransportExecutionPrintMemoDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionPrintDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionEditDTO.cs" />
+    <Compile Include="DTOs\TransportExecutionStatusLogDTO.cs" />
+    <Compile Include="DTOs\TransportLoadingUnloadingDetailDTO.cs" />
+    <Compile Include="DTOs\TransportLoadingUnloadingDTO.cs" />
+    <Compile Include="DTOs\TransportLostClaimDamageDTO.cs" />
+    <Compile Include="DTOs\TransportMonitoringDTO.cs" />
+    <Compile Include="DTOs\TransportMonitoringViewDTO.cs" />
+    <Compile Include="DTOs\TransportOrderChangeLogDTO.cs" />
+    <Compile Include="DTOs\TransportOrderDetailChangeLogDTO.cs" />
+    <Compile Include="DTOs\TransportOrderDetailPrintDTO.cs" />
+    <Compile Include="DTOs\TransportOrderDetailDTO.cs" />
+    <Compile Include="DTOs\TransportOrderDTO.cs" />
+    <Compile Include="DTOs\TransportOrderExcelExportDTO.cs" />
+    <Compile Include="DTOs\TransportOrderRequestDTO.cs" />
+    <Compile Include="DTOs\TransportOrderRequestHeaderDTO.cs" />
+    <Compile Include="DTOs\TransportOrderRequestSummaryDTO.cs" />
+    <Compile Include="DTOs\TransportOrderTransportExecutionPrintDTO.cs" />
+    <Compile Include="DTOs\TransportOrderTransportExecutionDTO.cs" />
+    <Compile Include="DTOs\TransportOrderTransportExecutionEditDTO.cs" />
+    <Compile Include="DTOs\TransportPickingListExportDTO.cs" />
+    <Compile Include="DTOs\TransportPickingListLogDTO.cs" />
+    <Compile Include="DTOs\TransportPickingListViewDTO.cs" />
+    <Compile Include="DTOs\TransportRouteDTO.cs" />
+    <Compile Include="DTOs\TransportPositionDetailDTO.cs" />
+    <Compile Include="DTOs\TransportSealDTO.cs" />
+    <Compile Include="DTOs\TransportSummaryReclassViewDTO.cs" />
+    <Compile Include="DTOs\TransportTicketNCRDTO.cs" />
+    <Compile Include="DTOs\TransportTruckArrivalDTO.cs" />
+    <Compile Include="DTOs\TransportUnitFrequentDTO.cs" />
+    <Compile Include="DTOs\TransportVesselMonitoringDTO.cs" />
+    <Compile Include="DTOs\TransportVehicleDataDTO.cs" />
+    <Compile Include="DTOs\TransportVendorChangeLogDTO.cs" />
+    <Compile Include="Inputs\FnTransportSummaryInput.cs" />
+    <Compile Include="Inputs\TransportationExecutionInput.cs" />
+    <Compile Include="Inputs\TransportDriverManagementInput.cs" />
+    <Compile Include="Inputs\TransportDriverManagerSearchnput.cs" />
+    <Compile Include="Inputs\TransportExecutionImportInput.cs" />
+    <Compile Include="Inputs\TransportExecutionInput.cs" />
+    <Compile Include="Inputs\TransportLostClaimDamageInput.cs" />
+    <Compile Include="Inputs\TransportMonitoringInput.cs" />
+    <Compile Include="Inputs\TransportMonitoringUploadInput.cs" />
+    <Compile Include="Inputs\TransportMonitoringViewInput.cs" />
+    <Compile Include="Inputs\TransportOrderChangeLogInput.cs" />
+    <Compile Include="Inputs\TransportOrderDetailChangeLogInput.cs" />
+    <Compile Include="Inputs\TransportOrderDetailInput.cs" />
+    <Compile Include="Inputs\TransportOrderInput.cs" />
+    <Compile Include="Inputs\TransportOrderRequestInput.cs" />
+    <Compile Include="Inputs\TransportOrderUnitInput.cs" />
+    <Compile Include="Inputs\TransportPickingListLogInput.cs" />
+    <Compile Include="Inputs\TransportSealInput.cs" />
+    <Compile Include="Inputs\TransportTicketNCRInput.cs" />
+    <Compile Include="Inputs\TransportTruckArrivalInput.cs" />
+    <Compile Include="Inputs\TransportUnitFrequentInput.cs" />
+    <Compile Include="Inputs\TransportVehicleDataInput.cs" />
+    <Compile Include="Mappers\FnTransportationSummaryMapperProfile.cs" />
+    <Compile Include="Mappers\TransportDriverManagementMapperProfile.cs" />
+    <Compile Include="Mappers\TransportExecutionMapperProfile.cs" />
+    <Compile Include="Mappers\TransportExecutionStatusLogMapperProfile.cs" />
+    <Compile Include="Mappers\TransportLostDamageClaimMapperProfile.cs" />
+    <Compile Include="Mappers\TransportMonitoring.cs" />
+    <Compile Include="Mappers\TransportMonitoringMapperProfile.cs" />
+    <Compile Include="Mappers\TransportOrderMapperProfile.cs" />
+    <Compile Include="Mappers\TransportOrderRequestMapperProfile.cs" />
+    <Compile Include="Mappers\TransportPositionDetailMapperProfile.cs" />
+    <Compile Include="Mappers\TransportRouteMapperProfile.cs" />
+    <Compile Include="Mappers\TransportSealMapperProfile.cs" />
+    <Compile Include="Mappers\TransportTicketNCRMapperProfile.cs" />
+    <Compile Include="Mappers\TransportVehicleDataMapperProfile.cs" />
+    <Compile Include="Mappers\TransportVehicleMapperProfile.cs" />
+    <Compile Include="Mappers\TransportVendorChangeLogMapperProfile.cs" />
+    <Compile Include="Mappers\TransportVesselMonitoringMapperProfile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Universal.Domain\DFIS.Universal.Domain.csproj">
+      <Project>{DF3235EF-6173-4A3D-81BD-D364A48291A6}</Project>
+      <Name>DFIS.Universal.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Universal.Repositories\DFIS.Universal.Repositories.csproj">
+      <Project>{74b4510c-2904-4db6-92bb-ad46acd546d2}</Project>
+      <Name>DFIS.Universal.Repositories</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Utils\DFIS.Utils.csproj">
+      <Project>{CD65D670-560A-46BC-B974-7D2FE0ADD040}</Project>
+      <Name>DFIS.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.EntitiesDAL\TOM.EntitiesDAL.csproj">
+      <Project>{6D91578B-A117-4CD7-9886-D3163E926CFF}</Project>
+      <Name>TOM.EntitiesDAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.Master.Domain\TOM.Master.Domain.csproj">
+      <Project>{25BA6530-4120-43BF-8C0F-62761197575A}</Project>
+      <Name>TOM.Master.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

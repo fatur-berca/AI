@@ -1,0 +1,3 @@
+
+ALTER TABLE TransportRoute
+ALTER COLUMN IDLocation VARCHAR(50) COLLATE Latin1_General_CI_AS NOT NULL

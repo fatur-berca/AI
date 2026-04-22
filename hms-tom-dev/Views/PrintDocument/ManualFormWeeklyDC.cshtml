@@ -1,0 +1,215 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime PrintedDate = Model.CreatedDate;
+    //hms_dfis_dev.Models.WarehouseStockCountViewModel tool = new hms_dfis_dev.Models.WarehouseStockCountViewModel();
+    hms_tom_dev.Models.WarehouseStockCountListViewModel tool = new hms_tom_dev.Models.WarehouseStockCountListViewModel();
+}
+
+
+@*<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">*@
+@*<link rel="stylesheet" href="~/Assets/Css/app.css" media="screen">*@
+@*<link rel="stylesheet" href="../Assets/Css/app-new.css" media="screen">*@
+
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/ReportStockCount.css")" media="screen">
+
+<script src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+
+
+<style>
+    .imgPdf {
+        width: 240px !important;
+        height: 190px !important;
+    }
+
+    .widthTableHeader {
+        width: 280px !important;
+    }
+
+    .widthTable {
+        width: 368px !important;
+    }
+
+    .widthTableValue {
+        width: 144px !important;
+    }
+
+    .widthTableHeadcount {
+        width: 170px !important;
+    }
+
+    .images-wrap {
+        width: 740px !important;
+    }
+
+    table {
+        width: 100% !important;
+    }
+
+    .fixedheight .topbottom {
+        height: 75px;
+    }
+
+    .fixedheight .middle {
+        height: 96px;
+    }
+
+   .numberAlign {
+        text-align: right;
+    }
+
+   .contentAlign {
+        text-align : center;
+    }
+
+    table tr th {
+        text-align: center;
+    }
+
+    .table_row {
+        height: 50px;
+    }
+
+    .page_break { 
+      page-break-after: always; 
+    }
+</style>
+
+<body class="report-page watermarks">
+    <main>
+        @{
+            var r = Model;
+            var idx_head = 0;
+            var start = 0;
+            int recordno = 0;
+            foreach (string SLoc in Model.WEEKLY_STORE_LOCATION)
+            {
+                start = 0;
+                int no = 0;
+                int TotalDetail = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).ToList().Count;
+                if (TotalDetail == 0) { continue; }
+                while (true)
+                {
+                    var StockCountDetails = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).Skip(start).Take(tool.MAX_ROW_PER_PAGE_FORM_MANUAL).ToList();
+                    if (StockCountDetails.Count == 0) { break; }
+                    idx_head++;
+                    <div style="float:right; @(recordno > 0 ? "padding-top:15px;" : "")" class="numbering"></div>
+                    <h3 class="title noline" style="@(recordno > 0 ? "padding-top:30px;" : "")"> <b> FORM MANUAL STOCK COUNT </b> </h3>
+
+                    <ul class="col-data" style="width:45%;">
+                        <li><label>Date</label><span>: <b>@r.TransDate.ToString("dd-MMM-yyyy")</b></span></li>
+                        <li><label>Warehouse</label><span>: <b>@r.WarehouseName</b></span></li>
+                    </ul>
+
+                    <ul class="col-data" style="width:45%;">
+                        <li><label>Distribution Asistant</label><span>: </span></li>
+                        <li><label>Shift</label><span>: <b>@r.Shift</b></span></li>
+                    </ul>
+
+                    <div style="" class="div_small_box">
+                        <div style="" class="slocinfo"><b>SLoc</b></div>
+                        <div style="padding: 4px 1px 1px 4px;"><b>@SLoc</b></div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Speaking Code</th>
+                                <th>Batch</th>
+                                <th>Jumlah Pallet</th>
+                                <th>Isi Per Pallet</th>
+                                <th>Recehan</th>
+                                <th>Total (Box)</th>
+                                <th>Total (Pack)</th>
+                            </tr>
+                        </thead>
+                    <tbody>
+                        @for (int i = 0; i < StockCountDetails.Count; i++)
+                        {
+                            recordno++;
+                            var row = StockCountDetails[i];
+                            no += 1;
+                            <tr class="table_row">
+                                <td class="contentAlign">@(Html.Raw(String.IsNullOrEmpty(row.Brand) ? "&nbsp" : "" + no))</td>
+                                <td class="contentAlign">@row.Brand</td>
+                                <td class="contentAlign">@row.Batch</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                    if (recordno < Model.WarehouseStockCountDetails.Count && StockCountDetails.Count > (tool.MAX_ROW_PER_PAGE_FORM_MANUAL-5))
+                    {
+                        <div class="page_break"></div>
+                    }
+
+                    if (no >= TotalDetail && StockCountDetails.Count > 11)
+                    {
+                        <div style="float:right; padding-top:5px;" class="numbering"></div>
+                    }
+
+                    start += tool.MAX_ROW_PER_PAGE_FORM_MANUAL;
+                }
+
+                <div class="signature">
+                    <div class="sign text-center">
+                        <p>&nbsp</p>
+                        <p class="name">(______________)</p>
+                        <p>Helper / Admin Area</p>
+                    </div>
+                    <div class="sign text-center">
+                        <p>&nbsp</p>
+                        <p class="name">(______________)</p>
+                        <p>DA / Admin Area</p>
+                    </div>
+                    <div class="sign text-center">
+                        <p>&nbsp</p>
+                        <p class="name">(______________)</p>
+                        <p>Regional Team</p>
+                    </div>
+
+                    <div class="sign text-center" style="float:right">
+                        <p>DA/Helper/Admin</p>
+                        <p class="name">(______________)</p>
+                    </div>
+                </div>
+                <hr class="bold" />
+                <p class="printed printedby page_break">Printed by : @Model.UserName on @PrintedDate.ToString("dd-MMM-yyyy HH:mm")</p>
+
+            }
+        }
+       @if (Model.WarehouseStockCountDetails.Count == 0)
+       {
+           <h1>No Data Found</h1>
+       }
+       else
+       {
+
+       }
+    </main>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var total_page = $('.numbering').length;
+        var no = 1;
+        $('.numbering').each(function (e) {
+            $(this).html(no + ' of ' + total_page);
+            no++;
+        });
+    });
+
+</script>

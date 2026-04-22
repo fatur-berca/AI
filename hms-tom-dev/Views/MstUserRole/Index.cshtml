@@ -1,0 +1,374 @@
+
+@{
+    ViewBag.Title = "Master User Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#popupMasterUserRole" id="AddNew">Add New</button>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Role</th>
+            <th>Last Update By</th>
+            <th hidden>Last Update</th>
+            <th></th>
+
+            <!--<th width=5% nowrap class="text-center">Action</th>-->
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Role</th>
+            <th>Last Update By</th>
+            <th hidden>Last Update</th>
+            <th></th>
+            <!--<th width=5% nowrap class="text-center"></th>-->
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="popupMasterUserRole" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Pop up</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>User ID</label>
+                                @Html.DropDownList("UserID", (SelectList)ViewBag.ListMasterUser, string.Empty, new { @class = "select2" })
+                                <label>Role</label>
+                                @Html.DropDownList("Role", (SelectList)ViewBag.ListGetRole, string.Empty, new { @class = "form-control" })
+                                <label>Active</label>
+                                <select class="form-control" id="Status">
+                                    <option value="1">YES</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                        </div>                  
+
+                     
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnSaveNew">Save</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    generateTable();
+
+
+    function generateTable() {
+        $.ajax({
+            url: 'MstUserRole/GetMasterUserRole',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtFilterMaster').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[4, 'desc']],
+                    'searching': true,
+                    columns: [
+
+                       {
+                           "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                               if (data == true) {
+
+                                   return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                               } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                           }
+                       },
+                                 { 'data': 'IDUser', 'searchable': true },
+                        { 'data': 'Name', 'searchable': true },
+                        //{ 'data': 'Type', 'searchable': true },
+                        { 'data': 'RoleName', 'searchable': true },
+
+                        {
+                            render: function (data, type, row) {
+                                // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                      ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                      date.getMinutes();
+                                //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                //var dtStr = dt.toString();
+                                //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                //      dt.getMinutes();
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                       { 'data': 'UpdatedDate', 'class': 'hidden' },
+                         {
+                             "data": "IDUserRoleMapping", "class": "text-center", "render": function (data) {
+                                 return '<div ><a href="#" id="editForm" onclick="return editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                             }
+                         }
+
+
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 4)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+
+
+            }
+
+        });
+
+    }
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+       
+    });
+
+    $('#AddNew').click(function () {
+        resetData();
+        $('#UserID').attr('disabled', false);
+
+    });
+
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+    function editTable(id) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        
+        $('#InsertOrUpdate').val("UPDATE");
+        $('#UserID').attr('disabled', 'disabled');
+        $.ajax({
+            url: 'MstUserRole/GetDataByID',
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            cache: false,
+            data: { "IDUserRoleMapping": id },
+            success: function (json) {
+                console.log(json);
+                dialog.modal('hide');
+        
+
+                $("#UserID").val(json[0].IDUser).trigger('change');
+                $('#Role').val(json[0].IDRole);
+          
+                if (json[0].IsActive) {
+                    $('#Status').val("1");
+                } else {
+                    $('#Status').val("0");
+                }
+
+                $('#popupMasterUserRole').modal('show');
+              
+            }
+        });
+    }
+
+    function save() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var iduser = $('#UserID').val();
+        var idrole = $('#Role').val();
+        var status = $('#Status').val() == 1 ? true : false;
+        var data = {
+            "new": [{ "IDUser": iduser, "IDRole": idrole, "IsActive": status }],
+            "edit": [{}]
+        };
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'MstUserRole/InsertData',
+            data: data,
+            success: function (data) {
+
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                            //alert(value.ResponseType);
+                            //generateTable();
+
+                            generateTable();
+                          
+                            resetData();
+                            dialog.modal('hide');
+                            $('#modalsuccess').modal('show');
+                         
+
+                        } else {
+                            dialog.modal('hide');
+                            $('#modalerror').modal('show');
+                          
+
+                        }
+
+                    });
+                }
+        
+            }
+        });
+    }
+
+    function edit() {
+        //var data = $('#newData').serialize();
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var iduser = $('#UserID').val();
+        var idrole = $('#Role').val();
+        var status = $('#Status').val() == 1 ? true : false;
+        var data = {
+            "new": [{}],
+            "edit": [{ "IDUser": iduser, "IDRole": idrole, "IsActive": status }]
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'MstUserRole/InsertData',
+            data: data,
+            success: function (data) {
+                $.each(data.Edit, function (k, value) {
+                    if (value.ResponseType == "Success") {
+                        //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                        //alert(value.ResponseType);
+                        //generateTable();
+
+                        generateTable();
+
+                        resetData();
+                     
+                        dialog.modal('hide');
+                        $('#modalsuccess').modal('show');
+
+
+                    } else {
+                        dialog.modal('hide');
+                        $('#modalerror').modal('show');
+                     
+
+                    }
+
+                });
+
+
+
+            }
+        });
+    }
+
+
+</script>
+

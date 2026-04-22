@@ -1,0 +1,1297 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+
+@{
+    ViewBag.Title = "Transport > Transportation Seal > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+    .fg-small {
+        margin-bottom: 0px;
+    }
+</style>
+
+<div class="title-deck wmb">
+    <div class="col-panel" id="container-transport" style="padding-bottom: 0">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Transportation Number</label>
+                <input id="transportationNumber" type="text" class="form-control"/>
+                <input id="IDTransportExecution" type="hidden"/>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" id="divSelect">
+                <label>Location</label>
+                <input id="userLocation" type="text" class="form-control"/>
+                <input id="userLocationValue" type="hidden"/>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="input-type"></label>
+                <div id="input-type" class="row" style="padding-top:8px">
+                    <div class="col-sm-2">
+                        <label class="radio-inline">
+                            <input name="sealstatus" class="sealstatus" id="rbseal" value="1" type="radio" />Seal
+                        </label>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="radio-inline">
+                            <input name="sealstatus" class="sealstatus" id="rbunseal" value="0" type="radio" /> Unseal
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-md-6">
+            <div class="col-md-12">
+                <div class="col-md-4 form-group"><label>Order Number</label></div>
+                <div class="col-md-4 form-group"><label>Sender</label></div>
+                <div class="col-md-4 form-group"><label>Receiver</label></div>
+            </div>
+            <div class="col-md-12" id="headerList">
+                <div class="row form-group"> 
+                    <div class="col-md-4"> <input class="form-control" value="" disabled> </div>
+                    <div class="col-md-4"> <input class="form-control" value="" disabled> </div> 
+                    <div class="col-md-4"> <input class="form-control" value="" disabled> </div> 
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Seal Number</label>
+                <input id="insealnumber" type="text" class="form-control" maxlength="8" onkeypress="return IsAngka(event)">
+            </div>
+        </div>
+
+        <div style="display: none">
+            <div class="clearfix"></div>
+
+            <div class="col-md-2">
+                <div class="form-group fg-small">
+                    <label>Seal Number</label>
+                    <input id="snsealnumber" type="text" class="form-control" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group fg-small">
+                    <label>Activity</label>
+                    <input id="snsealactivity" type="text" class="form-control" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group fg-small">
+                    <label>Location</label>
+                    <input id="locationname" type="text" class="form-control" disabled>
+                    <input id="snlocation" type="text" class="form-control" style="display:none" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group fg-small">
+                    <label>Date And Time</label>
+                    <input id="sndateandtime" type="text" class="form-control" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div id="newSeal">
+        </div>
+
+        <div style="height: 15px; clear:both"></div>
+        <hr />
+    </div>
+</div>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+{
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#exportFile" id="exportButton">Export</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+{
+        <button class="btn btn-primary" id="btnCustomReport">Custom Report</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+{
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadfile" id="uploadButton">Upload</button>
+}
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Seal Number</label>
+                        <input class="filterAdvance form-control" id="filterSealNumber" />
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" id="btnSearch">Search</button>
+                <button type="button" class="btn btn-purple" id="btnReset">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtTable" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">Active</th>
+            <th>Transportation number</th>
+            <th>Seal Number</th>
+            <th>Activity</th>
+            <th>Location</th>
+            <th>Inputted By</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Transportation number</th>
+            <th>Seal Number</th>
+            <th>Activity</th>
+            <th>Location</th>
+            <th>Inputted By</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="uploadfile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload Template</label>
+                                <input id="fileUploadSeal" type="file" class="filestyle" data-buttonname="btn-primary" data-icon="false" data-buttontext="Browse" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/TransportationSealUploadTemplate.xlsx" id="downloadTemplate">Download Template</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exportFile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Export File</h4>
+            </div>
+            <div class="modal-body" style="padding-top: 0px; padding-bottom: 0px;">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="input-type"></label>
+                                <div id="input-type" class="row" style="padding-top:8px">
+                                    <div class="col-sm-4">
+                                        <label class="radio-inline">
+                                            <input name="exporttype" id="exportRawData" type="radio" />Raw Data
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="radio-inline">
+                                            <input name="exporttype" id="exportSealStock" type="radio" /> Seal Stock
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnExport" disabled>Export</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="TransportationNumber" class="ui-draggable">Transportation Number</div>
+                        <div data-field="SealNumber" class="ui-draggable">Seal Number</div>
+                        <div data-field="Activity" class="ui-draggable">Activity</div>
+                        <div data-field="Location" class="ui-draggable">Location</div>
+                        <div data-field="SealTime" class="ui-draggable">Seal Time</div>
+                        <div data-field="Remarks" class="ui-draggable">Remarks</div>
+                        <div data-field="InputtedBy" class="ui-draggable">Inputted By</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayout" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*@foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }*@
+                <div class="form-group pull-left">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" id="chkGlobalCustomReport">
+                        <label for="chkGlobalCustomReport"></label>
+                    </div>
+                    <span class="checkbox-deck-span">Global Custom Report</span>
+                </div>
+                <button class="btn btn-primary" id="btnExportCustomReport">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //resetDataTn();
+        resetDataSeal();
+        generateTable();
+
+        //init table
+        $('#dtTable').DataTable({
+            "destroy": true,
+            'paging': true,
+            'sort': true,
+            "iDisplayLength": 25,
+            "ordering": false,
+            //aaSorting: [[1, 'asc']],
+            'searching': true,
+            "dom": 'lf<"table-overflow"t>ip',
+            orderCellsTop: true
+        });
+
+        $('#IDTransportExecution').val();        
+    });
+
+    $(document).on('click', '#exportButton', function (e) {
+        exportToExcelDefault();
+        e.preventDefault();
+    });
+
+    ///////////////REGION OF UPLOAD//////////////////////
+
+    $("#fileUploadSeal").on('change', function () {
+        $("#btnUpload").prop("disabled", false);
+    });
+
+    $("#uploadButton").click(function () {
+        $("#btnUpload").prop("disabled", true);
+        $("#fileUploadSeal").val("");
+        $("#fileUploadSeal").jfilestyle('clear');
+    });
+
+    $("#btnUpload").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait, the data is being uploaded... </div>',
+            closeButton: false
+        });
+
+        var data = new FormData();
+        var fileUpload = $("#fileUploadSeal").get(0).files;
+        if (fileUpload.length > 0) {
+            $("#btnUpload").prop("disabled", true);
+            data.append('fileUpload', fileUpload[0]);
+        }
+        else {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: '<div><img src="assets/images/warning.png" alt=""> The file is empty! Are u sure uploading the right file? </div>',
+                backdrop: true
+            });
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Upload")',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (result) {
+                if (result.length == 0) {
+                    bootbox.confirm({
+                        title: "TOM Notification Center",
+                        message: '<div><img src="assets/images/checked.png" alt=""> Data has been succesfully saved to database. </div>',
+                        closeButton: false,
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-primary'
+                            }
+                        },
+                        callback: function (result) {
+                            $("#uploadfile").modal('hide');
+                            generateTable();
+                        }
+                    });
+                }
+                else {
+                    $("#uploadfile").modal('hide');
+                    var strError = "<img src='assets/images/cancel.png'> <strong><u>Input failed!</u></strong> </br><ul>";
+                    $.each(result, function (key, val) {
+                        strError += "<li>" + val + "</li>";
+                    });
+                    strError += "</ul>";
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: strError,
+                        backdrop: true
+                    });
+                    dialog.modal('hide');
+                }
+            },
+            error: function (event, jqxhr, settings) {
+                console.log(event);
+                console.log(jqxhr);
+                console.log(settings);
+                bootbox.hideAll();
+                bootbox.alert(settings);
+            }
+        });
+    });
+
+    ///////////////END OF REGION UPLOAD//////////////////////
+
+    ///////////////REGION OF EXPORT//////////////////////////
+    var exportSelected = "";
+    $(document).on('click', '#exportRawData', function () {
+        $("#btnExport").prop('disabled', false);
+        exportSelected = "RawData";
+    });
+
+    $(document).on('click', '#exportSealStock', function () {
+        $("#btnExport").prop('disabled', false);
+        exportSelected = "SealStock";
+    });
+
+    $("#btnExport").click(function () {
+        bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var input = {
+            IDTransportExecution: $('#IDTransportExecution').val() != '' ? null : $('#IDTransportExecution').val(),
+            SealNumber: $("#filterSealNumber").val(),
+            SortExpression: "SealNumber",
+            SortOrder: "ASC",
+            SortExpression2: "SealActivity",
+        };
+
+        $.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: { input: input, exportSelected: exportSelected },
+            success: function (response) {
+                bootbox.hideAll();
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    });
+
+    ///////////////END OF REGION EXPORT///////////////////////
+
+    ///////////////REGION OF CUSTOM REPORT///////////////////////
+    $("#btnCustomReport").click(function () {
+        generateLayoutSelect();
+        $("#customReport").modal("show");
+        $("#layoutName").val("");
+        moveAllItems('#destinationFields', '#sourceFields');
+    });
+
+    $("#btnExportCustomReport").click(function () {
+        if ($('#destinationFields .fc-field').text().length == 0) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Please select at least one field to export!");
+            $('#modalwarning').modal('show');
+        }
+        else {
+            customReport();
+        }
+    });
+
+    function customReport() {
+        bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var columns = '', indexs = '', widths = '';
+
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+
+        var input = {
+            IDTransportExecution: $('#IDTransportExecution').val() != '' ? null : $('#IDTransportExecution').val(),
+            SealNumber: $("#filterSealNumber").val(),
+            SortExpression: "SealNumber",
+            SortOrder: "ASC",
+            SortExpression2: "SealActivity",
+        };
+
+        $.ajax({
+            url: '@Url.Action("exportCustomReport")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { colCaption: columns, input: input },
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                bootbox.hideAll();
+            }
+        });
+    }
+
+    
+    $("#left").click(function(){
+        moveItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $("#right").click(function () {
+        moveItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    $("#leftall").click(function () {
+        moveAllItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $("#rightall").click(function () {
+        moveAllItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    $('#layoutSelect').on('change', function () {
+        for (var j = 1; j < layoutIsGlobal.length; j++) {
+            if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+            }
+        }
+        var sourceFieldNames = [
+                { 'field': 'TransportationNumber', 'label': 'Transportation Number' },
+                { 'field': 'SealNumber', 'label': 'Seal Number' },
+                { 'field': 'Activity', 'label': 'Activity' },
+                { 'field': 'Location', 'label': 'Location' },
+                { 'field': 'SealTime', 'label': 'Seal Time' },
+                { 'field': 'Remarks', 'label': 'Remarks' },
+                { 'field': 'InputtedBy', 'label': 'Inputted By' }
+        ],
+        sourceFields = '',
+        destinationFieldNames = this.value != "" ? this.value.split(',') : "",
+        destinationFields = '',
+        destinationfieldLabels = [];
+
+        for (i = 0; i < sourceFieldNames.length; ++i) {
+            if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                // the element is not in the array
+                sourceFields = sourceFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+            } else {
+                destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+            }
+        }
+
+        $("#fieldChooser #sourceFields").html(sourceFields);
+
+        for (i = 0; i < destinationFieldNames.length; ++i) {
+            destinationFields = destinationFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+        }
+        $("#fieldChooser #destinationFields").html(destinationFields);
+
+        $("#fieldChooser .ui-draggable").prop("draggable", true);
+        $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+        $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+            $(this).addClass("fc-selected");
+            ev.originalEvent.dataTransfer.setData("text", "COPY");
+        });
+        $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+            ev.originalEvent.preventDefault();
+        });
+        $("#sourceFields,#destinationFields").on("drop", function (ev) {
+            var data = ev.originalEvent.dataTransfer.getData("text");
+            if (data == "COPY")
+                moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+            $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+        });
+    });
+
+    var layoutIsGlobal = [];
+    $("#fieldChooser .ui-draggable").prop("draggable", true);
+    $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function generateLayoutSelect() {
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TransportSeal" },
+            success: function (response) {
+                //console.log(response);
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = "<option value='";
+                    //options = options + "<option>";
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            //if (firstLayout == "") {
+                            //    firstLayout = "";
+                            //    ++k;
+                            //    layoutIsGlobal[k] = { "isGlobal": false, "LayoutName": "" };
+                            //}
+                            thenLayout = response[i].LayoutName;
+                            ++k;
+                            layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            //if (firstLayout != response[i].LayoutName) {
+
+                            //}
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    $("#layoutSelect").html(options);
+                    } else {
+                    options = options + "'<option></option>";
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    $("#btnSaveLayout").click(function () {
+        saveLayout();
+    });
+    function saveLayout() {
+        var nonvalid = false;
+
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutName").val(),
+                isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+            if ($('#destinationFields .fc-field').length > 0) {
+                $('#destinationFields .fc-field').each(function () {
+                    fieldNames = fieldNames + $(this).data('field') + ',';
+                });
+                fieldNames = fieldNames.slice(0, -1);
+
+                var dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                    closeButton: false
+                });
+
+                jQuery.ajax({
+                    url: '@Url.Action("InsertRecords", "CustomReportState")',
+                    method: 'post',
+                    dataType: 'json',
+                    data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TransportSeal", "isGlobal": isGlobal },
+                    success: function (response) {
+                        if (response == "Success") {
+                            if (isGlobal) {
+                                SaveChangesButton(dialog);
+                            } else {
+                                alertCrSaveSuccess();
+                                dialog.modal('hide');
+                                $("#chkGlobalCustomReport").prop('checked', false);
+                            }
+                        } else if (response == "NoLayoutName") {
+                            alertCrPleaseFill();
+                            dialog.modal('hide');
+                        }
+
+                        if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                            $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                        }
+                    }
+                });
+                return true;
+            }
+            else {
+                $("#modalerror #textModalError").html(" Please select at least one field to export! ");
+                $('#modalerror').modal('show');
+                return false;
+            }
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '',
+            isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TransportSeal", "isGlobal": isGlobal },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+    $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#sourceFields,#destinationFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+    $("#destinationFields, #sourceFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#destinationFields, #sourceFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+    ///////////////END OF REGION CUSTOM REPORT///////////////////////
+
+    ///////////////REGION OF ADVANCED SEARCH///////////////////////
+    var IsFromSearch = false;
+    $("#btnSearch").click(function () {
+        IsFromSearch = true;
+        generateTable();
+    });
+
+    $("#btnReset").click(function () {
+        $("#filterSealNumber").val("");
+        generateTable();
+    });
+    ///////////////END OF REGION ADVANCED SEARCH///////////////////////
+
+    var resetDataTn = function () {
+        $('#transportationNumber').val("");
+        $('#IDTransportExecution').val("");
+        $('#userLocation').val("");
+        $('#rbseal').prop("checked", true);
+        $('#IDTransportExecution').val("0");
+        $('#headerList div').remove();
+        $('#userLocation').html('');
+        removeElement("userLocation");
+        createElement();
+    };
+
+    var resetDataSeal = function () {
+        $("#insealnumber").val("");
+        $("#snsealnumber").val("");
+        $("#snsealactivity").val("");
+        $("#snlocation").val("");
+        $("#locationname").val("");
+        $("#sndateandtime").val("");
+    };
+
+    var dialogloading;
+    $('#transportationNumber').on({
+        keypress: function (e) {
+            $("#transportationNumber").css('border-color', '#ccc');
+            if (e.which === 13) {
+                IsFromSearch = false;
+                $('.history_info').remove();
+                // Do something here when enter was hit
+                var TNnumber = $("#transportationNumber").val();
+                if (TNnumber === "") {
+                    $("#transportationNumber").css('border-color', 'orange');
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please scan or input Transaction Number!</div>",
+                        closeButton: false,
+                        backdrop: true
+                    });
+                } else {
+                    generateUserLocation();
+                    generateTable();
+                    $('#insealnumber').focus();
+                }
+            }
+        }
+    });
+
+    function removeElement(elementId) {
+        // Removes an element from the document
+        var element1 = document.getElementById("s2id_" + elementId);
+        if (element1 != null) {
+            element1.parentNode.removeChild(element1);
+        }
+
+        var element = document.getElementById(elementId);
+        element.parentNode.removeChild(element);
+    }
+
+    function createElement() {
+        var newElement = document.createElement("select");
+        newElement.setAttribute('id', "userLocation");
+        newElement.setAttribute('class', "select2");
+        var element = document.getElementById("divSelect");
+        element.appendChild(newElement);
+        $('.select2').select2();
+    }
+
+    var totalLocation = 0;
+    var generateUserLocation = function () {
+        /*
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        */
+        var TN = $("#transportationNumber").val();
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetLocationByTN")',
+            //data: { "IdUser": "pmi\\SSajiyo", "Type": "Warehouse" },
+            //data: { "IdUser": "pmi\\ZFatoni", "Type" : "Warehouse" },
+            data: { TN : TN },
+            success: function (result) {
+                //dialogloading.modal('hide');
+                //console.log(result);
+                var options = '<option value="-"></option>';
+                totalLocation = result.length;
+                if (result.length > 1) {
+                    $('#userLocation').html('');
+                    removeElement("userLocation");
+                    createElement();
+                    for (var i = 0; i < result.length; i++) {
+                        options = options + '<option value="' + result[i].IDLocation + '"LocationName="' + result[i].LocationName + '">' + result[i].LocationName + '</option>';
+                    }
+                    $('#userLocation').html(options);
+                }else{
+                    //$('#userLocation').val(result[0].IDLocation + " - " + result[0].LocationName);
+                    //$('#userLocationValue').val(result[0].IDLocation);
+                    //$('#userLocation').prop('disabled', true);
+                }
+                generateListFromTN();
+            }
+        });
+    };
+
+    function generateTable() {
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        
+        var input = {
+            //IDTransportExecution: $('#IDTransportExecution').val() == '' ? null : $('#IDTransportExecution').val(),
+            TransportNo: $('#transportationNumber').val(),
+            SealNumber: $("#filterSealNumber").val(),
+            SortExpression: "SealNumber",
+            SortOrder: "DESC",
+            SortExpression2: "SealActivity",
+        };
+
+        if (!IsFromSearch) { input.SealNumber = ''; $('.history_info').remove(); }
+        else input.TransportNo = '';
+
+        $.ajax({
+            url: '@Url.Action("GetData", "TransportationSeal")',
+            method: 'post',
+            dataType: 'json',
+            data: input,
+            cache: false,
+            success: function (json) {
+                console.log(123);
+                dialogloading.modal('hide');
+                 /*
+                if (Object.keys(json).length == 0)
+                {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/cancel.png' alt=''> Data not found</div>",
+                        backdrop: true
+                    });
+                }
+                */
+                //console.log(Object.keys(json).length);
+                if (Object.keys(json).length > 1 && !IsFromSearch)
+                {                    
+                    var CheckKey = $('#snsealnumber').val() + $('#snsealactivity').val() + $('#locationname').val() + $('#sndateandtime').val();
+
+                    $("#newSeal").html("");
+
+                    var idx = 0;
+                    json.forEach(function (row) {
+                        var SealTime = moment(row.SealTime).format('DD-MMM-YYYY HH:mm:ss');
+                        //console.log(CheckKey);
+                        //console.log(row.SealNumber + row.SealActivity + row.LocationName + SealTime);
+                        var IsSkipped = CheckKey == row.SealNumber + row.SealActivity + row.LocationName + SealTime;
+                        //console.log(IsSkipped);
+                        if (!IsSkipped || true)
+                        {                      
+                            if (idx == 0)
+                            {
+                                $('#newSeal').append(
+                                    '<div class="clearfix"></div>' +
+                                    '<div class="col-md-2 history_info">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label>Seal Number</label>' +
+                                    '<input id="" type="text" class="form-control" disabled value=' + row.SealNumber + '>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label>Activity</label>' +
+                                    '<input id="" type="text" class="form-control" disabled value=' + row.SealActivity + '>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label>Location</label>' +
+                                    '<input id="" type="text" class="form-control" disabled value="' + row.LocationName + '">' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label>Date And Time</label>' +
+                                    '<input id="" type="text" class="form-control" disabled value="' + SealTime + '">' +
+                                    '</div>' +
+                                    '</div>'
+                                );
+                            }
+                            else
+                            {
+                                $('#newSeal').append(
+                                    '<div class="clearfix"></div>' +
+                                    '<div class="col-md-2 history_info">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label></label>' +
+                                    '<input id="" type="text" class="form-control" disabled value=' + row.SealNumber + '>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label></label>' +
+                                    '<input id="" type="text" class="form-control" disabled value=' + row.SealActivity + '>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label></label>' +
+                                    '<input id="" type="text" class="form-control" disabled value="' + row.LocationName + '">' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="col-md-2">' +
+                                    '<div class="form-group fg-small">' +
+                                    '<label></label>' +
+                                    '<input id="" type="text" class="form-control" disabled value="' + SealTime + '">' +
+                                    '</div>' +
+                                    '</div>'
+                                );
+                            }
+                            idx++;
+                        }
+                    });
+                }
+                console.log(IsFromSearch);
+                //jika generate table bukan dari button search maka return
+                //if (!IsFromSearch) { bootbox.hideAll(); return; }
+                //else { IsFromSearch = false; }
+
+                var table = $('#dtTable').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    "ordering": false,
+                    //aaSorting: [[1, 'asc']],
+                    'searching': true,
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data === true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            'data': 'TransportExecution.TransportNo', 'searchable': true, "render": function (data, type, row, meta) {
+                                return '<a href="@Url.Action("EditIndex")?sn=' + row.SealNumber + '">' + data + '</a>';
+                            }
+                        },
+                        { 'data': 'SealNumber', 'searchable': true },
+                        { 'data': 'SealActivity', 'searchable': true },
+                        { 'data': 'LocationName', 'searchable': true },
+                        { 'data': 'CreatedByFullName', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtTable thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 5)) {
+                        var title = $('#dtTable thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtTable thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+
+                bootbox.hideAll();
+            }
+        });
+    }
+
+    var generateListFromTN = function() {
+        var input = {
+            "TransportNo": $("#transportationNumber").val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetTransportOrderByNo", "TransportationSeal")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: input,
+            success: function (json) {
+                dialogloading.modal("hide");
+                if (json.length > 0) {
+                    $('#headerList div').remove();
+                    var header = $('#headerList').html();
+                    json.forEach(function (data) {
+                        $('#headerList').append('<div class="row form-group"> <div class="col-md-4"> <input class="form-control" value="' + data.STONo + '" disabled> </div> <div class="col-md-4"> <input class="form-control" value="' + data.SenderLocationName + '" disabled> </div> <div class="col-md-4"> <input class="form-control" value="' + data.ReceiverLocationName + '" disabled> </div> </div>');
+                    });
+                    //$('#tbHeader').DataTable({
+                    //    data: json,
+                    //    "destroy": true,
+                    //    columnDefs: [
+                    //        { orderable: false, targets: 1 }
+                    //    ],
+                    //    columns: [
+                    //        { 'data': 'STONo', 'searchable': false },
+                    //        { 'data': 'SenderLocationName', 'searchable': false },
+                    //        { 'data': 'ReceiverLocationName', 'searchable': false }
+                    //    ],
+                    //    "scrollY": 200,
+                    //    "scrollX": true,
+                    //    "dom": '<"table-overflow"t>'
+                    //});
+                    //dialogloading.modal("hide");
+                    $('#IDTransportExecution').val(json[0].IDTransportExecution);
+                } else {
+                    $('#IDTransportExecution').val("0");
+                    $('#headerList div').remove();
+                    $('#userLocation').html('');
+                    removeElement("userLocation");
+                    createElement();
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/cancel.png' alt=''> <strong><u>Input Failed!</u></strong></br>Transportation Number not found</div>",
+                        backdrop: true
+                    });
+                    //dialogloading.modal("hide");
+                    //bootbox.hideAll();
+                }
+            }
+        });
+
+    };
+    var valid = true;
+    $('#insealnumber').on({
+        keypress: function (e) {
+            $("#insealnumber").css('border-color', '#ccc');
+            var charCode = (e.which);
+            if (charCode === 13) {
+                if ($('.sealstatus:checked').length == 0)
+                {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please choose seal status</div>",
+                        backdrop: true
+                    });
+                    return;
+                }
+                if ($('#userLocation').length > 0) {
+                    $('#locationname').val($('#userLocation option:selected').attr('locationname'));
+                }
+                // Do something here when enter was hit
+                var sealNumber = $("#insealnumber").val();
+                if (sealNumber === "") {
+                    $("#insealnumber").css('border-color', 'orange');
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please scan or input Seal Number</div>",
+                        backdrop: true
+                    });
+                    resetDataSeal();
+                    valid = false;
+                } else {
+                    if (totalLocation === 0) {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message:
+                                "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please scan or input Transaction Number first!</div>",
+                            backdrop: true
+                        });
+                        resetDataSeal();
+                        valid = false;
+                    } else {
+                        // 1. seal number
+                        $("#snsealnumber").val(sealNumber);
+                        var sealActivity = ($('#rbunseal').length > 0) ? (($('#rbseal').prop("checked") === true ? "Seal" : "Unseal")) : null;
+                        // 2. seal activity
+                        $("#snsealactivity").val(sealActivity);
+                        // 3. Seal Location
+                        var selectedLocation;
+                        if (totalLocation > 1) {
+                            selectedLocation = $('#userLocation option:selected').val();
+
+                            if (selectedLocation === "-") {
+                                bootbox.alert({
+                                    title: "TOM Notification Center",
+                                    message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please select your location!</div>",
+                                    closeButton: false,
+                                    backdrop: true
+                                });
+                                resetDataSeal();
+                                valid = false;
+                            } else {
+
+                                dialogloading = bootbox.dialog({
+                                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                                    closeButton: false
+                                });
+                                $("#snlocation").val(selectedLocation);
+                                valid = true;
+                            }
+                        } else if (totalLocation === 1) {
+                            selectedLocation = $('#userLocation').val();
+                            $("#snlocation").val(selectedLocation);
+                            valid = true;
+                        }
+                        // 4. seal Date Time (now)
+                        $("#sndateandtime").val(moment().format("DD-MMM-YYYY HH:mm:ss"));
+
+                        // 3. save data
+                        if (valid) {
+                            Save();
+                        }
+                    }
+                }
+                $('#insealnumber').focus();
+            }
+        }
+    });
+
+    var Save = function () {
+        var inlocation = "";
+
+        if (totalLocation > 1) {
+            inlocation = $("#userLocation :selected").val();
+        } else if (totalLocation === 1) {
+            inlocation = $("#userLocationValue").val();
+        }
+        var data = {
+            IDTransportExecution: $('#IDTransportExecution').val() > 0 ? $('#IDTransportExecution').val() : 0,
+            SealNumber : $('#snsealnumber').val(),
+            SealActivity : $('#snsealactivity').val(),
+            IDLocation : inlocation,
+            SealTime: moment($('#sndateandtime').val(), 'DD-MMM-YYYY HH:mm:ss').format('YYYY-MMM-DD HH:mm:ss')
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: 'TransportationSeal/SaveData',
+            data: data,
+            success: function (result) {
+                dialogloading.modal("hide");
+
+                if ((result.ResponseType === "Invalid") || (result.ResponseType === "Error")) {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/cancel.png' alt=''> <strong><u>Input Failed!</u></strong></br>"+result.Message+"</div>",
+                        backdrop: true
+                    });
+                    resetDataSeal();
+                } else if (result.ResponseType === "Success") {
+                    //resetDataSeal();
+                    $('#insealnumber').val('');
+                    generateTable();
+                    //bootbox.confirm({
+                    //    title: "TOM Notification Center",
+                    //    message: "<div class='text-left'><img src='assets/images/checked.png' alt=''> " + result.Message + "</div>",
+                    //    closeButton: false,
+                    //    buttons: {
+                    //        confirm: {
+                    //            label: 'OK',
+                    //            className: 'btn-primary'
+                    //        }
+                    //    },
+                    //    callback: function (result) {
+                    //        //resetDataTn();
+                    //        resetDataSeal();
+                    //        generateTable();
+                    //    }
+                    //});
+                }
+            }
+        });
+    }
+
+    function exportToExcelDefault() {
+        var input = {
+            "ExportType": ($('#rawdata').length > 0) ? (($('#sealstock').prop("checked") === true ? "stock" : "row")) : null
+        };
+
+        jQuery.ajax({
+            //url: '@Url.Action("ExportToExcelDefault")',
+            method: 'post',
+            dataType: 'json',
+            data: input,
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    }
+
+    function IsAngka(evt) {
+        var charCode = (evt.which);
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+</script>

@@ -1,0 +1,281 @@
+﻿
+@{
+    ViewBag.Title = "IndexSearch";
+}
+
+@using System.Web.UI.WebControls
+@using EnumHelper = DFIS.Utils.EnumHelper
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Guideline</title>
+    <link rel="shortcut icon" href="@Url.Content("~/assets/images/fav-icon.png")" type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="VTI Indonesia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+
+    <!-- Load Style -->
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+
+        
+    <script type="text/javascript" src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/assets/js/main.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootbox.min.js")"></script>
+
+    <!-- Load Scripts -->
+    @*<script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="assets/js/main.min.js"></script>
+    <script type="text/javascript" src="assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="assets/js/moment.js"></script>
+    <script type="text/javascript" src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/jquery-mousewheel.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/hammer.min.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/jquery-hammerjs.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/imgViewer.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/imgNotes.js"></script>
+    <script type="text/javascript" src="assets/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="assets/js/list.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery.matchHeight-min.js"></script>
+    <script type="text/javascript" src="assets/js/scripts.js"></script>*@
+
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        .guideline_content{
+            min-height:200px;
+            margin-top:50px !important;
+        }
+
+        .landing .box ul li {
+            list-style: outside;
+        }
+        /*
+        .div_container
+        {
+            display:none;
+        }
+        */
+        .landing .box.red_guideline {
+            border-top: 4px solid #fd0000;
+            background-image: url(../assets/images/house.png);
+        }
+
+        .landing .box.green_guideline {
+            border-top: 4px solid #3BBB25;
+            background-image: url(../assets/images/house.png);
+        }
+
+        .landing .box.lblue_guideline {
+            border-top: 4px solid #24A4F1;
+            background-image: url(../assets/images/build.png);
+        }
+
+        .landing .box.orange_guideline {
+            border-top: 4px solid #F88520;
+            background-image: url(../assets/images/truck.png);
+        }
+
+        .landing .box.dblue_guideline {
+            border-top: 4px solid #005D95;
+            background-image: url(../assets/images/time.png);
+        }
+    </style>
+</head>
+@{
+    var listPage = ViewBag.PageAccess;
+
+}
+<body class="landing">
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="landing-head">
+                        <div class="logo-wrap pull-left">
+                            <img src="../assets/images/logo.png" alt="" class="logo">
+                            <h5>Guideline </h5>
+                            <h4>Distribution & Facility Information System</h4>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <input type="search" id="txtSearch" class="search form-control" placeholder="Search" autofocus />
+                            @*<input type="search" class="search form-control" style="width:100%" placeholder="Search Keyword" autofocus />*@
+                        </div>
+                    </div>
+                </div>
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MasterList)))
+                    {
+
+                <div class="col-lg-4">
+                   <div id="guideline-list" class="div_container">
+                            <div class="box red_guideline">
+                                <h3>Master</h3>
+                                <ul id="master" class="guideline_content"></ul>
+                            </div>
+                        </div>
+                  
+                </div>
+                    }
+                <div class="col-lg-4">
+                    <div id="guideline-list" class="div_container">
+                        <div class="box lblue_guideline">
+                            <h3>General</h3>
+                            <ul id="general" class="guideline_content"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div id="guideline-list" class="div_container">
+                        <div class="box green_guideline">
+                            <h3>Warehouse</h3>
+                            <ul id="warehouse" class="guideline_content"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-lg-4">
+                    <div id="guideline-list" class="div_container">
+                        <div class="box orange_guideline" style="min-height:0">
+                            <h3>Transport</h3>
+                            <ul id="transport" class="guideline_content"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div id="guideline-list" class="div_container">
+                        <div class="box dblue_guideline" style="min-height:0">
+                            <h3>KPI Management</h3>
+                            <ul id="kpimanagement" class="guideline_content"></ul>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+                <!-- Notification Modal -->
+                <div id="notificationModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <!-- <button class="close" data-dismiss="modal">&times;</button>-->
+                                <h4 class="modal-title">DFIS Notification Center</h4>
+                            </div>
+                            <div class="modal-body">
+                                <img src="/assets/images/loading.gif" alt=""><span> Please wait</span>
+                            </div>
+                            <div class="modal-footer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="notificationModal2" class="modal fade" role="dialog" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">DFIS Notification Center</h4>
+                            </div>
+                            <div class="modal-body">
+                                <img src="../assets/images/danger.png" alt="">
+                                <span>Please input min. 2 characters</span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+</main>
+    <script type="text/javascript">
+        var options = {
+            valueNames: ['guide-link']
+        };
+
+        var assetGuidelineBaseUrl = '@Url.Content("~/assets/Guideline/")';
+        //var userList = new List('guideline-list', options);
+        function loadData(keyword)
+        {
+            //var keyword = txtSearch.val();
+            $('.guideline_content').html('');
+            $('#guideline_list').html('');
+            //$('.div_container').hide();
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            $.ajax({
+                //beforeSend: function () { $('#notificationModal').modal('show'); },
+                complete: function () { dialog.modal('hide'); },
+                type: "POST",
+                url: '@Url.Action("GetListForGuidelinesByDescAndKeyword")',
+                datatype: "json",
+                data: { 'keyword': keyword },
+                success: function (res) {
+                    $('#guideline_list').html('');
+                    if (Object.keys(res).length > 0) {
+                        for (var idx in res) {
+                            var r = res[idx];
+                            var GuidelineUrl = assetGuidelineBaseUrl + r.Url;
+                            var keywords = r.Keywords.split(',');
+                            var contentId = '';
+                            if (keywords.length > 0) {
+                                contentId = keywords[0].toLowerCase().replace(/\s/g, '');
+                            }
+                            //console.log(contentId);
+                            $('#' + contentId).append('<li><a href="' + GuidelineUrl + '" target="_blank">' + (r.PageName) + '</a></li>')
+                        }
+                        /*
+                        $('.div_container ul').each(function () {
+                            var obj = $(this).find('li');
+                            if (obj.length > 0) {
+                                obj.closest('.div_container').show();
+                            }
+                        });
+                        */
+                    } else {
+                        $('#guideline_list').append('<p>No result found</p>')
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            loadData('');
+
+            $('#txtSearch').on('keyup', function (e) {
+                if (e.keyCode == 13) {
+                    if ($.trim($(this).val()).length < 2) {
+                        $('#notificationModal2').modal('show');
+                        return;
+                    }
+                    loadData($(this).val());
+                }
+            });
+        });
+    </script>
+</body>
+</html>

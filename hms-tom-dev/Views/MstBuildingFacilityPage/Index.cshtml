@@ -1,0 +1,193 @@
+﻿@{
+    ViewBag.Title = "Master Building Facility";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wborder">
+    <h4 class="title-page pull-left">@ViewBag.Title</h4>
+</div>
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            @*<th data-orderable="false" class="text-center">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" name="" id="checkall">
+                        <label for="checkall"></label>
+                    </div>
+                </th>*@
+            <th hidden>IDField</th>
+            <th>Warehouse Name</th>
+            <th>Warehouse Address</th>
+            <th width=5% nowrap>Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            @*<th class="text-center">Filter</th>*@
+            <th hidden>IDField</th>
+            <th>Warehouse Name</th>
+            <th>Warehouse Address</th>
+            <th width=5% nowrap>Action</th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add New Building Facility</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="box sameHeight">
+                            <form>
+
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Warehouse Name</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Warehouse Address</label>
+                                            <textarea class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label>Active</label>
+                                    <select class="form-control">
+                                        <option value="owned">YES</option>
+                                        <option value="rent">NO</option>
+                                    </select>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Building Facility</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="box sameHeight">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Warehouse Name</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Warehouse Address</label>
+                                            <textarea class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label>Status</label>
+                                    <select class="form-control">
+                                        <option value="owned">YES</option>
+                                        <option value="rent">NO</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // BEGIN : JQUERY SELECT TO DataTable
+        $.ajax({
+            url: 'MstBuildingFacilityPage/GetMasterBuildingFacilityPages',
+            method: 'get',
+            dataType: 'json',
+            cahce:false,
+            success : function(data) {
+                var table = $('#dtFilterMaster').DataTable({
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    columns: [
+                        { 'data': 'WarehouseID', 'searchable':false ,'visible': false },
+                        { 'data': 'WarehouseName', 'searchable': true },
+                        { 'data': 'WarehouseAddress', 'searchable': true },
+                        { 'data': 'null', 'defaultContent': '<a href="#"><i data-toggle="modal" data-target="#edit" class="fa fa-pencil-square-o"></i></a>' }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 4)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+        // END : JQUERY SELECT TO DataTable
+    });
+
+
+</script>
+
+

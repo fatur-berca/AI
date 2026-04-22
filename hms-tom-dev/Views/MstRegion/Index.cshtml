@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "Master Region";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="title-deck wborder">
+    <h4 class="title-page pull-left">@ViewBag.Title</h4>
+</div>
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+    </div>
+</div>
+<table id="dtFilter" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>Region Name</th>
+            <th>Parent Region</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Region Name</th>
+            <th>Parent Region</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check1">
+                    <label for="check1"></label>
+                </div>
+            </td>
+            <td>Lorem Ipsum</td>
+            <td>Standard PO</td>
+            <td><a href="#"><i data-toggle="modal" data-target="#editreg" class="fa fa-pencil-square-o"></i></a></td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check2">
+                    <label for="check2"></label>
+                </div>
+            </td>
+            <td>Lorem Ipsum</td>
+            <td>Testing</td>
+            <td><a href="#"><i data-toggle="modal" data-target="#editreg" class="fa fa-pencil-square-o"></i></a></td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check3">
+                    <label for="check3"></label>
+                </div>
+            </td>
+            <td>Dolor Amet</td>
+            <td>Standard PO</td>
+            <td><a href="#"><i data-toggle="modal" data-target="#editreg" class="fa fa-pencil-square-o"></i></a></td>
+        </tr>
+    </tbody>
+</table>
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add New Region</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="box sameHeight">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Parent Region</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label>Status</label>
+                                    <select class="form-control">
+                                        <option value="owned">YES</option>
+                                        <option value="rent">NO</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editreg" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Region</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-6">
+                        <div class="box sameHeight">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Region Name</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>Parent Region</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label>Warehouse Status</label>
+                                    <select class="form-control">
+                                        <option value="owned">YES</option>
+                                        <option value="rent">NO</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

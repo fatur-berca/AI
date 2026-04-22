@@ -1,0 +1,585 @@
+﻿@{
+    ViewBag.Title = " Master Data > Service PO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" name="" id="FilterFrom" class="form-control datepicker">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Vendor</th>
+            <th>Service PO Number</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Vendor</th>
+            <th>Service PO Number</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Service PO</h4>
+            </div>
+            <div class="modal-body">                
+                <div class="col-md-24">                    
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>IDServicePo</label>
+                                    <input type="text" id="IDServicePo" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Vendor</label>
+                                    <select class="select2" id="ListVendor"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Service PO Number</label>
+                                    <input class="form-control" id="ServicePoNo" maxlength="10"/>
+                                </div>
+                            </div>
+                        </div>                                                
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input type="text" id="EffectiveDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <div style="padding-top: 10px">TO</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <input type="text" id="ExpiredDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                        </div>   
+                        <div class="row">
+                            <div class="col-md-6" hidden>
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                     
+                    </form>                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="labelsuccess">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalconfirm" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <input hidden id="keyID" value="">
+                <img src="assets/images/danger.png" alt="">
+                <span>Are you sure to delete ?</span>
+            </div>
+            <div class="modal-footer">
+                <button id="delConfirm" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END : MODAL INSERTORUPDATE-->
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+    // page   : MasterUoM
+    // author : Hakim
+    // ticket : http://tp.voxteneo.co.id/entity/118129
+    // date   : 2018-07-25
+    var ezctl = ez;
+    ezctl.FormSet.AddField(
+        "ListVendor:reg>Vendor",
+        "ServicePoNo:req>PO Number",
+        "Status:num reg>Status>",
+        "EffectiveDate:date req>Effective Date (Start)",
+        "ExpiredDate:date req>Effective Date (End)"
+    );
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            resetData();
+            generateVendor();
+            $("#btnSaveNew").html("Save");
+            $('#ExpiredDate').val("31/12/2999");
+            $('#ExpiredDate').prop('disabled', false);
+            $('#ListVendor').prop('disabled', false);
+            $('#InsertOrUpdate').val("INSERT");
+            $("#EffectiveDate").val(moment(new Date()).format("DD/MM/YYYY"));
+        });
+        // END : GENERAL Logic
+        generateVendor();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+    });
+
+    $("#ExpiredDate").blur(function () {
+        if ($("#ExpiredDate").val() === "") {
+            $('#ExpiredDate').val("31/12/2999");
+        }
+    });
+
+    $('#inputModal').on('hidden.bs.modal', function () {
+        $('#MaterialType').select2("close");
+    });
+    //global variable
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    function generateVendor(selectedData) {
+        //get a reference to the select element
+        $select1 = $('#ListVendor');
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstServicePoTom/GetMasterVendorTOM',
+            method: 'get',
+            dataType: 'JSON',
+            //data: { "FieldName": "MaterialType" },
+            success: function (data1) {
+                //clear the current content of the select
+                $select1.html('');
+                //iterate over the data and append a select option
+                $select1.html('<option value="NULL"></option>').trigger('change');
+                $.each(data1, function (key, val) {
+                    $select1.append('<option value="' + val.IDVendor + '">' + val.VendorName + '</option>');
+                });
+                $select1.select2('val', selectedData);
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select1.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    //generate table
+    function generateTable() {
+        var filterdate = $('#filter').find('input[id="FilterFrom"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        $.ajax({
+            url: 'MstServicePoTom/GetMasterServicePoTom',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "filterDate": filterdate
+            },
+            success: function (json) {
+                console.log(json);
+                var table = $('#dtFilterMaster').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[1, 'asc'], [3, 'desc']],
+                    'searching': true,
+                    columns: [
+                        {
+                            "data": "IsActive", 'sortable': false, "class": "text-center", "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },                        
+                        {
+                            "data": "MasterTransportVendor.IDVendor", "render": function (data, type, row) {
+                                if (row['MasterTransportVendor'] != null) {
+                                    return row['MasterTransportVendor']['VendorName'];
+                                } else { return ''; }
+                            }
+                        },
+                        { 'data': 'ServicePONumber', 'searchable': true },
+                        {
+                            'data': 'EffectiveStartDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveStartDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            'data': 'EffectiveStartDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveEndDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                      ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                      date.getMinutes();
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDServicePO", 'sortable': false, "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="return editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a>' + '<a href="#" style="margin-left:5px" onclick="confirm(' + data + ');" title="Delete"><i data-toggle="modal" class="fa fa-trash"></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 5)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+
+
+            }
+
+        });
+
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save(false);
+        $('#setinactive').modal('hide');
+        //$('#inputModal').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        //var effectiveDate = new Date($("#EffectiveDate").val());
+        //var expiredDate = new Date($("#ExpiredDate").val());
+        effectiveDate = $('#EffectiveDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        expiredDate = $('#ExpiredDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        console.log(effectiveDate);
+        console.log(expiredDate);
+        if (ezctl.FormSet.Validate()) {
+            if (effectiveDate > expiredDate) {
+                $("#textModalError").html("");
+                $("#textModalError").append("Effective date to must be greater than effective date from");
+                $('#modalerror').modal('show');
+            }
+            else {
+                if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+                    $('#setinactive').modal('show');
+                } else {
+                    save(true);
+                }
+            }
+        }
+        else {
+            $("#textModalError").html("");
+            $("#textModalError").append(ezctl.FormSet.error);
+            $('#modalerror').modal('show');
+        }
+    });
+
+    function save(newData) {
+        //$('#Loading').modal('show');
+        var listvendor = $('#ListVendor :selected').val(),
+        servicepono = $('#ServicePoNo').val(),
+        effectivedate = $('#EffectiveDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        expireddate = $('#ExpiredDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        isactive = $('#Status :selected').val() == 1 ? true : false;
+        idspo = $('#IDServicePo').val();
+
+        var d = { "IDVendor": listvendor, "ServicePONumber": servicepono, "EffectiveStartDate": effectivedate, "EffectiveEndDate": expireddate, "IsActive": isactive };
+        if (!newData) d.IDServicePo = idspo;
+        var data = {
+            "new":  newData ? [d] : [],
+            "edit": newData ? [] : [d]
+        };
+        
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertList")',
+            data: data,
+            success: function (result) {
+                if (result.IsSuccess) {
+                    generateTable();
+                    $('#labelsuccess').html('Your data has been successfully saved');
+                    $('#modalsuccess').modal('show');
+                    resetData();
+                    $('#inputModal').modal('hide');
+                }
+                else {
+                    $("#textModalError").html('<strong style="font-size:larger">Failed to save data!</strong><br/>' + result.ErrorMessage);
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+    function editTable(id) {
+        //resetData();
+        $('#InsertOrUpdate').val("UPDATE");
+
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDServicePo').val(data["IDServicePO"]);
+            generateVendor(data["IDVendor"]);
+            $('#ServicePoNo').val(data["ServicePONumber"]);
+            //$('#EffectiveDate').val(data["EffectiveStartDate"]);
+            $('#EffectiveDate').val(moment(Number(data["EffectiveStartDate"].match(/\d+/)[0])).format('DD/MM/YYYY'));
+
+            $('#ExpiredDate').prop('disabled', false);
+            $('#ExpiredDate').val(moment(Number(data["EffectiveEndDate"].match(/\d+/)[0])).format('DD/MM/YYYY'));
+            $('#ListVendor').prop('disabled', true);
+
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+        });
+
+        $('#btnSave').html('Save Changes');
+        $('#inputModal').modal('show');
+    }
+
+    //update edited data
+    function edit() {        
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        //var id = $('#newData').find('input[id="IdUom"]').val();
+        //var name = $('#ListMaterialType :selected').val();
+        //var value = $('#ListUom :selected').val();
+        //var status = $('#Status :selected').val() == 1 ? true : false;
+
+        var listvendor = $('#ListVendor :selected').val(),
+        servicepono = $('#ServicePoNo').val(),
+        effectivedate = $('#EffectiveDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        expireddate = $('#ExpiredDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        isactive = $('#Status :selected').val() == 1 ? true : false,
+        idservicepo = $('#IDServicePo').val();
+        var data = {
+            "new": [{}],
+            "edit": [{ "IDVendor": listvendor, "ServicePONumber": servicepono, "EffectiveStartDate": effectivedate, "EffectiveEndDate": expireddate, "IsActive": isactive, "IDServicePo": idservicepo }],
+        };
+        //console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: 'MstServicePoTom/InsertList',
+            data: data,
+            success: function (result) {
+                ///console.log(data);
+                if (result == 0) {
+                    generateTable();
+                    $('#labelsuccess').html('Your data has been successfully saved');
+                    $('#modalsuccess').modal('show');
+                    $('#Loading').modal('hide');
+                    resetData();
+                }
+                else if (result == 1) {
+                    $("#textModalError").html("");
+                    $("#textModalError").append("Save failed, Effective Start Date / Effective End Date intersect with existing data");
+                    $('#modalerror').modal('show');
+                } else {
+                    $("#textModalError").html("");
+                    $("#textModalError").append("Save data Error");
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+    $(".search-filter").on("click", function (e) {
+        generateTable();
+        e.preventDefault();
+    });
+    $(".reset-search-filter").on("click", function (e) {
+        //$("form#filter")[0].reset();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+        e.preventDefault();
+    });
+    // END : Edit Data
+    function confirm(ID) {
+        $('#modalconfirm').modal('show');
+        $('#keyID').val(ID);
+    }
+    $(document).on('click', '#delConfirm', function () {
+        $('#modalconfirm').modal('hide');
+        del();
+    });
+
+    function del(id) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete")',
+            data: { keyID: $("#keyID").val() },
+            success: function (result) {
+                if (result.IsSuccess == false) {
+                    $("#textModalError").html("Failed to delete data!");
+                    $('#modalerror').modal('show');
+                }
+                else {
+                    $('#labelsuccess').html('Your data has been successfully deleted');
+                    $('#modalsuccess').modal('show');
+                }
+                generateTable();
+            }
+        });
+    }
+</script>

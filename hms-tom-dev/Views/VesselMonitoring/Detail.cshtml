@@ -1,0 +1,945 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Vessel Monitoring > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "VesselMonitoring")'">Back</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton" disabled>Save</button>
+                }
+            </div>
+            <div class="button-wrap pull-right">
+                <button class="btn btn-primary" id="ShipLocation">Ship Location</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- map deck -->
+    <div class="col-md-12">
+        <div class="map-deck vessel">
+            <a id="MarineTrafficView" role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#mapwrap" aria-expanded="true" aria-controls="mapwrap">
+                Marine Traffic View
+                <i class="fa fa-angle-up pull-right"></i>
+            </a>
+            <div id="mapwrap" class="collapse" role="tabpanel" aria-labelledby="mapwrap"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="box">
+            <form id="editData">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group pull-right">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="massUpdate" disabled>
+                                <label for="massUpdate"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Enable Mass Updates (please validate before save)</span>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="GPNumber">GP Number</label>
+                            <input id="GPNumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="DateOfStuffing">date of stuffing</label>
+                            <input id="DateOfStuffing" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="IDVendor">vendor name</label>
+                            <select id="IDVendor" class="form-control" disabled><option value="">-- Select --</option></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ContainerNumber">container number</label>
+                            <input id="ContainerNumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ContainerSeal">container seal</label>
+                            <input id="ContainerSeal" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="TypeOfContainer">type of container</label>
+                            <input id="TypeOfContainer" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ShipName">ship name</label>
+                            <input id="ShipName" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="OriginWarehouse">origin warehouse</label>
+                            <input id="OriginWarehouse" type="text" class="form-control" disabled />
+                            <!--select id="OriginWarehouse" class="select2 IDLocation"><option value="">-- Select --</option></select-->
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="DestinationWarehouse">destination warehouse</label>
+                            <input id="DestinationWarehouse" type="text" class="form-control" disabled />
+                            <!--select id="DestinationWarehouse" class="select2 IDLocation"><option value="">-- Select --</option></select-->
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="STONumber">sto number 1</label>
+                            <input id="STONumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="STONumber2">sto number 2</label>
+                            <input id="STONumber2" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="STONumber3">sto number 3</label>
+                            <input id="STONumber3" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="STONumber4">sto number 4</label>
+                            <input id="STONumber4" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="SJNumber">sj number 1</label>
+                            <input id="SJNumber" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="SJNumber2">sj number 2</label>
+                            <input id="SJNumber2" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="SJNumber3">sj number 3</label>
+                            <input id="SJNumber3" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="SJNumber4">sj number 4</label>
+                            <input id="SJNumber4" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="POWeekAgent">PO Week (Agent)</label>
+                            <input id="POWeekAgent" type="text" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="Distance">Distance (KM)</label>
+                            <input id="Distance" type="text" class="form-control IsDecimal" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="GPDate">GP Date</label>
+                            <input id="GPDate" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="SJDate">SJ Date</label>
+                            <input id="SJDate" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="EDT1">estimated time departure(etd) 1</label>
+                            <input id="EDT1" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="EDT2">estimated time departure(etd) 2</label>
+                            <input id="EDT2" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ATD">actual time departure (atd)</label>
+                            <input id="ATD" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETA1">estimated time arrival (eta) 1</label>
+                            <input id="ETA1" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ETA2">estimated time arrival (eta) 2 </label>
+                            <input id="ETA2" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ATA">actual time arrival (ata)</label>
+                            <input id="ATA" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="EstimationReceived">estimated received </label>
+                            <input id="EstimationReceived" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ActualReceived">actual received</label>
+                            <input id="ActualReceived" type="text" class="form-control datepicker" disabled />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="Remarks">Remarks</label>
+                            <textarea id="Remarks" class="form-control" disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmationSave">Save</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var ObjSave = new Object();
+    jQuery(function ($) {
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.when(generateDropdownIDVendor()).done(function (a1) {//$.when(generateDropdownWarehouse(), generateDropdownIDVendor()).done(function (a1, a2) {
+            if (typeof getUrlParameter('GPNumber') === "undefined") {
+                dialog.modal('hide');
+                // redirect
+                window.location.replace('@Url.Action("../VesselMonitoring")');
+            } else {
+                loadRecord(getUrlParameter('GPNumber'), dialog);
+            }
+        });
+
+        $(document).on('click', '#EditButton', function (e) {
+            $("#POWeekAgent, #EDT2, #ATD, #ATA, #Remarks, #massUpdate").prop("disabled", false);
+
+            $("#SaveButton").prop("disabled", false);
+            $(this).prop("disabled", true);
+
+            $('html, body').animate({
+                scrollTop: $("#Remarks").offset().top
+            }, 500);
+        });
+
+        $(document).on('dp.change', '#EDT2', function (e) {
+            // Recalculate ETA2
+            // https://stackoverflow.com/questions/13091523/javascript-invalid-date-error-in-internet-explorer
+            var ETA1D = moment($("#ETA1").val(), "DD/MM/YYYY HH:mm").format("YYYY MM DD HH mm ss").split(" "),
+                EDT1D = moment($("#EDT1").val(), "DD/MM/YYYY HH:mm").format("YYYY MM DD HH mm ss").split(" "),
+                ETA1 = new Date(ETA1D[0], ETA1D[1], ETA1D[2], ETA1D[3], ETA1D[4]),
+                EDT1 = new Date(EDT1D[0], EDT1D[1], EDT1D[2], EDT1D[3], EDT1D[4]),
+                ETA1Number = Number(ETA1),
+                EDT1Number = Number(EDT1),
+                ETA2Diff = ETA1Number - EDT1Number,
+                ETA2Number = "";
+
+            if (e.date) {
+                var EDT2Number = Number(e.date._d);
+
+                ETA2Number = ETA2Diff + EDT2Number;
+
+                $("#ETA2").val(moment(ETA2Number).format('DD/MM/YYYY'));
+            } else {
+                $("#ETA2").val("");
+            }
+
+            // Recalculate Estimation Received
+            generateEstimationReceived(ETA1Number, ETA2Number);
+        });
+
+        $(document).on('dp.change', '#ETA2', function (e) {
+            var ETA1D = moment($("#ETA1").val(), "DD/MM/YYYY HH:mm").format("YYYY MM DD HH mm ss").split(" "),
+                ETA1 = new Date(ETA1D[0], ETA1D[1], ETA1D[2], ETA1D[3], ETA1D[4]),
+                ETA1Number = Number(ETA1),
+                ETA2Number = Number(e.date._d);
+
+            // Recalculate Estimation Received
+            generateEstimationReceived(ETA1Number, ETA2Number);
+        });
+
+        $(document).on('click', '#SaveButton', function (e) {
+            ObjSave.GPNumber = $("#GPNumber").val();
+            ObjSave.DateOfStuffing = ($("#DateOfStuffing").val()) ? moment($("#DateOfStuffing").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.IDVendor = $("#IDVendor :selected").val();
+            ObjSave.ContainerNumber = $("#ContainerNumber").val();
+            ObjSave.ContainerSeal = $("#ContainerSeal").val();
+            ObjSave.TypeOfContainer = $("#TypeOfContainer").val();
+            ObjSave.ShipName = $("#ShipName").val();
+            ObjSave.OriginWarehouse = $("#OriginWarehouse").val();//ObjSave.OriginWarehouse = $("#OriginWarehouse :selected").val(),
+            ObjSave.DestinationWarehouse = $("#DestinationWarehouse").val();//ObjSave.DestinationWarehouse = $("#DestinationWarehouse :selected").val(),
+            ObjSave.STONumber = $("#STONumber").val();
+            ObjSave.STONumber2 = $("#STONumber2").val();
+            ObjSave.STONumber3 = $("#STONumber3").val();
+            ObjSave.STONumber4 = $("#STONumber4").val();
+            ObjSave.SJNumber = $("#SJNumber").val();
+            ObjSave.SJNumber2 = $("#SJNumber2").val();
+            ObjSave.SJNumber3 = $("#SJNumber3").val();
+            ObjSave.SJNumber4 = $("#SJNumber4").val();
+            ObjSave.POWeekAgent = $("#POWeekAgent").val();
+            ObjSave.Distance = $("#Distance").val();
+            ObjSave.GPDate = ($("#GPDate").val()) ? moment($("#GPDate").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.SJDate = ($("#SJDate").val()) ? moment($("#SJDate").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.EDT1 = ($("#EDT1").val()) ? moment($("#EDT1").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "";
+            ObjSave.EDT2 = ($("#EDT2").val()) ? moment($("#EDT2").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "";
+            ObjSave.ATD = ($("#ATD").val()) ? moment($("#ATD").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.ETA1 = ($("#ETA1").val()) ? moment($("#ETA1").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "";
+            ObjSave.ETA2 = ($("#ETA2").val()) ? moment($("#ETA2").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "";
+            ObjSave.ATA = ($("#ATA").val()) ? moment($("#ATA").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.EstimationReceived = ($("#EstimationReceived").val()) ? moment($("#EstimationReceived").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.ActualReceived = ($("#ActualReceived").val()) ? moment($("#ActualReceived").val(), "DD/MM/YYYY").format("YYYY-MM-DD") : "";
+            ObjSave.Remarks = $("#Remarks").val();
+            ObjSave.massUpdate = $('input[id="massUpdate"]:checked').length > 0;
+            var notvalid = false;
+
+            // validation
+            if (ObjSave.DateOfStuffing === "") {
+                $('#DateOfStuffing').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#DateOfStuffing').css('border-color', '#ccc');
+            }
+            if (ObjSave.IDVendor === "") {
+                $('#IDVendor').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#IDVendor').css('border-color', '#ccc');
+            }
+            if (ObjSave.ContainerNumber === "") {
+                $('#ContainerNumber').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ContainerNumber').css('border-color', '#ccc');
+            }
+            if (ObjSave.ContainerSeal === "") {
+                $('#ContainerSeal').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ContainerSeal').css('border-color', '#ccc');
+            }
+            if (ObjSave.TypeOfContainer === "") {
+                $('#TypeOfContainer').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#TypeOfContainer').css('border-color', '#ccc');
+            }
+            if (ObjSave.ShipName === "") {
+                $('#ShipName').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ShipName').css('border-color', '#ccc');
+            }
+            if (ObjSave.OriginWarehouse === "") {
+                $('#OriginWarehouse').css('border-color', 'orange');//$('#s2id_OriginWarehouse a').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#OriginWarehouse').css('border-color', '#ccc');//$('#s2id_OriginWarehouse a').css('border-color', '#ccc');
+            }
+            if (ObjSave.DestinationWarehouse === "") {
+                $('#DestinationWarehouse').css('border-color', 'orange');//$('#s2id_DestinationWarehouse a').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#DestinationWarehouse').css('border-color', '#ccc');//$('#s2id_DestinationWarehouse a').css('border-color', '#ccc');
+            }
+            if (ObjSave.STONumber === "") {
+                $('#STONumber').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#STONumber').css('border-color', '#ccc');
+            }
+            if (ObjSave.SJNumber === "") {
+                $('#SJNumber').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#SJNumber').css('border-color', '#ccc');
+            }
+            if (ObjSave.Distance === "") {
+                $('#Distance').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#Distance').css('border-color', '#ccc');
+            }
+            if (ObjSave.GPDate === "") {
+                $('#GPDate').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#GPDate').css('border-color', '#ccc');
+            }
+            if (ObjSave.SJDate === "") {
+                $('#SJDate').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#SJDate').css('border-color', '#ccc');
+            }
+            if (ObjSave.EDT1 === "") {
+                $('#EDT1').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#EDT1').css('border-color', '#ccc');
+            }
+            if (ObjSave.EDT2 === "") {
+                $('#EDT2').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#EDT2').css('border-color', '#ccc');
+            }
+            if (ObjSave.ETA1 === "") {
+                $('#ETA1').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ETA1').css('border-color', '#ccc');
+            }
+            if (ObjSave.ETA2 === "") {
+                $('#ETA2').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#ETA2').css('border-color', '#ccc');
+            }
+            if (ObjSave.EstimationReceived === "") {
+                $('#EstimationReceived').css('border-color', 'orange');
+                notvalid = true;
+            } else {
+                $('#EstimationReceived').css('border-color', '#ccc');
+            }
+
+            if (notvalid == true) {
+                alertPleaseFill();
+                e.preventDefault();
+            } else {
+                if (ObjSave.massUpdate) {
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("ListGPMassUpdate")',
+                        cache: false,
+                        data: { shipName: ObjSave.ShipName },
+                        success: function (data) {
+                            if (data.length > 0) {
+                                var textError = "PO WEEK, ETD2, ATD, ETA 2, ATA, Estimated Received, Remarks from GPNumber below will be overwrite<br/>";
+                                for (var i = 0; i < data.length; i++) {
+                                    var split = data[i].toString().split("-");
+                                    textError = textError + "GP Number: " + split[0] + "Date of Stuffing: " + moment(split[1]).format("DD-MMM-YYYY") + "<br/>";
+                                }
+                                $("#textModalWarning").html("");
+                                $("#textModalWarning").append(textError);
+                                $('#warningModal').modal('show');
+                            } else {
+                                saveUpdate();
+                            }
+                        }
+                    });
+                } else {
+                    saveUpdate();
+                }
+            }
+        });
+
+        $(document).on('click', '#ShipLocation', function (e) {
+            $("#MarineTrafficView").trigger("click");
+        });
+
+    });
+
+    $("#ConfirmationSave").click(function () {
+        saveUpdate();
+    });
+
+    function saveUpdate() {
+        bootbox.confirm({
+            title: "DFIS Notification Center",
+            message: "Changes have been made to this record.<br>Do you want to save these changes?",
+            closeButton: false,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-primary'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-purple'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    var dialog = bootbox.dialog({
+                        message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                        closeButton: false
+                    });
+
+                    //var GPNumber = getUrlParameter('GPNumber');
+
+                    //if (GPNumber) {
+                    var VesselMonitoringRecord = {
+                        "GPNumber": ObjSave.GPNumber,
+                        "DateOfStuffing": ObjSave.DateOfStuffing,
+                        "IDVendor": ObjSave.IDVendor,
+                        "ContainerNumber": ObjSave.ContainerNumber,
+                        "ContainerSeal": ObjSave.ContainerSeal,
+                        "TypeOfContainer": ObjSave.TypeOfContainer,
+                        "ShipName": ObjSave.ShipName,
+                        "POWeekAgent": ObjSave.POWeekAgent,
+                        "Distance": ObjSave.Distance,
+                        "EDT1": ObjSave.EDT1,
+                        "EDT2": ObjSave.EDT2,
+                        "ATD": ObjSave.ATD,
+                        "ETA1": ObjSave.ETA1,
+                        "ETA2": ObjSave.ETA2,
+                        "ATA": ObjSave.ATA,
+                        "EstimationReceived": ObjSave.EstimationReceived,
+                        "ActualReceived": ObjSave.ActualReceived,
+                        "Remarks": ObjSave.Remarks,
+                        "IsActive": true
+                    };
+
+                    var VesselMonitoringDetailData = [{
+                        "GPNumber": ObjSave.GPNumber,
+                        "SJNumber": ObjSave.SJNumber,
+                        "STONumber": ObjSave.STONumber,
+                        "OriginWarehouse": ObjSave.OriginWarehouse,
+                        "DestinationWarehouse": ObjSave.DestinationWarehouse,
+                        "GPDate": ObjSave.GPDate,
+                        "SJDate": ObjSave.SJDate,
+                        "Remarks": ObjSave.Remarks,
+                        "IsActive": true
+                    }];
+
+                    var i = 0;
+
+                    if (ObjSave.STONumber2 && ObjSave.SJNumber2) {
+                        VesselMonitoringDetailData[++i] = {
+                            "GPNumber": ObjSave.GPNumber,
+                            "SJNumber": ObjSave.SJNumber2,
+                            "STONumber": ObjSave.STONumber2,
+                            "OriginWarehouse": ObjSave.OriginWarehouse,
+                            "DestinationWarehouse": ObjSave.DestinationWarehouse,
+                            "GPDate": ObjSave.GPDate,
+                            "SJDate": ObjSave.SJDate,
+                            "Remarks": ObjSave.Remarks,
+                            "IsActive": true
+                        }
+                    }
+                    if (ObjSave.STONumber3 && ObjSave.SJNumber3) {
+                        VesselMonitoringDetailData[++i] = {
+                            "GPNumber": ObjSave.GPNumber,
+                            "SJNumber": ObjSave.SJNumber3,
+                            "STONumber": ObjSave.STONumber3,
+                            "OriginWarehouse": ObjSave.OriginWarehouse,
+                            "DestinationWarehouse": ObjSave.DestinationWarehouse,
+                            "GPDate": ObjSave.GPDate,
+                            "SJDate": ObjSave.SJDate,
+                            "Remarks": ObjSave.Remarks,
+                            "IsActive": true
+                        }
+                    }
+                    if (ObjSave.STONumber4 && ObjSave.SJNumber4) {
+                        VesselMonitoringDetailData[++i] = {
+                            "GPNumber": ObjSave.GPNumber,
+                            "SJNumber": ObjSave.SJNumber4,
+                            "STONumber": ObjSave.STONumber4,
+                            "OriginWarehouse": ObjSave.OriginWarehouse,
+                            "DestinationWarehouse": ObjSave.DestinationWarehouse,
+                            "GPDate": ObjSave.GPDate,
+                            "SJDate": ObjSave.SJDate,
+                            "Remarks": ObjSave.Remarks,
+                            "IsActive": true
+                        }
+                    }
+                    var VesselMonitoringDetailRecords = {
+                        "edit": VesselMonitoringDetailData,
+                        "new": [{}]
+                    };
+                    var massUpdateData = {
+                        "ShipName": ObjSave.ShipName,
+                        "POWeekAgent": ObjSave.POWeekAgent,
+                        "EDT2": ObjSave.EDT2,
+                        "ATD": ObjSave.ATD,
+                        "ATA": ObjSave.ATA,
+                        "ETA2": ObjSave.ETA2,
+                        "EstimationReceived": ObjSave.EstimationReceived,
+                        "ActualReceived": ObjSave.ActualReceived,
+                        "Remarks": ObjSave.Remarks
+                    };
+
+                    update(VesselMonitoringRecord, VesselMonitoringDetailRecords, ObjSave.massUpdate, massUpdateData, dialog);
+                    //}
+                }
+            }
+        });
+    }
+
+    function resetUpdate() {
+        jQuery("select, input[type=text], input[type=number], textarea").prop("disabled", true);;
+        jQuery("#SaveButton").prop("disabled", true);
+        jQuery("#EditButton").prop("disabled", false);
+    }
+
+    function update(VesselMonitoringRecord, VesselMonitoringDetailRecords, massUpdate, massUpdateData, dialog) {
+        return $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CreateUpdate")',
+            data: VesselMonitoringRecord,
+            success: function (responseOne) {
+                if (responseOne) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DetailCreateUpdate")',
+                        data: VesselMonitoringDetailRecords,
+                        success: function (responseTwo) {
+                            if (massUpdate) {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '@Url.Action("MassUpdate")',
+                                    data: massUpdateData,
+                                    success: function (responseThree) {
+                                        dialog.modal('hide');
+                                        resetUpdate();
+                                        alertSaveSuccess();
+                                        SetShipLocation();
+                                    },
+                                    error: function (jqXHR, exception) {
+                                        dialog.modal('hide');
+                                    }
+                                });
+                            } else {
+                                dialog.modal('hide');
+                                resetUpdate();
+                                alertSaveSuccess();
+                                SetShipLocation();
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            dialog.modal('hide');
+                        }
+                    });
+                } else {
+                    dialog.modal('hide');
+                }
+            },
+            error: function (jqXHR, exception) {
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function generateDropdownWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterLocation")',
+            dataType: 'JSON',
+            data: { "Type": "Warehouse" },
+            cache: false,
+            success: function (response) {
+                jQuery('.IDLocation').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="">-- Select --</option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + ":" + val.LocationName + '">' + val.IDLocation + ":" + val.LocationName + '</option>';
+                });
+                jQuery('.IDLocation').html(options).select2();
+            },
+            error: function () {
+                jQuery('.IDLocation').select2("destroy");
+                jQuery('.IDLocation').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function SetShipLocation() {
+        var extract_shipdata = $("#ShipName").val().split('-');
+
+        var mmsi = extract_shipdata.length > 0 ? extract_shipdata[0] : '';
+        if (mmsi != '') $("#mapwrap").html("<iframe src='https://www.marinetraffic.com/en/ais/details/ships/mmsi:" + mmsi + "' width='100%' height='475px'>Sorry your browser does not support inline frames.</iframe>");
+    }
+
+    function generateDropdownIDVendor() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterVendor")',
+            dataType: 'JSON',
+            data: { "IsActive": true },
+            cache: false,
+            success: function (response) {
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="">-- Select --</option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDVendor + '">' + val.VendorName + '</option>';
+                });
+                jQuery('#IDVendor').html(options);
+            },
+            error: function () {
+                jQuery('#IDVendor').html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function loadRecord(GPNumber, dialog) {
+        jQuery("#SaveButton").prop("disabled", true);
+
+        jQuery.ajax({
+            url: '@Url.Action("DetailGetRecords")',
+            dataType: 'JSON',
+            cache: false,
+            data: { 'GPNumber': GPNumber },
+            success: function (response) {
+                if (response.viewmodel.length > 0) {
+                    var ETA1Number = (response.viewmodel[0].TransportVesselMonitoring.ETA1 == null) ? 0 : Number(response.viewmodel[0].TransportVesselMonitoring.ETA1.match(/\d+/)[0]),
+                        ETA2Number = 0,
+                        EDT1Number = (response.viewmodel[0].TransportVesselMonitoring.EDT1 == null) ? 0 : Number(response.viewmodel[0].TransportVesselMonitoring.EDT1.match(/\d+/)[0]);
+
+                    $("#GPNumber").val(response.viewmodel[0].TransportVesselMonitoring.GPNumber);
+                    $("#ContainerNumber").val(response.viewmodel[0].TransportVesselMonitoring.ContainerNumber);
+                    $("#ContainerSeal").val(response.viewmodel[0].TransportVesselMonitoring.ContainerSeal);
+
+                    $("#ShipName").val(response.viewmodel[0].TransportVesselMonitoring.ShipName);
+
+                    SetShipLocation();
+
+                    if (response.viewmodel[0].TransportVesselMonitoring.ShipName) {
+                        var ShipName = response.viewmodel[0].TransportVesselMonitoring.ShipName.split(";");
+                        if (ShipName.length) {
+                            var isMmsi = "",
+                                mmsi = "";
+                            for (i = 0; i < ShipName.length; i++) {
+                                isMmsi = ShipName[i].replace(/\s+/g, "");
+                                if (Math.floor(isMmsi) == isMmsi && $.isNumeric(isMmsi)) {
+                                    mmsi = isMmsi;
+                                    break;
+                                }
+                            }
+                            if (mmsi) {
+                                //$("#mapwrap").html("<iframe src='https://www.marinetraffic.com/en/ais/details/ships/mmsi:" + mmsi + "' width='100%' height='475px'>Sorry your browser does not support inline frames.</iframe>");
+                            }
+                        }
+                    }
+
+                    $("#TypeOfContainer").val(response.viewmodel[0].TransportVesselMonitoring.TypeOfContainer);
+                    $("#POWeekAgent").val(response.viewmodel[0].TransportVesselMonitoring.POWeekAgent);
+                    $("#Distance").val(response.viewmodel[0].TransportVesselMonitoring.Distance);
+                    $("textarea#Remarks").val(response.viewmodel[0].TransportVesselMonitoring.Remarks);
+
+                    $("#SJNumber").val(response.viewmodel[0].SJNumber);
+                    $("#STONumber").val(response.viewmodel[0].STONumber);
+                    for (i = 1; i < response.viewmodel.length; i++) {
+                        var j = i + 1;
+                        $("#SJNumber" + j).val(response.viewmodel[i].SJNumber);
+                        $("#STONumber" + j).val(response.viewmodel[i].STONumber);
+                    }
+
+                    if (response.viewmodel[0].TransportVesselMonitoring.DateOfStuffing) {
+                        $("#DateOfStuffing").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.DateOfStuffing.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    if (response.viewmodel[0].GPDate) {
+                        $("#GPDate").val(moment(Number(response.viewmodel[0].GPDate.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    if (response.viewmodel[0].SJDate) {
+                        $("#SJDate").val(moment(Number(response.viewmodel[0].SJDate.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+
+                    // prevent 1900-01-01 00:00:00.000
+                    if (parseInt(EDT1Number) < 2209014000000) {
+                        $("#EDT1").val(moment(EDT1Number).format('DD/MM/YYYY'));
+                    }
+                    if (parseInt(ETA1Number) < 2209014000000) {
+                        $("#ETA1").val(moment(ETA1Number).format('DD/MM/YYYY'));
+                    }
+
+                    // if not empty And not 1900-01-01 00:00:00.000
+                    if (response.viewmodel[0].TransportVesselMonitoring.ActualReceived && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.ActualReceived.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#ActualReceived").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.ActualReceived.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    if (response.viewmodel[0].TransportVesselMonitoring.EDT2 && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.EDT2.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#EDT2").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.EDT2.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    if (response.viewmodel[0].TransportVesselMonitoring.ATD && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.ATD.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#ATD").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.ATD.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    if (response.viewmodel[0].TransportVesselMonitoring.ATA && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.ATA.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#ATA").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.ATA.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+
+                    $("#IDVendor").val(response.viewmodel[0].TransportVesselMonitoring.IDVendor);//$("#IDVendor").select2('val', response.viewmodel[0].TransportVesselMonitoring.IDVendor);
+                    $("#OriginWarehouse").val(response.viewmodel[0].OriginWarehouse);//$("#OriginWarehouse").select2('val', response.viewmodel[0].OriginWarehouse);
+                    $("#DestinationWarehouse").val(response.viewmodel[0].DestinationWarehouse);//$("#DestinationWarehouse").select2('val', response.viewmodel[0].DestinationWarehouse);
+
+                    // calculate ETA2 && EstimationReceived
+                    if (parseInt(ETA1Number) < 2209014000000) {
+                        if (response.viewmodel[0].TransportVesselMonitoring.EDT2 && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.EDT2.match(/\d+/)[0])) < 2209014000000)) {
+                            var ETA2Diff = ETA1Number - EDT1Number;
+
+                            ETA2Number = ETA2Diff + Number(response.viewmodel[0].TransportVesselMonitoring.EDT2.match(/\d+/)[0]);
+
+                            $("#ETA2").val(moment(ETA2Number).format('DD/MM/YYYY'));
+                        }
+
+                        // EstimationReceived
+                        generateEstimationReceived(ETA1Number, ETA2Number);
+                    }
+
+                    // Replace calculation above if ETA2 & EstimationReceived exist in DB
+                    // ETA2
+                    // if not empty And not 1900-01-01 00:00:00.000
+                    if (response.viewmodel[0].TransportVesselMonitoring.ETA2 && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.ETA2.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#ETA2").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.ETA2.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    // EstimationReceived
+                    // if not empty And not 1900-01-01 00:00:00.000
+                    if (response.viewmodel[0].TransportVesselMonitoring.EstimationReceived && (parseInt(Number(response.viewmodel[0].TransportVesselMonitoring.EstimationReceived.match(/\d+/)[0])) < 2209014000000)) {
+                        $("#EstimationReceived").val(moment(Number(response.viewmodel[0].TransportVesselMonitoring.EstimationReceived.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                    }
+                    //$("#EditButton").prop("disabled", response.viewbag);
+                }
+
+                dialog.modal('hide');
+            },
+            error: function (jqXHR, exception) {
+                dialog.modal('hide');
+                alertNoRecord("GP Number equal to " + GPNumber);
+            }
+        });
+    }
+
+    function generateEstimationReceived(ETA1Number, ETA2Number) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMstConfigurationRecords")',
+            data: { "PageName": "VesselMonitoringDetail", "Description": "est. received" },
+            success: function (response) {
+                var additionalDays = (response.length > 0) ? parseInt(response[0].Value) : 3;
+
+                var EstimationReceivedValue = moment(ETA1Number).add(additionalDays, 'days').format('DD/MM/YYYY');
+
+                if (ETA2Number) {
+                    EstimationReceivedValue = moment(ETA2Number).add(additionalDays, 'days').format('DD/MM/YYYY');
+                }
+
+                jQuery("#EstimationReceived").val(EstimationReceivedValue);
+            }
+        });
+    }
+
+    @*// BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+    var closingPageDate = '@ViewBag.ClosingPageDate';
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        var disabled = true;
+        for (var j = 0; j < listUserRole.length; j++) {
+            if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+                disabled = false;
+            } else {
+                var closingDateArr = moment(closingPageDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var closingDate = new Date(''+closingDateArr[2]+'-'+closingDateArr[1]+'-'+(closingDateArr[0]-1));
+                var createdDateArr = moment(param1, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var createdDate = new Date(''+createdDateArr[2]+'-'+createdDateArr[1]+'-'+(createdDateArr[0]-1));
+                if (param2 != null) { //begin : untuk page yg memiliki lokasi
+                    for (var i = 0; i < listLocation.length; i++) {
+                        if (listLocation[i] != param2) continue;
+                        if (closingDate < createdDate) {
+                            disabled = false;
+                        } else if(closingDate > createdDate) {
+                            disabled = true;
+                        }
+                    }
+                    //end : untuk page yg memiliki lokasi
+                } else {
+                    if (closingDate < createdDate) {
+                        disabled = false;
+                    } else if(closingDate > createdDate) {
+                        disabled = true;
+                    }
+                }
+            }
+        }
+        //console.log(disabled);
+        jQuery("#EditButton").prop("disabled", disabled);
+    }*@
+</script>

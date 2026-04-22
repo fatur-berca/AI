@@ -1,0 +1,31 @@
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial;
+        -webkit-print-color-adjust: exact;
+           -moz-print-color-adjust: exact;
+                print-color-adjust: exact;
+    }
+	input, .btn {
+		display: none;
+	}
+    h1,h2,h3,h4,h5 {
+        margin-bottom: 14px
+    }
+    table {
+        font-size: 11px;
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    thead tr th {
+        padding: 4px 10px;
+    	color: #fff;
+		background: #1E86DB;
+        border: 1px solid #055292;
+    }
+    td {
+        padding: 4px 10px;
+        border: 1px solid #d2d2d2;
+    }
+}

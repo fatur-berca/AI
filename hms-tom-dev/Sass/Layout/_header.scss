@@ -1,0 +1,213 @@
+// header
+
+header{
+	float: left;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	z-index: 999;
+	border-top: 3px solid $blue;
+	&.transport{
+		border-top: 3px solid $orange;
+	}
+	&.warehouse{
+		border-top: 3px solid $green;
+	}
+	&.kpi{
+		border-top: 3px solid $dblue;
+	}
+	section.head{
+		float: left;
+		width: 100%;
+		padding: 10px 20px 9px 20px;
+		background-color: $wt;
+		border-bottom: 1px solid rgba(128, 142, 167, 0.1);
+		.logo-deck{
+			padding: 3px 0;
+			width: 250px;
+			white-space: nowrap;
+			overflow: hidden;
+		    height: 40px;
+			border-right: 1px solid rgba(128, 142, 167, 0.1);
+			@include transition(all, 0.3s, ease);
+			a{
+				color: $main;
+				display: block;
+				img{
+					display: inline-block;
+					vertical-align: middle;
+				    margin-top: 4px;
+				    height: 25px;
+					@include transition(all, 0.3s, ease);
+				}
+				&:hover, &:focus{
+					text-decoration: none;
+				}
+			}
+			&.closed{
+				width: 61px;
+				margin-left: -13px;
+				img{
+					height: 17px;
+					margin-top: 9px;
+				}
+			}
+		}
+		.opt-head{
+			.navbar-toggle{
+				display: inline-block;
+				vertical-align: bottom;
+				float: none;
+				margin: 0px;
+				padding: 10px 20px;
+				.icon-bar{
+					background-color: $bblue2;
+					height: 2px;
+					width: 17px;
+					@include transition(all, 0.3s, ease);
+				}
+				.icon-bar + .icon-bar{
+					margin-bottom: 3px;
+				}
+				&.turn{
+					.icon-bar:nth-last-child(3){
+						@include transform(rotate(40deg) translate(2px, 0px));
+						width: 14px;
+					}
+					.icon-bar:nth-last-child(2){
+						opacity: 0;
+					}
+					.icon-bar:last-child{
+						@include transform(rotate(-40deg) translate(2px, 0px));
+						width: 14px;
+					}
+				}
+			}
+			h5.page-name{
+				font-size: 14px;
+				display: inline-block;
+				vertical-align: bottom;
+				color: $main;
+				margin: 0px;
+				padding: 12px 20px;
+				border-left: 1px solid rgba(128, 142, 167, 0.1);
+			}
+		}
+		.navbar-nav{
+			li{
+				min-height: 40px;
+				border-left: 1px solid rgba(128, 142, 167, 0.1);
+				@media screen and (max-width: 767px){
+					float: left;
+				}
+				a{
+					color: $second;
+					padding: 9px 20px;
+					&:hover{
+						background: transparent;
+					}
+				}
+			}
+			li:nth-child(3){
+				a{
+					padding: 5px 20px;
+					@media screen and (max-width: 767px){					
+						padding: 9px 20px;
+					}
+					span{ 
+						margin-right: 10px;
+					}
+					img{
+						@media screen and (max-width: 767px){
+							display: none;
+						}
+					}
+				}
+			}
+			ul.dropdown-menu{
+				border-color: transparent;
+				padding: 0;
+				left: auto;
+				right: 0;
+				top: 50px;
+				min-width: auto;
+				li{
+					min-height: auto;
+					a{
+						padding: 7px 15px;
+						font-size: 13px;
+						color: $second;
+						@include transition(all, 0.3s, ease);
+						&:hover, &:focus{
+							background-color: darken($wt, 5%);
+						}
+					}
+					a.blue, a.red, a.green{
+						&:before{
+							content: "";
+							width: 6px;
+						    height: 6px;
+						    display: inline-block;
+						    margin-right: 6px;
+						    @include border-radius(50%);
+						}
+					}
+					a.blue:before{
+						background-color: $blue;
+					}
+					a.red:before{
+						background-color: $red;
+					}
+					a.green:before{
+						background-color: $green;
+					}
+				}
+				li:first-child{
+					padding: 7px 15px;
+					font-size: 13px;
+					color: $main;
+					background-color: $graybg;
+				}
+				li + li{
+					border-top: 1px solid $border2;
+				}
+			}
+			.nav .open>a, .nav .open>a:hover, .nav .open>a:focus{
+				background-color: transparent;
+			}
+		}
+		.nav .open>a, .nav .open>a:hover, .nav .open>a:focus{
+			background-color: transparent;
+		}
+	}
+	section.menu{
+		padding: 10px 20px;
+		float: left;
+		width: 100%;
+		background-color: $wt;
+		overflow-x: auto;
+		overflow-y: hidden;
+		border-bottom: 1px solid rgba(128, 142, 167, 0.1);
+		ul{
+			padding: 0;
+			margin: 0;
+			li{
+				list-style: none;
+				float: left;
+				a{
+					color: $main;
+					margin-right: 15px;
+					font-size: 13px;
+					@incude transition(all, 0.3s, ease);
+					&:hover, &:focus{
+						color: $main;
+						text-decoration: none;
+					}
+					&.active{
+						font-family: $b;
+					}
+				}
+			}
+		}
+	}
+}

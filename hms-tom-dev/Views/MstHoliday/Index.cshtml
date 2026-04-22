@@ -1,0 +1,275 @@
+
+@{
+    ViewBag.Title = "Master Configuration > Holiday";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Upload</button>
+        <!--<input type="file" id="fileexcel" style="display: none;" onchange="upload()" />-->
+    </div>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Month</label>
+                        <select class="form-control">
+                            <option value="Januari">1</option>
+                            <option value="Februari">2</option>
+                            <option value="Maret">3</option>
+                            <option value="lorem">4</option>
+                            <option value="ipsum">5</option>
+                            <option value="dolor">6</option>
+                            <option value="lorem">7</option>
+                            <option value="ipsum">8</option>
+                            <option value="dolor">9</option>
+                            <option value="lorem">10</option>
+                            <option value="ipsum">11</option>
+                            <option value="dolor">12</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group checkbox-top">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" name="" id="ii">
+                            <label for="ii"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Include inactive</span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary">Search</button>
+                    <button class="btn btn-purple">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtHoliday" class="display table dataTable table-condensed">
+    <thead>
+    <tr>
+        @*<th>No</th>*@
+        <th>Date</th>
+        <th>Description</th>
+        <th hidden>year</th>
+    </tr>
+    </thead>
+    <thead class="filters">
+    <tr class="filter-row">
+        @*<th></th>*@
+        <th>Date</th>
+        <th></th>
+        <th hidden>year</th>
+    </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Holiday</h4>
+            </div>
+            <div class="modal-body">
+                <form id="newData">
+                    <div id="fieldChooser" tabindex="1" class="field-chooser">
+                        <div class="col-md-12">
+                            <div class="box sameHeight">
+                                <div class="col-md-12">                                      
+                                    <div class="form-group">
+                                        <label class="control-label">Upload Icon</label>
+                                        <input type="file" class="filestyle" name="" id="fileexcel" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        <a href="Assets/Download/TemplateExcel/MasterHolidayTemplate.xlsx" id="downloadTemplate">Download Template</a>
+                                    </div>                             
+                                </div>                                                                
+                            </div>
+                        </div>                    
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Execute</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="/assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // page   : Master Holiday
+    // author : Sidiq
+    // ticket :
+    // date   : 2017-08-21
+
+    $(document).ready(function () {
+        // BEGIN : JQUERY SELECT TO DataTable
+        //call generate table
+        generateTable();
+        //checkNotification()
+    });
+
+    var table = null;
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'mstHoliday/GetData',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (table != null)
+                    table.destroy();
+
+                table = $('#dtHoliday').DataTable({
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[2, 'desc']],
+                    columns: [
+                        //{
+                        //    "data": "null",
+                        //    "bSortable": false,
+                        //    'searchable': true,
+                        //    "render": function (data, type, row, meta) {
+                        //        return meta.row + meta.settings._iDisplayStart + 1;
+                        //    }
+                        //},
+                        {
+                            "data": "HolidayDate", "type": "date ",
+                            "render": function (value) {
+                                if (value === null) return "";
+
+                                var pattern = /Date\(([^)]+)\)/;
+                                var results = pattern.exec(value);
+                                var dt = new Date(parseFloat(results[1]));
+                               return moment(value).format("DD-MMM-YYYY");
+                               // return dt.getDate() + " " + getMonth((dt.getMonth() + 1)) + " " + dt.getFullYear();
+                            }
+                        },
+                        { 'data': 'Description', 'searchable': true },
+                            {
+                                "data": "HolidayDate","class": "hidden", "type": "date    ",
+                                "render": function (value) {
+                                    if (value === null) return "";
+
+                                    var pattern = /Date\(([^)]+)\)/;
+                                    var results = pattern.exec(value);
+                                    var dt = new Date(parseFloat(results[1]));
+                                    return moment(value).format("YYYY");
+                                    // return dt.getDate() + " " + getMonth((dt.getMonth() + 1)) + " " + dt.getFullYear();
+                                }
+                            },
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtHoliday thead.filters th').each(function (index) {
+                    if (index >= 0) {
+                        var title = $('#dtHoliday thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtHoliday thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function getMonth(month) {
+        if (month == 1)
+            return 'Jan';
+        if (month == 2)
+            return 'Feb';
+        if (month == 3)
+            return 'Mrt';
+        if (month == 4)
+            return 'Apr';
+        if (month == 5)
+            return 'Mei';
+        if (month == 6)
+            return 'Jun';
+        if (month == 7)
+            return 'Jul';
+        if (month == 8)
+            return 'Ags';
+        if (month == 9)
+            return 'Sep';
+        if (month == 10)
+            return 'Okt';
+        if (month == 11)
+            return 'Nov';
+        if (month == 12)
+            return 'Des';
+        return null;
+    }
+
+    $("#addNew").click(function() {
+        $('#newData')[0].reset();
+        $("#btnUpload").prop("disabled", true);
+    });
+
+    $("#btnUpload").click(function() {
+        upload();
+        $('#modalsuccess').modal('show');
+        $('#newData')[0].reset();
+    });
+
+    $('#fileexcel').on('change', function (e) {
+        $("#btnUpload").prop("disabled", false);
+    });
+
+    function upload() {
+        //var uploadfile = $('#fileexcel').val();
+        var fileInput = document.getElementById('fileexcel');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', "MstHoliday/Upload");
+        xhr.setRequestHeader('Content-type', 'multipart/form-data');
+        xhr.setRequestHeader('X-File-Name', fileInput.files[0].name);
+        xhr.setRequestHeader('X-File-Type', fileInput.files[0].type);
+        xhr.setRequestHeader('X-File-Size', fileInput.files[0].size);
+        xhr.send(fileInput.files[0]);
+        xhr.addEventListener("load", transferComplete);
+    }
+
+    function transferComplete() {
+        generateTable();
+    }
+
+</script>
+

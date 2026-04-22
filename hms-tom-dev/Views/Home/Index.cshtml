@@ -1,0 +1,445 @@
+﻿@using System.Web.UI.WebControls
+@using DFIS.Universal.Domain.Outputs;
+@using EnumHelper = DFIS.Utils.EnumHelper
+@using System.Collections
+@model hms_tom_dev.Models.Home.InitHomeViewModel
+
+@{
+    var listPage = ViewBag.PageAccess;
+    var listNews = ViewBag.ListNews;
+    var IsSplashScreen = Request.QueryString["splash"] == "true";
+    var HashMenu = new Hashtable();
+
+    /*
+    var session = (UserSession)System.Web.HttpContext.Current.Session["CurrentUser"];
+    var IsSuperUser = session.Role.Where(f => f.RoleName.Equals(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin))).FirstOrDefault() != null;
+    var IsContracted = session.Email.Contains("contracted") && !IsSuperUser;
+    */
+
+    HashMenu.Add("PickingList", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportPickingList)));
+    HashMenu.Add("Order", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationOrder)));
+    HashMenu.Add("Execution", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationExecution)));
+
+    HashMenu.Add("Monitoring", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationMonitoring)));
+    HashMenu.Add("Summary", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationSummary)) && !ViewBag.IsContracted);
+
+    HashMenu.Add("Driver", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportDriverManagement)));
+    HashMenu.Add("Vehicle", listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportVehicleData)));
+    HashMenu.Add("Master", ViewBag.IsSuperAdmin);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TOM - Transport Order Management System</title>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="tom">
+    <meta name="author" content="VTI Indonesia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="57x57" href="Contents/images/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="Contents/images/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="Contents/images/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="Contents/images/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="Contents/images/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="Contents/images/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="Contents/images/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="Contents/images/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="Contents/images/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="Contents/images/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="Contents/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="Contents/images/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="Contents/images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="Contents/images/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#4553C7">
+    <meta name="msapplication-TileImage" content="Contents/images/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#4553C7">
+
+    <!-- Load Style -->
+    <link rel="stylesheet" href="Contents/css/app.css" media="screen">
+    <link rel="stylesheet" href="Contents/css/additional.css" media="screen">
+    <link rel="stylesheet" href="Assets/Css/jquery.dataTables.min.css" media="screen">
+    <link rel="stylesheet" href="Assets/Css/jquery-ui.css" media="screen">
+
+    <!-- Load Scripts -->
+    <script type="text/javascript" src="Scripts/main.min.js"></script>
+    <script type="text/javascript" src="Scripts/popper.js"></script>
+    <script type="text/javascript" src="Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="Scripts/scripts.js"></script>
+    <script type="text/javascript" src="Assets/Js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="Assets/Js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="Assets/Js/moment.js"></script>
+
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        .landing-menu {
+            position: absolute;
+            bottom: 30px;
+        }
+    </style>
+</head>
+
+<body class="body">
+<div class="landing-page">
+    <div class="bg-pattern"></div>
+    <div class="bg-logo"></div>
+    <div class="logo">
+        <a>
+            <img src="Contents/images/logo-tom.png" alt="">
+        </a>
+    </div>
+    <div class="top-nav">
+        <ul class="nav-landing">
+            <li id="notif" class="notification_li">
+                <a href="#" class="notification-link" id="belNotif" role="button" data-toggle="dropdown">
+                    <span class="fa fa-bell-o"></span>
+                </a>
+                <div id="notification" class="notificationContainer" style="max-height: 400px; overflow: auto;">
+                    <div id="totalNotif" class="text-center notificationTitle"></div>
+                    <div class="notificationsBody" id="notificationBody"></div>
+                </div>
+            </li>
+            @*<li class="notification_li">
+                    <a href="#" class="notification-link">
+                        <span class="fa fa-bell-o"></span>
+                        <span class="red-notif"></span>
+                    </a>
+                    <div class="notificationContainer">
+                        <div class="notificationTitle">Notifications (10)</div>
+                        <div class="notificationsBody">
+                            <a href="#" class="notification-list unread">
+                                <b>Jhon</b> lorem ipsum on <b>picking list</b>
+                                <span class="date-notif">
+                                    1 minute ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Ibrahim</b> dollorsit amet on <b>order</b>
+                                <span class="date-notif">
+                                    3 minutes ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list unread">
+                                <b>Mike</b> dollorsit amet on <b>summary</b>
+                                <span class="date-notif">
+                                    45 minutes ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list unread">
+                                <b>Steve</b> lorem ipsum on <b>driver data</b>
+                                <span class="date-notif">
+                                    6 hours ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Austin</b> ipsum dollorsit on <b>order</b>
+                                <span class="date-notif">
+                                    1 day ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Cena</b> ipsum dollorsit on <b>order</b>
+                                <span class="date-notif">
+                                    2 weeks ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Lord</b> dollorsit amet on <b>order</b>
+                                <span class="date-notif">
+                                    Oct 2, 2018
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Austin</b> ipsum dollorsit on <b>order</b>
+                                <span class="date-notif">
+                                    1 day ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Cena</b> ipsum dollorsit on <b>order</b>
+                                <span class="date-notif">
+                                    2 weeks ago
+                                </span>
+                            </a>
+                            <a href="#" class="notification-list">
+                                <b>Lord</b> dollorsit amet on <b>order</b>
+                                <span class="date-notif">
+                                    Oct 2, 2018
+                                </span>
+                            </a>
+                        </div>
+                        <div class="notificationFooter">
+                            <a href="#">See All</a>
+                        </div>
+                    </div>
+
+                </li>*@
+            <li>
+                    <a href="@(Url.Action("Index", "UserGuideline"))">
+                    Help
+                </a>
+            </li>
+        </ul>
+
+    </div>
+    <div class="right-area">
+        <div class="landing-menu">
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["PickingList"] ? "" : "disabled")" href="@((bool)HashMenu["PickingList"] ? Url.Action("Index", "TransportPickingList") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-picking.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Picking List</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Order"] ? "" : "disabled")" href="@((bool)HashMenu["Order"] ? Url.Action("Index", "TransportationOrder") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-order.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Order</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Execution"] ? "" : "disabled")" href="@((bool)HashMenu["Execution"] ? Url.Action("Index", "TransportationExecution") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-mobil.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Execution</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Monitoring"] ? "" : "disabled")" href="@((bool)HashMenu["Monitoring"] ? Url.Action("Index", "TransportationMonitoring") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-monitoring.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Monitoring</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Summary"] ? "" : "disabled")" href="@((bool)HashMenu["Summary"] ? Url.Action("Index", "TransportationSummary") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-summary.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Summary</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu" href="@Url.Action("Index", "TransportationSeal")">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-other.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Other</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Driver"] ? "" : "disabled")" href="@((bool)HashMenu["Driver"] ? Url.Action("Index", "DriverManagement") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-driver.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Driver Data</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Vehicle"] ? "" : "disabled")" href="@((bool)HashMenu["Vehicle"] ? Url.Action("Index", "VehicleData") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-vehicle.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Vehicle Data</span>
+                    </div>
+                </a>
+            </div>
+            <div class="box">
+                <a class="grid-menu @((bool)HashMenu["Master"] ? "" : "disabled")" href="@((bool)HashMenu["Master"] ? Url.Action("Index", "MstList") : "#" )">
+                    <div class="icon-menu">
+                        <img src="Contents/images/landing/icon-data.png" alt="">
+                    </div>
+                    <div class="text-menu">
+                        <span>Master Data</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="copyright">
+                <span>2018 Transport Order Management System PT. HM Sampoerna Tbk.</span>
+            </div>
+        </div>
+    </div>
+</div>
+    
+@Html.Action("PartialViewAllNotificationsModal")
+
+<!-- Splash Screen -->
+    <div class="splashscreen" style="@(IsSplashScreen ? "" : "display:none")">
+        <div class="round-truck">
+            <img src="Contents/images/splash-img/round-truck.png" alt="">
+        </div>
+        <div class="round-train">
+            <img src="Contents/images/splash-img/round-train.png" alt="">
+        </div>
+        <div class="round-ship">
+            <img src="Contents/images/splash-img/round-ship.png" alt="">
+        </div>
+        <div class="globe-image">
+            <img src="Contents/images/splash-img/globe-shine.png" alt="" class="splash-globe-shine">
+            <div class="splash-map"></div>
+            <img src="Contents/images/splash-img/round-globe.png" alt="" class="splash-globe">
+        </div>
+    </div>
+<script>
+    var IsSplashScreen = '@IsSplashScreen' == 'True';
+    $(document).ready(function () {
+        if (IsSplashScreen) {
+            setTimeout(function () {
+                //$('.splashscreen').fadeOut();
+                window.location.assign('@Request.Url.GetLeftPart(UriPartial.Path)');
+            }, 7000);
+        }
+    });
+
+    var listNotif = [];
+    var listRead = [];
+    var totalNotif = 0;
+    loadNotification(false);
+    timerNotification();
+    //TIMER Notif 10 menit
+    function timerNotification() {
+        setInterval(function () {
+            loadNotification(true);
+            }, 600000);
+        //}, 6000);
+    }
+
+    function loadNotification(reload) {
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("LoadNotification","Home")',
+            data: { idnotif: listNotif, reload: reload },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                var newsBaru = false;
+                if (result.length > 0) {
+                    if (!reload) {
+                        document.getElementById("totalNotif").innerHTML = result[0]["Description"];
+                        for (var i = 1; i < result.length; i++) {
+                            if (listNotif.indexOf(result[i]["IDNotification"]) < 0)
+                                listNotif.push(result[i]["IDNotification"]);
+                            if (result[i]["IsRead"] == 0) {
+                                if (newsBaru == false) {
+                                    addSpanBubble();
+                                    newsBaru = true;
+                                }
+
+                                $("#notificationBody").append('<a href="' + result[i]["Description"] + '" id="' + result[i]["IDNotification"] + '" class="notification-list unread" onClick="openNotification(' + result[i]["IDNotification"] + ')">' + result[i]["PageName"] + '</a>');
+                            }
+                            else {
+                                $("#notificationBody").append('<a href="' + result[i]["Description"] + '" id="' + result[i]["IDNotification"] + '" class="notification-list" onClick="openNotification(' + result[i]["IDNotification"] + ')">' + result[i]["PageName"] + '</a>');
+                            }
+                            totalNotif++;
+                        }
+                        $("#notification").append('<div class="notificationFooter"><a href="#" class="btn btn-outline-primary" type="button" class="text-center" data-toggle="modal" data-target="#AllNotificationModal" onClick="generateTableNotification()">View All</a></div>');
+                    } else {
+                        var stringNotif = "";
+                        for (var i = 0; i < result.length; i++) {
+                            if (newsBaru == false) {
+                                addSpanBubble();
+                                newsBaru = true;
+                            }
+                            listNotif.push(result[i]["IDNotification"]);
+                            $("#notificationsBody").prepend('<a href="' + result[i]["Description"] + '" id="' + result[i]["IDNotification"] + '" class="notification-list unread" onClick="openNotification(' + result[i]["IDNotification"] + ')">' + result[i]["PageName"] + '</a>');
+                            totalNotif++;
+                            if (totalNotif > 1)
+                                stringNotif = "notifications";
+                            else
+                                stringNotif = "notification";
+                            $("#totalNotif").html('');
+                            $("#totalNotif").html('You have ' + totalNotif + ' ' + stringNotif);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function readNotification() {
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("UpdateNotificationIsRead", "Home")',
+            data: { idnotif: listNotif },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+            }
+        });
+    }
+
+    function openNotification(idnotification) {
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("UpdateNotificationIsOpen", "Home")',
+            data: { idnotif: idnotification },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                $("#" + idnotification).remove();
+                var stringNotif = "";
+                totalNotif--;
+                if (totalNotif > 1)
+                    stringNotif = "notifications";
+                else
+                    stringNotif = "notification";
+                $("#totalNotif").html('');
+                $("#totalNotif").html('You have ' + totalNotif + ' ' + stringNotif);
+            }
+        });
+    }
+
+    $("#belNotif").click(function () {
+        setTimeout(
+            function () {
+                listRead = [];
+                $(".unread").each(function (key, val) {
+                    //console.log($(this).attr('id'));
+                    listRead.push($(this).attr('id'));
+                });
+                readNotification(listRead);
+                removeSpanBubble();
+                $("#notificationsBody a.unread").removeClass("unread");
+            }, 2000);
+    });
+
+    function addSpanBubble() {
+        $("#belNotif").append('<span class="red-notif"></span>');
+    }
+
+    function removeSpanBubble() {
+        $("span.red-notif").remove();
+    }
+</script>
+
+</body>
+</html>

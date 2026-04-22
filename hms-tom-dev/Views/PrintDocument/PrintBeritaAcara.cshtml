@@ -1,0 +1,312 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.Warehouse.WarehouseStockCountPrintBeritaAcaraViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    string userName = Model.UserName;
+    string IDStockCount = Model.IDStockCount;
+    string IDLocation = Model.IDLocation;
+    string LocationName = Model.LocationName;
+    string Address = Model.Address;
+    string PrintedDate = Model.PrintedDate;
+    int lenOwner = Model.LenOwner;
+    int lenStock = Model.LenStock;
+    string status = Model.Status;
+
+    string state = "";
+    if (status == "Balance")
+    {
+        state = "tidak ditemukan selisih";
+    }
+    else
+    {
+        state = "ditemukan selisih (" + status + ")";
+    }
+
+    List<string> namaOwner = new List<string>();
+    List<string> jabatanOwner = new List<string>();
+    List<string> namaStock = new List<string>();
+    List<string> jabatanStock = new List<string>();
+
+    for (var i = 0; i < lenOwner; i++)
+    {
+        namaOwner.Add(Model.NamaOwner[i].ToString());
+        jabatanOwner.Add(Model.JabatanOwner[i].ToString());
+    }
+
+    for (var i = 0; i < lenStock; i++)
+    {
+        namaStock.Add(Model.NamaStock[i].ToString());
+        jabatanStock.Add(Model.JabatanStock[i].ToString());
+    }
+
+    if (lenOwner != 3)
+    {
+        for (var i=lenOwner-1; i<3; i++)
+        {
+            namaOwner.Add(" ".ToString());
+            jabatanOwner.Add(" ".ToString());
+        }
+    }
+    if (lenStock != 3)
+    {
+        for (var i=lenStock-1; i<3; i++)
+        {
+            namaStock.Add(" ".ToString());
+            jabatanStock.Add(" ".ToString());
+        }
+    }
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+</style>
+
+
+<body class="report-page watermarks">
+    <main>
+        <h3 class="title noline">BERITA ACARA PEMERIKSAAN FISIK BARANG</h3>
+        <br /><br />
+        <div>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Jenis Persediaan</strong>
+                </div>
+                <div class="col-md-9">
+                    <p>: Finished Goods(FG) & BS</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>ADW/DPC</strong>
+                </div>
+                <div class="col-md-9">
+                    <p>: @LocationName</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Alamat</strong>
+                </div>
+                <div class="col-md-9">
+                    <p>: @Address</p>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Pada hari ini ____________, tanggal _____/_____/___________ yang bertanda tangan dibawah ini, kami :</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">1.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaStock[0]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanStock[0]</div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">2.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaStock[1]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanStock[1]</div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">3.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaStock[2]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanStock[2]</div>
+                </div>
+            </div><br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Telah melaksanakan pemeriksaan fisik persediaan milik PT. HM Sampoerna Tbk. yang dikelola oleh :</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">1.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaOwner[0]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanOwner[0]</div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">2.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaOwner[1]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanOwner[1]</div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">3.</p></div>
+                    <div class="col-md-3">Nama Lengkap</div>
+                    <div class="col-md-8">: @namaOwner[2]</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-1">Jabatan</div>
+                    <div class="col-md-8">: @jabatanOwner[2]</div>
+                </div>
+            </div><br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Berdasarkan hasil pemeriksaan fisik persediaan serta bukti-bukti yang berada dalam pengelolaan petugas tersebut yang meliputi :</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">1.</p></div>
+                    <div class="col-md-11">ZAAP-DAILY_INVT (SLoc: 1000 & 1042)</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">2.</p></div>
+                    <div class="col-md-11">Form Stock Opname FG & BS</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1"><p class="text-right">3.</p></div>
+                    <div class="col-md-11">Hasil rekonsiliasi antara ZAAP_DAILY_INV (SLoc: 1000 & 1042)</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Kami menemukan kenyataan bahwa <u><b> @state.</b></u></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="signature col3">
+            <div class="row label-top">
+                <div class="col-md-6">
+                    <label>Mengetahui Inventory Owner :</label>
+                </div>
+                <div class="col-md-6">
+                    <label>Stock Taking Team : </label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">1.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaOwner[0]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">1.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaStock[0]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">2.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaOwner[1]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">2.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaStock[1]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">3.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaOwner[2]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">3.</p></div>
+                        <div class="col-md-3">Nama Lengkap</div>
+                        <div class="col-md-5">:<strong> @namaStock[2]</strong></div>
+                    </div><br /><br />
+                    <div class="row">
+                        <div class="col-md-1"><p class="text-right">&nbsp;</p></div>
+                        <div class="col-md-3">Tanda Tangan</div>
+                        <div class="col-md-5">: ............................................</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="bold" />
+        <p class="printed" style="width: 50%; float: left;">Printed by : @userName on @PrintedDate</p>
+        <p class="printed" style="width: 50%; float: left; text-align: right;">Submitted by : @userName on @PrintedDate</p>
+    </main>
+</body>

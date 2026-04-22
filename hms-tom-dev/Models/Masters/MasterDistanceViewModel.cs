@@ -1,0 +1,35 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using hms_tom_dev.Models.Common;
+
+namespace hms_tom_dev.Models.Masters
+{
+    public class MasterDistanceViewModel : ViewModelBase
+    {
+        public int IDDistance { get; set; }
+        public string DistanceType { get; set; }
+        public string IDSender { get; set; }
+        public string IDReceiver { get; set; }
+        public string TransportationMode { get; set; }
+        public decimal Distance { get; set; }
+        public int Buffer { get; set; }
+        public Nullable<decimal> Total { get; set; }
+        public string Through { get; set; }
+        public string Via { get; set; }
+        public System.DateTime EffectiveStartDate { get; set; }
+        public System.DateTime EffectiveEndDate { get; set; }
+        public bool IsActive { get; set; }
+        public string CreatedBy { get; set; }
+        public System.DateTime CreatedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public System.DateTime UpdatedDate { get; set; }
+        public string Remarks { get; set; }
+
+        public virtual MasterLocationViewModel MasterLocation { get; set; }
+        public virtual MasterLocationViewModel MasterLocation1 { get; set; }
+        public virtual MasterLocationViewModel MasterLocation2 { get; set; }
+    }
+}

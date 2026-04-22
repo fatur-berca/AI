@@ -1,0 +1,2531 @@
+﻿﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "General > Building & Facility > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+    .form-group {
+        overflow: visible !important;
+    }
+    .remove-not-active {
+        pointer-events: none;
+        cursor: default;
+        text-decoration:none;
+        color:gray;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <button class="btn btn-purple" onclick="window.location.href='building'">Back</button>
+            <button class="btn btn-primary" type="button" id="btnEdit">Edit</button>
+            <button class="btn btn-primary" id="btnSave" onclick="save()">Save</button>
+            <button class="btn btn-primary pull-right" onclick="window.location.href = 'interactivemap?b=' + gup('b')">Interactive Map</button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Warehouse</label>
+                    <select class="form-control" id="idnamelocaton"></select>
+                    <!--<input type="text" name="" class="form-control" id="idnamelocaton">-->
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Warehouse Status</label>
+                    <select class="form-control" id="statusWarehouse">
+                        <option></option>
+                        <option value="Owned">Owned</option>
+                        <option value="Rent">Rent</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Warehouse Address</label>
+                    <textarea class="form-control" id="addressh"></textarea>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" name="" id="doubleStack">
+                        <label for="doubleStack"></label>
+                    </div>
+                    <span class="checkbox-deck-span">Support Double Stacking</span>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                    <li role="presentation"><a href="#asset" aria-controls="asset" role="tab" data-toggle="tab">Asset</a></li>
+                    <li role="presentation"><a href="#equipment" aria-controls="equipment" role="tab" data-toggle="tab">Equipment</a></li>
+                    <li role="presentation"><a href="#headcount" aria-controls="headcount" role="tab" data-toggle="tab">Headcount</a></li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active col-panel" id="general">
+                        <div id="GenerateGeneral"></div>
+                        <div class="col-md-12 text-right">
+                            <button id="TabGeneral" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addfield"><i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane col-panel" id="asset">
+                        <div id="GenerateAsset"></div>
+                        <div class="col-md-12 text-right">
+                            <button id="TabAsset" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addfield"><i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane col-panel" id="equipment">
+                        <div id="GenerateEquipment"></div>
+                        <div class="col-md-12 text-right">
+                            <button id="TabEquipment" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addfield"><i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane col-panel" id="headcount">
+                        <div class="col-md-12">
+                            <div id="GenerateHeadcount"></div>
+                            <div class="row">
+                                <div class="col-md-12 text-right">
+                                    <button id="TabHeadcount" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addfield"><i class="fa fa-plus"></i> Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#warehouse" aria-expanded="false" aria-controls="warehouse">
+                    General
+                    <i class="fa fa-angle-up pull-right"></i>
+                </a>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <div id="warehouse" class="collapse" role="tabpanel" aria-labelledby="warehouse">
+                    <div class="col-panel">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Contract expired Period</label>
+                                <input type="text" name="" class="form-control datepicker" value="08/04/2017">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Ext</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Size</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>office size (sqm)</label>
+                                <input type="number" name="" class="form-control" placeholder="36">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Loading dock size (sqm)</label>
+                                <input type="number" name="" class="form-control" placeholder="288">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Parking lot size (sqm)</label>
+                                <input type="number" name="" class="form-control" placeholder="192">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>bulk storage Pallet Position</label>
+                                <input type="number" name="" class="form-control" placeholder="3356">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>racking pallet position</label>
+                                <input type="number" name="" class="form-control" placeholder="324">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#sprinkle" aria-expanded="false" aria-controls="sprinkle">
+                    Asset
+                    <i class="fa fa-angle-up pull-right"></i>
+                </a>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <div id="sprinkle" class="collapse" role="tabpanel" aria-labelledby="sprinkle">
+                    <div class="col-panel">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Sprinkle</label>
+                                <select class="form-control">
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Fire Extinguisher</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>First Aid Kit</label>
+                                <input type="text" name="" class="form-control" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>CCTV</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>DVR</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>UPS</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Hygro-Termometer</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>L-Track</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>I-SMS</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>PC Desktop</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Laptop</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Printer</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#equipment" aria-expanded="false" aria-controls="equipment">
+                    Equipment
+                    <i class="fa fa-angle-up pull-right"></i>
+                </a>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <div id="equipment" class="collapse" role="tabpanel" aria-labelledby="warehouse">
+                    <div class="col-panel">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Plastic Pallet</label>
+                                <input type="text" name="" class="form-control" value="1850">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Wooden Pallet (Single)</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Wooden Pallet (Double)</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Plywood</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Beetle Trap</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Cigarette Box's Belt</label>
+                                <input type="text" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Forklift (Battery)</label>
+                                <input type="number" name="" class="form-control" value="3">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Hand Pallet</label>
+                                <input type="number" name="" class="form-control" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#supervisor" aria-expanded="false" aria-controls="supervisor ">
+                    Headcount
+                    <i class="fa fa-angle-up pull-right"></i>
+                </a>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <div id="supervisor" class="collapse" role="tabpanel" aria-labelledby="supervisor">
+                    <div class="col-panel">
+                        <div class="col-md-12">
+                            <label class="label-group">Supervisor area distribution</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Distribution Coordinator</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Distribution Assistant</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Helper/Admin Support</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Forklift Driver</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Labours Team Leader</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Labours</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="label-group">Cleaning Service</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Monthly</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Daily</label>
+                                        <input type="number" name="" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Outsource</label>
+                                        <input type="number" name="" class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="box map-deck nmt">
+            <div id="map"></div>
+            <a role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#locordinate" aria-expanded="true" aria-controls="locordinate">
+                Location Coordinate
+                <i class="fa fa-angle-up pull-right"></i>
+            </a>
+            <div id="locordinate" class="collapse" role="tabpanel" aria-labelledby="locordinate">
+                <div class="col-panel">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Latitude</label>
+                            <input type="text" class="form-control" id="latitude" >
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Longitude</label>
+                            <input type="text" class="form-control" id="longitude">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="carousel-warehouse" class="carousel warehouse slide" data-ride="carousel">
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+                <div class="active item" id="1">
+                    <div class="item-wrap">
+                        <div class="bg-image" id="pic1s" style="background-image: url('assets/images/noimagefull.jpg');"></div>
+                        <h5 class="tags">Warehouse</h5>
+                    </div>
+                </div>
+                <div class="item" id="2">
+                    <div class="item-wrap">
+                        <div class="bg-image" id="pic2s" style="background-image: url('assets/images/noimagefull.jpg');"></div>
+                        <h5 class="tags">Loading Dock</h5>
+                    </div>
+                </div>
+                <div class="item" id="3">
+                    <div class="item-wrap">
+                        <div class="bg-image" id="pic3s" style="background-image: url('assets/images/noimagefull.jpg');"></div>
+                        <h5 class="tags">Office</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-warehouse" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-warehouse" data-slide-to="1"></li>
+                <li data-target="#carousel-warehouse" data-slide-to="2"></li>
+            </ol>
+
+            <a href="#!" class="carousel-remove" style="display:none;"><i class="fa fa-times"></i></a>
+        </div>
+
+        <a role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#upfile" aria-expanded="true" aria-controls="upfile">
+            Upload File
+            <i class="fa fa-angle-up pull-right"></i>
+        </a>
+        <div id="upfile" class="collapse" role="tabpanel" aria-labelledby="upfile">
+            <div class="col-panel">
+                <div class="form-group">
+                    <label class="label-upload">Warehouse</label>
+                    <a href="#!" class="remove-link" onclick="removeFileInput(1)" id="btnRemovcePic1">remove</a>
+                    <div class="clearfix"></div>
+                    <input type="file" class="filestyle" name="" id="pic1" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label class="label-upload">Loading Dock</label>
+                    <a href="#!" class="remove-link" onclick="removeFileInput(2)" id="btnRemovcePic2">remove</a>
+                    <div class="clearfix"></div>
+                    <input type="file" class="filestyle" name="" id="pic2" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label class="label-upload">Office</label>
+                    <a href="#!" class="remove-link" onclick="removeFileInput(3)" id="btnRemovcePic3">remove</a>
+                    <div class="clearfix"></div>
+                    <input type="file" class="filestyle" name="" id="pic3" accept="image/*">
+                </div>
+                <button class="btn btn-primary" onclick="upload()" id="btnUploadPic">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addfield" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Building & Facility Field Category</h4>
+            </div>
+            <div id="ModalForGenerateDynamicField" class="modal-body">
+                <a href="#" id="AddDropDownDynamic" class="add-toggle"><i class="fa fa-plus"></i></a>
+                <div id="GeneratedDropDown" class="generatedDropDown">
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer">
+                <button id="BtnGenerateDynamicField" type="button" class="btn btn-primary">Apply</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tree-->
+<div class="modal fade" id="modaltree" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Modal Tree</h4>
+            </div>
+            <div class="modal-body">
+                <ul id="treeview" class="tree">
+                    <li>
+                        <i class="fa fa-plus"></i>
+                        <label>
+                            <input id="xnode-0" data-id="custom-0" type="checkbox" />
+                            node-0
+                        </label>
+                        <ul>
+                            <li>
+                                <i class="fa fa-plus"></i>
+                                <label>
+                                    <input id="xnode-0-1" data-id="custom-0-1" type="checkbox" />
+                                    node-0-1
+                                </label>
+                                <ul>
+                                    <li>
+                                        <i class="fa fa-plus"></i>
+                                        <label>
+                                            <input id="xnode-0-1-1" data-id="custom-0-1-1" type="checkbox" />
+                                            node-0-1-1
+                                        </label>
+                                        <ul>
+                                            <li>
+                                                <label>
+                                                    <input id="xnode-0-1-1-1" data-id="custom-0-1-1-1" type="checkbox" />
+                                                    node-0-1-1-1
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <label>
+                                                    <input id="xnode-0-1-1-2" data-id="custom-0-1-1-2" type="checkbox" />
+                                                    node-0-1-1-2
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input class="hummingbirdNoParent" id="xnode-0-1-2" data-id="custom-0-1-2" type="checkbox" />
+                                            node-0-1-2
+                                        </label>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <i class="fa fa-plus"></i>
+                                <label>
+                                    <input id="xnode-0-2" data-id="custom-0-2" type="checkbox" />
+                                    node-0-2
+                                </label>
+                                <ul>
+                                    <li>
+                                        <label>
+                                            <input class="hummingbirdNoParent" id="xnode-0-2-1" data-id="custom-0-2-1" type="checkbox" />
+                                            node-0-2-1
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input class="hummingbirdNoParent" id="xnode-0-2-2" data-id="custom-0-2-2" type="checkbox" />
+                                            node-0-2-2
+                                        </label>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Apply</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Success -->
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.href = window.location">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Are you sure want delete this picture?</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="deletPicture()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //VARIABEL BUAT DYNAMIC FIELD
+    var clearfixGeneral = 1;//untuk memperbaiki tampilan general
+    var clearfixAsset = 1;//untuk memperbaiki tampilan asset
+    var clearfixEquipment = 1;//untuk memperbaiki tampilan equipment
+    var tab = "";//penanda tab mana yang ditekan untuk generate isi drop down dan berapa banyak textboxt
+    var listGeneratedGeneral = [];
+    var listGeneratedAsset = [];
+    var listGeneratedEquipment = [];
+    var listGeneratedHeadcount = [];
+    var masterDynamicField = new Array();//tempat tampung hasil array
+
+    var htmlStringGenerateDropDown = '';//generate dynamic select di pop up
+    var htmlStringOption = '';// generate option di pop up
+    var htmlString = '';//generate dynamic field di depan
+    //VARIABEL BUAT DYNAMIC FIELD
+
+    var idBuildingFacility = 0;
+    var statusPage = "NEW";
+    var counterUpload = 0;
+    var counterUploadSuccess = 0;
+    //$("#idnamelocaton").removeAttr('disabled');
+
+    //generateDropdownWarehouse();
+    var warehouseName = "";
+    $(document).ready(function () {
+        var $carousel = $('.carousel.warehouse');
+        $(".carousel-remove").click(function () {
+            //var ActiveElement = $carousel.find('.item.active');
+            //deletePicture(ActiveElement);
+        });
+    });
+
+    var seq = 0;
+
+    function getData() {
+        //console.log(gup('b'));
+        $.ajax({
+            url: 'buildingdetail/getDatadetail',
+            method: 'get',
+            dataType: 'json',
+            data: { 'warehouseid': gup('b') },
+            cache: false,
+            success: function (respond) {
+                if (respond.length == 0) {
+                    //console.log('masuk if');
+                    generateDropdownWarehouse();
+                    $("#idnamelocaton").val("");
+                    $("#addressh").val("");
+                    $("#statusWarehouse").val("");
+                    $("#btnEdit").attr('disabled', 'disabled');
+                    $("#GenerateGeneral").html('');
+                    $("#GenerateAsset").html('');
+                    $("#GenerateEquipment").html('');
+                    $("#GenerateHeadcount").html('');
+                    $("#doubleStack").prop('checked', false);
+                }
+                else {
+                    var createdDate = moment(Number(respond[0].CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                    setBtnEdit(createdDate, respond[0].WarehouseID);
+                    
+                    statusPage = "EDIT";
+                    masterDynamicField = new Array();
+                    warehouseName = respond[0].WarehouseName;
+                    //console.log(respond[0]);
+                    //console.log(respond[0].WarehouseID);
+                    //console.log(respond[0].WarehouseName);
+                    //$("#idnamelocaton").attr('disabled', 'disabled');
+                    $("#idnamelocaton").val(respond[0].WarehouseID);
+                    generateDropdownWarehouse(respond[0].WarehouseID + '-' + respond[0].WarehouseName);
+                    $("#statusWarehouse").val(respond[0].WarehouseStatus);
+                    $("#addressh").val(respond[0].WarehouseAddress);
+                    $("#longitude").val(respond[0].WarehouseLocationLog);
+                    $("#latitude").val(respond[0].WarehouseLocationLat);
+                    if (respond[0].DoubleStacking)
+                        $("#doubleStack").prop('checked', true);
+                    else
+                        $("#doubleStack").prop('checked', false);
+                    $("#btnSave").attr('disabled', 'disabled');
+                    idBuildingFacility = respond[0].idBuildingFacility;
+                    loadDynamicField(respond[0].idBuildingFacility);
+                    disabledField();
+                    
+                    if ((respond[0].WarehousePic1 != " ") && (respond[0].WarehousePic1 != "")) {
+                        $("#pic1s").addClass("bg-image");
+                        $("#pic1s").attr("style", "background-image: url('assets/uploads/building/" + respond[0].WarehousePic1 + "')");
+                    }
+
+                    if ((respond[0].WarehousePic2 != " ") && (respond[0].WarehousePic2 != "")) {
+                        $("#pic2s").addClass("bg-image");
+                        $("#pic2s").attr("style", "background-image: url('assets/uploads/building/" + respond[0].WarehousePic2 + "')");
+                    }
+
+                    if ((respond[0].WarehousePic3 != " ") && (respond[0].WarehousePic3 != "")) {
+                        $("#pic3s").addClass("bg-image");
+                        $("#pic3s").attr("style", "background-image: url('assets/uploads/building/" + respond[0].WarehousePic3 + "')");
+                    }
+                    
+                }
+
+                // Create a map object and specify the DOM element for display.
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: $("#latitude").val() * 1, lng: $("#longitude").val() * 1 },
+                    scrollwheel: false,
+                    zoom: 15
+                });
+
+                var markerPos = { lat: $("#latitude").val() * 1, lng: $("#longitude").val() * 1 };
+
+                var iconBase = 'assets/images/';
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: markerPos,
+                    title: respond[0].WarehouseName,
+                    icon: iconBase + 'marker-blue.png'
+                });
+            }
+        });
+    }
+
+
+    //function generateDropdownWarehouse(selected) {
+    //    var select = $('#idnamelocaton');
+    //    $.ajax({
+    //        url: 'buildingdetail/GetDropDownWarehouse',
+    //        dataType: 'JSON',
+    //        cache: false,
+    //        success: function (data) {
+    //            select.html('');
+    //            select.html('<option value="null"></option>').trigger('change');
+    //            $.each(data, function (key, val) {
+    //                var value = val.IDLocation + '-' + val.LocationName;
+    //                if (value == selected)
+    //                    select.append('<option value="' + val.IDLocation + '-' + val.LocationName + '" selected="selected">' + val.IDLocation + ' - ' + val.LocationName + '</option>');
+    //                else
+    //                    select.append('<option value="' + val.IDLocation + '-' + val.LocationName + '">' + val.IDLocation + ' - ' + val.LocationName + '</option>');
+    //            });
+    //        },
+    //        error: function () {
+    //            select.html('<option value="null">none available</option>');
+    //        }
+    //    });
+    //}
+
+    //function loadDynamicField(idbuilding) {
+    //    $.ajax({
+    //        url: 'buildingdetail/GetBuildingFacilityDetail',
+    //        dataType: 'JSON',
+    //        data: { id: idbuilding },
+    //        cache: false,
+    //        success: function (data) {
+    //            var tempHeadcount = "";
+    //            var tempidDaily = "";
+    //            var tempidMonthly = "";
+    //            var tempidOutsource = "";
+    //            var tempvalueDaily = "";
+    //            var tempvalueMonthly = "";
+    //            var tempvalueOutsource = "";
+    //            var headcount = "";
+    //            var count = 0;//digunakan untuk generate headcount
+    //            for (var i = 0; i < data.length; i++) {
+    //                var detail = data[i];
+    //                var dynamic = detail["MasterDynamicField"];
+    //                if (dynamic["GroupCollapse"] == "General") {
+    //                    htmlString = '';
+    //                    generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"]);
+    //                    $("#GenerateGeneral").append(htmlString);
+    //                    listGeneratedGeneral.push(dynamic["IDDynamicField"]);
+    //                }
+    //                if (dynamic["GroupCollapse"] == "Asset") {
+    //                    htmlString = '';
+    //                    generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"]);
+    //                    $("#GenerateAsset").append(htmlString);
+    //                    listGeneratedAsset.push(dynamic["IDDynamicField"]);
+    //                }
+    //                if (dynamic["GroupCollapse"] == "Equipment") {
+    //                    htmlString = '';
+    //                    generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"]);
+    //                    $("#GenerateEquipment").append(htmlString);
+    //                    listGeneratedEquipment.push(dynamic["IDDynamicField"]);
+    //                }
+    //                if (dynamic["GroupCollapse"] == "Headcount") {
+    //                    if (dynamic["FieldName"].indexOf("MONTHLY") >= 0) {
+    //                        tempHeadcount = dynamic["FieldName"].replace(/ MONTHLY/g, "");
+    //                        tempidMonthly = dynamic["IDDynamicField"];
+    //                        tempvalueMonthly = detail["Value"];
+    //                    }
+    //                    if (dynamic["FieldName"].indexOf("DAILY") >= 0) {
+    //                        tempHeadcount = dynamic["FieldName"].replace(/ DAILY/g, "");
+    //                        tempidDaily = dynamic["IDDynamicField"];
+    //                        tempvalueDaily = detail["Value"];
+    //                    }
+    //                    if (dynamic["FieldName"].indexOf("OUTSOURCE") >= 0) {
+    //                        tempHeadcount = dynamic["FieldName"].replace(/ OUTSOURCE/g, "");
+    //                        tempidOutsource = dynamic["IDDynamicField"];
+    //                        tempvalueOutsource = detail["Value"];
+    //                    }
+    //                    count++;
+    //                    if (count > 0 && count % 3 == 0) {
+    //                        htmlString = '';
+    //                        headcount = tempHeadcount;
+    //                        generateDynamicHeadcountFrontPage(headcount, tempidMonthly, tempidDaily, tempidOutsource, tempvalueMonthly, tempvalueDaily, tempvalueOutsource);
+    //                        $("#GenerateHeadcount").append(htmlString);
+    //                        listGeneratedEquipment.push(tempidMonthly);
+    //                        listGeneratedEquipment.push(tempidDaily);
+    //                        listGeneratedEquipment.push(tempidOutsource);
+    //                    }
+    //                }
+    //            }
+    //        },
+    //        complete: function () {
+    //            disabledDynamicField();
+    //        }
+    //    });
+    //}
+
+    //function gup(name) {
+    //    var url = window.location.href;
+    //    if (!url) url = location.href;
+    //    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    //    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    //    var regex = new RegExp(regexS);
+    //    var results = regex.exec(url);
+    //    return results == null ? null : results[1];
+    //}
+
+    //function save() {
+    //    var mandatory = ["idnamelocaton"];//id field yang mandatory
+    //    if (!checkField(mandatory)) {
+    //        var statusWarehouse = $("#statusWarehouse").val();
+    //        var longitude = $("#longitude").val();
+    //        var latitude = $("#latitude").val();
+    //        var warehouseAddress = $("#addressh").val();
+    //        var doubleStack;
+    //        if ($("#doubleStack").prop('checked'))
+    //            doubleStack = true;
+    //        else
+    //            doubleStack = false;
+    //        var split = $("#idnamelocaton").val().split('-');
+    //        var warehouseName = split[1];
+    //        var warehouseid = gup('b');
+    //        var idInsert;
+
+    //        if (warehouseid == null) {
+    //            idInsert = 0;
+    //            warehouseid = split[0];
+    //        }
+    //        if (idBuildingFacility > 0)
+    //            idInsert = idBuildingFacility;
+
+    //        var listDetail = [];
+    //        $("#GenerateGeneral input").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateGeneral select").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateAsset input").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateAsset select").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateEquipment input").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateEquipment select").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateHeadcount input").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+    //        $("#GenerateHeadcount select").each(function () {
+    //            var temp = new Object();
+    //            var id = $(this).attr('id');
+    //            var split = id.split('-');
+    //            var val = $(this).val();
+    //            temp.IDDynamicField = split[0];
+    //            temp.Value = val;
+    //            listDetail.push(temp);
+    //        });
+
+    //        $.ajax({
+    //            url: 'buildingdetail/saveDatadetail',
+    //            method: 'post',
+    //            dataType: 'json',
+    //            cahce: false,
+    //            data: {
+    //                'warehouseid': warehouseid,
+    //                'statusWarehouse': statusWarehouse,
+    //                'longitude': longitude,
+    //                'latitude': latitude,
+    //                'warehouseAddress': warehouseAddress,
+    //                'warehouseName': warehouseName,
+    //                'doublestack': doubleStack,
+    //                idBuildingFacility: idInsert,
+    //                detail: listDetail
+    //            },
+    //            cahce: false,
+    //            success: function (respond) {
+    //                if (respond == 0) {
+    //                    $("#textModalWarning").html("");
+    //                    $("#textModalWarning").append("There is already data in database");
+    //                    $('#warningModal').modal('show');
+    //                }
+    //                else {
+    //                    disabledField();
+    //                    disabledDynamicField();
+    //                    $('#modalsuccess').modal('show');
+    //                    $("#btnSave").attr('disabled', 'disabled');
+    //                    $("#btnEdit").removeAttr('disabled');
+    //                }
+
+    //            }
+    //        });
+    //    }
+    //}
+
+    //$("#btnEdit").click(function () {
+    //    $("#btnEdit").attr('disabled', 'disabled');
+    //    $("#btnSave").removeAttr('disabled');
+    //    enabledField();
+    //    enabledDynamicField();
+    //    enabledLocation();
+    //});
+
+    //function disabledField() {
+    //    $("#idnamelocaton").attr('disabled', 'disabled');
+    //    $("#statusWarehouse").attr('disabled', 'disabled');
+    //    $("#addressh").attr('disabled', 'disabled');
+    //    $("#TabGeneral").attr('disabled', 'disabled');
+    //    $("#TabAsset").attr('disabled', 'disabled');
+    //    $("#TabEquipment").attr('disabled', 'disabled');
+    //    $("#TabHeadcount").attr('disabled', 'disabled');
+    //    $("#doubleStack").attr('disabled', 'disabled');
+
+    //    $("#latitude").attr('disabled', 'disabled');
+    //    $("#longitude").attr('disabled', 'disabled');
+    //    //$("#btnEdit").attr('disabled', 'disabled');
+    //    //$("#btnSave").attr('disabled', 'disabled');
+    //}
+
+    //function disabledDynamicField() {
+    //    $("#GenerateGeneral input").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateGeneral select").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateAsset input").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateAsset select").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateEquipment input").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateEquipment select").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateHeadcount input").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //    $("#GenerateHeadcount select").each(function () {
+    //        $(this).attr('disabled', 'disabled');
+    //    });
+    //}
+
+    //function enabledLocation() {
+    //    $("#latitude").removeAttr('disabled');
+    //    $("#longitude").removeAttr('disabled');
+    //}
+
+    //function enabledField() {
+    //    $("#idnamelocaton").removeAttr('disabled');
+    //    $("#statusWarehouse").removeAttr('disabled');
+    //    $("#addressh").removeAttr('disabled');
+    //    $("#TabGeneral").removeAttr('disabled');
+    //    $("#TabAsset").removeAttr('disabled');
+    //    $("#TabEquipment").removeAttr('disabled');
+    //    $("#TabHeadcount").removeAttr('disabled');
+    //    $("#doubleStack").removeAttr('disabled');
+    //    //$("#btnEdit").removeAttr('disabled');
+    //    //$("#btnSave").removeAttr('disabled');
+    //}
+
+    //function enabledDynamicField() {
+    //    $("#GenerateGeneral input").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateGeneral select").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateAsset input").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateAsset select").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateEquipment input").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateEquipment select").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateHeadcount input").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //    $("#GenerateHeadcount select").each(function () {
+    //        $(this).removeAttr('disabled');
+    //    });
+    //}
+
+    ////START : BAGIAN DYNAMIC FIELD
+
+    //$("#TabGeneral").click(function () {
+    //    tab = "General";
+    //    $("#GeneratedDropDown").html('');
+    //    masterDynamicField = new Array();
+    //    getDynamicFieldDropDown(tab, listGeneratedGeneral);
+    //});
+    //$("#TabAsset").click(function () {
+    //    tab = "Asset";
+    //    $("#GeneratedDropDown").html('');
+    //    masterDynamicField = new Array();
+    //    getDynamicFieldDropDown(tab, listGeneratedAsset);
+    //});
+    //$("#TabEquipment").click(function () {
+    //    tab = "Equipment";
+    //    $("#GeneratedDropDown").html('');
+    //    masterDynamicField = new Array();
+    //    getDynamicFieldDropDown(tab, listGeneratedEquipment);
+    //});
+    //$("#TabHeadcount").click(function () {
+    //    tab = "Headcount";
+    //    $("#GeneratedDropDown").html('');
+    //    masterDynamicField = new Array();
+    //    getDynamicFieldDropDown(tab, listGeneratedHeadcount);
+    //});
+
+    //$("#AddDropDownDynamic").click(function () {
+    //    //console.log('list length' + masterDynamicField.length);
+    //    if (masterDynamicField.length > 0) {
+    //        generateOption();
+    //    } else {
+    //        if (tab == "General")
+    //            getDynamicFieldDropDown(tab, listGeneratedGeneral);
+    //        else if (tab == "Asset")
+    //            getDynamicFieldDropDown(tab, listGeneratedAsset);
+    //        else if (tab == "Equipment")
+    //            getDynamicFieldDropDown(tab, listGeneratedEquipment);
+    //        else if (tab == "Headcount")
+    //            getDynamicFieldDropDown(tab, listGeneratedHeadcount);
+    //    }
+    //});
+
+    //function getDynamicFieldDropDown(grp, list) {
+    //    //console.log(list);
+    //    $.ajax({
+    //        url: 'buildingdetail/GetMasterDynamicFieldByGroupListFieldName',
+    //        method: 'post',
+    //        dataType: 'json',
+    //        cache: false,
+    //        data: {
+    //            group: grp,
+    //            fieldName: list
+    //        },
+    //        success: function (respond) {
+    //            masterDynamicField = respond;
+    //        },
+    //        complete: function () {
+    //            generateOption();
+    //        }
+    //    });
+    //}
+
+    //function generateOption() {
+    //    //console.log('generateOption');
+    //    htmlStringOption = '';
+    //    if (tab == "Headcount") {
+    //        var tempHeadcount = "";
+    //        var headcount = "";
+    //        var idMonthly = "";
+    //        var idDaily = "";
+    //        var idOutsource = "";
+    //        var count = 1;
+    //        for (var i = 0; i < masterDynamicField.length; i++) {
+    //            if (masterDynamicField[i]["FieldName"].indexOf("MONTHLY") >= 0) {
+    //                tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ MONTHLY/g, "");
+    //                idMonthly = masterDynamicField[i]["IDDynamicField"];
+    //            }
+    //            if (masterDynamicField[i]["FieldName"].indexOf("DAILY") >= 0) {
+    //                tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ DAILY/g, "");
+    //                idDaily = masterDynamicField[i]["IDDynamicField"];
+    //            }
+    //            if (masterDynamicField[i]["FieldName"].indexOf("OUTSOURCE") >= 0) {
+    //                tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ OUTSOURCE/g, "");
+    //                idOutsource = masterDynamicField[i]["IDDynamicField"];
+    //            }
+    //            //if (i > 2 && headcount != tempHeadcount) { //i > 2 supaya id daily, sama id  outsource masuk, kalau tidak ada, maka yang masuk cuma id monthly untuk data pertama
+    //            if (count % 3 == 0) {
+    //                //console.log('idmonthly: ' + idMonthly);
+    //                //console.log('idDaily: ' + idDaily);
+    //                //console.log('idOutsource: ' + idOutsource);
+    //                headcount = tempHeadcount;
+    //                htmlStringOption = htmlStringOption + '<option value="' + idMonthly + '-' + idDaily + '-' + idOutsource + '-' + tempHeadcount + '">' + tempHeadcount + '</option>';
+    //            }
+    //            count++;
+    //            //htmlStringOption = htmlStringOption + '<option value="' + masterDynamicField[i]["IDDynamicField"] + '-' + masterDynamicField[i]["FieldName"] + '-' + masterDynamicField[i]["FieldType"] + '">' + masterDynamicField[i]["FieldName"] + '</option>';
+    //        }
+    //    }
+    //    else {
+    //        htmlStringOption = htmlStringOption + '<option></option>';
+    //        for (var j = 0; j < masterDynamicField.length; j++) {
+    //            //console.log(masterDynamicField);
+    //            htmlStringOption = htmlStringOption + '<option value="' + masterDynamicField[j]["IDDynamicField"] + '-' + masterDynamicField[j]["FieldName"] + '-' + masterDynamicField[j]["FieldType"] + '">' + masterDynamicField[j]["FieldName"] + '</option>';
+    //        }
+    //    }
+    //    generateSelect();
+    //}
+
+    //function generateSelect() {
+    //    if (tab == "Headcount") {
+    //        htmlStringGenerateDropDown = '<div class="form-group add-field">' +
+    //            '<div class="row">' +
+    //            '<div class="col-md-5">' +
+    //            '<label>Field Name</label>' +
+    //            '<select class="form-control field-opt">' +
+    //            htmlStringOption +
+    //            '</select>' +
+    //            '</div>' +
+    //            '<div class="col-md-2">' +
+    //            '<label>Monthly</label>' +
+    //            '<input id="Monthly" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+    //            '</div>' +
+    //            '<div class="col-md-2">' +
+    //            '<label>Daily</label>' +
+    //            '<input id="Daily" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+    //            '</div>' +
+    //            '<div class="col-md-2">' +
+    //            '<label>Outsource</label>' +
+    //            '<input id="Outsource" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+    //            '</div>' +
+    //            '</div>' +
+    //            '</div>';
+    //    }
+    //    else {
+    //        htmlStringGenerateDropDown = '<div class="form-group add-field">' +
+    //            '<div class="row">' +
+    //            '<div class="col-md-6">' +
+    //            '<label>Field Name</label>' +
+    //            '<select class="form-control field-opt" onchange=generateTextValue(this,this.value)>' +
+    //            htmlStringOption +
+    //            '</select>' +
+    //            '</div>' +
+    //            '<div class="col-md-4">' +
+    //            //'<label>Value</label>' +
+    //            //'<input type="number" name="" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+    //            '</div>' +
+    //            '</div>' +
+    //            '</div>';
+    //    }
+    //    $("#GeneratedDropDown").append(htmlStringGenerateDropDown);
+    //}
+
+    //function generateTextValue(option, value) {
+    //    //console.log(option);
+    //    var html = option.parentNode.nextSibling;
+    //    //console.log(html);
+    //    var split = value.split('-');
+    //    var appendHtml = '';
+    //    html.innerHTML = "";
+    //    if (split[2] == "Number") {
+    //        appendHtml = '<label>Value</label>' +
+    //            '<input type="number" name="" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">';
+    //    }
+    //    else if (split[2] == "Date") {
+    //        appendHtml = '<label>Value</label><input type="text" class="form-control datepicker">';
+    //    }
+    //    else if (split[2] == "TextInput") {
+    //        appendHtml = '<label>Value</label><input type="text" class="form-control">';
+    //    }
+    //    else if (split[2] == "ComboBox") {
+    //        appendHtml = '<label>Value</label><select class="form-control">' +
+    //                     '<option>Yes</option>' +
+    //                     '<option>No</option>' +
+    //                     '</select>';
+    //    }
+    //    html.innerHTML = appendHtml;
+    //    //console.log(value);
+    //}
+
+    //$("#BtnGenerateDynamicField").click(function () {
+    //    $("#GeneratedDropDown select").each(function () {
+    //        //console.log($(this));
+    //        var id = $(this).val();
+    //        var split = id.split(',');
+    //        var idDynamic = split[0];
+    //        var fieldName = split[1];
+    //        var fieldType = split[2];
+    //        var txtValue = $(this).parent().next().find('input');
+    //        //console.log(id);
+    //        //console.log(idDynamic);
+    //        //console.log(fieldName);
+    //        //console.log(fieldType);
+    //        //console.log($(this).parent().next());
+    //        //console.log(txtValue.val());
+    //        if (tab == "General") {
+    //            htmlString = '';
+    //            if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number")) {
+    //                if ($.inArray(idDynamic, listGeneratedGeneral) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+    //                    generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val());
+    //                    listGeneratedGeneral.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+    //                }
+    //                $("#GenerateGeneral").append(htmlString);
+    //            }
+    //        }
+    //        if (tab == "Asset") {
+    //            //console.log('masuk tab asset');
+    //            //console.log(txtValue.val());
+    //            if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number") || fieldType == "ComboBox") {
+    //                //console.log('masuk if asset');
+    //                //console.log(listGeneratedAsset);
+    //                //console.log(idDynamic);
+    //                htmlString = '';
+    //                if ($.inArray(idDynamic, listGeneratedAsset) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+    //                    if (fieldType == "ComboBox") {
+    //                        txtValue = $(this).parent().next().find('select');
+    //                    }
+    //                    generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val());
+    //                    listGeneratedAsset.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+    //                }
+    //                $("#GenerateAsset").append(htmlString);
+    //            }
+    //        }
+    //        if (tab == "Equipment") {
+    //            if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number")) {
+    //                htmlString = '';
+    //                if ($.inArray(idDynamic, listGeneratedEquipment) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+    //                    generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val());
+    //                    listGeneratedEquipment.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+    //                }
+    //                $("#GenerateEquipment").append(htmlString);
+    //            }
+    //        }
+
+    //        if (tab == "Headcount") {
+    //            var idMonthly = split[0];
+    //            var idDaily = split[1];
+    //            var idOutsource = split[2];
+    //            var label = split[3];
+    //            var valMonthly;
+    //            var valDaily;
+    //            var valOutsource;
+    //            htmlString = '';
+    //            if ($.inArray(idMonthly, listGeneratedHeadcount) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+    //                valMonthly = txtValue.val();
+    //                valDaily = $(this).parent().next().next().find('input').val();
+    //                valOutsource = $(this).parent().next().next().next().find('input').val();
+    //                generateDynamicHeadcountFrontPage(label, idMonthly, idDaily, idOutsource, valMonthly, valDaily, valOutsource);
+    //                listGeneratedHeadcount.push(idMonthly);//id di masukkan dalam list(artinya id tersebut akan di generate)
+    //                listGeneratedHeadcount.push(idDaily);
+    //                listGeneratedHeadcount.push(idOutsource);
+    //            }
+    //            $("#GenerateHeadcount").append(htmlString);
+    //        }
+
+    //        $('#addfield').modal('hide');
+    //    });
+    //});
+
+    //function generateDynamicFrontPage(label, id, fieldType, value) {
+    //    if (fieldType == "TextInput") {
+    //        htmlString = htmlString +
+    //            '<div class="col-md-6">' +
+    //            '<div class="form-group">' +
+    //            '<label>' + label + '</label>' +
+    //            '<input type="text" id="' + id + '-' + label.split(' ').join('') + '" class="form-control" value="' + value + '">' +//tambah label supaya idnya unik
+    //            '</div>' +
+    //            '</div>';
+    //    }
+    //    else if (fieldType == "Number") {
+    //        htmlString = htmlString +
+    //            '<div class="col-md-6">' +
+    //            '<div class="form-group">' +
+    //            '<label>' + label + '</label>' +
+    //            '<input type="number" id="' + id + '-' + label.split(' ').join('') + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + value + '"/>' +
+    //            '</div>' +
+    //            '</div>';
+    //    }
+    //    else if (fieldType == "Date") {
+    //        htmlString = htmlString +
+    //            '<div class="col-md-6">' +
+    //            '<div class="form-group">' +
+    //            '<label>' + label + '</label>' +
+    //            '<input type="text" id="' + id + '-' + label.split(' ').join('') + '" class="form-control datepicker" value="' + value + '">' +
+    //            '</div>' +
+    //            '</div>';
+    //        if (clearfix % 2 == 0)
+    //            htmlString = htmlString + '<div class="clearfix"></div>';
+    //    }
+    //    else if (fieldType == "ComboMultiple") {
+    //        htmlString = htmlString +
+    //            '<div class="col-md-6">' +
+    //            '<div class="form-group">' +
+    //            '<label>' + label + '</label>' +
+    //            '<select class="combo-select" multiple="multiple" id = "' + id + '-' + label.split(' ').join('') + '"></select>' +
+    //            '</div>' +
+    //            '</div>';
+    //        if (clearfix % 2 == 0)
+    //            htmlString = htmlString + '<div class="clearfix"></div>';
+    //    }
+    //    else if (fieldType == "ComboBox") {
+    //        htmlString = htmlString +
+    //            '<div class="col-md-6">' +
+    //            '<div class="form-group">' +
+    //            '<label>' + label + '</label>' +
+    //            '<select class="form-control" id = "' + id + '-' + label.split(' ').join('') + '">' +
+    //            '<option>Yes</option>' +
+    //            '<option>No</option>' +
+    //            '</select>' +
+    //            '</div>' +
+    //            '</div>';
+    //    }
+    //    //if (clearfix % 2 == 0)
+    //    //    htmlString = htmlString + '<div class="clearfix"></div>';
+    //    clearfix++;
+    //}
+
+    //function generateDynamicHeadcountFrontPage(label, idMonthly, idDaily, idOutsource, valMonthly, valDaily, valOutsource) {
+    //    htmlString = htmlString +
+    //        '<label class="label-group">' + label + '</label>' +
+    //        '<div class="row">' +
+    //        '<div class="col-md-4">' +
+    //        '<div class="form-group">' +
+    //        '<label>Monthly</label>' +
+    //        '<input type="number" id="' + idMonthly + '-' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valMonthly + '">' +
+    //        '</div>' +
+    //        '</div>' +
+    //        '<div class="col-md-4">' +
+    //        '<div class="form-group">' +
+    //        '<label>Daily</label>' +
+    //        '<input type="number" id="' + idDaily + '-' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valDaily + '">' +
+    //        '</div>' +
+    //        '</div>' +
+    //        '<div class="col-md-4">' +
+    //        '<div class="form-group">' +
+    //        '<label>Outsource</label>' +
+    //        '<input type="number" id="' + idOutsource + '-' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valOutsource + '">' +
+    //        '</div>' +
+    //        '</div>' +
+    //        '</div>';
+    //}
+    ////END   : BAGIAN DYNAMIC FIELD
+    //function checkField(arrayField) {
+    //    var invalid = false;
+    //    for (var i = 0; i < arrayField.length; i++) {
+    //        if ($('#' + arrayField[i] + '').val() == "" || $('#' + arrayField[i] + '').val() == "null") {
+    //            invalid = true;
+    //            $('#' + arrayField[i] + '').addClass("txt-invalid");
+    //        }
+    //        else
+    //            $('#' + arrayField[i] + '').removeClass("txt-invalid");
+    //    }
+    //    return invalid;
+    //}
+
+    function generateDropdownWarehouse(selected) {
+        var select = $('#idnamelocaton');
+        $.ajax({
+            url: 'buildingdetail/GetDropDownWarehouse',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                select.html('<option value="null"></option>').trigger('change');
+                $.each(data, function (key, val) {
+                    var value = val.IDLocation + '-' + val.LocationName;
+                    if (value == selected)
+                        select.append('<option value="' + val.IDLocation + '-' + val.LocationName + '" selected="selected">' + val.IDLocation + ' - ' + val.LocationName + '</option>');
+                    else
+                        select.append('<option value="' + val.IDLocation + '-' + val.LocationName + '">' + val.IDLocation + ' - ' + val.LocationName + '</option>');
+                });
+            },
+            error: function () {
+                select.html('<option value="null">none available</option>');
+            }
+        });
+    }
+
+    function loadDynamicField(idbuilding) {
+        $.ajax({
+            url: 'buildingdetail/GetBuildingFacilityDetail',
+            dataType: 'JSON',
+            data: { id: idbuilding },
+            cache: false,
+            success: function (data) {
+                var tempHeadcount = "";
+                var tempidDaily = "";
+                var tempidMonthly = "";
+                var tempidOutsource = "";
+                var tempvalueDaily = "";
+                var tempvalueMonthly = "";
+                var tempvalueOutsource = "";
+                var headcount = "";
+                var count = 0;//digunakan untuk generate headcount
+                for (var i = 0; i < data.length; i++) {
+                    var detail = data[i];
+                    var dynamic = detail["MasterDynamicField"];
+                    if (dynamic["GroupCollapse"] == "General") {
+                        htmlString = '';
+                        generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"],"General");
+                        $("#GenerateGeneral").append(htmlString);
+                        if((detail["Value"] > 0 && (dynamic["FieldType"] == "Number" || dynamic["FieldType"] == "TextInput")) || dynamic["FieldType"] == "Date" || dynamic["FieldType"] == "ComboBox")
+                            listGeneratedGeneral.push(dynamic["IDDynamicField"]);
+                    }
+                    if (dynamic["GroupCollapse"] == "Asset") {
+                        htmlString = '';
+                        generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"],"Asset");
+                        $("#GenerateAsset").append(htmlString);
+                        if((detail["Value"] > 0 && (dynamic["FieldType"] == "Number" || dynamic["FieldType"] == "TextInput")) || dynamic["FieldType"] == "Date" || dynamic["FieldType"] == "ComboBox")
+                            listGeneratedAsset.push(dynamic["IDDynamicField"]);
+                    }
+                    if (dynamic["GroupCollapse"] == "Equipment") {
+                        htmlString = '';
+                        generateDynamicFrontPage(dynamic["FieldName"], dynamic["IDDynamicField"], dynamic["FieldType"], detail["Value"],"Equipment");
+                        $("#GenerateEquipment").append(htmlString);
+                        if((detail["Value"] > 0 && (dynamic["FieldType"] == "Number" || dynamic["FieldType"] == "TextInput")) || dynamic["FieldType"] == "Date" || dynamic["FieldType"] == "ComboBox")
+                            listGeneratedEquipment.push(dynamic["IDDynamicField"]);
+                    }
+                    if (dynamic["GroupCollapse"] == "Headcount") {
+                        if (dynamic["FieldName"].indexOf("MONTHLY") >= 0) {
+                            tempHeadcount = dynamic["FieldName"].replace(/ MONTHLY/g, "");
+                            tempidMonthly = dynamic["IDDynamicField"];
+                            tempvalueMonthly = detail["Value"];
+                        }
+                        if (dynamic["FieldName"].indexOf("DAILY") >= 0) {
+                            tempHeadcount = dynamic["FieldName"].replace(/ DAILY/g, "");
+                            tempidDaily = dynamic["IDDynamicField"];
+                            tempvalueDaily = detail["Value"];
+                        }
+                        if (dynamic["FieldName"].indexOf("OUTSOURCE") >= 0) {
+                            tempHeadcount = dynamic["FieldName"].replace(/ OUTSOURCE/g, "");
+                            tempidOutsource = dynamic["IDDynamicField"];
+                            tempvalueOutsource = detail["Value"];
+                        }
+                        count++;
+                        if (count > 0 && count % 3 == 0) {
+                            htmlString = '';
+                            headcount = tempHeadcount;
+                            generateDynamicHeadcountFrontPage(headcount, tempidMonthly, tempidDaily, tempidOutsource, tempvalueMonthly, tempvalueDaily, tempvalueOutsource);
+                            $("#GenerateHeadcount").append(htmlString);
+                            if ((tempvalueMonthly > 0 || tempvalueMonthly != null) && (tempvalueDaily > 0 || tempvalueDaily != null) && (tempvalueOutsource > 0 || tempvalueDaily != null)) {
+                                listGeneratedHeadcount.push(tempidMonthly);
+                                listGeneratedHeadcount.push(tempidDaily);
+                                listGeneratedHeadcount.push(tempidOutsource);
+                            }
+                            //if(tempvalueMonthly >= 0 || tempvalueMonthly == null)
+                            //    listGeneratedHeadcount.push(tempidMonthly);
+                            //if(tempvalueDaily >= 0 || tempvalueMonthly == null)
+                            //    listGeneratedHeadcount.push(tempidDaily);
+                            //if(tempvalueOutsource >= 0 || tempvalueMonthly == null)
+                            //    listGeneratedHeadcount.push(tempidOutsource);
+                        }
+                    }
+                }
+            },
+            complete: function () {
+                disabledDynamicField();
+            }
+        });
+    }
+
+    function gup(name) {
+        var url = window.location.href;
+        if (!url) url = location.href;
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(url);
+        return results == null ? null : results[1];
+    }
+
+    function save() {
+        var mandatory = ["idnamelocaton"];//id field yang mandatory
+        if (!checkField(mandatory)) {
+            var statusWarehouse = $("#statusWarehouse").val();
+            var longitude = $("#longitude").val();
+            var latitude = $("#latitude").val();
+            var warehouseAddress = $("#addressh").val();
+            var doubleStack;
+            if ($("#doubleStack").prop('checked'))
+                doubleStack = true;
+            else
+                doubleStack = false;
+            var split = $("#idnamelocaton").val().split('-');
+            var tempWareName = "";
+            for (var k = 1; k < split.length; k++) {
+                if(tempWareName == "")
+                    tempWareName = split[k];
+                else
+                    tempWareName = tempWareName + "-" + split[k];
+            }
+            var warehouseName = tempWareName;
+            var warehouseid = gup('b');
+            var idInsert;
+
+            if (warehouseid == null) {
+                idInsert = 0;
+                warehouseid = split[0];
+            }
+            if (idBuildingFacility > 0)
+                idInsert = idBuildingFacility;
+
+            var listDetail = [];
+            $("#GenerateGeneral input").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "General";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateGeneral select").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "General";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateAsset input").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Asset";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateAsset select").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Asset";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateEquipment input").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Equipment";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateEquipment select").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Equipment";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateHeadcount input").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Headcount";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+            $("#GenerateHeadcount select").each(function () {
+                var temp = new Object();
+                var tempdynamic = new Object();
+                var id = $(this).attr('id');
+                var split = id.split(',');
+                var val = $(this).val();
+                temp.IDDynamicField = split[0];
+                temp.Value = val;
+                tempdynamic.GroupCollapse = "Headcount";
+                temp.MasterDynamicField = tempdynamic;
+                listDetail.push(temp);
+            });
+
+            $.ajax({
+                url: 'buildingdetail/saveDatadetail',
+                method: 'post',
+                dataType: 'json',
+                cache: false,
+                data: {
+                    'warehouseid': warehouseid,
+                    'statusWarehouse': statusWarehouse,
+                    'longitude': longitude,
+                    'latitude': latitude,
+                    'warehouseAddress': warehouseAddress,
+                    'warehouseName': warehouseName,
+                    'doublestack': doubleStack,
+                    idBuildingFacility: idInsert,
+                    detail: listDetail
+                },
+                success: function (respond) {
+                    if (respond == 0) {
+                        $("#textModalWarning").html("");
+                        //$("#textModalWarning").append("There is already data in database");
+                        $("#textModalWarning").append("Data is already deleted ! please contact superuser to recovery this data");
+                        $('#warningModal').modal('show');
+                    }
+                    else {
+                        disabledField();
+                        disabledDynamicField();
+                        $('#modalsuccess').modal('show');
+                        $("#btnSave").attr('disabled', 'disabled');
+                        $("#btnEdit").removeAttr('disabled');
+                    }
+                }
+            });
+        }
+    }
+
+    $("#btnEdit").click(function () {
+        $("#btnEdit").attr('disabled', 'disabled');
+        $("#btnSave").removeAttr('disabled');
+        enabledField();
+        enabledDynamicField();
+        $("#idnamelocaton").attr('disabled', 'disabled');//warehouse id tetap disabled
+    });
+
+    function disabledField() {
+        $("#idnamelocaton").attr('disabled', 'disabled');
+        $("#statusWarehouse").attr('disabled', 'disabled');
+        $("#addressh").attr('disabled', 'disabled');
+        $("#TabGeneral").attr('disabled', 'disabled');
+        $("#TabAsset").attr('disabled', 'disabled');
+        $("#TabEquipment").attr('disabled', 'disabled');
+        $("#TabHeadcount").attr('disabled', 'disabled');
+        $("#doubleStack").attr('disabled', 'disabled');
+        $("#pic1").attr('disabled','disabled');
+        $("#pic2").attr('disabled','disabled');
+        $("#pic3").attr('disabled','disabled');
+        $("#btnUploadPic").attr('disabled', 'disabled');
+        $("#latitude").attr('disabled', 'disabled');
+        $("#longitude").attr('disabled', 'disabled');
+        $("#btnRemovcePic1").addClass('remove-not-active');
+        $("#btnRemovcePic2").addClass('remove-not-active');
+        $("#btnRemovcePic3").addClass('remove-not-active');
+        //$("#btnEdit").attr('disabled', 'disabled');
+        //$("#btnSave").attr('disabled', 'disabled');
+    }
+
+    function disabledDynamicField() {
+        $("#GenerateGeneral input").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateGeneral select").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateAsset input").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateAsset select").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateEquipment input").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateEquipment select").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateHeadcount input").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+        $("#GenerateHeadcount select").each(function () {
+            $(this).attr('disabled', 'disabled');
+        });
+    }
+
+    function enabledField() {
+        $("#idnamelocaton").removeAttr('disabled');
+        $("#statusWarehouse").removeAttr('disabled');
+        $("#addressh").removeAttr('disabled');
+        $("#TabGeneral").removeAttr('disabled');
+        $("#TabAsset").removeAttr('disabled');
+        $("#TabEquipment").removeAttr('disabled');
+        $("#TabHeadcount").removeAttr('disabled');
+        $("#doubleStack").removeAttr('disabled');
+        $("#pic1").removeAttr('disabled');
+        $("#pic2").removeAttr('disabled');
+        $("#pic3").removeAttr('disabled');
+        $("#btnUploadPic").removeAttr('disabled');
+        $("#latitude").removeAttr('disabled');
+        $("#longitude").removeAttr('disabled');
+        $("#btnRemovcePic1").removeClass('remove-not-active');
+        $("#btnRemovcePic2").removeClass('remove-not-active');
+        $("#btnRemovcePic3").removeClass('remove-not-active');
+        //$("#btnEdit").removeAttr('disabled');
+        //$("#btnSave").removeAttr('disabled');
+    }
+
+    function enabledDynamicField() {
+        $("#GenerateGeneral input").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateGeneral select").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateAsset input").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateAsset select").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateEquipment input").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateEquipment select").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateHeadcount input").each(function () {
+            $(this).removeAttr('disabled');
+        });
+        $("#GenerateHeadcount select").each(function () {
+            $(this).removeAttr('disabled');
+        });
+    }
+
+    //START : BAGIAN DYNAMIC FIELD
+
+    $("#TabGeneral").click(function () {
+        tab = "General";
+        $("#GeneratedDropDown").html('');
+        masterDynamicField = new Array();
+        getDynamicFieldDropDown(tab, listGeneratedGeneral);
+    });
+    $("#TabAsset").click(function () {
+        tab = "Asset";
+        $("#GeneratedDropDown").html('');
+        masterDynamicField = new Array();
+        getDynamicFieldDropDown(tab, listGeneratedAsset);
+    });
+    $("#TabEquipment").click(function () {
+        tab = "Equipment";
+        $("#GeneratedDropDown").html('');
+        masterDynamicField = new Array();
+        getDynamicFieldDropDown(tab, listGeneratedEquipment);
+    });
+    $("#TabHeadcount").click(function () {
+        tab = "Headcount";
+        $("#GeneratedDropDown").html('');
+        masterDynamicField = new Array();
+        getDynamicFieldDropDown(tab, listGeneratedHeadcount);
+    });
+
+    $("#AddDropDownDynamic").click(function () {
+        //console.log('list length' + masterDynamicField.length);
+        if (masterDynamicField.length > 0) {
+            generateOption();
+        } else {
+            if (tab == "General")
+                getDynamicFieldDropDown(tab, listGeneratedGeneral);
+            else if (tab == "Asset")
+                getDynamicFieldDropDown(tab, listGeneratedAsset);
+            else if (tab == "Equipment")
+                getDynamicFieldDropDown(tab, listGeneratedEquipment);
+            else if (tab == "Headcount")
+                getDynamicFieldDropDown(tab, listGeneratedHeadcount);
+        }
+    });
+
+    function getDynamicFieldDropDown(grp, list) {
+        //console.log(list);
+        $.ajax({
+            url: 'buildingdetail/GetMasterDynamicFieldByGroupListFieldName',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                group: grp,
+                fieldName: list
+            },
+            success: function (respond) {
+                masterDynamicField = respond;
+            },
+            complete: function () {
+                generateOption();
+            }
+        });
+    }
+
+    function generateOption() {
+        //console.log('generateOption');
+        htmlStringOption = '';
+        if (tab == "Headcount") {
+            var tempHeadcount = "";
+            var headcount = "";
+            var idMonthly = "";
+            var idDaily = "";
+            var idOutsource = "";
+            var count = 1;
+            for (var i = 0; i < masterDynamicField.length; i++) {
+                if (masterDynamicField[i]["FieldName"].indexOf("MONTHLY") >= 0) {
+                    tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ MONTHLY/g, "");
+                    idMonthly = masterDynamicField[i]["IDDynamicField"];
+                }
+                if (masterDynamicField[i]["FieldName"].indexOf("DAILY") >= 0) {
+                    tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ DAILY/g, "");
+                    idDaily = masterDynamicField[i]["IDDynamicField"];
+                }
+                if (masterDynamicField[i]["FieldName"].indexOf("OUTSOURCE") >= 0) {
+                    tempHeadcount = masterDynamicField[i]["FieldName"].replace(/ OUTSOURCE/g, "");
+                    idOutsource = masterDynamicField[i]["IDDynamicField"];
+                }
+                //if (i > 2 && headcount != tempHeadcount) { //i > 2 supaya id daily, sama id  outsource masuk, kalau tidak ada, maka yang masuk cuma id monthly untuk data pertama
+                if (count % 3 == 0) {
+                    //console.log('idmonthly: ' + idMonthly);
+                    //console.log('idDaily: ' + idDaily);
+                    //console.log('idOutsource: ' + idOutsource);
+                    headcount = tempHeadcount;
+                    htmlStringOption = htmlStringOption + '<option value="' + idMonthly + ',' + idDaily + ',' + idOutsource + ',' + tempHeadcount + '">' + tempHeadcount + '</option>';
+                }
+                count++;
+                //htmlStringOption = htmlStringOption + '<option value="' + masterDynamicField[i]["IDDynamicField"] + '-' + masterDynamicField[i]["FieldName"] + '-' + masterDynamicField[i]["FieldType"] + '">' + masterDynamicField[i]["FieldName"] + '</option>';
+            }
+        }
+        else {
+            htmlStringOption = htmlStringOption + '<option></option>';
+            for (var j = 0; j < masterDynamicField.length; j++) {
+                //console.log(masterDynamicField);
+                htmlStringOption = htmlStringOption + '<option value="' + masterDynamicField[j]["IDDynamicField"] + ',' + masterDynamicField[j]["FieldName"] + ',' + masterDynamicField[j]["FieldType"] + '">' + masterDynamicField[j]["FieldName"] + '</option>';
+            }
+        }
+        generateSelect();
+    }
+
+    function generateSelect() {
+        if (tab == "Headcount") {
+            htmlStringGenerateDropDown = '<div class="form-group add-field">' +
+                '<div class="row">' +
+                '<div class="col-md-5">' +
+                '<label>Field Name</label>' +
+                '<select class="form-control field-opt">' +
+                htmlStringOption +
+                '</select>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label>Monthly</label>' +
+                '<input id="Monthly" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label>Daily</label>' +
+                '<input id="Daily" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label>Outsource</label>' +
+                '<input id="Outsource" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+        else {
+            htmlStringGenerateDropDown = '<div class="form-group add-field">' +
+                '<div class="row">' +
+                '<div class="col-md-6">' +
+                '<label>Field Name</label>' +
+                '<select class="form-control field-opt" onchange=generateTextValue(this,this.value)>' +
+                htmlStringOption +
+                '</select>' +
+                '</div>' +
+                '<div class="col-md-4">' +
+                //'<label>Value</label>' +
+                //'<input type="number" name="" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+        $("#GeneratedDropDown").append(htmlStringGenerateDropDown);
+    }
+
+    function generateTextValue(option, value) {
+        //console.log(option);
+        var html = option.parentNode.nextSibling;
+        //console.log(html);
+        var split = value.split(',');
+        var appendHtml = '';
+        html.innerHTML = "";
+        if (split[2] == "Number") {
+            appendHtml = '<label>Value</label>' +
+                '<input type="number" name="" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57">';
+        }
+        else if (split[2] == "Date") {
+            appendHtml = '<label>Value</label><input type="text" class="form-control datepicker">';
+        }
+        else if (split[2] == "TextInput") {
+            appendHtml = '<label>Value</label><input type="text" class="form-control">';
+        }
+        else if (split[2] == "ComboBox") {
+            appendHtml = '<label>Value</label><select class="form-control">' +
+                         '<option>Yes</option>' +
+                         '<option>No</option>' +
+                         '</select>';
+        }
+        html.innerHTML = appendHtml;
+        //console.log(value);
+    }
+
+    $("#BtnGenerateDynamicField").click(function () {
+        $("#GeneratedDropDown select").each(function () {
+            //console.log($(this));
+            var id = $(this).val();
+            var split = id.split(',');
+            var idDynamic = split[0];
+            var fieldName = split[1];
+            var fieldType = split[2];
+            var txtValue = $(this).parent().next().find('input');
+            //console.log(id);
+            //console.log(idDynamic);
+            //console.log(fieldName);
+            //console.log(fieldType);
+            //console.log($(this).parent().next());
+            //console.log(txtValue.val());
+            if (tab == "General") {
+                htmlString = '';
+                if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number") || fieldType == "ComboBox") {
+                    if ($.inArray(idDynamic, listGeneratedGeneral) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+                        generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val(),"General");
+                        listGeneratedGeneral.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+                    }
+                    $("#GenerateGeneral").append(htmlString);
+                }
+            }
+            if (tab == "Asset") {
+                //console.log('masuk tab asset');
+                //console.log(txtValue.val());
+                if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number") || fieldType == "ComboBox") {
+                    //console.log('masuk if asset');
+                    //console.log(listGeneratedAsset);
+                    //console.log(idDynamic);
+                    htmlString = '';
+                    if ($.inArray(idDynamic, listGeneratedAsset) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+                        if (fieldType == "ComboBox") {
+                            txtValue = $(this).parent().next().find('select');
+                        }
+                        generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val(),"Asset");
+                        listGeneratedAsset.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+                    }
+                    $("#GenerateAsset").append(htmlString);
+                }
+            }
+            if (tab == "Equipment") {
+                if (txtValue.val() != null && txtValue.val() != "" || (txtValue.val() > 0 && fieldType == "Number")) {
+                    htmlString = '';
+                    if ($.inArray(idDynamic, listGeneratedEquipment) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+                        generateDynamicFrontPage(fieldName, idDynamic, fieldType, txtValue.val(),"Equipment");
+                        listGeneratedEquipment.push(idDynamic);//id di masukkan dalam list(artinya id tersebut akan di generate)
+                    }
+                    $("#GenerateEquipment").append(htmlString);
+                }
+            }
+
+            if (tab == "Headcount") {
+                var idMonthly = split[0];
+                var idDaily = split[1];
+                var idOutsource = split[2];
+                var label = split[3];
+                var valMonthly;
+                var valDaily;
+                var valOutsource;
+                htmlString = '';
+                if ($.inArray(idMonthly, listGeneratedHeadcount) == -1) {//cek apakah id yang mau digenerate sudah ada di dalam list(mau di generate) atau tidak
+                    valMonthly = txtValue.val();
+                    valDaily = $(this).parent().next().next().find('input').val();
+                    valOutsource = $(this).parent().next().next().next().find('input').val();
+                    generateDynamicHeadcountFrontPage(label, idMonthly, idDaily, idOutsource, valMonthly, valDaily, valOutsource);
+                    if ((idMonthly > 0 || idMonthly != null) && (idDaily > 0 || idDaily != null) && (idOutsource > 0 || idOutsource != null)) {
+                        listGeneratedHeadcount.push(idMonthly);//id di masukkan dalam list(artinya id tersebut akan di generate)
+                        listGeneratedHeadcount.push(idDaily);
+                        listGeneratedHeadcount.push(idOutsource);
+                    }
+                }
+                $("#GenerateHeadcount").append(htmlString);
+            }
+
+            $('#addfield').modal('hide');
+        });
+    });
+
+    function generateDynamicFrontPage(label, id, fieldType, value, Group) {
+        if (fieldType == "TextInput") {
+            if(value != 0){
+                htmlString = htmlString +
+            '<div class="col-md-6">' +
+            '<div class="form-group">' +
+            '<label>' + label + '</label>' +
+            '<input type="text" id="' + id + ',' + label.split(' ').join('') + '" class="form-control" value="' + value + '">' +//tambah label supaya idnya unik
+            '</div>' +
+            '</div>';
+            }
+        }   
+        else if (fieldType == "Number") {
+            if(value !=0){
+                htmlString = htmlString +
+              '<div class="col-md-6">' +
+              '<div class="form-group">' +
+              '<label>' + label + '</label>' +
+              '<input type="number" id="' + id + ',' + label.split(' ').join('') + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + value + '"/>' +
+              '</div>' +
+              '</div>';
+            }
+        }
+        else if (fieldType == "Date") {
+            htmlString = htmlString +
+                '<div class="col-md-6">' +
+                '<div class="form-group">' +
+                '<label>' + label + '</label>' +
+                '<input type="text" id="' + id + ',' + label.split(' ').join('') + '" class="form-control datepicker" value="' + value + '">' +
+                '</div>' +
+                '</div>';
+            if (clearfixGeneral % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixAsset % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixEquipment % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+        }
+        else if (fieldType == "ComboMultiple") {
+            htmlString = htmlString +
+                '<div class="col-md-6">' +
+                '<div class="form-group">' +
+                '<label>' + label + '</label>' +
+                '<select class="combo-select" multiple="multiple" id = "' + id + ',' + label.split(' ').join('') + '"></select>' +
+                '</div>' +
+                '</div>';
+            if (clearfixGeneral % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixAsset % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixEquipment % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+        }
+        else if (fieldType == "ComboBox") {
+            htmlString = htmlString +
+                '<div class="col-md-6">' +
+                '<div class="form-group">' +
+                '<label>' + label + '</label>' +
+                '<select class="form-control" id = "' + id + ',' + label.split(' ').join('') + '">' +
+                '<option>Yes</option>' +
+                '<option>No</option>' +
+                '</select>' +
+                '</div>' +
+                '</div>';
+            if (clearfixGeneral % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixAsset % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+            if (clearfixEquipment % 2 == 0)
+                htmlString = htmlString + '<div class="clearfix"></div>';
+        }
+        //if (clearfix % 2 == 0)
+        //    htmlString = htmlString + '<div class="clearfix"></div>';
+        if(Group == "General")
+            clearfixGeneral++;
+        else if(Group == "Asset")
+            clearfixAsset++;
+        else if(Group == "Equipment")
+            clearfixEquipment++;
+    }
+
+    function generateDynamicHeadcountFrontPage(label, idMonthly, idDaily, idOutsource, valMonthly, valDaily, valOutsource) {
+        if(valMonthly == 0){
+            valMonthly = null;
+        }
+        if(valDaily == 0){
+            valDaily = null;
+        }
+        if(valOutsource == 0){
+            valOutsource = null;
+        }
+        if(valMonthly > 0 || valDaily > 0 || valOutsource > 0){
+            htmlString = htmlString +
+            '<label class="label-group">' + label + '</label>' +
+            '<div class="row">' +
+            '<div class="col-md-4">' +
+            '<div class="form-group">' +
+            '<label>Monthly</label>' +
+            '<input type="number" id="' + idMonthly + ',' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valMonthly + '">' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-4">' +
+            '<div class="form-group">' +
+            '<label>Daily</label>' +
+            '<input type="number" id="' + idDaily + ',' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valDaily + '">' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-4">' +
+            '<div class="form-group">' +
+            '<label>Outsource</label>' +
+            '<input type="number" id="' + idOutsource + ',' + label + '" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' + valOutsource + '">' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+        }
+    }
+    //END   : BAGIAN DYNAMIC FIELD
+    function checkField(arrayField) {
+        var invalid = false;
+        for (var i = 0; i < arrayField.length; i++) {
+            if ($('#' + arrayField[i] + '').val() == "" || $('#' + arrayField[i] + '').val() == "null") {
+                invalid = true;
+                $('#' + arrayField[i] + '').addClass("txt-invalid");
+            }
+            else
+                $('#' + arrayField[i] + '').removeClass("txt-invalid");
+        }
+        return invalid;
+    }
+
+    $('body').on('focus', ".datepicker", function () {
+        $(this).datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+    });
+
+    function initMap() {
+        getData();
+    }
+
+    function upload() {
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+        $('#notificationModal').modal('show');
+
+        try {
+            var fileInput = document.getElementById('pic1');
+            if (fileInput != null) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', "BuildingDetail/Upload");
+                xhr.setRequestHeader('Content-type', 'multipart/form-data');
+                xhr.setRequestHeader('X-File-Name', fileInput.files[0].name);
+                xhr.setRequestHeader('X-File-Type', fileInput.files[0].type);
+                xhr.setRequestHeader('X-File-Size', fileInput.files[0].size);
+
+                xhr.setRequestHeader('X-Building', gup('b'));
+                xhr.setRequestHeader('X-Pic', 1);
+
+                xhr.send(fileInput.files[0]);
+                counterUpload++;
+                xhr.addEventListener("load", complateUpload);
+            }
+        } catch (e) {
+
+        }
+        try {
+            var fileInput2 = document.getElementById('pic2');
+            if (fileInput2 != null) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', "BuildingDetail/Upload");
+                xhr.setRequestHeader('Content-type', 'multipart/form-data');
+                xhr.setRequestHeader('X-File-Name', fileInput2.files[0].name);
+                xhr.setRequestHeader('X-File-Type', fileInput2.files[0].type);
+                xhr.setRequestHeader('X-File-Size', fileInput2.files[0].size);
+                xhr.setRequestHeader('X-Building', gup('b'));
+                xhr.setRequestHeader('X-Pic', 2);
+                xhr.send(fileInput2.files[0]);
+                counterUpload++;
+                xhr.addEventListener("load", complateUpload);
+            }
+        } catch (e) {
+
+        }
+        try {
+            var fileInput3 = document.getElementById('pic3');
+            if (fileInput3 != null) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', "BuildingDetail/Upload");
+                xhr.setRequestHeader('Content-type', 'multipart/form-data');
+                xhr.setRequestHeader('X-File-Name', fileInput3.files[0].name);
+                xhr.setRequestHeader('X-File-Type', fileInput3.files[0].type);
+                xhr.setRequestHeader('X-File-Size', fileInput3.files[0].size);
+                xhr.setRequestHeader('X-Building', gup('b'));
+                xhr.setRequestHeader('X-Pic', 3);
+                xhr.send(fileInput3.files[0]);
+                counterUpload++;
+                xhr.addEventListener("load", complateUpload);
+            }
+        } catch (e) {
+
+        }
+
+        //location.reload();
+    }
+
+    function complateUpload() {
+        counterUploadSuccess++;
+        //console.log((counterUpload * 1).toString() + " " + (counterUploadSuccess * 1));
+        //console.log((counterUpload * 1).toString() == (counterUploadSuccess * 1).toString());
+        if ((counterUpload * 1) == (counterUploadSuccess * 1)) {
+            //console.log(counterUploadSuccess + " " + counterUploadSuccess);
+            $('#notificationModal .modal-body').html('<img src="../assets/images/checked.png" alt=""><span> Your Upload successfully saved.</span>');
+            $('#notificationModal .modal-footer').html('<button class="btn btn-primary" data-dismiss="modal" >OK</button>');
+            $('#notificationModal').modal('show');
+            location.reload();
+        }
+    }
+
+    function removeFileInput(seq) {
+        //$("#pic" + seq).val("");
+        this.seq = seq;
+        $("#infoModal").modal('show');
+    }
+
+    function deletPicture() {
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, deleting in progress.</span>');
+        $('#notificationModal').modal('show');
+
+        $.ajax({
+            url: 'buildingdetail/deleteImage',
+            method: 'post',
+            dataType: 'json',
+            data: { 'warehouseid': gup('b'), 'pic': seq },
+            cache: false,
+            success: function (respond) {
+                $('#notificationModal').modal('hide');
+                if (respond == 0) {
+                    $("#textModalWarning").html("");
+                    $("#textModalWarning").append("Something error");
+                    $('#warningModal').modal('show');
+                }
+                else {
+                    //ActiveElement.find('.bg-image').css('background-image', 'url("assets/images/noimagefull.jpg")');
+                    $("#pic" + seq + "s").css('background-image', 'url("assets/images/noimagefull.jpg")');
+
+                    $('#modalsuccess').modal('show');
+                    $("#pic" + seq).val("");
+                    $("#pic" + seq).jfilestyle('clear');
+                }
+            }
+        });
+    }
+
+    function deletePicture() {
+        //ActiveElement.find('.bg-image').css('background-image', 'url("assets/images/no-image.jpg")');
+
+        //$.ajax({
+        //    url: 'buildingdetail/deleteImage',
+        //    method: 'post',
+        //    dataType: 'json',
+        //    data: { 'warehouseid': gup('b'), 'pic': seq },
+        //    cache: false,
+        //    success: function (respond) {
+        //        $('#notificationModal').modal('hide');
+        //        if (respond == 0) {
+        //            $("#textModalWarning").html("");
+        //            $("#textModalWarning").append("Something error");
+        //            $('#warningModal').modal('show');
+        //        }
+        //        else {
+        //            //ActiveElement.find('.bg-image').css('background-image', 'url("assets/images/noimagefull.jpg")');
+        //            $("#pic" + seq + "s").css('background-image', 'url("assets/images/noimagefull.jpg")');
+
+        //            $('#modalsuccess').modal('show');
+        //            $("#pic" + seq).val("");
+        //            $("#pic" + seq).jfilestyle('clear');
+        //        }
+        //    }
+        //});
+
+    }
+    // BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        //console.log(param1, param2);
+        var disabled = true;
+        for (var j = 0; j < listUserRole.length; j++) {
+            if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+                disabled = false;
+            } else {
+                if (param2 != null) { //begin : untuk page yg memiliki lokasi
+                    for (var i = 0; i < listLocation.length; i++) {
+                        if (listLocation[i] != param2) continue;
+                        disabled = false;
+                        /**
+                        khusus building hanya pengecekan lokasi tanpe createddate
+                        if (closingPageDate < param1) {
+                            valid = true;
+                        } else {
+                            valid = false;
+                        }*/
+                    }
+                    //end : untuk page yg memiliki lokasi    
+                } 
+                //else {
+                //    if (closingPageDate < param1) {
+                //        valid = true;
+                //    } else {
+                //        valid = false;
+                //    }
+                //}
+            }
+        }
+        $("#btnEdit").prop("disabled", disabled);
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3RzFUX0j0_JzVRqlbzyN4_Y-dXFm4Dd8&callback=initMap" async defer></script>

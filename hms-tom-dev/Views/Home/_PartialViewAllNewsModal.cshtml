@@ -1,0 +1,139 @@
+﻿<!-- modal all news -->
+<div class="modal fade" id="allNewsModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">All News</h4>
+            </div>
+            <div class="modal-body">
+                <table id="dtFilter" class="display table dataTable" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Submitted by</th>
+                            <th hidden="">Created Date</th>
+                        </tr>
+                    </thead>
+                    <thead class="filters">
+                        <tr class="filter-row">
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Submitted by</th>
+                            <th hidden="">Created Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    @*jQuery(function ($) {
+        generateTable(2);
+
+        $(document).on('click', '.preview-attachment', function (e) {
+            var imgSrc = $(this).attr('href');
+            bootbox.dialog({
+                message: "<div style='background: url(\"" + imgSrc + "\") no-repeat center center; background-size: contain; width: 100%; height: 512px;'></div>"
+            });
+            e.preventDefault();
+        });
+
+        $(document).on('click', '.update-seen', function (e) {
+            var IDNewsHighlight = $(this).data('id');
+            
+            $.ajax({
+                url: '@Url.Action("MstApprovalNewsUpdateSeen")',
+                method: 'post',
+                data: {
+                    "IDNewsHighlight": IDNewsHighlight
+                },
+                dataType: 'json',
+                cache: false,
+                success: function (json) {
+                    console.log(json);
+                }
+            });
+        });
+    });*@
+
+    @*function generateTable(status) {
+        $.ajax({
+            url: '@Url.Action("MstApprovalNewsGetMasterApprovalNews")',
+            method: 'get',
+            data: {
+                "status": status
+            },
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtFilter').DataTable({
+                    data: json,
+                    destroy: true,
+                    cache: false,
+                    paging: true,
+                    sort: true,
+                    searching: true,
+                    order: [[ 3, "desc" ]],
+                    iDisplayLength: 25,
+                    columns: [
+                        {
+                            'data': 'Image', 'searchable': false, "orderable": false, "render": function (data, type, row, meta) {
+                                var output = "<a href='assets/images/no-image-available.png' data-title='No Image Available' class='preview-attachment' style='padding: 0 10px; display: block;'>";
+                                output += "<div style='background: url(\"assets/images/no-image-available.png\") no-repeat center center; background-size: contain; width: 100%; height: 64px;'></div>";
+                                output += "</a>";
+                                if (row["NamaImage"] != "") {
+                                    output = "<a href='" + row["LinkImage"] + "' data-title='" + row["Title"] + "' class='preview-attachment' style='padding: 0 10px; display: block;'>";
+                                    output += "<div id='" + row["IDNewsHighlight"] + "' style='background: url(\"" + row["LinkImage"] + "\") no-repeat center center; background-size: contain; width: 100%; height: 64px;'></div>";
+                                    output += "</a>";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'Title', 'searchable': true, "render": function (data, type, row, meta) {
+                                return (row["NamaFile"] != "") ? '<a href="' + row["LinkFile"] + '" data-id="' + row["IDNewsHighlight"] + '" target="_blank" class="update-seen">' + data + '</a>' : data;
+                            }
+                        },
+                        {
+                            'data': 'CreatedDate', 'searchable': true, "render": function (data, type, row, meta) {
+                                return row['CreatedBy'] + ' on ' + moment(row['CreatedDate']).format("DD-MMM-YYYY HH:mm");
+                            }
+                        },
+                        { 'data': 'CreatedDate', "visible": false }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                // Setup - add a text input to each footer cell
+                $('#dtFilter thead.filters th').each(function (index) {
+                    var emptyCol = new Array(0, 3);
+                    if (emptyCol.indexOf(index) != -1) {
+                        jQuery(this).empty();
+                    } else {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        jQuery(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }*@
+</script>

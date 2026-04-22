@@ -1,0 +1,407 @@
+.landing{
+	background-color: $graybg;
+	position: relative;
+	border-top: 3px solid $blue;
+	&:before, &:after{
+		content: "";
+		height: 3px;
+		width: 33.333%;
+		position: absolute;
+		top: -3px;
+	}
+	&:before{
+		left: 0;
+		background-color: $green;
+	}
+	&:after{
+		right: 0;
+		background-color: $orange;
+	}
+	.row{
+		margin-left: -10px;
+		margin-right: -10px;
+	}
+	.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, 
+	.col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, 
+	.col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, 
+	.col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, 
+	.col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, 
+	.col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12{
+		padding-left: 10px;
+		padding-right: 10px; 
+	}
+	.landing-head{
+		float: left;
+		width: 100%;
+		margin: 40px 0;
+		@media screen and (max-width: 767px){					
+			margin: 25px 0;
+		}
+		.logo-wrap{
+			margin-top: 7px;
+			img.logo{
+				float: left;
+			}
+			h5{
+				opacity: 0.6;
+				font-size: 13px;
+				text-transform: uppercase;
+				font-family: $b;
+				padding: 0px 0 0 115px;
+				margin: 0 0 5px 0;
+			}
+			h4{
+				margin: 0;
+				font-size: 18px;
+				padding: 0 0 0 115px;
+			}
+		}
+		.navbar-nav{
+			margin-top: 8px;
+			li{
+				min-height: 40px;
+				border-left: 1px solid rgba(128, 142, 167, 0.15);
+				@media screen and (max-width: 767px){
+					float: left;
+				}
+				a{
+					color: $second;
+					padding: 9px 20px;
+					&:hover{
+						background: transparent;
+					}
+				}
+			}
+			li:nth-child(3){
+				a{
+					padding: 5px 20px;
+					@media screen and (max-width: 767px){					
+						padding: 9px 20px;
+					}
+					span{ 
+						margin-right: 10px;
+					}
+					img{
+						@media screen and (max-width: 767px){
+							display: none;
+						}
+					}
+				}
+			}
+			ul.dropdown-menu{
+				border-color: transparent;
+				padding: 0;
+				left: auto;
+				right: 0;
+				top: 50px;
+				min-width: auto;
+				li{
+					min-height: auto;
+					a{
+						padding: 7px 15px;
+						font-size: 13px;
+						color: $second;
+						&:hover, &:focus{
+							background-color: darken($wt, 5%);
+						}
+					}
+					a.blue, a.red, a.green{
+						&:before{
+							content: "";
+							width: 6px;
+						    height: 6px;
+						    display: inline-block;
+						    margin-right: 6px;
+						    @include border-radius(50%);
+						}
+					}
+					a.blue:before{
+						background-color: $blue;
+					}
+					a.red:before{
+						background-color: $red;
+					}
+					a.green:before{
+						background-color: $green;
+					}
+				}
+				li:first-child{
+					padding: 7px 15px;
+					font-size: 13px;
+					color: $main;
+					background-color: $graybg;
+				}
+				li + li{
+					border-top: 1px solid $border2;
+				}
+			}
+			.nav .open>a, .nav .open>a:hover, .nav .open>a:focus{
+				background-color: transparent;
+			}
+		}
+	}
+
+	.box{
+		padding: 30px 35px;
+		background-color: $wt;
+		background-repeat: no-repeat;
+		background-position: top 30px right 35px;
+		@include border-radius(5px);
+		@include box-shadow(0, 0, 16px, 5px, rgba(76, 88, 106, 0.07));
+		@media screen and (max-width: 1199px){
+			padding: 30px 20px;
+			background-position: top 30px right 20px;
+		}
+		@media screen and (max-width: 991px){
+			margin-bottom: 20px;
+		}
+		h3{
+			font-family: $b;
+			font-size: 24px;
+			margin: 0 0 10px 0;
+		} 
+		ul{
+			padding: 0;
+			margin: 0px;
+			li{
+				list-style: none;
+				a{
+					opacity: 0.6;
+					@include transition(all, 0.3s, ease);
+					color: $main;
+					&:hover{
+						text-decoration: none;
+						opacity: 1;
+					}
+				}
+			}
+			li + li{
+				margin-top: 3px;
+			}
+		}
+		&.lblue{
+			border-top: 4px solid $blue;
+			background-image: url('../images/build.png');
+		}
+		&.orange{
+			border-top: 4px solid $orange;
+			background-image: url('../images/truck.png');
+		}
+		&.green{
+			border-top: 4px solid $green;
+			background-image: url('../images/house.png');
+		}
+		&.dblue{
+			border-top: 4px solid $dblue;
+			background-image: url('../images/time.png');
+    		min-height: 295px;
+			@media screen and (max-width: 991px){
+				min-height: auto;
+			}
+		}
+		&.md{
+			padding: 0px;
+			background-image: url('../images/db.png');
+			a{
+				display: block;
+				padding: 30px 35px;
+				h3{			
+					color: $main;
+					margin: 22px 0;
+					@include transition(all, 0.3s, ease);
+				}
+				&:hover{
+					text-decoration: none;
+					h3{
+						color: $second;
+					}
+				}
+			}
+			
+		}
+		& + .box{
+			margin-top: 20px;
+			@media screen and (max-width: 991px){
+				margin-top: 0px;
+			}
+		}
+	}
+
+	.carousel.vertical{
+		margin-bottom: 20px;
+		@include border-radius(5px);
+		@include box-shadow(0, 0, 16px, 5px, rgba(76, 88, 106, 0.07));
+		.carousel-inner{
+			height: 100%;
+		    background-color: $gray;
+			@include border-radius(5px);
+			.item {
+			    left: 0;
+			    background-color: $gray;
+				@include transition(top, 0.5s, ease-in-out);
+				.item-wrap{
+				    position: relative;
+				    .bg-image{
+				    	position: absolute;
+				    	width: 100%;
+				    	height: 100%;
+				    	top: 0;
+				    	background-size: cover;
+				    	z-index: 1;
+				    }
+				    .bg-gradient{
+				    	position: absolute;
+				    	width: 100%;
+				    	height: 100%;
+				    	top: 0;
+				    	background-size: cover;
+				    	z-index: 2;
+				    }
+				    h5.tags{
+				    	position: absolute;
+				    	text-transform: uppercase;
+				    	z-index: 3;
+				    	left: 35px;
+				    	top: 40px;
+				    	font-size: 14px;
+				    	margin: 0;
+				    	color: $wt;
+				    	padding: 5px 10px;
+				    	background-color: $second;
+				    	@inlude border-radius(5px);
+						@media screen and (max-width: 1199px){
+				    		left: 20px;
+						}
+				    }
+				    h5.views{
+				    	position: absolute;
+				    	right: 35px;
+				    	top: 35px;
+				    	z-index: 3;
+				    	font-size: 14px;
+				    	color: $wt;
+						@media screen and (max-width: 1199px){
+				    		right: 20px;
+						}
+				    	img{
+				    		margin-left: 5px;
+				    	}
+				    }
+				    .inside{
+				    	position: relative;
+				    	z-index: 3;
+				    	padding: 198px 35px 35px 35px;
+						@media screen and (max-width: 1199px){
+				    		padding: 227px 20px 30px 20px;
+						}
+						@media screen and (max-width: 991px){
+							padding: 80px 20px 30px 20px;
+						}
+				    	h5.date{
+				    		margin: 0;
+				    		color: $wt;
+				    		opacity: 0.6;
+				    		font-size: 14px;
+				    	}
+				    	h4{
+				    		font-family: $b;
+				    		color: $wt;
+				    		font-size: 18px;
+				    		margin: 5px 0 5px 0;
+				    	}
+				    	p{
+				    		color: $wt;
+				    		font-size: 14px;
+				    		margin-bottom: 15px;
+				    	}
+				    	a{
+				    		text-transform: uppercase;
+				    		font-family: $b;
+				    		color: $wt;
+				    		font-size: 14px;
+				    		img{
+				    			margin-left: 5px;
+				    			@include transition(all, 0.3s, ease);
+				    		}
+				    		&:hover, &:focus{
+				    			text-decoration: none;
+				    			img{
+				    				margin-left: 10px;
+				    			}
+				    		}
+				    	}
+				    }
+				}
+			}
+		}
+
+		.active {
+		  top: 0px;
+		}
+
+		.next {
+		  top: 100%;
+		}
+
+		.prev {
+		  top: -100%;
+		}
+
+		.next.left, .prev.right {
+		  top: 0;
+		}
+
+		.active.left {
+		  top: -100%;
+		}
+
+		.active.right {
+		  top: 100%;
+		}
+
+		.carousel-indicators{
+			left: auto;
+			right: 35px;
+		    width: auto;
+		    margin-left: 0px;
+		    bottom: 115px;
+			@media screen and (max-width: 1199px){
+	    		right: 15px;
+			}
+			@media screen and (max-width: 991px){
+	    		top: 80px;
+			}
+			li{
+				display: block;
+				width: 5px;
+				height: 5px;
+				border: none;
+				margin: 0;
+				background-color: $wt;
+				opacity: 0.6;
+				@include border-radius(50%);
+				@include transition(all, 0.3s, ease);
+				&:hover, &:focus{
+					opacity: 1;
+				}
+				&.active{
+					opacity: 1;
+					margin-right: 0;
+				}
+			}
+			li + li{
+				margin-top: 7px;
+			}
+		}
+	}
+
+	footer{
+		margin: 50px 0 30px 0;
+		h5{
+			margin: 0px;
+			opacity: 0.6;
+			color: $main;
+			text-transform: uppercase;
+		}
+	}
+}

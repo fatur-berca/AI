@@ -1,0 +1,115 @@
+// building
+
+.warehouse-picture-deck{
+	a{
+		display: block;
+		.warehouse-picture{
+			background-size: cover;
+			background-position: center center;
+			height: 125px;
+			width: 100%;
+			position: relative;
+			overflow: hidden;
+			border: 1px solid $border2;
+			margin-bottom: 15px;
+			@include border-radius(5px);
+			.tag{
+				position: absolute;
+				left: 10px;
+				top: 10px;
+				padding: 5px 10px;
+				background-color: $blue;
+				text-transform: uppercase;
+				font-size: 10px;
+				font-family: $b;
+				color: $wt;
+				@include border-radius(4px);
+			}
+		}
+	}
+}
+
+.filter-deck-map{
+	float: left;
+	width: 100%;
+	margin-bottom: 20px;
+	form{
+		.form-group.checkbox-top{
+			margin: 20px 0 7px 0;
+		}
+	}
+}
+
+.map-deck{
+	position: relative;
+	width: 100%;
+	margin-top: 20px;	
+	overflow: hidden;
+	&.nmt{
+		margin-top: 0;
+	}
+	#map{
+		height: 550px;
+		width: 100%;
+	}
+	.map-detail{
+		background-color: rgba(18, 173, 253, 0.93);
+		position: absolute;
+		right: -350px;
+		top: 0;
+		width: 350px;
+		height: 550px;
+		padding: 20px 30px;
+		@include transition(all, 0.3s, ease);
+		h3{
+			font-size: 20px;
+			font-family: $b;
+			color: $wt;
+		}
+		h5{
+			font-size: 14px;
+			color: $wt;
+		}
+		p{
+			font-size: 14px;
+			color: $wt;
+			opacity: 0.7;
+		}
+		hr{
+			background-color: $wt;
+			opacity: 0.2;
+		}
+		.gallery{
+			float: left;
+			width: 100%;
+			padding: 0px;
+			margin-bottom: 20px;
+			li{
+				list-style: none;
+				float: left;
+				width: 33.3333%;
+				min-height: 65px;
+				margin-bottom: 10px;
+				padding: 0 10px 0 0;
+				.img-deck{
+					overflow: hidden;
+					@include border-radius(5px);
+					img{
+						width: 100%;
+						height: 65px;
+						object-fit: cover;
+					}
+				}
+			}
+		}
+		.btn{
+			padding: 12px 13px;
+			&.btn-white{
+				margin-left: 10px;
+			}
+		}
+		&.opened{
+			right: 0px;
+		}
+	}
+}

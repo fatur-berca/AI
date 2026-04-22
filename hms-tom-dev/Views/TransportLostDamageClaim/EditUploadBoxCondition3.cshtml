@@ -1,0 +1,113 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="EdituploadBoxCondition3" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Box Condition</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <canvas id="canvasEditBoxCondition3" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputBoxCondition3" type="file" class="filestyle" name="" accept="image/*">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarkerEdit3">Add</button>
+                            <button class="btn btn-purple" id="clearMarkerEdit3">Clear</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="2" id="descUploadBoxCond3">@Model.RemarkUploadConditionBox3</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadCondBoxEdit3">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var canvasEdit3 = new fabric.Canvas('canvasEditBoxCondition3');
+    console.log(canvasEdit3);
+    console.log($("#canvasEditBoxCondition3").val());
+    @if (!String.IsNullOrEmpty(Model.JsonCanvasUploadBox3))
+    {
+        <text>
+    canvasEdit3.loadFromDatalessJSON('@Html.Raw(Model.JsonCanvasUploadBox3)');
+        </text>
+    }else{
+        <text>
+    if ($("#fileInputBoxCondition3").val() == '') {
+                $("#btnUploadCondBoxEdit3").prop("disabled", true);
+                $("#addMarkerEdit3").prop("disabled", true);
+                $("#clearMarkerEdit3").prop("disabled", true);
+                $("#descUploadBoxCond3").prop("disabled", true);
+            } else {
+                $("#btnUploadCondBoxEdit3").prop("disabled", false);
+                $("#addMarkerEdit3").prop("disabled", false);
+                $("#clearMarkerEdit3").prop("disabled", false);
+                $("#descUploadBoxCond3").prop("disabled", false);
+            }
+        </text>
+    }
+
+    $('#addMarkerEdit3').click(function (e) {
+        var posX = canvasEdit3.width / 2;
+        var posY = canvasEdit3.height / 2;
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvasEdit3.add(oImg).setActiveObject(oImg);
+            canvasEdit3.renderAll();
+        });
+    });
+
+    $('#clearMarkerEdit3').click(function (e) {
+        var canvasObjects = canvasEdit3.getObjects();
+        while (canvasObjects.length != 0) {
+            canvasEdit3.remove(canvasObjects[0]);
+            canvasEdit3.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputBoxCondition3").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvasEdit3.setBackgroundImage(img, canvasEdit3.renderAll.bind(canvasEdit3), {
+                    width: canvasEdit3.getWidth(),
+                    height: canvasEdit3.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadCondBoxEdit3").prop("disabled", false);
+        $("#addMarkerEdit3").prop("disabled", false);
+        $("#clearMarkerEdit3").prop("disabled", false);
+        $("#descUploadBoxCond3").prop("disabled", false);
+    });
+
+    $('#btnUploadCondBoxEdit3').click(function (e) {
+        var canvas = document.getElementById("canvasEditBoxCondition3");
+        $("#frontImgBoxEdit3").css("background-image", "url('" + canvasEdit3.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+

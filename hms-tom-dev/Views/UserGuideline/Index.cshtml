@@ -1,0 +1,15 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "User Guideline";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Type = String.IsNullOrEmpty(Request.QueryString["Type"]) ? "Guideline Picking List.pdf" : Request.Params["Type"];
+    var GuidelineUrl = Url.Content("~/Assets/Guideline/") + ViewBag.Type;
+}
+
+<style>
+
+</style>
+
+<object style="width:100%; height:800px;" data="@GuidelineUrl" type="application/pdf">
+    <iframe src="@GuidelineUrl"></iframe>
+</object>

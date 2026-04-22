@@ -1,0 +1,1 @@
+Alter Table [dbo].[TransportVehicleData] ADD VendorID int ;

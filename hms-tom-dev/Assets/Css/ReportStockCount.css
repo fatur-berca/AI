@@ -1,0 +1,50 @@
+.table thead tr th {
+    background-color: #a7a7a7;
+}
+
+.report-page main .table tbody tr td {
+    border-color : #444;
+    color: #000;
+    background-color: transparent;
+}
+
+.report-page main .table thead tr th {
+    border-top: 1px solid #444 !important;
+    border-color : #444;
+    background-color : #ffffff;
+    color: #000;
+}
+
+.report-page {
+    color: #000;
+}
+
+.slocinfo {
+    background-color:#a7a7a7; 
+    padding: 4px 1px 1px 4px;
+}
+
+.div_small_box {
+	float:right; 
+	border:1px solid #bbb; 
+	font-size:17px; 
+	width:90px; 
+	text-align:center; 
+	border-color:#444
+}
+
+.printedby {
+	font-size: 11px;
+}
+
+.report-page main .signature {
+    margin: 10px 0;
+}
+
+.report-page main {
+    padding: 25px;
+}
+
+.block_not_balance {
+    background-color: #cccccc;
+}

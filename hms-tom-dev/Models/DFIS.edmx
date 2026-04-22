@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="DFISModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tm_location">
+          <Key>
+            <PropertyRef Name="id_building" />
+          </Key>
+          <Property Name="id_building" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="100" />
+          <Property Name="total" Type="int" />
+          <Property Name="dataobject" Type="text" />
+          <Property Name="create_date" Type="datetime" />
+          <Property Name="id_location" Type="int" />
+        </EntityType>
+        <EntityType Name="tm_location_detail">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_building" Type="int" />
+          <Property Name="id_location" Type="int" />
+          <Property Name="name" Type="varchar" MaxLength="50" />
+          <Property Name="object_data" Type="text" />
+          <Property Name="create_date" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_tm_location_detail_tm_location">
+          <End Role="tm_location" Type="Self.tm_location" Multiplicity="0..1" />
+          <End Role="tm_location_detail" Type="Self.tm_location_detail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tm_location">
+              <PropertyRef Name="id_building" />
+            </Principal>
+            <Dependent Role="tm_location_detail">
+              <PropertyRef Name="id_building" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DFISModelStoreContainer">
+          <EntitySet Name="tm_location" EntityType="Self.tm_location" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tm_location_detail" EntityType="Self.tm_location_detail" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_tm_location_detail_tm_location" Association="Self.FK_tm_location_detail_tm_location">
+            <End Role="tm_location" EntitySet="tm_location" />
+            <End Role="tm_location_detail" EntitySet="tm_location_detail" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DFISModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="DFISEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tm_location" EntityType="DFISModel.tm_location" />
+          <EntitySet Name="tm_location_detail" EntityType="DFISModel.tm_location_detail" />
+          <AssociationSet Name="FK_tm_location_detail_tm_location" Association="DFISModel.FK_tm_location_detail_tm_location">
+            <End Role="tm_location" EntitySet="tm_location" />
+            <End Role="tm_location_detail" EntitySet="tm_location_detail" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="tm_location">
+          <Key>
+            <PropertyRef Name="id_building" />
+          </Key>
+          <Property Name="id_building" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="total" Type="Int32" />
+          <Property Name="dataobject" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="create_date" Type="DateTime" Precision="3" />
+          <Property Name="id_location" Type="Int32" />
+          <NavigationProperty Name="tm_location_detail" Relationship="DFISModel.FK_tm_location_detail_tm_location" FromRole="tm_location" ToRole="tm_location_detail" />
+        </EntityType>
+        <EntityType Name="tm_location_detail">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_building" Type="Int32" />
+          <Property Name="id_location" Type="Int32" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="object_data" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="create_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="tm_location" Relationship="DFISModel.FK_tm_location_detail_tm_location" FromRole="tm_location_detail" ToRole="tm_location" />
+        </EntityType>
+        <Association Name="FK_tm_location_detail_tm_location">
+          <End Type="DFISModel.tm_location" Role="tm_location" Multiplicity="0..1" />
+          <End Type="DFISModel.tm_location_detail" Role="tm_location_detail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tm_location">
+              <PropertyRef Name="id_building" />
+            </Principal>
+            <Dependent Role="tm_location_detail">
+              <PropertyRef Name="id_building" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DFISModelStoreContainer" CdmEntityContainer="DFISEntities">
+          <EntitySetMapping Name="tm_location">
+            <EntityTypeMapping TypeName="DFISModel.tm_location">
+              <MappingFragment StoreEntitySet="tm_location">
+                <ScalarProperty Name="id_location" ColumnName="id_location" />
+                <ScalarProperty Name="create_date" ColumnName="create_date" />
+                <ScalarProperty Name="dataobject" ColumnName="dataobject" />
+                <ScalarProperty Name="total" ColumnName="total" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id_building" ColumnName="id_building" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tm_location_detail">
+            <EntityTypeMapping TypeName="DFISModel.tm_location_detail">
+              <MappingFragment StoreEntitySet="tm_location_detail">
+                <ScalarProperty Name="create_date" ColumnName="create_date" />
+                <ScalarProperty Name="object_data" ColumnName="object_data" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id_location" ColumnName="id_location" />
+                <ScalarProperty Name="id_building" ColumnName="id_building" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

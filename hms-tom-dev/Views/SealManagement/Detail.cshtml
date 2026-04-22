@@ -1,0 +1,1274 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Warehouse > Seal Management > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var listLocation = ViewBag.LocationList;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("../SealManagement")'">Back</button>
+                }
+                @*if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.SealStock)))
+                {
+                    <button class="btn btn-primary" onclick="window.location.href = '../SealStock/AddNew'" id="BtnNewSeal">Seal Stock</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton" onclick="disableEnableInput(false)">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton">Save</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.PrintDocument)))
+                {
+                    <button class="btn btn-primary" id="PrintButton" >Print Document</button>
+                }*@
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="col-panel">
+                <div class="row">
+                    <form>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <h3 class="sub-text"><u>Lock History Detail</u></h3>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary" onclick="return validedit()" id="btnSaved" disabled>Save</button>
+                                <button type="button" class="btn btn-primary" id="btnEdit">Edit</button>  
+                                <button type="button" class="btn btn-primary" id="btnEditAttachL" style="display:none;">Edit Attachment</button>
+                                <button type="button" class="btn btn-primary" id="btnSaveAttachL" style="display:none;" disabled>Save Attachment</button>                             
+                                <button type="button" class="btn btn-primary" id="PirntDocL">Print Document</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                @Html.DropDownList("DDWarehouseL", (SelectList)ViewBag.WarehouseLocation, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date Time</label>
+                                <input type="text" name="" class="form-control datetimepickerside" id="SealDateL" disabled="disabled">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-1</label>
+                                @Html.DropDownList("DDStaff1L", (SelectList)ViewBag.WarehouseStaff, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-2</label>
+                                @Html.DropDownList("DDStaff2L", (SelectList)ViewBag.WarehouseStaff2, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-Other</label>
+                                <input type="text" name="" class="form-control" id="DDStaff3L" disabled="disabled">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <input type="file" id="AttachmentL" class="filestyle" accept=".pdf" disabled>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea class="form-control" id="RemarksL" disabled="disabled"></textarea>
+                                <span class="ket">* Maximum 1000 Characters</span>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="table-overflow-outer">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Location/Area</th>
+                                                <th>Seal Number Lock History</th>
+                                                <th hidden>Idequipment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="DynamicLocation"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <span class="ket" id="lastsync"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6" id="PUnlocked">
+            <div class="col-panel" style="background-color: white;">
+                <!--button type="button" class="btn btn-primary" onclick="return validedit()" disabled="disabled" id="btnSaved">Save</button>
+                <button type="button" class="btn btn-primary" id="btnEdit" onclick="return CheckEditLock()">Edit</button-->
+                <div class="row">
+                    <form>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <h3 class="sub-text"><u>Unlock Form</u></h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="btnEditUnlocked">Edit</button>
+                                    <button type="button" class="btn btn-primary" id="btnSubmit" onclick="return SaveUnlock()">Submit</button>
+                                    <button style="display: none;" type="button" class="btn btn-primary" id="btnEditAttachU">Edit Attachment</button>
+                                    <button style="display: none;" type="button" class="btn btn-primary" id="btnSaveAttachU" disabled>Save Attachment</button> 
+                                    <button type="button" class="btn btn-primary" id="PirntDoc">Print Document</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                @Html.DropDownList("DDWarehouse", (SelectList)ViewBag.WarehouseLocation, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date Time</label>
+                                <input type="text" name="" class="form-control datetimepickerside" id="SealDate">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-1</label>
+                                @Html.DropDownList("DDStaff1", (SelectList)ViewBag.WarehouseStaff, string.Empty, new { @class = "select2" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-2</label>
+                                @Html.DropDownList("DDStaff2", (SelectList)ViewBag.WarehouseStaff2, string.Empty, new { @class = "select2" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff Other</label>
+                                <input type="text" name="" class="form-control" id="DDStaff3">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <input type="file" id="Attachment" class="filestyle" accept=".pdf">
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea class="form-control" id="Remarks"></textarea>
+                                <span class="ket">* Maximum 1000 Characters</span>
+                            </div>
+                        </div>
+                    </form>
+                    <form id="FInput">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <div class="table-overflow-outer">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Location/Area</th>
+                                                    <th>Seal Number </th>
+                                                    <th hidden>Idequipment</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="DynamicLocationUnlock"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <span class="ket" id="lastsyncUnlock"></span>
+                        </div>
+                    </div>                 
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Sorry theres no result with this keyword</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <h4 id="ErrMsg"></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnClose">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var dialog = null;
+    $(function () {
+        $(window).keydown(function (event) {
+            if(event.keyCode == 27)
+            {
+                $('.bootbox.modal').remove();
+                $('.modal-backdrop').remove();
+            }
+        });
+
+        $(document).ajaxStart(function () {
+            if (dialog == null)
+            {
+                dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                    closeButton: false
+                });
+            }
+        });
+
+        $(document).ajaxStop(function () {
+            if (dialog !== null) {
+                dialog.modal('hide');
+                dialog = null;
+            }
+        });
+
+        $(document).on('click', '#btnEdit', function () {
+            $(this).prop('disabled', true);
+            var fields = ['#btnSaved', '#DDStaff1L', '#DDStaff2L', '#DDStaff3L', '#AttachmentL', '#RemarksL', '#DynamicLocation input[id^=SealNumber]'];
+            $(fields.join(",")).prop('disabled', false);
+        });
+
+        $(document).on('click', '#btnEditUnlocked', function () {
+            $(this).prop('disabled', true);
+            var fields = ['#btnSubmit', '#DDStaff1', '#DDStaff2', '#DDStaff3', '#DynamicLocationUnlock input[type=text]', '#Attachment', '#Remarks'];
+            $(fields.join(",")).prop('disabled', false);
+        });
+        
+        $(document).on('click', '#btnEditAttachL', function () {
+            $(this).prop('disabled', true);
+            $('#btnSaveAttachL, #AttachmentL').prop('disabled', false);
+        });
+
+        $(document).on('click', '#btnEditAttachU', function () {
+            $(this).prop('disabled', true);
+            $('#btnSaveAttachU, #Attachment').prop('disabled', false);
+        });
+
+        $(document).on('click', '#btnSaveAttachU', function () {            
+            var fileData = new FormData();
+            var fileUpload = $('#Attachment').get(0).files;
+            if (fileUpload.length) {
+                fileData.append('Status', 'Unlocked');
+                fileData.append('IDLocation', $('#DDWarehouse').val());
+                fileData.append('SealDate', moment($('#SealDate').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+                fileData.append('File', fileUpload[0]);
+
+                IsEditAttachment = true;
+                $.when(UploadAttachment(fileData, fileUpload)).done(function (a1) {
+                    $('#btnSaveAttachU').prop("disabled", true);
+                    $('#btnEditAttachU').prop("disabled", false);
+                    $('#Attachment').next().find('input, span label').css('border-color', '#ccc');
+                });
+            } else {
+                alertPleaseFill();
+                $('#Attachment').next().find('input').css('border-color', 'orange');
+                $('#Attachment').next().find('span label').css('border-color', 'orange #ccc orange orange');
+            }
+        });
+
+        $(document).on('click', '#btnSaveAttachL', function () {            
+            var fileData = new FormData();
+            var fileUpload = $('#AttachmentL').get(0).files;
+            if (fileUpload.length) {
+                fileData.append('Status', 'Locked');
+                fileData.append('IDLocation', $('#DDWarehouseL').val());
+                fileData.append('SealDate', moment($('#SealDateL').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+                fileData.append('File', fileUpload[0]);
+
+                IsEditAttachment = true;
+                $.when(UploadAttachment(fileData, fileUpload)).done(function (a1) {
+                    $('#btnSaveAttachL').prop("disabled", true);
+                    $('#btnEditAttachL').prop("disabled", false);
+                    $('#AttachmentL').next().find('input, span label').css('border-color', '#ccc');
+                });
+            } else {
+                alertPleaseFill();
+                $('#AttachmentL').next().find('input').css('border-color', 'orange');
+                $('#AttachmentL').next().find('span label').css('border-color', 'orange #ccc orange orange');
+            }
+        });
+    });
+
+    var IsEditAttachment = false;
+
+    function UploadAttachment(fileData, fileUpload)
+    {
+        if (fileUpload.length > 0) {
+            //fileData.append('IDLocation', $('#DDWarehouse').val());
+            //fileData.append('SealDate', moment($('#SealDate').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+            //fileData.append('File', fileUpload[0]);
+
+            //var dialog = bootbox.dialog({
+            //    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            //    closeButton: false
+            //});
+            return $.ajax({
+                url: '@Url.Action("../SealManagement/UploadAttachment")',
+                //complete : function() { dialog.modal('hide'); },
+                type: 'POST',
+                dataType: 'JSON',
+                data: fileData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (IsEditAttachment) {
+                        var message = res.status != 'Success' ? (res.status + '<br>' + res.message) : 'Data has been successfully saved to the database';
+                        $('#ErrMsg').html(message);
+                        $('#modalwarning').modal('show');
+                    }
+                    IsEditAttachment = false;
+                },
+                error: function () {
+
+                }
+            });
+        }
+    }
+
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+    var equipmentLength;
+    function GenerateDropDownStatus() {
+        
+        $.ajax({
+            type: 'POST',
+            
+            data: {
+                //StatusDate: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                StatusDate: getUrlParameter('p3'),
+                Status: getUrlParameter('p2'),
+                location: getUrlParameter('id')
+            },
+
+            @*//url: '@Url.Action("getSealLockDetail")',*@
+            url: '@Url.Action("GetUnlocksDetail")',
+            success: function (response) {
+                equipmentLength = response.length;
+                if (response.length != 0) {
+                    $("#DynamicLocation").html("");
+                    for (i = 0; i < response.length; i++) {
+
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                        $("#DynamicLocation").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="text" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                        $("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                        $("#DDWarehouseL").val(response[i].IDLocation).trigger('change');
+                        if (response[i].WarehouseStaff1 != null) {
+                            $("#DDStaff1L").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                        }
+                        if (response[i].WarehouseStaff2 != null) {
+                            $("#DDStaff2L").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                        }
+                        $("#DDStaff2L").val(response[i].WarehouseStaff3);
+                        $("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                        $("#RemarksL").val(response[i].Remarks);
+                        $("#lastsync").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") +"</i>");
+
+                    }
+
+                    CheckEditLock();
+                }
+
+                //GenerateUnlock();
+
+            }
+        });
+    }
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+    $('#PirntDoc').on('click', function (e) {
+        var id = (gup('id') != "") ? gup('id') : prevIdLoc,
+            status = "Unlocked",//(gup('p2') != "") ? gup('p2') : prevStatus, //status = jQuery("#DDStatus :selected").val(),
+            //statusDate = (gup('p3') != "") ? moment(gup('p3')).format("YYYY-MM-DD").replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : prevDate.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"), //statusDate = jQuery("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            statusDate = ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+            getUrl = location.origin;
+
+        // window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '&id=' + $("#DDWarehouse option:selected").val();
+
+        window.location.href = '@Url.Action("GetDocument")' + '?strUrl=' + '' + '&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '/&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+    });
+    $('#PirntDocL').on('click', function (e) {
+        var id = (gup('id') != "") ? gup('id') : prevIdLoc,
+            status = "Locked",//(gup('p2') != "") ? gup('p2') : prevStatus, //status = jQuery("#DDStatus :selected").val(),
+           // statusDate = (gup('p3') != "") ? moment(gup('p3')).format("YYYY-MM-DD").replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : prevDate.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"), //statusDate = jQuery("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                    statusDate = ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+            getUrl = location.origin;
+
+        // window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '&id=' + $("#DDWarehouse option:selected").val();
+
+        window.location.href = '@Url.Action("GetDocument")' + '?strUrl=' + '' + '&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '/&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+    });
+    generateDetailDropDown();
+    function generateDetailDropDown() {
+        if (getUrlParameter('p2') == "Unlocked") {
+            GenerateUnlock();
+            GenerateDropDownStatus();
+        } else {
+            
+            $.ajax({
+                type: 'POST',
+                
+                data: {
+                    //StatusDate: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                    StatusDate: getUrlParameter('p3'),
+                    Status: getUrlParameter('p2'),
+                    location: getUrlParameter('id')
+                },
+
+                url: '@Url.Action("getSealLockDetail")',
+                @*url: '@Url.Action("GetUnlocksDetail")',*@
+                success: function (response) {
+                    equipmentLength = response.length;
+                    if (response.length != 0) {
+                        $("#DynamicLocation").html("");
+                        var ws1;
+                        for (i = 0; i < response.length; i++) {
+
+                            // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                            $("#DynamicLocation").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="text" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                            $("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                            $("#DDWarehouseL").val(response[i].IDLocation).trigger('change');
+                            $("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                            $("#RemarksL").val(response[i].Remarks);
+                            $("#lastsync").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") +"</i>");
+                            ws1 = response[i].WarehouseStaff1;
+                            if (response[i].WarehouseStaff1 != null) {
+                                $("#DDStaff1L").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                            }
+                            if (response[i].WarehouseStaff2 != null) {
+                                $("#DDStaff2L").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                            }
+
+                            $("#DDStaff3L").val(response[i].WarehouseStaff3);
+                        }
+                        //$("#DDStaff1L").val(ws1);
+                    }
+                    CheckEditLock();
+
+                    //GenerateUnlock();
+
+                }
+            });
+
+            //dialog = showDialog();
+
+            $.ajax({
+                type: 'POST',
+                data: {
+                    //StatusDate: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                    StatusDate: getUrlParameter('p3'),
+                    Status: getUrlParameter('p2'),
+                    location: getUrlParameter('id')
+                },
+                
+                url: '@Url.Action("getSealLockDetail")',
+                success: function (response) {
+                    equipmentLength = response.length;
+                    if (response.length != 0) {
+                        $("#DynamicLocationUnlock").html("");
+                        for (i = 0; i < response.length; i++) {
+
+                            // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                            //$("#DynamicLocation").append('<tr><td>' + moment(response[i].StatusDateTime).format("DD-MMM-YYYY") + '</td><td><input type ="text" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + response[i].SealNumber + '"></td><td><button class="btn btn-primary" onclick="return UnlockSet(' + "'" + response[i].SealNumber + "'" + ',' + "'" + response[i].IDLocation + "'" + ',' + "'" + response[i].IDEquipmentType + "'" + ')" id="Btn' + response[i].SealNumber + '">Unlock</button></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                            $("#DynamicLocationUnlock").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + i + '" onblur="Correction(' + i + ')"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+
+                            //$("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                            //$("#DDStaff1L").val(response[i].WarehouseStaff1).trigger('change');
+                            //$("#DDStaff2L").val(response[i].WarehouseStaff2).trigger('change');
+                            //$("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                            //$("#RemarksL").val(response[i].Remarks);
+                            //$("#lastsync").html("Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD/MM/YYYY HH:mm"));
+
+
+                        }
+
+                        
+                        $.ajax({
+                            type: 'POST',
+                            data: {
+                              //StatusDate: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                                StatusDate: getUrlParameter('p3'),
+                                Status: getUrlParameter('p2'),
+                                location: getUrlParameter('id')
+                            },
+                            
+                            @*url: '@Url.Action("getSealLockDetail")',*@
+                            url: '@Url.Action("GetUnlocksDetail")',
+                            success: function (response) {
+                                // equipmentLength = response.length;
+                                if (response.length != 0) {
+                                    // $("#DynamicLocation").html("");
+                                    document.getElementById("DDStaff1").disabled = true;
+                                    document.getElementById("DDStaff2").disabled = true;
+                                    document.getElementById("SealDate").disabled = true;
+                                    document.getElementById("Remarks").disabled = true;
+                                    document.getElementById("DDStaff3").disabled = true;
+                                    document.getElementById("btnSubmit").disabled = true;
+                                    document.getElementById("Attachment").disabled = true;
+
+                                    //GenerateDropDownStatus();
+
+                                    for (h = 0; h < equipmentLength; h++) {
+
+                                        document.getElementById("Txt" + h).disabled = true;
+
+                                    }
+                                    for (i = 0; i < response.length; i++) {
+                                        for (j = 0; j < equipmentLength; j++) {
+                                            if (response[i].IDEquipmentType == document.getElementById("IDEquipmentType" + j).value) {
+                                                document.getElementById("Txt" + j).value = response[i].SealNumber;
+                                                document.getElementById("IDEquipmentType" + j).visible = false;
+                                            }
+                                            if(response[i].WarehouseStaff1 != null) {
+                                                $("#DDStaff1").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                                            }
+                                            if (response[i].WarehouseStaff2 != null) {
+                                                $("#DDStaff2").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                                            }
+                                            $("#DDStaff3").val(response[i].WarehouseStaff3);
+
+                                            $("#SealDate").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                                            $("#Remarks").val(response[i].Remarks);
+                                            $("#lastsyncUnlock").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") + "</i>");
+
+                                        }
+                                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                                    }
+
+                                    //CheckEditLock();
+                                    CheckEditUnlocked();
+                                }
+                                else
+                                {
+                                    document.getElementById("PUnlocked").hidden = true;
+                                }
+
+                            }
+                        });
+
+
+                    }
+
+                }
+            });
+
+        }
+
+
+    }
+
+    function DetailUnlockElse() {
+        
+        $.ajax({
+            type: 'POST',
+            data: {
+                //id: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                id: getUrlParameter('p3'),
+                location: getUrlParameter('id')
+            },
+            
+            url: '@Url.Action("GetUnlocksDetail")',
+            success: function (response) {
+                // equipmentLength = response.length;
+                if (response.length != 0) {
+                    // $("#DynamicLocation").html("");
+                    document.getElementById("DDStaff1").disabled = true;
+                    document.getElementById("DDStaff2").disabled = true;
+                    document.getElementById("SealDate").disabled = true;
+                    document.getElementById("Remarks").disabled = true;
+                    document.getElementById("DDStaff3").disabled = true;
+                    document.getElementById("btnSubmit").disabled = true;
+                    document.getElementById("Attachment").disabled = true;
+
+                    //GenerateDropDownStatus();
+
+                    for (h = 0; h < equipmentLength; h++) {
+
+                        document.getElementById("Txt" + h).disabled = true;
+
+                    }
+                    for (i = 0; i < response.length; i++) {
+                        for (j = 0; j < equipmentLength; j++) {
+                            if (response[i].IDEquipmentType == document.getElementById("IDEquipmentType" + j).value) {
+                                document.getElementById("Txt" + j).value = response[i].SealNumber;
+                                document.getElementById("IDEquipmentType" + j).visible = false;
+                            }
+                            alert(response[i].WarehouseStaff1);
+                            if (response[i].WarehouseStaff1 != null) {
+                                $("#DDStaff1").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                            }
+                            if (response[i].WarehouseStaff2 != null) {
+                                $("#DDStaff2").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+
+                            }
+                            $("#DDStaff3").val(response[i].WarehouseStaff3);
+
+                            $("#SealDate").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                            $("#Remarks").val(response[i].Remarks);
+                            $("#lastsyncUnlock").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") + "</i>");
+
+                        }
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                    CheckEditUnlocked();
+                    document.getElementById("Attachment").disabled = true;
+                    document.getElementById("DDStaff1").disabled = true;
+                    document.getElementById("DDStaff2").disabled = true;
+                    document.getElementById("SealDate").disabled = true;
+                    document.getElementById("Remarks").disabled = true;
+                    document.getElementById("DDStaff3").disabled = true;
+                    document.getElementById("btnSubmit").disabled = true;
+                    // CheckEditLock();
+                }
+            }
+        });
+    }
+
+    function GenerateUnlock() {
+        
+        $.ajax({
+            type: 'POST',
+            data: {
+                // StatusDate: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                StatusDate: getUrlParameter('p3'),
+                Status: getUrlParameter('p2'),
+                location: getUrlParameter('id')
+            },
+            
+            url: '@Url.Action("getSealLockDetail")',
+            success: function (response) {
+                equipmentLength = response.length;
+                if (response.length != 0) {
+                    $("#DynamicLocationUnlock").html("");
+                    for (i = 0; i < response.length; i++) {
+
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                        //$("#DynamicLocation").append('<tr><td>' + moment(response[i].StatusDateTime).format("DD-MMM-YYYY") + '</td><td><input type ="text" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + response[i].SealNumber + '"></td><td><button class="btn btn-primary" onclick="return UnlockSet(' + "'" + response[i].SealNumber + "'" + ',' + "'" + response[i].IDLocation + "'" + ',' + "'" + response[i].IDEquipmentType + "'" + ')" id="Btn' + response[i].SealNumber + '">Unlock</button></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                        $("#DynamicLocationUnlock").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + i + '" onblur="Correction(event,'+i +')"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+
+                        //$("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                        //$("#DDStaff1L").val(response[i].WarehouseStaff1).trigger('change');
+                        //$("#DDStaff2L").val(response[i].WarehouseStaff2).trigger('change');
+                        //$("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                        //$("#RemarksL").val(response[i].Remarks);
+                        //$("#lastsync").html("Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD/MM/YYYY HH:mm"));
+
+
+                    }
+
+                    
+                    $.ajax({
+                        type: 'POST',
+                        data: {
+                            // id: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                            id: getUrlParameter('p3'),
+                            location: getUrlParameter('id')
+                        },
+                        
+                        url: '@Url.Action("getexistingunlockDetail")',
+                        success: function (response) {
+                            // equipmentLength = response.length;
+                            if (response.length != 0) {
+                                // $("#DynamicLocation").html("");
+                                document.getElementById("Attachment").disabled = true;
+                                document.getElementById("DDStaff1").disabled = true;
+                                document.getElementById("DDStaff2").disabled = true;
+                                document.getElementById("SealDate").disabled = true;
+                                document.getElementById("Remarks").disabled = true;
+                                document.getElementById("DDStaff3").disabled = true;
+                                document.getElementById("btnSubmit").disabled = true;
+
+                                //GenerateDropDownStatus();
+
+                                for (h = 0; h < equipmentLength; h++) {
+
+                                    document.getElementById("Txt" + h).disabled = true;
+
+                                }
+                                for (i = 0; i < response.length; i++) {
+                                    for (j = 0; j < equipmentLength; j++) {
+                                        if (response[i].IDEquipmentType == document.getElementById("IDEquipmentType" + j).value) {
+                                            document.getElementById("Txt" + j).value = response[i].SealNumber;
+                                            document.getElementById("IDEquipmentType" + j).visible = false;
+                                        }
+                                        if (response[i].WarehouseStaff1 != null) {
+                                            $("#DDStaff1").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                                        }
+                                        if (response[i].WarehouseStaff2 != null) {
+                                            $("#DDStaff2").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                                        }
+                                        $("#DDStaff3").val(response[i].WarehouseStaff3);
+                                        $("#SealDate").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                                        $("#Remarks").val(response[i].Remarks);
+
+                                        $("#lastsyncUnlock").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") + "</i>");
+
+                                    }
+                                    // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                                }
+                                CheckEditUnlocked();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function UnlockSet(id, location, idequipment) {
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: id,
+                location: location,
+                WarehouseStaff1: $('#DDStaff1').val(),
+                WarehouseStaff2: $('#DDStaff2').val(),
+                WarehouseStaff3:  $('#DDStaff3').val(),
+                DateStatus: ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                remarks: $('#Remarks').val(),
+                idequipment: idequipment
+            },
+            url: '@Url.Action("UnlockSeal")',
+            success: function (response) {
+                alert(response);
+                document.getElementById("Txt" + id).disabled = true;
+                document.getElementById("Btn" + id).disabled = true;
+
+            }
+        });
+    }
+
+    function CheckEditUnlocked() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CheckEditUnlocked")',
+            data: {
+                location: getUrlParameter('id'),
+                id: ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : ""
+            },
+            success: function (response) {
+                if (response) {
+                    $('#btnEditAttachU, #btnSaveAttachU').show();
+                    $('#btnEditAttachU').prop('disabled', false);
+                    $('#btnSaveAttachU').prop('disabled', true);
+
+                    $('#btnEditUnlocked, #btnSubmit').hide();
+                    $('#btnEditUnlocked').prop('disabled', true);
+                } else {
+                    $('#btnEditAttachU, #btnSaveAttachU').hide();
+                    $('#btnEditAttachU, #btnSaveAttachU').prop('disabled', true);
+
+                    $('#btnEditUnlocked, #btnSubmit').show();
+                    $('#btnEditUnlocked').prop('disabled', false);
+                }
+
+                var fields = ['#btnSubmit', '#DDStaff1', '#DDStaff2', '#DDStaff3', '#Attachment', '#Remarks', '#DynamicLocationUnlock input[type=text]'];
+                $(fields.join(",")).prop('disabled', true);
+            }
+        });
+    }
+
+    function CheckEditLock() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                location: getUrlParameter('id'),
+                id: ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : ""
+            },
+            url: '@Url.Action("CheckEditLock")',
+            success: function (response) {
+                if (response) {
+                    $('#btnEditAttachL, #btnSaveAttachL').show();
+                    $('#btnEditAttachL').prop('disabled', false);
+                    $('#btnSaveAttachL').prop('disabled', true);
+                    
+                    $('#btnEdit, #btnSaved').hide();
+                    $('#btnEdit').prop('disabled', true);
+                } else {
+                    $('#btnEditAttachL, #btnSaveAttachL').hide();
+                    $('#btnEditAttachL, #btnSaveAttachL').prop('disabled', true);
+
+                    $('#btnEdit, #btnSaved').show();
+                    $('#btnEdit').prop('disabled', false);
+                }
+
+                var fields = ['#btnSaved', '#DDStaff1L', '#DDStaff2L', '#DDStaff3L', '#AttachmentL', '#RemarksL', '#DynamicLocation input[id^=SealNumber]'];
+                $(fields.join(",")).prop('disabled', true);
+            }
+        });
+    }
+
+    function validedit() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            data: {
+                location: getUrlParameter('location'),
+                id: ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : ""
+            },
+            url: '@Url.Action("CheckEditLock")',
+            success: function (response) {
+                if (response > 0) {
+                    alert("Gaisok Bro");
+                } else {
+                    edit(dialog);
+                }
+            }
+        });
+    }
+
+    function edit(dialog) {
+        //var data = $('#newData').serialize();
+        var filename;
+        if (window.FormData !== undefined) {
+
+            var fileData = new FormData();
+            var fileUpload = $('#AttachmentL').get(0).files;
+            if (fileUpload.length > 0) {
+                fileData.append('IDLocation', $('#DDWarehouseL').val());
+                fileData.append('Status', 'Locked');
+                fileData.append('SealDate', moment($('#SealDateL').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+                fileData.append('File', fileUpload[0]);
+
+                UploadAttachment(fileData, fileUpload);
+            }
+        } else {
+            alert("FormData is not supported.");
+        }
+
+        var listdata = [];
+        for (j = 0; j < equipmentLength; j++) {
+            listdata[j] = {
+                "IDLocation": $("#DDWarehouse").val(),
+                "StatusDateTime": ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                "WarehouseStaff1": $('#DDStaff1L').val(),
+                "WarehouseStaff2": $('#DDStaff2L').val(),
+                "WarehouseStaff3": $('#DDStaff3L').val(),
+
+                "Remarks": $("#RemarksL").val(),
+
+                "SealNumber": document.getElementById("SealNumber" + j).value,
+                "IDEquipmentType": document.getElementById("IDEquipmentType" + j).value,
+                "Attachment": filename
+
+            };
+        }
+       // $('#Loading').modal('show');
+        var data = {
+            "new": [{}],
+            "edit": listdata,
+        };
+
+        
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateLockData")',
+            
+            data: data,
+            success: function (data) {
+                dialog.modal('hide');
+                $('#modalsuccess').modal('show');
+
+                $('#btnEdit').prop('disabled', false);
+                var fields = ['#btnSaved', '#DDStaff1L', '#DDStaff2L', '#DDStaff3L', '#AttachmentL', '#RemarksL', '#DynamicLocation input[id^=SealNumber]'];
+                $(fields.join(",")).prop('disabled', true);
+
+                //GenerateDropDownStatus();
+                $.each(data.Edit, function (k, value) {
+                    if (value.ResponseType == "Success") {
+                        //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                        //alert(value.ResponseType);
+                        //generateTable();
+                    } else {
+
+                    }
+
+                });
+            }
+        });
+    }
+
+    function SaveUnlock() {
+        //var data = $('#newData').serialize();
+        if ($('#DDStaff1').val() == '')
+        {
+            $('#ErrMsg').html('Please choose Warehouse Staff - 1');
+            $('#modalwarning').modal('show');
+            return;
+        }
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        var filename;
+        if (window.FormData !== undefined) {
+
+            var fileData = new FormData();
+            var fileUpload = $('#Attachment').get(0).files;
+            if (fileUpload.length > 0) {
+                fileData.append('IDLocation', $('#DDWarehouse').val());
+                fileData.append('Status', 'Unlocked');
+                fileData.append('SealDate', moment($('#SealDate').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+                fileData.append('File', fileUpload[0]);
+
+                UploadAttachment(fileData, fileUpload);
+            }
+
+            //var fileUpload = $("#Attachment").get(0);
+            //var files = fileUpload.files;
+
+            //// Create FormData object
+            //var fileData = new FormData();
+
+            //// Looping over all files and add it to FormData object
+            //for (var i = 0; i < files.length; i++) {
+            //    fileData.append(files[i].name, files[i]);
+            //    filename = files[i].name;
+            //}
+
+            //// Adding one more key to FormData object
+            //fileData.append('username', 'Manas');
+            ///// alert(fileData.toString);
+            //$.ajax({
+            //    url: 'Upload',
+            //    type: "POST",
+            //    contentType: false, // Not to set any content header
+            //    processData: false, // Not to process data
+            //    data: fileData,
+            //    success: function (result) {
+
+            //        // dialog.modal('hide');
+            //    },
+            //    error: function (err) {
+            //        alert(err.statusText);
+            //        //dialog.modal('hide');
+            //    }
+            //});
+        } else {
+            alert("FormData is not supported.");
+        }
+        var listdata = [];
+
+        for (j = 0; j < equipmentLength; j++) {
+            listdata[j] = {
+                //"IDSealManagement":0,
+                "IDLocation": $("#DDWarehouse").val(),
+                "StatusDateTime": ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                "WarehouseStaff1": $('#DDStaff1').val(),
+                "WarehouseStaff2": $('#DDStaff2').val(),
+                "WarehouseStaff3": $('#DDStaff3').val(),
+
+                "Remarks": $("#Remarks").val(),
+                "Status": "Unlocked",
+                "IsUnlock" : true,
+                "IsActive" : true,
+                "SealNumber": document.getElementById("Txt" + j).value,
+                "IDEquipmentType": document.getElementById("IDEquipmentType" + j).value,
+                "Attachment": filename,
+            };
+        }
+       // $('#Loading').modal('show');
+
+        var data = {
+            "new": listdata,
+            "edit": [{}],
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertUnlockData")',
+            data: data,
+            success: function (data) {
+                dialog.modal('hide');
+                
+                if (data.status == 'Failed')
+                {
+                    $('#ErrMsg').html(data.message);
+                    $('#modalwarning').modal('show');
+                    return;
+                }
+                
+                $('#modalsuccess').modal('show');
+
+                $('#btnEditUnlocked').prop('disabled', false);
+                var fields = ['#btnSubmit', '#DDStaff1', '#DDStaff2', '#DDStaff3', '#DynamicLocationUnlock input[type=text]', '#Attachment', '#Remarks'];
+                $(fields.join(",")).prop('disabled', true);
+
+                //GenerateDropDownStatus();
+
+                /*
+                $.each(data.New, function (k, value) {
+                    if (value.ResponseType == "Success") {
+                        //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                        //alert(value.ResponseType);
+                        //generateTable();
+
+                    } else {
+
+                    }
+
+                });
+                */
+            }
+        });
+    }
+
+    function Correction(id) {
+        //if (e.keyCode == 13) {
+            var status;
+            for (j = 0; j < equipmentLength; j++) {
+                if (document.getElementById("Txt" + id).value != document.getElementById("SealNumber" + j).value) {
+                    status = 1;
+                    continue;
+                } else if ((document.getElementById("Txt" + id).value == document.getElementById("SealNumber" + j).value)) {
+                    status = 0;
+                    if(id != j ){
+                        document.getElementById("Txt" + j).value = document.getElementById("Txt" + id).value;
+                        document.getElementById("Txt" + id).value = null;
+                    }else{
+
+                        document.getElementById("Txt" + j).value = document.getElementById("Txt" + id).value;
+                    }
+
+                    document.getElementById("SealNumber" + j).type = "text";
+                    break;
+
+                } else {
+
+                    //alert("gaonok boss");
+                }
+            }
+
+            if (status == 1) {
+
+                $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Seal number not found</span>');
+                $('#modalwarning').modal('show');
+            }
+        //}
+    }
+
+    function GetUnlockExisiting() {
+        
+        $.ajax({
+            type: 'POST',
+            data: {
+                //   id: moment(getUrlParameter('p3')).format("YYYY-MM-DD HH:mm:ss"),
+                id: getUrlParameter('p3'),
+                location: getUrlParameter('id')
+            },
+            
+            url: '@Url.Action("getexistingunlockDetail")',
+            success: function (response) {
+                // equipmentLength = response.length;
+                if (response.length != 0) {
+                    // $("#DynamicLocation").html("");
+                    document.getElementById("DDStaff1").disabled = true;
+                    document.getElementById("DDStaff2").disabled = true;
+                    document.getElementById("SealDate").disabled = true;
+                    document.getElementById("Remarks").disabled = true;
+                    document.getElementById("DDStaff3").disabled = true;
+                    document.getElementById("btnSubmit").disabled = true;
+                    document.getElementById("Attachment").disabled = true;
+
+                    //GenerateDropDownStatus();
+
+                    for (h = 0; h < equipmentLength; h++) {
+
+                        document.getElementById("Txt" + h).disabled = true;
+
+                    }
+                    for (i = 0; i < response.length; i++) {
+                        for (j = 0; j < equipmentLength; j++) {
+                            if (response[i].IDEquipmentType == document.getElementById("IDEquipmentType" + j).value) {
+                                document.getElementById("Txt" + j).value = response[i].SealNumber;
+                                document.getElementById("IDEquipmentType" + j).visible = false;
+                            }
+                            if (response[i].WarehouseStaff1 != null) {
+                                $("#DDStaff1").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+
+                            }
+                            if (response[i].WarehouseStaff2 != null) {
+                                $("#DDStaff2").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                            }
+                            $("#DDStaff3").val(response[i].WarehouseStaff3);
+
+
+                            $("#SealDate").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                            $("#Remarks").val(response[i].Remarks);
+                            $("#lastsyncUnlock").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") + "</i>");
+
+                        }
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+
+
+                    }
+                    CheckEditUnlocked();
+
+                }
+
+            }
+        });
+
+    }
+
+    $('#DDStaff2').on("change", function (e) {
+
+        if ($('#DDStaff2').val() == $('#DDStaff1').val()) {
+            $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Warehouse staff 1 cannot be same with warehouse staff 2</span>');
+            $('#modalwarning').modal('show');
+
+        }
+    });
+
+    $('#DDStaff1').on("change", function (e) {
+
+        if ($('#DDStaff2').val() == $('#DDStaff1').val()) {
+            $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Warehouse staff 1 cannot be same with warehouse staff 2</span>');
+            $('#modalwarning').modal('show');
+
+        }
+    });
+
+</script>
+

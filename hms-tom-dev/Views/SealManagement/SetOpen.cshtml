@@ -1,0 +1,850 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Warehouse > Seal Management > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var listLocation = ViewBag.LocationList;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("../SealManagement")'">Back</button>
+                }
+                @*if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.SealStock)))
+                {
+                    <button class="btn btn-primary" onclick="window.location.href = '../SealStock/AddNew'" id="BtnNewSeal">Seal Stock</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton" onclick="disableEnableInput(false)">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton">Save</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.PrintDocument)))
+                {
+                    <button class="btn btn-primary" id="PrintButton" >Print Document</button>
+                }*@
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-6">         
+            <div class="col-panel">
+                <!--button type="button" class="btn btn-primary" onclick="return validedit()" disabled="disabled" id="btnSaved">Save</button>
+                <button type="button" class="btn btn-primary" id="btnEdit" onclick="return CheckEditLock()">Edit</button-->
+                <div class="row">
+                    <form>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <h3 class="sub-text"><u>Lock History Detail</u></h3>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                @Html.DropDownList("DDWarehouseL", (SelectList)ViewBag.WarehouseLocation, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date Time</label>
+                                <input type="text" name="" class="form-control datetimepickerside" id="SealDateL" disabled="disabled">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-1</label>
+                                @Html.DropDownList("DDStaff1L", (SelectList)ViewBag.WarehouseStaff, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-2</label>
+                                @Html.DropDownList("DDStaff2L", (SelectList)ViewBag.WarehouseStaff2, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff Other</label>
+                                <input type="text" name="" class="form-control" id="DDStaff3L" disabled="disabled">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <input type="file" id="AttachmentL" class="filestyle" accept=".pdf" disabled="disabled">                            
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea class="form-control" id="RemarksL" maxlength="1000" disabled></textarea>
+                                <span class="ket">* Maximum 1000 Characters</span>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="table-overflow-outer">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Location/Area</th>
+                                                <th>Seal Number Lock History</th>
+                                                <th hidden>Idequipment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="DynamicLocation"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <span class="ket" id="lastsync"></span>
+                        </div>
+                    </div>                                   
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-panel" style="background-color: white;">
+                <!--button type="button" class="btn btn-primary" onclick="return validedit()" disabled="disabled" id="btnSaved">Save</button>
+                <button type="button" class="btn btn-primary" id="btnEdit" onclick="return CheckEditLock()">Edit</button>
+                <button type="button" class="btn btn-primary" id="PirntDoc">Print Document</button-->
+                <div class="row">
+                    <form>
+                        <div class="col-md-12">
+                            <div class="form-group">
+								<div class="form-group">
+									<h3 class="sub-text"><u>Unlock Form</u></h3>
+									<br />
+									<button type="button" class="btn btn-primary btn-sm" id="btnSubmit" onclick="return SaveUnlock()">Submit</button>
+									@*<br />*@
+									<!--These lines of code make the button float right-->
+									<!--h3 style="display:inline" class="sub-text"><u>Unlock Form</u></h3>
+									<button type="button" class="btn btn-primary btn-sm pull-right" id="btnSubmit" onclick="return SaveUnlock()">Submit</button-->
+								</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                @Html.DropDownList("DDWarehouse", (SelectList)ViewBag.WarehouseLocation, string.Empty, new { @class = "select2", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date Time</label>
+                                <input type="text" name="" class="form-control datetimepickerside" id="SealDate">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-1</label>
+                                @Html.DropDownList("DDStaff1", (SelectList)ViewBag.WarehouseStaff, string.Empty, new { @class = "select2" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff-2</label>
+                                @Html.DropDownList("DDStaff2", (SelectList)ViewBag.WarehouseStaff2, string.Empty, new { @class = "select2" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Warehouse Staff Other</label>
+                                <input type="text" name="" class="form-control" id="DDStaff3">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <input type="file" id="Attachment" class="filestyle" accept=".pdf">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea class="form-control" id="Remarks" maxlength="1000" onkeyup="countChar(this, 1000)"></textarea>
+                                <div class="ket">
+                                    <span style="float: left;">* Maximum 1000 Characters</span>
+                                    <span id="charNum" style="float: right;">1000 characters left.</span>
+                                </div>
+                                <div style="clear: both;"></div>
+                            </div>
+                        </div>
+                    </form>
+                    <form id="FInput">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <div class="table-overflow-outer">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Location/Area</th>
+                                                    <th>Seal Number </th>
+                                                    <th hidden>Idequipment</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="DynamicLocationUnlock"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <span class="ket" id="lastsyncUnlock"></span>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Sorry theres no result with this keyword</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <h4 id="ErrMsg"></h4>  
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnClose">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function UploadAttachment(fileData, fileUpload) {
+        if (fileUpload.length > 0) {
+            return $.ajax({
+                url: '@Url.Action("../SealManagement/UploadAttachment")',
+                //complete : function() { dialog.modal('hide'); },
+                type: 'POST',
+                dataType: 'JSON',
+                data: fileData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    //if (IsEditAttachment) {
+                    //    var message = res.status != 'Success' ? (res.status + '<br>' + res.message) : 'Data has been successfully saved to the database';
+                    //    $('#ErrMsg').html(message);
+                    //    $('#modalwarning').modal('show');
+                    //}
+                    //IsEditAttachment = false;
+                },
+                error: function () {
+
+                }
+            });
+        }
+    }
+
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+    GenerateDropDownStatus();
+
+    var equipmentLength;
+    function GenerateDropDownStatus() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: getUrlParameter('id'),
+                location: getUrlParameter('location')
+            },
+            url: '@Url.Action("getSealLock")',
+            success: function (response) {
+                equipmentLength = response.length;
+                if (response.length != 0) {
+                    $("#DynamicLocation").html("");
+                    for (i = 0; i < response.length; i++) {
+
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                        $("#DynamicLocation").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="hidden" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                        $("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                        $("#DDWarehouseL").val(response[i].IDLocation).trigger('change');
+                        if (response[i].WarehouseStaff1 != null) {
+                            $("#DDStaff1L").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                        }
+                        if (response[i].WarehouseStaff2 != null) {
+                            $("#DDStaff2L").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                        }
+
+                        $("#DDStaff3L").val(response[i].WarehouseStaff3);
+                        $("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                        $("#RemarksL").val(response[i].Remarks);
+                        $("#lastsync").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") +"</i>");
+                    }
+                }
+
+            }
+        });
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    $('#PirntDoc').on('click', function (e) {
+        var id = (gup('id') != "") ? gup('id') : prevIdLoc,
+        prevDate = $("#SealDate").val(),
+        status = "Unlocked",//(gup('p2') != "") ? gup('p2') : prevStatus, //status = jQuery("#DDStatus :selected").val(),
+        statusDate = ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+        //    statusDate = (gup('p3') != "") ? moment(gup('p3')).format("YYYY-MM-DD").replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : prevDate.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"), //statusDate = jQuery("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                        //statusDate = jQuery("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            getUrl = location.origin;
+
+        // window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '&id=' + $("#DDWarehouse option:selected").val();
+
+        window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '/DFIS&id=' + id + '&status=' + status + '&statusDate=' + prevDate;
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '/&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+    });
+
+    GenerateUnlock();
+
+    function GenerateUnlock() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: getUrlParameter('id'),
+                location: getUrlParameter('location')
+            },
+            url: '@Url.Action("getSealLock")',
+            success: function (response) {
+                equipmentLength = response.length;
+                if (response.length != 0) {
+                    $("#DynamicLocationUnlock").html("");
+                    for (i = 0; i < response.length; i++) {
+
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+
+                        //$("#DynamicLocation").append('<tr><td>' + moment(response[i].StatusDateTime).format("DD-MMM-YYYY") + '</td><td><input type ="text" class="form-control" id="SealNumber' + i + '" value="' + response[i].SealNumber + '" disabled="disabled"></td><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + response[i].SealNumber + '"></td><td><button class="btn btn-primary" onclick="return UnlockSet(' + "'" + response[i].SealNumber + "'" + ',' + "'" + response[i].IDLocation + "'" + ',' + "'" + response[i].IDEquipmentType + "'" + ')" id="Btn' + response[i].SealNumber + '">Unlock</button></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+                        $("#DynamicLocationUnlock").append('<tr><td>' + response[i].LocationName + '</td><td><input type ="text" class= "form-control" id="Txt' + i + '"onblur="Correction(' + i + ');"></td><td hidden><input type ="text" class="form-control" id="IDEquipmentType' + i + '" value="' + response[i].IDEquipmentType + '" disabled="disabled"></td></tr>');
+
+                        //$("#DDWarehouse").val(response[i].IDLocation).trigger('change');
+                        //$("#DDStaff1L").val(response[i].WarehouseStaff1).trigger('change');
+                        //$("#DDStaff2L").val(response[i].WarehouseStaff2).trigger('change');
+                        //$("#SealDateL").val(moment(response[i].StatusDateTime, 'YYYY-MM-DD HH.mm').format("DD/MM/YYYY HH:mm"));
+                        //$("#RemarksL").val(response[i].Remarks);
+                        //$("#lastsync").html("Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD/MM/YYYY HH:mm"));
+
+
+                    }
+                    GetUnlockExisiting();
+                }
+
+            }
+        });
+    };
+
+    function UnlockSet(id, location, idequipment) {
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: id,
+                location: location,
+                WarehouseStaff1: $('#DDStaff1').val(),
+                WarehouseStaff2: $('#DDStaff2').val(),
+                WarehouseStaff3: $('#DDStaff3').val(),
+                DateStatus: ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                remarks: $('#Remarks').val(),
+                idequipment: idequipment
+            },
+            url: '@Url.Action("UnlockSeal")',
+            success: function (response) {
+                alert(response);
+                document.getElementById("Txt" + id).disabled = true;
+                document.getElementById("Btn" + id).disabled = true;
+            }
+        });
+    };
+
+    function CheckEditLock() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                location: getUrlParameter('location'),
+                id: ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : ""
+            },
+            url: '@Url.Action("CheckEditLock")',
+            success: function (response) {
+                if (response > 0) {
+                    alert("Gaisok Bro")
+                } else {
+                    //  document.getElementById("btnSaved").disabled = false;
+                    document.getElementById("DDStaff1L").disabled = false;
+                    document.getElementById("DDStaff2L").disabled = false;
+                    document.getElementById("SealDateL").disabled = false;
+                    document.getElementById("RemarksL").disabled = false;
+                    document.getElementById("DDStaff3L").disabled = false;
+                    document.getElementById("AttachmentL").disabled = false;
+                    for (j = 0; j < equipmentLength; j++) {
+                        document.getElementById("SealNumber" + j).disabled = false;
+                    }
+                }
+            }
+        });
+    };
+
+    function validedit() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                location: getUrlParameter('location'),
+                id: ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : ""
+            },
+            url: '@Url.Action("CheckEditLock")',
+            success: function (response) {
+                if (response > 0) {
+                    alert("Gaisok Bro");
+                } else {
+                    edit();
+                }
+            }
+        });
+
+    }
+
+    function edit() {
+        //var data = $('#newData').serialize();
+
+        var listdata = [];
+
+        for (j = 0; j < equipmentLength; j++) {
+            listdata[j] = {
+                "IDLocation": $("#DDWarehouse").val(),
+                "StatusDateTime": ($("#SealDateL").val()) ? moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                "WarehouseStaff1": $('#DDStaff1L').val(),
+                "WarehouseStaff2": $('#DDStaff2L').val(),
+                "WarehouseStaff3": $('#DDStaff3L').val(),
+
+                "Remarks": $("#RemarksL").val(),
+
+                "SealNumber": document.getElementById("SealNumber" + j).value,
+                "IDEquipmentType": document.getElementById("IDEquipmentType" + j).value
+
+            };
+        }
+        $('#Loading').modal('show');
+
+        var data = {
+            "new": [{}],
+            "edit": listdata,
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateLockData")',
+            data: data,
+            success: function (data) {
+
+                // document.getElementById("btnSaved").disabled = true;
+                document.getElementById("DDStaff1L").disabled = true;
+                document.getElementById("DDStaff2L").disabled = true;
+                document.getElementById("SealDateL").disabled = true;
+                document.getElementById("RemarksL").disabled = true;
+                document.getElementById("DDStaff3L").disabled = true;
+                document.getElementById("AttachmentL").disabled = true;
+                GenerateDropDownStatus();
+                $.each(data.Edit, function (k, value) {
+                    if (value.ResponseType == "Success") {
+                        //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                        //alert(value.ResponseType);
+                        //generateTable();
+
+                    } else {
+
+                    }
+
+                });
+            }
+        });
+    }
+
+    function SaveUnlock() {
+        var error = "";
+        if ($('#DDStaff1').val() == '') {
+            error = "Please choose Warehouse Staff - 1";
+        }
+        if ($("#SealDate").val() == "" || $("#SealDate").val() == null || $("#SealDate").val() == undefined) {
+            if (error != "") {
+                error += "<br/>";
+            }
+            error += "Please fill Date Time field";
+        }
+        if (moment($("#SealDate").val(), "DD/MM/YYYY HH:mm") <= moment($("#SealDateL").val(), "DD/MM/YYYY HH:mm")){
+            if (error != "") {
+                error += "<br/>";
+            }
+            error += "Unlock Date must be greater than Lock Date";
+        }
+        var emptyseal = true;
+        for (j = 0; j < equipmentLength; j++) {
+            if (emptyseal) {
+                if (document.getElementById("Txt" + j).value != "") {
+                    emptyseal = false;
+                }
+            }
+        }
+
+        if (emptyseal) {
+            if (error != "") {
+                error += "<br/>";
+            }
+            error += "Please fill seal number to be unlocked";
+        }
+        if (error != "") {
+            $('#ErrMsg').html(error);
+            $('#modalwarning').modal('show');
+            return;
+        }
+        //var data = $('#newData').serialize();
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var listdata = [];
+        var IDLocation = $("#DDWarehouse").val();
+        var SealDate = moment($('#SealDate').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');
+
+        for (j = 0; j < equipmentLength; j++) {
+            listdata[j] = {
+                //"IDSealManagement":0,
+                "IDLocation": $("#DDWarehouse").val(),
+                "StatusDateTime": ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                "WarehouseStaff1": $('#DDStaff1').val(),
+                "WarehouseStaff2": $('#DDStaff2').val(),
+                "WarehouseStaff3": $('#DDStaff3').val(),
+                "Remarks": $("#Remarks").val(),
+                "Status": "Unlocked",
+                "IsUnlock" : true,
+                "IsActive" : true,
+                "SealNumber": document.getElementById("Txt" + j).value,
+                "IDEquipmentType": document.getElementById("IDEquipmentType" + j).value,
+                //"Attachment": filename
+
+            };
+        }
+        $('#Loading').modal('show');
+
+        /*
+        if (listdata.length == 0)
+        {
+            $('#ErrMsg').html('Please input seal number (min. 1)');
+            $('#modalwarning').modal('show');
+            return;
+        }
+        */
+
+        var data = {
+            "new": listdata,
+            "edit": [{}],
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertUnlockData")',
+            data: data,
+            success: function (data) {
+                if (data.status == 'Failed') {
+                    dialog.modal('hide');
+                    $('#ErrMsg').html(data.message);
+                    $('#modalwarning').modal('show');
+                    return;
+                }
+
+                if (window.FormData !== undefined) {
+                    var fileData = new FormData();
+                    var fileUpload = $('#Attachment').get(0).files;
+                    if (fileUpload.length > 0) {
+                        fileData.append('IDLocation', $('#DDWarehouse').val());
+                        fileData.append('Status', 'Unlocked');
+                        fileData.append('SealDate', moment($('#SealDate').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'));
+                        fileData.append('File', fileUpload[0]);
+
+                        UploadAttachment(fileData, fileUpload);
+                    }
+                }
+
+                setTimeout(function () { 
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='../assets/images/checked.png' alt=''> Your data has been successfully saved",
+                        callback: function () {
+                            var url = '@Url.Action("../SealManagement/")' + 'Detail?id=' + $('#DDWarehouse').val() + '&p3=' + moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("DD-MMM-YYYY HH:mm") + '&p2=Unlocked';
+                            window.location.href = url;
+                        }
+                    });
+                }, 1000);
+
+                @*if (window.FormData === undefined)
+                {
+                    dialog.modal('hide');
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='../assets/images/checked.png' alt=''> Your data has been successfully saved",
+                        callback: function () {
+                            var url = '@Url.Action("../SealManagement/")' + 'Detail?id=' + $('#DDWarehouse').val() + '&p3=' + moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("DD-MMM-YYYY HH:mm") + '&p2=Unlocked';
+                            window.location.href = url;
+                        }
+                    })
+                }*@
+
+                // document.getElementById("btnSaved").disabled = true;
+                document.getElementById("DDStaff1").disabled = true;
+                document.getElementById("DDStaff2").disabled = true;
+                document.getElementById("SealDate").disabled = true;
+                document.getElementById("Remarks").disabled = true;
+                document.getElementById("DDStaff3").disabled = true;
+                document.getElementById("Attachment").disabled = true;
+                //GenerateDropDownStatus();
+
+                for (j = 0; j < equipmentLength; j++) {
+                    document.getElementById("Txt"+j).disabled = true;
+                }
+
+                $.each(data.New, function (k, value) {
+                    if (value.ResponseType == "Success") {
+                        //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                        //alert(value.ResponseType);
+                        //generateTable();
+
+                    } else {
+
+                    }
+
+                });
+
+                //upload attachment
+                var filename;
+                @*if (window.FormData !== undefined) {
+
+                    var fileUpload = $("#Attachment").get(0);
+                    var files = fileUpload.files;
+
+                    // Create FormData object
+                    var fileData = new FormData();
+                    fileData.append('IDLocation', IDLocation);
+                    fileData.append('SealDate', SealDate);
+
+                    // Looping over all files and add it to FormData object
+                    for (var i = 0; i < files.length; i++) {
+                        fileData.append(files[i].name, files[i]);
+                        //filename = files[i].name;
+                    }
+
+                    // Adding one more key to FormData object
+                    fileData.append('username', 'Manas');
+                    $.ajax({
+                        url: '@Url.Action("../SealManagement/UploadAttachment")',
+                        type: "POST",
+                        contentType: false, // Not to set any content header
+                        processData: false, // Not to process data
+                        data: fileData,
+                        success: function (result) {
+                            dialog.modal('hide');
+
+                            bootbox.alert({
+                                title: "DFIS Notification Center",
+                                message: "<img src='../assets/images/checked.png' alt=''> Your data has been successfully saved",
+                                callback: function () {
+                                    var url = '@Url.Action("../SealManagement/")' + 'Detail?id=' + $('#DDWarehouse').val() + '&p3=' + moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("DD-MMM-YYYY HH:mm") + '&p2=Unlocked';
+                                    window.location.href = url;
+                                }
+                            });
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                } else {
+                }*@
+            }
+        });
+    }
+
+    function Correction(id)
+    {
+        var status;
+        for (j = 0; j < equipmentLength; j++) {
+            if (document.getElementById("Txt" + id).value != document.getElementById("SealNumber" + j).value) {
+                status = 1;
+                continue;
+            } else if ((document.getElementById("Txt" + id).value == document.getElementById("SealNumber" + j).value)) {
+                status = 0;
+                if (id != j) {
+                    document.getElementById("Txt" + j).value = document.getElementById("Txt" + id).value;
+                    document.getElementById("Txt" + id).value = null;
+                } else {
+
+                    document.getElementById("Txt" + j).value = document.getElementById("Txt" + id).value;
+                }
+
+                document.getElementById("SealNumber" + j).type = "text";
+                break;
+
+            } else {
+
+                //alert("gaonok boss");
+            }
+        }
+
+        if (status == 1) {
+
+            $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Seal number not found</span>');
+            $('#modalwarning').modal('show');
+        }
+    }
+
+    function GetUnlockExisiting() {
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: getUrlParameter('id'),
+                location: getUrlParameter('location')
+            },
+            url: '@Url.Action("getexistingunlock")',
+            success: function (response) {
+                // equipmentLength = response.length;
+                if (response.length != 0) {
+                    // $("#DynamicLocation").html("");
+                    document.getElementById("DDStaff1").disabled = true;
+                    document.getElementById("DDStaff2").disabled = true;
+                    document.getElementById("SealDate").disabled = true;
+                    document.getElementById("Remarks").disabled = true;
+                    document.getElementById("DDStaff3").disabled = true;
+                    document.getElementById("Attachment").disabled = true;
+                    document.getElementById("btnSubmit").disabled = true;
+                    //GenerateDropDownStatus();
+
+                    for (h = 0; h < equipmentLength; h++) {
+
+                        document.getElementById("Txt" + h).disabled = true;
+
+                    }
+                    for (i = 0; i < response.length; i++) {
+                        for (j = 0; j < equipmentLength; j++) {
+                            if (response[i].IDEquipmentType == document.getElementById("IDEquipmentType" + j).value) {
+                                document.getElementById("Txt" + j).value = response[i].SealNumber;
+                                document.getElementById("IDEquipmentType" + j).visible = false;
+                            }
+                            if (response[i].WarehouseStaff1 != null) {
+                                $("#DDStaff1").val(response[i].WarehouseStaff1.toLowerCase()).trigger('change');
+                            }
+                            if(response[i].WarehouseStaff2 != null){
+                                $("#DDStaff2").val(response[i].WarehouseStaff2.toLowerCase()).trigger('change');
+                            }
+                            $("#DDStaff3").val(response[i].WarehouseStaff3);
+
+                            $("#SealDate").val(moment(response[i].StatusDateTime).format("DD/MM/YYYY HH:mm"));
+                            $("#Remarks").val(response[i].Remarks);
+                            $("#lastsyncUnlock").html("*<i>Last updated by " + response[i].UpdatedBy + "  " + moment(response[i].UpdatedDate).format("DD-MMM-YYYY HH:mm") + "</i>");
+
+                        }
+                        // options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+            }
+        });
+    }
+
+    $('#DDStaff2').on("change", function (e) {
+        if ($('#DDStaff2').val() == $('#DDStaff1').val()) {
+            $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Warehouse staff 1 cannot be same with warehouse staff 2</span>');
+            $('#modalwarning').modal('show');
+        }
+    });
+
+    $('#DDStaff1').on("change", function (e) {
+        if ($('#DDStaff2').val() == $('#DDStaff1').val()) {
+            $('#ErrMsg').html('<img src="../assets/images/danger.png" alt=""><span>Warehouse staff 1 cannot be same with warehouse staff 2</span>');
+            $('#modalwarning').modal('show');
+        }
+    });
+
+</script>

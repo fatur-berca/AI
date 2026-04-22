@@ -1,0 +1,1973 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    if (ViewBag.RequestID != null)
+    {
+        ViewBag.Title = "Transport > Transportation Order > Detail";
+    }
+    else
+    {
+        ViewBag.Title = "Transport > Transportation Order > Add New";
+    }
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isTransport = ViewBag.IsTransport;
+}
+
+<!--=========================== STYLE BEGIN ===========================-->
+<style>
+    .form-group.required .control-label:before {
+        /*content: "* ";*/
+        color: red;
+    }
+
+    .control-label {
+        text-transform: capitalize !important;
+        font-size: 12px !important;
+    }
+
+    .spc .form-group label {
+        font-size: 14px !important;
+        font-weight: bold;
+    }
+
+    a.cloneUnit {
+        text-decoration: none;
+    }
+
+    tr.control-label td {
+        padding-bottom: 0px;
+        margin-bottom: 0px;
+    }
+
+    .labelContainer .form-group {
+        margin-bottom: 0px;
+        margin-left: 10px;
+        margin-left: 0px;
+    }
+
+    .addDetailRoute, .removeDetailRoute, .copyDetailRoute, .deleteUnit, .cloneUnit {
+        background: none;
+        border: none;
+    }
+
+    .clonedDetail {
+        padding-left: 0px !important;
+    }
+
+    .ez-btn-closetab {
+        text-decoration: none;
+        font-weight: bold;
+        font-size: larger;
+    }
+
+    .active .ez-btn-closetab {
+        color: #FFF;
+    }
+    .tooltip-trigger{
+        position: relative;
+    } 
+    .tooltip-trigger:hover .tooltip-content {
+        display: block;
+    }
+
+    .tooltip-content {
+        display: none;
+        z-index: 99999;
+        position: absolute;
+        width: auto;
+        height: auto;
+        box-sizing: content-box;
+        text-align: left;
+        white-space: nowrap;
+        top: -10px;
+        left: 20px;
+        background: rgba(64,64,64,0.8);
+        border-radius: 15px;
+        padding: 15px;
+        color: white;
+    }
+    .tooltip-content h3 {
+        margin: 0px;
+        padding: 0px;
+        margin-bottom: 15px;
+        font-size: large;
+    }
+    .tooltip-content table {
+        border-collapse: collapse;
+    }
+
+    .tooltip-content table td, .tooltip-content table th {
+        padding: 5px;
+    }
+    .tooltip-content table td, .tooltip-content table th {
+        padding: 5px;
+    }
+    .tooltip-content table tr:nth-last-child(-n+2) td {
+        /**/
+        border: 1px solid #FFF;
+    }
+    .tooltip-content table tr:first-child th {
+        border-right: 1px solid #FFF;
+        background: rgba(128,128,128,0.5);
+    }
+    .tooltip-content table tr th:first-child {
+        border-bottom: 1px solid #FFF;
+        background: rgba(128,128,128,0.5);
+    }
+    .tooltip-content table.center td {
+        text-align: center;
+    }
+    .tooltip-content table.center tr:first-child th {
+        text-align: center;
+    }
+</style>
+<!--===========================  STYLE END  ===========================-->
+<!--=========================== MAIN BEGIN ===========================-->
+<div class="row">
+    <!--=========================== CONTROL BOX BEGIN ===========================-->
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationOrder")'">Back</button>
+                <button type="button" class="btn btn-primary" id="btnAddNewUnit">New Vehicle</button>
+                <button type="button" class="btn btn-primary" id="btnSaveDraft" value="Draft">Save Draft</button>
+                <button type="button" class="btn btn-primary" id="btnSubmit" value="Submit">Submit</button>
+                <button type="button" class="btn btn-primary" id="btnDelete" hidden style="display:none">Delete</button>
+                <button type="button" class="btn btn-primary" onclick="$('#btnSaveDraft').trigger('click');" id="btnReeturn">Return</button>
+            </div>
+        </div>
+    </div>
+    <!--===========================  CONTROL BOX END  ===========================-->
+    <!--=========================== STATUS BOX BEGIN ===========================-->
+    <div class="col-md-12">
+        <div class="row spc">
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>TOTAL ORDERED VEHICLE</label>
+                    <h4 class="sub-text totalUnit" id="total-order-unit"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>TOTAL SUBMIT</label>
+                    <h4 class="sub-text" id="total-submit"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>TOTAL IN PROCESS</label>
+                    <h4 class="sub-text" id="total-in-process"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>TOTAL ON DELIVERY</label>
+                    <h4 class="sub-text" id="total-on-delivery"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>TOTAL COMPLETE</label>
+                    <h4 class="sub-text" id="total-complete"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label style="font-size: 14px; font-weight: bold; padding-top: 9px;">Request Number</label>
+            </div>
+            <div class="col-md-4">
+                <input type="text" id="RequestNumber" class="form-control" style="max-width: 200px; font-size: 14px;" disabled>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix" style="height:110px;"></div>
+    <!--===========================  STATUS BOX END  ===========================-->
+    <!--=========================== EDITOR BOX BEGIN ===========================-->
+    <div class="col-md-12" style="margin-top: 10px;" id="tabber">
+        <!--=========================== NAV TAB BUTTON BEGIN ===========================-->
+        <ul class="nav nav-pills"></ul>
+        <!--===========================  NAV TAB BUTTON END  ===========================-->
+        <!--=========================== NAV TAB CONTENT BEGIN ===========================-->
+        <div class="tab-content">
+        </div>
+        <!--=========================== NAV TAB CONTENT BEGIN ===========================-->
+    </div>
+    <!--=========================== NAV TAB CONTENT TEMPLATE BEGIN ===========================-->
+    <div class="tab-pane fade in active" hidden>
+        <div class="col-panel" id="tabTemplate">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="control-label">                            
+                            Zone
+                            <div style="display: inline-block">
+                                <a href="javascript:void(0)" data-placement="right" title="" class="tooltip-trigger">
+                                    <i class="fa fa-info-circle" style="color: blue; font-size: larger"></i>
+                                    <div class="tooltip-content">
+                                        &bull; <b>West</b>: Order ke <b>Transport Karawang</b><br/>
+                                        &bull; <b>East</b>: Order ke <b>Sukorejo / Surabaya</b><br />
+                                        &bull; <b>Area</b>: Order ke <b>Logistics Area</b><br />
+                                    </div>
+                                </a>
+                            </div>
+                        </label>
+                        <select class="form-control Zone" id="Zone[]"></select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group required">
+                        <label class="control-label">                            
+                            Vehicle Type
+                            <div style="display: inline-block">
+                                <a href="javascript:void(0)" data-placement="right" title="" class="tooltip-trigger">
+                                    <i class="fa fa-info-circle" style="color: blue; font-size: larger"></i>
+                                    <div class="tooltip-content">
+                                        <h3 style="text-decoration: underline">Maximum Capacity</h3>
+                                        <table class="center">
+                                            <tr>
+                                                <th></th>
+                                                <th>Ton</th>
+                                                <th>Pallet</th>
+                                                <th>Box C48</th>
+                                                <th>Sack</th>
+                                            </tr>
+                                            <tr>
+                                                <th>CBU</th>
+                                                <td>15</td>
+                                                <td>16</td>
+                                                <td>72</td>
+                                                <td>220</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Standard</th>
+                                                <td>7.75</td>
+                                                <td>12</td>
+                                                <td>54</td>
+                                                <td>171</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </a>
+                            </div>
+                        </label>
+                        <select class="form-control VehicleType" id="VehicleType[]"></select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group required">
+                        <label class="control-label">
+                            Shipment Date
+                            <div style="display: inline-block">
+                                <a href="javascript:void(0)" data-placement="right" title="" class="tooltip-trigger">
+                                    <i class="fa fa-info-circle" style="color: blue; font-size: larger"></i>
+                                    <div class="tooltip-content">
+                                        Isi dengan tanggal pengiriman
+                                    </div>
+                                </a>
+                            </div>
+                        </label>
+                        <input type="text" name="" id="ShipmentDate[]" class="form-control datepicker ShipmentDate">
+                    </div>
+                </div>
+                <!--div class="col-md-5">
+                    <span style="font-weight:bold">
+                        <u>Maximum Capacity:</u><br />
+                        CBU = 16 Pallet / 72 Box C48 / 220 Sack<br />
+                        Standard = 12 Pallet / 54 Box C48 / 171 Sack
+                    </span>
+                </!--div-->
+                <div class="col-md-6">
+                    <button class="btn-default btn-s cloneUnit" style="float:right">
+                        <i class="fa fa-copy" title="Duplicate Vehicle"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 10px;">
+                <div class="col-md-12">
+                    <label>
+                        <input type="checkbox" class="checkAll" style="float: left; height: 17px; width: 17px;" />
+                        <span style="margin-left: 5px; padding-top:3px; display:inline-block">Select All</span>
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 route-list">
+                    <div class="route-container">
+                        <div class="routeUnit" style="position: relative">
+                            <input type="checkbox" class="checkDelete" style="float: left; margin-left: 12px; margin-top: 16px; height: 17px; width: 17px;" />
+                            <a href="javascript:void(0)" class="btn-delete-route">
+                                <span style="position: absolute; right: 35px; top: 14px; " role="button"><i class="fa fa-trash" style="height: 21px; width: 21px;"></i></span>
+                            </a>
+                            <div role="button" class="toggle-collapse collapsed collapse-next" data-toggle="collapse" title="Klik untuk isi detail route">
+                                <span class="route-title" style="padding-left: 10px;">Route 1</span> <i class="fa fa-angle-up pull-right"></i>
+                                <span style="float:right; margin-right: 30px;" class="LabelOrderStatus"></span>
+                            </div>
+
+                            <div class="collapse route-content">
+                                <div class="panel">
+                                    <div class="panel-body">
+                                        <div style="padding: 10px;">
+                                            <div class="row" style="padding-left:16px; margin-bottom:5px;">
+                                                <button type="button" class="btn btn-primary btnUpload">Upload</button>
+                                                <button type="button" class="btn btn-primary btnSetParent">Set Parent</button>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Sender</label>
+                                                        <select class="Sender" id="Sender[]" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Receiver</label>
+                                                        <select class="Receiver" id="Receiver[]" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Order Number/STO</label>
+                                                        <input type="text" maxlength="10" id="OrderNumber[]" class="form-control OrderNumber">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 tdParentSTO" hidden>
+                                                    <div class="form-group">
+                                                        <label class="control-label">Parent Order Number/STO</label>
+                                                        <input type="text" maxlength="10" class="form-control tdParentSTO ParentOrderNumber" id="ParentOrderNumber[]">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3" hidden>
+                                                    <div class="form-group">
+                                                        <label class="control-label">Sequence Number</label>
+                                                        <input type="text" id="SeqNo[]" class="form-control SeqNo" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3" hidden>
+                                                    <div class="form-group">
+                                                        <label class="control-label">IDCostCenter</label>
+                                                        <input type="text" id="IDCostCenter[]" class="form-control IDCostCenter" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3" hidden>
+                                                    <div class="form-group">
+                                                        <label class="control-label">Order Type</label>
+                                                        <input type="text" id="OrderType[]" class="form-control OrderType" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Cost Center</label>
+                                                        <input type="text" id="CostCenter[]" class="form-control CostCenter" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Order Status</label>
+                                                        <input type="text" class="form-control OrderStatus" disabled />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Order Remark</label>
+                                                        <input type="text" id="OrderRemark[]" class="form-control OrderRemark" maxlength="1000">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table style="width: 98%; margin-left: 1%; margin-right: 1%;" class="route-detail-list material-container" border="0">
+                                            <tr class="material-row-template">
+                                                <td style="width: 18%; padding-right:10px;">
+                                                    <div class="form-group required">
+                                                        <label class="control-label">Material Type</label>
+                                                        <select class="form-control MaterialType" id="MaterialType[]"></select>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 18%; padding-right:10px;">
+                                                    <div class="form-group required">
+                                                        <label class="control-label">Material Code</label>
+                                                        <input type="text" id="Code[]" class="form-control Code" maxlength="15">
+                                                    </div>
+                                                </td>
+                                                <td style="width: 19%; padding-right:10px;">
+                                                    <div class="form-group required">
+                                                        <label class="control-label">Material Description</label>
+                                                        <input type="text" id="Description[]" class="form-control Description" maxlength="50">
+                                                    </div>
+                                                </td>
+                                                <td style="width: 16%; padding-right:10px;">
+                                                    <div class="form-group required">
+                                                        <label class="control-label">Quantity</label>
+                                                        <input type="number" id="Quantity[]" class="form-control Quantity" step="0.01" min="0" max="99999999.99">
+                                                    </div>
+                                                </td>
+                                                <td style="width: 18%; padding-right:10px;">
+                                                    <div class="form-group required">
+                                                        <label class="control-label">UoM</label>
+                                                        <select class="form-control UoM" id="UoM[]"></select>
+                                                    </div>
+                                                </td>
+                                                <td style="">
+                                                    <div style="position: relative; padding-top: 0px !important; top: -7px;" class="control-buttons">
+                                                        <button class="btn-default btn-s btnCloneMat copyDetailRoute" title="Copy Detail"><i class="fa fa-copy"></i></button>
+                                                        <button class="btn-default btn-s btnAddMat copyDetailRoute" title="Add Detail"><i class="fa fa-plus"></i></button>
+                                                        <button class="btn-default btn-s btnDeleteMat copyDetailRoute" title="Delete Detail"><i class="fa fa-trash"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix" style="height:20px;"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary btnAddNewRoute">New Route</button>
+                            <!--button type="button" class="btn btn-primary btnDeleteRoute">Delete Selected</button-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--===========================  NAV TAB CONTENT TEMPLATE END  ===========================-->
+    <!--===========================  EDITOR BOX END  ===========================-->
+</div>
+<!--===========================  MAIN END  ===========================-->
+<!--=========================== IMPORT MODAL BEGIN ===========================-->
+<div class="modal fade" id="mdlUpload" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUpload">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload Detail Material</label>
+                                <input type="file" id="fileInput" class="filestyle" accept=".xls, .xlsx">
+                                <a href="javascript:void(0)" id="btnDownloadTemplate">Download Template</a> <br />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUpload" class="btn btn-primary">Upload</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--===========================  IMPORT MODAL END  ===========================-->
+
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+
+<!--===========================  UNIT CLASS CONTROL BEGIN  ===========================-->
+<script>
+    function TOUnitCollection() {
+        this.initialize.apply(this, arguments);
+    }
+
+    ez_TabCtl.prototype.closeBtn = function (cb) {
+        var id = $(cb).first().attr("data-id");
+        for (var i = 0; i < this.count(); i++) {
+            var cid = this.Contents[i].attr("id");
+            if (cid == id) {
+                this.TOColl.confirmDelete(i);
+            };
+        }
+    }
+
+    TOUnitCollection.prototype.initialize = function (id, style) {
+        this.Units = [];
+        this.tabCtl = new ez_TabCtl(id, style);
+        this.tabCtl.TOColl = this;
+        this.EditMode = false;
+        this.AllowEdit = true;
+        this.MaxUnit = 10;
+
+        this.tabCtl.unitColl = this;
+        this._on = {};
+        this.tabCtl.on("changed", this.refreshNumbering.bind(this));
+        this.tabCtl.on("content-created", function (ele) {
+            $(ele.Content).find(".ShipmentDate").datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+            $(ele.Content).parent(".route-list").attr("data-count", 1);
+
+            ez.CollapseNext($(ele.Content).find(".collapse-next"));
+        });
+        this.tabCtl.on("content-deleted", function (index) {
+            var unit = this.unitColl.Units[index];
+            if (unit) unit.delete();
+        });
+
+        this.tabCtl.ContentConstructor = function () {
+            var cln = $("#tabTemplate").clone();
+            $(cln).removeAttr("id");
+            return cln;
+        };
+
+        this.clear();
+    }
+
+    TOUnitCollection.prototype.editMode = function (flag, editable)
+    {
+        this.EditMode = flag;
+        this.AllowEdit = editable;
+        this.refresh();
+    }
+
+    TOUnitCollection.prototype.confirmDelete = function (index)
+    {
+        this._deleteContext = index;
+        var unit = this.Units[index];
+        if (unit) {
+            var allDraftOrNew = true;
+            linq(unit.Routes).do(function (r) {
+                var ordStat = r.field("OrderStatus").val();
+                if (!(ordStat == "Draft" || ordStat == null || ordStat === undefined || ordStat == "")) {
+                    allDraftOrNew = false;
+                }
+            });
+            if (!allDraftOrNew)
+            {
+                // error
+                if (ez && ez.Modals) {
+                    ez.Modals.Error.show("Cannot delete this unit because it contains non-draft route(s)!");
+                }
+                return;
+            }
+            if (ez && ez.Modals) {
+                ez.Modals.Confirm.on("yes-clicked", (function () {
+                    var f = function () {
+                        this.tabCtl.close(this._deleteContext);
+                    };
+                    this.trigger("unit-deleted", [this.Units[this._deleteContext], f.bind(this)]);
+                }).bind(this));
+                ez.Modals.Confirm.show("Are you sure to delete Vehicle-" + (this._deleteContext + 1) +"?");
+            }
+        }
+    }
+
+    TOUnitCollection.prototype.on = function (event, callback) {
+        this._on[event] = callback;
+    }
+
+    TOUnitCollection.prototype.trigger = function (event, args) {
+        if (this._on[event]) this._on[event].apply(this, args);
+    }
+
+    TOUnitCollection.prototype.clear = function () {
+        this.tabCtl.clear();
+        this.refreshNumbering();
+        this.Units = [];
+    }
+
+    TOUnitCollection.prototype.refreshNumbering = function () {
+        var cnt = 1;
+        $(this.tabCtl.Pages).each(function (key, ele) {
+            $(ele).find(".tab-button-name").html("Vehicle-" + cnt);
+            cnt++;
+        });
+
+        $('.ez-btn-closetab').attr('title', 'Delete Vehicle');
+        this.trigger("refresh", [cnt - 1]);
+    }
+
+    TOUnitCollection.prototype.newUnit = function () {
+        if (this.Units.length >= this.MaxUnit)
+        {
+            ez.Modals.error("Maximum vehicle limit is " + this.MaxUnit + "!");
+            return;
+        }
+        var tab = this.tabCtl.createPage("New Unit");
+        var o = new TOUnit(tab, this);
+        this.refreshNumbering();
+        this.Units.push(o);
+        this.trigger("unit-created", [o]);
+        return o;
+    }
+
+    TOUnitCollection.prototype.val = function (setval) {
+        if (setval) {
+            for (var i = 0; i < setval.length; i++) {
+                if (i < this.Units.length) {
+                    this.Units[i].val(setval[i]);
+                }
+                else {
+                    var unt = this.newUnit();
+                    unt.val(setval[i]);
+                }
+            }
+            while (this.Units.length > setval.length) {
+                this.Units[setval.length].delete();
+            }
+        }
+        else {
+            var data = [];
+            for (var i = 0; i < this.Units.length; i++) {
+                data.push(this.Units[i].val());
+            }
+            return data;
+        }
+    }
+
+    TOUnitCollection.prototype.validate = function ()
+    {
+        // Count checked route(s)
+        var total = 0;
+        linq(this.Units).do(function (unit) {
+            linq(unit.Routes).do(function (route) {
+                if (route.Checked())
+                    total++;
+            });
+        });
+        if (total <= 0) {
+            ez.Modals.Error.show("<span style=\"font-size: larger;\">There is no selected route!</span>");
+            return false;
+        }
+
+        var valid = true;
+        var err = "";
+        this._stoCheck = [];
+        for (var i = 0; i < this.Units.length; i++) {
+            var unit = this.Units[i];
+            var val = unit.validate(i + 1);
+            if (val !== true) {
+                valid = false;
+                err += "<b>Vehicle-" + (i + 1) + " errors:</b><br>" + val;
+            }
+        }
+        if (!valid)
+            ez.Modals.Error.show("<b style=\"font-size: larger;\">Invalid inputs:</b><br>" + err);
+        return valid;
+    }
+
+    TOUnitCollection.prototype.refresh = function ()
+    {
+        for (var i = 0; i < this.Units.length; i++) {
+            this.Units[i].refresh();
+        }
+
+        $("#btnAddNewUnit").prop("disabled", !this.AllowEdit);
+        $("#btnSaveDraft").prop("disabled", !this.AllowEdit);
+        $("#btnSubmit").prop("disabled", !this.AllowEdit);
+        $("#btnDelete").prop("disabled", !this.AllowEdit);
+
+        this.trigger("refresh", [this]);
+    }
+
+    function TOUnit() {
+        this.initialize.apply(this, arguments);
+    }
+
+    TOUnit.prototype.initialize = function (tab, parent) {
+        this._tab = tab.Content;
+        this._cb = tab.Button;
+        this._parent = parent;
+        this.Collection = this._parent;
+        this.Routes = [];
+
+        var func = this.newRoute.bind(this);
+        $(tab.Content).find(".btnAddNewRoute").on("click", func);
+
+        func = this.clone.bind(this);
+        $(tab.Content).find(".cloneUnit").on("click", func);
+
+        this._tab.find(".routeUnit").remove();
+        this.newRoute();
+        var func = this.deleteSelectedRoute.bind(this);
+        $(tab.Content).find(".btnDeleteRoute").on("click", func);
+
+        func = this.checkAll.bind(this);
+        this._tab.find(".checkAll").on("change", func);
+
+        $(this._tab).find(".tooltip-trigger").tooltip();
+    }
+
+    TOUnit.prototype.checkAll = function () {
+        if (this._skipCheck) return;
+        var val = $(this._tab).find(".checkAll").first().prop("checked");
+        linq(this.Routes).do(function (route) {
+            if ((route.field("OrderStatus").val() == "Draft" || route.field("OrderStatus").val() == "Submit" || !route.field("OrderStatus").val())
+                && route.field("OrderStatus").val() != "Cancel")
+                route.Checked(val);
+        });
+    };
+    TOUnit.prototype.refreshCheckAll = function () {
+        var allChecked = this.Routes.length > 0;
+        linq(this.Routes).do(function (route) {
+            if (route.Checked() == false && (route.field("OrderStatus").val() == "Draft" || route.field("OrderStatus").val() == "Submit" || !route.field("OrderStatus").val())
+                && route.field("OrderStatus").val() != "Cancel")
+                allChecked = false;
+        });
+        this._skipCheck = true;
+        $(this._tab).find(".checkAll").first().prop("checked", allChecked);
+        this._skipCheck = false;
+    };
+
+    TOUnit.prototype.validate = function (num) {
+        var val = this.val();
+        var err = "";
+        if (!val.VehicleType) err += "&bull; Vehicle Type is required<br>";
+        if (!val.ShipmentDate) err += "&bull; Shipment Date is required<br>";
+        if (!val.Zone) err += "&bull; Zone is required<br>";
+        if (val.Routes.length == 0) err += "&bull; No route in vehicle<br>";
+        for (var i = 0; i < this.Routes.length; i++) {
+            var route = this.Routes[i];
+            if (!route.Checked())
+                continue;
+            var valMsg = route.validate(num, i+1);
+            if (valMsg !== true) {
+                valid = false;
+                err += "<b>Vehicle-" + (num) + " &bull; Route-" + (i + 1) + " errors:</b><br>" + valMsg;
+            }
+        }
+        if (err == "") return true;
+        return err;
+    }
+
+    TOUnit.prototype.clear = function () {
+        this._tab.find(".routeUnit").remove();
+        this.Routes = [];
+    }
+
+    TOUnit.prototype.delete = function () {
+        this._parent.tabCtl.closeBtn(this._cb);
+        var idx = this._parent.Units.indexOf(this);
+        if (idx >= 0)
+            this._parent.Units.splice(idx, 1);
+        this._parent.refreshNumbering();
+    }
+
+    TOUnit.prototype.newRoute = function () {
+        var cont = $(this._tab).find(".route-container");
+        var cln = $("#tabTemplate").find(".routeUnit").clone();
+        cont.append(cln);
+        ez.CollapseNext($(cln).find(".collapse-next"));
+        this.refreshNumbering(cont);
+
+        var o = new TORoute(cln, this);
+        this.Routes.push(o);
+
+        this._parent.trigger("route-created", [o]);
+
+        this._skipCheck = true;
+        $(this._tab).find(".checkAll").first().prop("checked", false);
+        this._skipCheck = false;
+        
+        var cust = @ViewBag.CanSetParentSTO.ToString().ToLower();
+        console.log(cust);
+        if (!cust)
+            $(o._ele).find(".btnSetParent").hide();
+
+        var func = function () {
+            $(this._ele).find(".tdParentSTO").show();
+            $(this._ele).find(".btnSetParent").hide();
+        };
+        $(o._ele).find(".btnSetParent").on("click", func.bind(o));
+
+        return o;
+    }
+
+    TOUnit.prototype.deleteSelectedRoute = function () {
+        for (var i = this.Routes.length - 1; i >= 0; i--) {
+            if (this.Routes[i].deleteChecked())
+                this.Routes[i].delete();
+        }
+    }
+
+    TOUnit.prototype.refreshNumbering = function () {
+        var cnt = 0;
+        $(this._tab).find(".routeUnit").each(function (x, ele) {
+            cnt++;
+            $(ele).find(".route-title").html("Route " + cnt);
+        });
+    }
+
+    TOUnit.prototype.val = function (setval) {
+        if (setval) {
+            this.field("VehicleType").val(setval.VehicleType);
+            this.field("ShipmentDate").val(dateParse(setval.ShipmentDate, "DD/MM/YYYY", "DD/MM/YYYY"));
+            this.field("Zone").val(setval.Zone);
+            this.ID = setval.IDRequest;
+            while (setval.Routes.length < this.Routes.length) this.Routes[setval.Routes.length].delete();
+            for (var i = 0; i < setval.Routes.length; i++) {
+                var mat = this.Routes[i] || this.newRoute();
+                mat.val(setval.Routes[i]);
+            }
+        }
+        else {
+            var data = [];
+            for (var i = 0; i < this.Routes.length; i++) {
+                var rtVal = this.Routes[i].val();
+                data.push(rtVal);
+            }
+            return {
+                VehicleType: this.field("VehicleType").val(),
+                ShipmentDate: this.field("ShipmentDate").val(),
+                Zone: this.field("Zone").val(),
+                Routes: data,
+                IDRequest: this.ID
+            }
+        }
+    }
+    TOUnit.prototype.clone = function () {
+        var unt = this._parent.newUnit();
+        if (!unt) return;
+        var curval = this.val();
+
+        curval.ID = 0;
+        curval.IDRequest = 0;
+        
+        for (var i = 0; i < curval.Routes.length; i++) {
+            curval.Routes[i].OrderNumber = null;
+            curval.Routes[i].OrderStatus = null;
+            curval.Routes[i].ParentOrderNumber = null;
+            curval.Routes[i].ID = 0;
+            curval.Routes[i].IDTransportOrder = 0;
+            curval.Routes[i].SeqNo = null;
+            delete curval.Routes[i].Saved;
+            linq(curval.Routes[i].Materials).do(function (mat) { mat.ID = 0; mat.IDTransportOrderDetail = 0; });
+        }
+
+        unt.val(curval);
+
+        console.log("Cloned value:", curval);
+        console.log("Cloned Unit:", unt);
+    }
+
+    TOUnit.prototype.IsDraft = function () {
+        var isDraft = true;
+        linq(this.Routes).do(function (route) {
+            if (!route.IsDraft()) isDraft = false;
+        });
+        return isDraft;
+    }
+
+    TOUnit.prototype.refresh = function () {
+        var hasSubmit = false;
+        var canEditShipment = true;
+        for (var i = 0; i < this.Routes.length; i++) {
+            if (this.Routes[i]) {
+                if (!this.Routes[i].IsDraft()) {
+                    hasSubmit = true;
+                    canEditShipment = false;
+                }
+                this.Routes[i].refresh();
+            }
+            var sto = this.Routes[i].field("OrderNumber").val();
+            if (sto != "" && sto != null)
+                canEditShipment = false;
+        }
+
+        $(this._tab).find(".ShipmentDate").prop("disabled", !this.Collection.AllowEdit || !canEditShipment);
+
+        var isDraft = this.IsDraft();
+        $(this._tab).find(".VehicleType").prop("disabled", !isDraft);
+        $(this._tab).find(".Zone").prop("disabled", !isDraft);
+        $(this._tab).find(".btnAddNewRoute").prop("disabled", !this.Collection.AllowEdit);
+        $(this._tab).find(".cloneUnit").prop("disabled", !this.Collection.AllowEdit);
+    }
+
+    TOUnit.prototype.field = function (key, val) {
+        return $(this._tab).find("." + key).first();
+    }
+
+    TOUnit.prototype.refreshCostCenter = function () {
+        var sender = $(this._tab).find(".Sender").first().select2("val");
+        var receiver = $(this._tab).find(".Receiver").first().select2("val");
+        var material = $(this._tab).find(".MaterialType").first().val();
+        var date = moment($(this._tab).find(".ShipmentDate").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        var local = this;
+        if (sender && receiver && material && date !== "Invalid date") {
+            $.ajax(
+                {
+                    url: "@Url.Action("GetCostCenter")",
+                    data: {
+                        sender: sender,
+                        receiver: receiver,
+                        materialType: material,
+                        date: date
+                    },
+                    success: function (data) {
+                        if (data)
+                            $(local._tab).find(".CostCenter").val(data);
+                        else
+                            $(local._tab).find(".CostCenter").val("");
+                    },
+                    error: function() {
+                        $(local._tab).find(".CostCenter").val("");
+                    }
+                }
+            );
+        }
+    }
+
+    function TORoute() {
+        this.initialize.apply(this, arguments);
+    }
+
+    TORoute.prototype.initialize = function (ele, prt) {
+        this._ele = ele;
+        this._parent = prt;
+        this.Unit = prt;
+        this.Collection = this.Unit._parent;
+        this.Materials = [];
+        this.Saved = false;
+        //this.IsSpecialMaterial = false;
+        this.IsSpecialMaterial = false;
+        this._events = {};
+        this.clear();
+
+        var func = this.Unit.refreshCheckAll.bind(this.Unit);
+        this._ele.find(".checkDelete").on("change", func);
+        this.Unit.refreshCheckAll();
+    }
+
+    TORoute.prototype.getFirstMaterialType = function () {
+        if (this.Materials.length <= 0)
+            return null;
+        return $(this.Materials[0]._ele).find(".MaterialType").first().val();
+    }
+
+    TORoute.prototype.refreshCostCenter = function () {
+        var sender = $(this._ele).find(".Sender").first().select2("val");
+        var receiver = $(this._ele).find(".Receiver").first().select2("val");
+        var material = $(this._ele).find(".MaterialType").first().val();
+        //console.log($(this._ele).parent().parent().parent().parent().find(".ShipmentDate").val());
+        var date = moment($(this._ele).parent().parent().parent().parent().find(".ShipmentDate").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        var local = this;
+        console.log(date);
+        if (sender && receiver && material && date !== "Invalid date") {
+            $.ajax(
+                {
+                    url: "@Url.Action("GetCostCenter")",
+                    data: {
+                        sender: sender,
+                        receiver: receiver,
+                        materialType: material,
+                        date: date
+                    },
+                    success: function (data) {
+                        if (data)
+                            $(local._ele).find(".CostCenter").val(data);
+                        else
+                            $(local._ele).find(".CostCenter").val("");
+                    },
+                    error: function() {
+                        $(local._ele).find(".CostCenter").val("");
+                    }
+                }
+            );
+        }
+    }
+
+    TORoute.prototype.on = function (event, func) {
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(func);
+    };
+
+    TORoute.prototype.trigger = function (event, args) {
+        this._events[event] = this._events[event] || [];
+        var pool = this._events[event];
+        for (var i = 0; i < pool.length; i++)
+        {
+            pool[i].apply(this, args);
+        }
+    };
+
+    TORoute.prototype.clear = function () {
+        this.Materials = [];
+        $(this._ele).find(".material-row-template").remove();
+        this.createMaterial();
+    }
+
+    TORoute.prototype.validate = function (unt, rot) {
+        var val = this.val();
+        var err = "";
+        if (this.IsSpecialMaterial && !val.OrderNumber) err += "&bull; Order Number is required<br>";
+        else if (this.IsSpecialMaterial) {
+            var enabled = !$(this._ele).find(".OrderNumber").first().prop("disabled");
+            if (enabled) {
+                const regex = /^([a-zA-Z0-9])+$/;
+                if (!val.OrderNumber.match(regex))
+                    err += "&bull; Order Number contains invalid characters<br>";
+            }
+        }
+        if (!val.OrderType) err += "&bull; Order Type is required<br>";
+        if (!val.Sender) err += "&bull; Sender is required<br>";
+        if (!val.Receiver) err += "&bull; Receiver is required<br>";
+        //if (!val.OrderStatus) err += "&bull; Order Status is required<br>";
+
+        if (val.OrderNumber && this.Collection._stoCheck.includes(val.OrderNumber))
+            err += "&bull; Duplicate STO detected: " + val.OrderNumber + "<br>";
+        else if (val.OrderNumber)
+            this.Collection._stoCheck.push(val.OrderNumber);
+
+        for (var i = 0; i < this.Materials.length; i++) {
+            var mat = this.Materials[i];
+            var valMsg = mat.validate(unt, rot, i+1);
+            if (valMsg !== true) {
+                valid = false;
+                err += "<b>Vehicle-" + unt + " &bull; Route-" + rot + " &bull; Material #" + (i + 1) + " errors:</b><br>" + valMsg;
+            }
+        }
+
+        if (err == "") return true;
+        return err;
+    }
+
+    TORoute.prototype.deleteChecked = function () {
+        return $(this._ele).find(".checkDelete").prop("checked");
+    }
+
+    TORoute.prototype.delete = function () {
+        $(this._ele).remove();
+        var idx = this._parent.Routes.indexOf(this);
+        if (idx >= 0)
+            this._parent.Routes.splice(idx, 1);
+        this._parent.refreshNumbering();
+    }
+
+    TORoute.prototype.deleteNonCig = function () {
+        $(this.Materials).each(function (ths, idx, ele) {
+            var v = ele.val();
+            if (v.MaterialType != "Cigarette")
+                ele.delete();
+        });
+    }
+
+    TORoute.prototype.createMaterial = function () {
+        var cont = $(this._ele).find(".material-container");
+        var cln = $("#tabTemplate").find(".material-row-template").clone();
+        cont.append(cln);
+
+        if (this.Materials.length == 0)
+        {
+            $(cln).find(".btnDeleteMat").remove();
+            $(cln).find(".control-buttons").attr("style", null);
+        }
+        else
+            $(cln).find(".control-label").remove();
+
+        var func = this.createMaterial.bind(this);
+        $(cln).find(".btnAddMat").on("click", func);
+
+        var o = new TOMaterial(cln, this);
+        this.Materials.push(o);
+
+        this._parent._parent.trigger("material-created", [o]);
+
+        if (this.IsSpecialMaterial) {
+            $(cln).find(".MaterialType").val(this.getFirstMaterialType());
+            $(cln).find(".MaterialType").trigger("change");
+            $(cln).find(".MaterialType").prop("disabled", true);
+        }
+
+        return o;
+    }
+
+    TORoute.prototype.val = function (setval) {
+        if (setval) {
+            $(this._ele).find('.LabelOrderStatus').html(setval.OrderStatus);
+            $(this._ele).find(".OrderNumber").val(setval.OrderNumber);
+            $(this._ele).find(".ParentOrderNumber").val(setval.ParentOrderNumber);
+            if (setval.ParentOrderNumber)
+                $(this._ele).find(".ParentOrderNumber").show();
+            $(this._ele).find(".OrderType").val(setval.OrderType);
+            $(this._ele).find(".IDCostCenter").val(setval.IDCostCenter);
+            $(this._ele).find(".SeqNo").val(setval.SeqNo);
+            $(this._ele).find(".Sender").val(setval.Sender);
+            $(this._ele).find(".Sender").trigger("change");
+            $(this._ele).find(".Receiver").val(setval.Receiver);
+            $(this._ele).find(".Receiver").trigger("change");
+            $(this._ele).find(".CostCenter").val(setval.CostCenter);
+            $(this._ele).find(".OrderStatus").val(setval.OrderStatus);
+            $(this._ele).find(".OrderRemark").val(setval.OrderRemark);
+            $(this._ele).find(".checkDelete").prop("checked", setval.Checked);
+            
+            this.ID = setval.IDTransportOrder;
+            this.Saved = setval.Saved !== undefined ? setval.Saved : this.Saved;
+            if (setval.Expanded) {
+                $(this._ele).find(".route-content").collapse('show');
+            }
+            while (setval.Materials.length < this.Materials.length) this.Materials[setval.Materials.length].delete();
+            for (var i = 0; i < setval.Materials.length; i++) {
+                var mat = this.Materials[i] || this.createMaterial();
+                mat.val(setval.Materials[i]);
+            }
+        }
+        else {
+            var data = [];
+            for (var i = 0; i < this.Materials.length; i++) {
+                data.push(this.Materials[i].val());
+            }
+            return {
+                OrderNumber: $(this._ele).find(".OrderNumber").first().val(),
+                ParentOrderNumber: $(this._ele).find(".ParentOrderNumber").first().val(),
+                OrderType: $(this._ele).find(".OrderType").first().val(),
+                Sender: $(this._ele).find(".Sender").first().select2("val"),
+                Receiver: $(this._ele).find(".Receiver").first().select2("val"),
+                CostCenter: $(this._ele).find(".CostCenter").first().val(),
+                OrderStatus: $(this._ele).find(".OrderStatus").first().val(),
+                OrderRemark: $(this._ele).find(".OrderRemark").first().val(),
+                IDCostCenter: $(this._ele).find(".IDCostCenter").first().val(),
+                SeqNo: $(this._ele).find(".SeqNo").first().val(),
+                Checked: this.Checked(),
+                Saved: this.Saved,
+                IDTransportOrder: this.ID || this.IDTransportOrder,
+                IsSpecialMaterial: this.IsSpecialMaterial,
+                Expanded: $(this._ele).find(".route-content").attr("aria-expanded") == "true",
+                Materials : data
+            }
+        }
+    }
+
+    TORoute.prototype.Checked = function (val) {
+        if (val !== undefined)
+            $(this._ele).find(".checkDelete").prop("checked", val === true);
+        else
+            return $(this._ele).find(".checkDelete").first().prop("checked");
+    }
+
+    TORoute.prototype.IsCancel = function () {
+        return this.field("OrderStatus").val() == "Cancel";
+    }
+    TORoute.prototype.IsDraft = function () {
+        return this.field("OrderStatus").val() == "Draft" || !this.Saved;
+    }
+    TORoute.prototype.IsSubmit = function () {
+        return this.field("OrderStatus").val() == "Submit";
+    }
+    TORoute.prototype.IsNew = function () {
+        return !this.Saved;
+    }
+    TORoute.prototype.HasSTO = function () {
+        var val = this.field("OrderNumber").val();
+        return val !== "" && val !== undefined && val !== null;
+    }
+
+    TORoute.prototype.refresh = function () {
+        for (var i = 0; i < this.Materials.length; i++) {
+            this.Materials[i].refresh();
+        }
+        this.field("ParentOrderNumber").prop("disabled", !this.Collection.AllowEdit || this.Saved || this.IsCancel());
+        this.field("checkDelete").prop("hidden", !this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew() || this.IsSubmit()) || this.IsCancel());
+        this.field("Sender").select2(!this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew()) || this.IsCancel() ? "disable" : "enable");
+        this.field("Receiver").select2(!this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew()) || this.IsCancel() ? "disable" : "enable");
+        this.field("OrderStatus").prop("disabled", true);
+        this.field("OrderRemark").prop("disabled", !this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew()) || this.IsCancel());
+        this.field("btnUpload").prop("disabled", !this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew()) || this.IsCancel());
+        this.field("btnSetParent").prop("disabled", !this.Collection.AllowEdit || !(this.IsDraft() || this.IsNew()) || this.IsCancel());
+        // clear
+        this.field("OrderNumber").prop("disabled", !this.Collection.AllowEdit ||
+            !((this.IsDraft() || this.IsNew()) && this.IsSpecialMaterial)
+            || this.IsCancel()
+        );
+
+        if (!(this.IsDraft() || this.IsNew() || this.IsSubmit()))
+            this.field("btn-delete-route").hide();
+
+        this.trigger("refresh", [this]);
+    }
+
+    TORoute.prototype.field = function (key, val) {
+        return $(this._ele).find("." + key).first();
+    }
+
+    function TOMaterial() {
+        this.initialize.apply(this, arguments);
+    }
+
+    TOMaterial.prototype.initialize = function (ele, prt) {
+        this._ele = ele;
+        this._parent = prt;
+        this.Route = prt;
+        this.Unit = prt._parent;
+        this.Collection = this.Unit._parent;
+
+        var func = this.delete.bind(this);
+        $(ele).find(".btnDeleteMat").on("click", func);
+
+        func = this.clone.bind(this);
+        $(ele).find(".btnCloneMat").on("click", func);
+
+        $(this._ele).find(".MaterialType").on("change", this._typeChanged.bind(this));
+        $(this._ele).find(".Code").on("change", this._codeChanged.bind(this));
+
+        this.clear();
+    }
+
+    TOMaterial.prototype._codeChanged = function () {
+        if (!this.Route.IsSpecialMaterial && this.Route.getFirstMaterialType() == "Cigarette") return;
+        var val = $(this._ele).find(".Code").first().val();
+        var local = this;
+        if (val)
+            $.ajax({
+                url: '@Url.Action("GetSpeakingCode")',
+                data: { code: val },
+                success: function (data) {
+                    if (data != null && data != "")
+                        $(local._ele).find(".Description").val(data);
+                }
+            });
+    }
+
+    TOMaterial.prototype.description = function (val) {
+        if (val === undefined)
+            $(this._ele).find(".Description").first().val(val);
+        else
+            return $(this._ele).find(".Description").first().val();
+    }
+
+    TOMaterial.prototype._typeChanged = function () {
+        var uom = $(this._ele).find(".UoM");
+        var mate = $(this._ele).find(".MaterialType").val();
+        uom.html('');
+        if ($data.UoMs[mate]) {
+            filldd(uom, $data.UoMs[mate]);
+        }
+
+        var mcat = $data.MaterialCats[mate] || "Other";
+
+        if (mate != "" && mate != null)
+        {
+            var fstmat = $(this.Route.Materials[0]._ele).find(".MaterialType").val();
+            var fstcat = $data.MaterialCats[fstmat] || "Other";
+            $(this.Route._ele).find(".OrderType").val(fstcat);
+
+            if (!$data.MaterialTypeNonSpc.includes(mate)) {
+                // changed to cig
+                if (!this.Route.IsSpecialMaterial) {
+                    // clear
+                    this.Route.IsSpecialMaterial = true;
+
+                    if (this.Route.Materials.length >= 1) {
+                        $(this.Route.Materials[0]._ele).find(".MaterialType").val(mate);
+                        $(this.Route.Materials[0]._ele).find(".MaterialType").trigger("change");
+                    }
+
+                    if (this.Route.Saved)
+                        this.Route._prevNumber = $(this.Route._ele).find(".OrderNumber").val();
+                }
+
+                var btype = $(this.Route.Materials[0]._ele).find(".MaterialType").val();
+                for (var ix = 1; ix < this.Route.Materials.length; ix++) {
+                    var ctype = $(this.Route.Materials[ix]._ele).find(".MaterialType").val();
+                    if (btype != ctype)
+                    {
+                        this.Route.Materials[ix].delete();
+                        ix--;
+                    }
+                }
+
+                if (!$(this.Route._ele).find(".OrderNumber").val())
+                    $(this.Route._ele).find(".OrderNumber").val("");
+                $(this.Route._ele).find(".OrderNumber").prop("disabled", false);
+            }
+            else {
+                // changed to non-cig
+                if (this.Route.IsSpecialMaterial) {
+                    // clear
+                    while (this.Route.Materials.length > 1) {
+                        this.Route.Materials[1].delete();
+                    }
+                }
+
+                for (var ix = 1; ix < this.Route.Materials.length; ix++) {
+                    var ctype = $(this.Route.Materials[ix]._ele).find(".MaterialType").val();
+                    if (!$data.MaterialTypeNonSpc.includes(ctype))
+                        this.Route.Materials[ix].delete();
+                }
+
+                if (!this.Route.Saved)
+                    $(this.Route._ele).find(".OrderNumber").val("");
+                else if (this.Route._prevNumber)
+                    $(this.Route._ele).find(".OrderNumber").val(this.Route._prevNumber);
+
+                $(this.Route._ele).find(".OrderNumber").prop("disabled", true);
+                this.Route.IsSpecialMaterial = false;
+            }
+        }
+    }
+
+    TOMaterial.prototype.delete = function () {
+        $(this._ele).remove();
+        var idx = this._parent.Materials.indexOf(this);
+        if (idx >= 0)
+            this._parent.Materials.splice(idx, 1);
+    }
+
+    TOMaterial.prototype.clone = function () {
+        var mat = this._parent.createMaterial();
+        var curval = this.val();
+        mat.val(curval);
+        mat.ID = 0;
+        mat.IDTransportOrderDetail = 0;
+    }
+
+    TOMaterial.prototype.clear = function () {
+
+    }
+
+    TOMaterial.prototype.validate = function (unt, rot, mat) {
+        var val = this.val();
+        var err = "";
+        if (!val.MaterialType) err += "&bull; Material Type is required<br>";
+        if (!val.Code || val.Code.trim() == "") err += "&bull; Code is required<br>";
+        if (!val.Quantity) err += "&bull; Quantity is required<br>";
+        if (!val.UoM) err += "&bull; UoM is required<br>";
+
+        if (err == "") return true;
+        return err;
+    }
+
+    TOMaterial.prototype.val = function (setval) {
+        if (setval)
+        {
+            $(this._ele).find(".MaterialType").val(setval.MaterialType);
+            $(this._ele).find(".MaterialType").trigger("change");
+            $(this._ele).find(".Code").val(setval.Code);
+            $(this._ele).find(".Description").val(setval.Description);
+            $(this._ele).find(".Quantity").val(setval.Quantity);
+            $(this._ele).find(".UoM").val(setval.UoM);
+            this.ID = setval.IDTransportOrderDetail;
+        }
+        else {
+            var q = $(this._ele).find(".Quantity").first().val();
+            if (q) q = q.replace(",", ".");
+            return {
+                MaterialType: $(this._ele).find(".MaterialType").first().val(),
+                Code: $(this._ele).find(".Code").first().val(),
+                Description: $(this._ele).find(".Description").first().val(),
+                Quantity: Number(q) || 0,
+                UoM: $(this._ele).find(".UoM").first().val(),
+                IDTransportOrderDetail : this.ID
+            };
+        }
+    }
+
+    TOMaterial.prototype.refresh = function () {
+        this.field("MaterialType").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("Code").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("Description").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("Quantity").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("UoM").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("btnCloneMat").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("btnAddMat").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+        this.field("btnDeleteMat").prop("disabled", !this.Collection.AllowEdit || !(this.Route.IsDraft() || this.Route.IsNew()));
+    }
+
+    TOMaterial.prototype.field = function (key, val) {
+        return $(this._ele).find("." + key).first();
+    }
+</script>
+<!--===========================   UNIT CLASS CONTROL END   ===========================-->
+<!--===========================  UI CONTROL SCRIPT BEGIN  ===========================-->
+<script>
+    // Global Data
+    var $data = {};
+    var toDataID = null;
+    var editMode = false;
+    var units = new TOUnitCollection("tabber", "pill");
+
+    // add action to add new unit
+    $("#btnAddNewUnit").on('click', function () {
+        units.newUnit();
+    });
+
+    // DELETE FUNCTION
+    function Delete(ids, emptyRoutes)
+    {
+        ez.Modals.BeginLoading();
+        console.log("Data to delete:", ids);
+        $.ajax({
+            url: '@Url.Action("DeleteRouteUnit")',
+            data: { deleteData: ids },
+            method: 'post',
+            success: function (res) {
+                ez.Modals.EndLoading();
+                if (res)
+                {
+                    linq(units.Units).do(function (unit) {
+                        linq(unit.Routes).do(function (rout) {
+                            if (ids.includes(rout.ID)) {
+                                if (rout.field("OrderStatus").val() == "Submit") {
+                                    rout.field("OrderStatus").val("Cancel");
+                                    rout.field("LabelOrderStatus").html("Cancel");
+                                    rout.field("checkDelete").hide();
+                                    rout.field("checkDelete").prop("checked", false);
+                                }
+                                else
+                                    rout.delete();
+                            }
+                        });
+                    });
+                    if (emptyRoutes)
+                        linq(emptyRoutes).do(function (r) {
+                            r.delete();
+                        });
+                    ez.Modals.Notif.show("Your data has been successfully deleted");
+                    units.refresh();
+                    console.log("Unit Count:", units.Units.length);
+                    if (units.Units.length == 0)
+                        units.newUnit();
+                }
+                else
+                    ez.Modals.Error.show("Data delete failed");
+            }
+        });
+    }
+
+    // DELETE BUTTON
+    $("#btnDelete").on("click", function () {
+        var routeCount = linq(units.Units).select(
+            function (unit) {
+                return linq(unit.Routes).where(function (r) { return r.Checked(); });
+            }
+        ).flatten().count();
+        if (routeCount <= 0) {
+            ez.Modals.error("Please select route that you want to delete!");
+            return;
+        }
+        ez.Modals.Confirm.show("Are you sure to delete selected Routes?", null, {
+            yes: function () {
+                /** DELETE LOGIC **/
+                var ids = [];
+                var eroutes = [];
+                linq(units.Units).do(function (unit) {
+                    linq(unit.Routes).do(function (rout) {
+                        if (rout.Checked())
+                            if (rout.ID !== undefined)
+                                ids.push(rout.ID);
+                            else
+                                eroutes.push(rout);
+                    });
+                }).flatten().getContext();
+                Delete(ids, eroutes);
+            }
+        })
+    });
+
+    // SAVE FUNCTION
+    function Save(data, status)
+    {
+        /** SUBMIT and DRAFT LOGIC **/
+        var dic = [];
+        var iv = 0;
+        var ir = 0;
+        if (status !== undefined) {
+            linq(data).do(function (unit) {
+                unit.ShipmentDate = moment(unit.ShipmentDate, "DD/MM/YYYY").format("YYYY-MM-DD");
+                iv++;
+                linq(unit.Routes).do(function (rout) {
+                    if (rout.Checked)
+                        rout.OrderStatus = status;
+                    ir++;
+
+                    var odic = {};
+                    console.log("RT:",rout);
+                    odic.Tag = "Vehicle-" + iv + " &bull; Route-" + ir;
+                    odic.STONo = rout.OrderNumber;
+                    odic.IDTransportOrder = rout.IDTransportOrder;
+                    dic.push(odic);
+
+                    linq(rout.Materials).do(function (mate) {
+                        mate.QtyString = mate.Quantity * 100;
+                    });
+                });
+                ir = 0;
+            });
+        }
+        ez.Modals.BeginLoading();
+        var exec_save = function () {
+            console.log("Data to save:", data);
+            $.ajax({
+                url: '@Url.Action("Save")',
+                data: {
+                    data: { Units: data, RequestNo: $("#RequestNumber").val() }
+                },
+                method: 'post',
+                success: function (res) {
+                    ez.Modals.EndLoading();
+                    if (res) {
+                        console.log("Return Value", res);
+
+                        if (res.ReqNo) {
+                            $("#RequestNumber").val(res.ReqNo);
+                            units.val(res.Data);
+                            units.EditMode = true;
+                            units.refresh();
+                            RefreshInfo();
+                            console.log(res.Data[0].OrderStatus);
+                            if (res.Data[0].Routes[0].OrderStatus == "Submit" || res.Data[0].Routes[0].OrderStatus == "submit")
+                            {
+                                ez.Modals.Notif.show("Your data has been successfully submitted");
+                            } else {
+                                ez.Modals.Notif.show("Your data has been successfully saved")
+                            }
+                        }
+                        else if (res.ValidationFailed === true)
+                        {
+                            if (res.Error == "STONotUnique") {
+                                var errmsg = "<b>The following STO numbers is not unique:</b><br />";
+                                linq(res.Data).do(function (v) {
+                                    errmsg += "&bull; " + v + "<br />"
+                                });
+                                ez.Modals.Error.show(errmsg);
+                            }
+                            if (res.Error == "StatusInconsistent")
+                            {
+                                var stos = "";
+                                for (var i = 0; i < res.Data.length; i++)
+                                {
+                                    stos += "<br />&bull;" + res.Data[i];
+                                }
+                                ez.Modals.Error.show("The following route data had been changed by another process:" + stos + "<br />Please uncheck them to save your changes.");
+                            }
+                        }
+                        else if(res.innerexception.innerexception.message)
+                        {
+                            Save(data, status);
+                        }
+                        else {
+                            ez.Modals.Error.show("Data submit failed, please try again in a few seconds");
+                        }
+                    }
+                    else
+                        ez.Modals.Error.show("Data submit failed, please try again in a few seconds");
+                },
+                error: function () {
+                    ez.Modals.EndLoading();
+                    ez.Modals.Error.show("Data save failed, please try again in a few seconds");
+                }
+            });
+        };
+
+        exec_save();
+        return;
+
+        console.log(dic);
+        $.ajax({
+            url: '@Url.Action("CheckSTO")',
+            data: {
+                stodic: dic
+            },
+            method: 'post',
+            success: function (res) {
+                if (res.IsSuccess) {
+                    exec_save();
+                }
+                else {
+                    ez.Modals.EndLoading();
+                    var errmsg = "<b>The following STO numbers is not unique:</b><br />";
+                    linq(res.Errors).do(function (v) {
+                        errmsg += "&bull; " + v + "<br />"
+                    });
+                    ez.Modals.Error.show(errmsg);
+                }
+            },
+            error: function () {
+                ez.Modals.Error.show("STO validation failed");
+            }
+        });
+    }
+
+    // EDIT MODE FUNCTION
+    function Edit(id)
+    {
+        ez.Modals.BeginLoading();
+        editMode = true;
+        units.clear();
+        $.ajax({
+            url: '@Url.Action("Load")',
+            data: { reqno: id },
+            method: 'get',
+            success: function (res) {
+                ez.Modals.EndLoading();
+                console.log("Data to edit:", res);
+                units.clear();
+                units.val(res.Units);
+                units.editMode(true, res.AllowEdit);
+                $("#RequestNumber").val(id);
+                if (units.Units.length == 0)
+                    units.newUnit();
+                RefreshInfo();
+            },
+            error: function () {
+                ez.Modals.EndLoading();
+                ez.Modals.error("You are not allowed to access this data!");
+                window.locaction.href = "@Url.Action()";
+            }
+        });
+    }
+
+    // SUBMIT BUTTON
+    $("#btnSubmit").on("click", function () {
+        if (units.validate()) {
+            var data = units.val();
+            Save(data, "Submit");
+        }
+    });
+    $("#btnSaveDraft").on("click", function () {
+        if (units.validate()) {
+            /** DRAFT LOGIC **/
+            var data = units.val();
+            Save(data, "Draft");
+        }
+    });
+
+    // Fill DropDown
+    function filldd(dd, data) {
+        dd.html('');
+
+        var opt = '<option>&nbsp;</option>';
+        dd.append(opt);
+
+        $(data).each(function (key, val) {
+            if (typeof (val) == "object") {
+                opt = '<option value="' + val.Key + '">' + val.Value + '</option>';
+                dd.append(opt);
+            }
+            else {
+                opt = '<option value="' + val + '">' + val + '</option>';
+                dd.append(opt);
+            }
+        });
+    }
+
+    function RefreshInfo(){
+        var cnt_inproc = 0;
+        var cnt_ondeli = 0;
+        var cnt_comple = 0;
+        var cnt_submit = 0;
+        var cnt = 0;
+        linq(units.Units).do(function (unit) {
+            linq(unit.Routes).do(function (route) {
+                var ord = route.field("OrderStatus").val() || "";
+                ord = ord.toLowerCase();
+                console.log(ord);
+                if (ord == "in process") cnt_inproc++;
+                if (ord == "on delivery") cnt_ondeli++;
+                if (ord == "complete") cnt_comple++;
+                if (ord == "submit") cnt_submit++;
+            });
+            cnt++;
+        });
+        $("#total-order-unit").html(cnt);
+        $("#total-submit").html(cnt_submit);
+        $("#total-in-process").html(cnt_inproc);
+        $("#total-on-delivery").html(cnt_ondeli);
+        $("#total-complete").html(cnt_comple);
+    }
+
+    // Total Ordered Unit
+    units.on("refresh", function (cnt) {
+        linq(units.Units).do(function (unit) {
+            if (unit.Routes.length == 0)
+                unit.newRoute();
+        });
+        RefreshInfo();
+    });
+
+    // Setup new unit
+    units.on("unit-created", function (unit) {
+        filldd($(unit._tab).find(".VehicleType"), $data.VehicleType);
+        filldd($(unit._tab).find(".Zone"), $data.Zone);
+        $(unit._tab).find(".ShipmentDate").on("dp.change", function () {
+            unit.refreshCostCenter();
+        });
+        $("#total-order-unit").html(units.Units.length);
+    });
+
+    // Setup new route
+    units.on("route-created", function (route) {
+        filldd($(route._ele).find(".Sender"), $data.Location);
+        $(route._ele).find(".Sender").select2();
+        $(route._ele).find(".Sender").on("change", function () {
+            route.refreshCostCenter();
+        });
+        filldd($(route._ele).find(".Receiver"), $data.Location);
+        $(route._ele).find(".Receiver").select2();
+        $(route._ele).find(".Receiver").on("change", function () {
+            route.refreshCostCenter();
+        });
+        filldd($(route._ele).find(".OrderStatus"), ["Draft", "Submit"]);
+        $(route._ele).find(".btnUpload").on("click", (function () {
+                SpawnUploadBox(this);
+            }).bind(route)
+        );
+
+        var func = function () {
+            var rout = this;
+            ez.Modals.Confirm.show("Are you sure to delete this Route?", null, {
+                yes: function () {
+                    /** DELETE LOGIC **/
+                    var ids = [];
+                    var er = [];
+                    if (rout.ID)
+                        ids = [rout.ID];
+                    else
+                        er = [rout];
+                    Delete(ids, er);
+                }
+            });
+        };
+        $(route._ele).find(".btn-delete-route").on("click", func.bind(route));
+
+        RefreshInfo();
+    });
+
+    // Setup new material
+    units.on("material-created", function (mat) {
+        ez.Form.NumberOnly($(mat._ele).find(".Quantity"));
+        var mty = mat.Route.getFirstMaterialType();
+        if (mat.Route.Materials.length > 1) {
+            if (mat.Route.IsSpecialMaterial)
+                filldd($(mat._ele).find(".MaterialType"), [mty]);
+            else
+                filldd($(mat._ele).find(".MaterialType"), $data.MaterialTypeNonSpc);
+        }
+        else {
+            filldd($(mat._ele).find(".MaterialType"), $data.MaterialType);
+            $(mat._ele).find(".MaterialType").first().on("change", function () {
+                mat.Route.refreshCostCenter();
+            });
+        }
+        RefreshInfo();
+    });
+
+    // Send delete signal
+    units.on("unit-deleted", function (unit, callback) {
+        if (unit)
+        {
+            var val = unit.val();
+            if (val && val.IDRequest > 0)
+            {
+                // delete it
+                ez.Modals.BeginLoading();
+                $.ajax(
+                    {
+                        url: "@Url.Action("DeleteUnit")",
+                        data: { requestID: val.IDRequest },
+                        method: "POST",
+                        success: function (res) {
+                            ez.Modals.EndLoading();
+                            if (res.IsSuccess) {
+                                callback();
+                                if (units.Units.length == 0)
+                                    units.newUnit();
+                            }
+                            else {
+                                ez.Modals.error(res.ErrorMessage);
+                            }
+                        },
+                        error: function () {
+                            ez.Modals.EndLoading();
+                            ez.Modals.error("Failed to delete unit!");
+                        }
+                    }
+                );
+            }
+            else
+                callback();
+
+            if (units.Units.length == 0)
+                units.newUnit();
+        }
+    });
+
+    // Upload
+    var uploadContext = null;
+    function SpawnUploadBox(context)
+    {
+        uploadContext = context;
+        $("#fileInput").jfilestyle('clear');
+        $("#mdlUpload").modal("show");
+    }
+    $("#btnUpload").on('click', function () {
+        ez.Modals.BeginLoading();
+        if ($("#fileInput").val() == '' || $("#fileInput").val() == null) {
+            ez.Modals.EndLoading();
+            ez.Modals.Error.show("Please select file first!");
+            return;
+        }
+        if (window.FormData) {
+            var fileData = new FormData();
+            var fileUpload = document.getElementById('fileInput').files;
+            if (fileUpload.length > 0) {
+                fileUpload = fileUpload[0];
+                fileData.append('FileUpload', fileUpload);
+            } else {
+                ez.Modals.EndLoading();
+                ez.Modals.Error.show("No file to be uploaded!");
+                return;
+            }
+            $.ajax(
+                {
+                    type: 'POST',
+                    url: '@Url.Action("UploadMaterial")',
+                    data: fileData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (res)
+                    {
+                        ez.Modals.EndLoading();
+                        if (res.IsSuccess) {
+                            $("#fileInput").jfilestyle('clear');
+                            $("#mdlUpload").modal("hide");
+                            var err = "";
+                            var ctr = 2;
+                            linq(res.Data).do(function (val) {
+                                var mty = uploadContext.getFirstMaterialType();
+                                if (uploadContext.IsSpecialMaterial && val.MaterialType != mty) {
+                                    err += "&bull; Row #" + ctr + " - Material Type must be " + mty + "<br />";
+                                }
+                                if (!$data.MaterialType.includes(val.MaterialType))
+                                    err += "&bull; Row #" + ctr + " - Material Type is not valid<br />";
+                                ctr++;
+                            });
+                            if (err != "") {
+                                ez.Modals.Error.show("<b style=\"font-size:larger\">Upload Failed!</b><br />" + err);
+                            }
+                            else {
+                                linq(res.Data).do(function (val) {
+                                    // find the first empty slot that is followed only by empty slots
+                                    var mat = null;
+                                    var prev_mat = null;
+                                    for (var i = uploadContext.Materials.length - 1; i >= -1; i--)
+                                    {
+                                        if (i < 0)
+                                        {
+                                            mat = prev_mat;
+                                            break;
+                                        }
+                                        var m = uploadContext.Materials[i];
+                                        //console.log(m.field("MaterialType").val());
+                                        if (m.field("MaterialType").val())
+                                        {
+                                            mat = prev_mat;
+                                            break;
+                                        }
+                                        prev_mat = m;
+                                    }
+
+                                    if (mat === null)
+                                        mat = uploadContext.createMaterial();
+                                    mat.val(val);
+                                });
+                                ez.Modals.Notif.show("Upload success!");
+                            }
+                        }
+                        else {
+                            ez.Modals.Error.show("<b style=\"font-size:larger\">Upload Failed!</b><br />" + res.ErrorMessage);
+                        }
+                    },
+                    error: function (err) {
+                        ez.Modals.EndLoading();
+                        ez.Modals.Error.show("Failed to upload file!");
+                    }
+                }
+            );
+        }
+        setTimeout(function () { $("#mdlUpload").modal("hide"); }, 1000);
+    });
+    $("#btnDownloadTemplate").on("click", function () {
+        ez.Modals.BeginLoading();
+        $.ajax({
+            url: "@Url.Action("DownloadTemplateMaterial")",
+            method: "POST",
+            success: function (res) {
+                ez.Modals.EndLoading();
+
+                if (!res) {
+                    ez.Modals.error("Failed to download template");
+                }
+                else {
+                    window.location.assign('@Url.Content("~/Assets/Download/")' + res);
+                }
+            },
+            error: function() {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to download template");
+            }
+        });
+    });
+
+
+    // Load $data from server
+    ez.Modals.BeginLoading();
+    $.ajax(
+        {
+            url : '@Url.Action("GetData")',
+            success: function (json) {
+                ez.Modals.EndLoading();
+
+                $data = json;
+                $data.MaterialTypeNonSpc = [];
+                $($data.MaterialType).each(function (idx, ele) {
+                    var typ = $data.MaterialCats[ele] || "Other";
+                    if (typ != "Finished Good" && typ != "Bad Stock")
+                        $data.MaterialTypeNonSpc.push(ele);
+                });
+
+                console.log($data);
+
+                // create a default unit or edit existing unit
+                $(function () {
+                    @{
+                    if (ViewBag.RequestID != null)
+                    {
+                        @Html.Raw("Edit('" + ViewBag.RequestID + "');");
+                    }
+                    else
+                    {
+                        @Html.Raw("units.newUnit();");
+                    }
+                }
+                });
+
+                if (toDataID) LoadTOData(toDataID);
+            },
+            error: function () { ez.Modals.EndLoading(); }
+        }
+    );
+
+
+    /*-- Easter Egg --*/
+    var eggOn = true;
+    var eggKey = "lumosmaxima";
+    var eggInput = "";
+    $(window).on("load", function() {
+        $(window).on("keypress", function(k) {
+            if (!eggOn) return;
+            eggInput += k.key;
+            while (eggInput.length > eggKey.length)
+                eggInput = eggInput.substr(1);
+            if (eggInput == eggKey)
+            {
+                $(".OrderType").parent().parent().removeAttr("hidden");
+                $(".SeqNo").parent().parent().removeAttr("hidden");
+                $(".IDCostCenter").parent().parent().removeAttr("hidden");
+                ez.Modals.notification("Unlocked: Super vision!");
+                //eggOn = false;
+                eggInput = "";
+            }
+        });
+    });
+</script>
+<!--===========================  UI CONTROL SCRIPT END  ===========================-->

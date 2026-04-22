@@ -1,0 +1,223 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.Warehouse.WarehouseSealManagementViewModel
+@using EnumHelper = DFIS.Utils.EnumHelper
+
+@*<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">*@
+<link rel="stylesheet" href="../Assets/Css/app-new.css" media=" screen">
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .report-page main .bottom-gudang .form-group textarea.form-control {
+        height: 250px;
+        overflow: hidden;
+    }
+</style>
+
+<body class="report-page">
+    <main>
+
+        @if (Model.ListGridPrint[0].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.open) || Model.ListGridPrint[0].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.unlocked))
+        {
+            <h2 class="title">BERITA ACARA PEMBUKAAN GUDANG</h2>
+        }
+        else
+        {
+            <h2 class="title">BERITA ACARA PENUTUPAN GUDANG</h2>
+        }
+
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>: @Model.StatusDate</span></li>
+            <li><label>Time</label><span>: @Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>: @Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>: @Model.WarehouseStaff2</span></li>
+            <li><label>Warehouse Staff Other</label><span>: @Model.WarehouseStaff3</span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th align="center" valign="middle" style="text-align: center; vertical-align: middle; background-color: #FAFAFA; font-family: 'Karla-Bold'; width: 50px;">NO.</th>
+                    <th align="center" valign="middle" style="text-align: center; vertical-align: middle; background-color: #FAFAFA; font-family: 'Karla-Bold'; width: 300px;">LOCATION</th>
+                    <th align="center" valign="middle" style="text-align: center; vertical-align: middle; background-color: #FAFAFA; font-family: 'Karla-Bold'; width: 150px;">SEAL NUMBER</th>
+                    <th align="center" valign="middle" style="text-align: center; vertical-align: middle; background-color: #FAFAFA; font-family: 'Karla-Bold'; width: 100px;">CONDITION</th>
+                    <th align="center" valign="middle" style="text-align: center; vertical-align: middle; background-color: #FAFAFA; font-family: 'Karla-Bold';">REMARKS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var no = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    @*if (Model.ListGridPrint[i].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.open) || Model.ListGridPrint[i].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.unlocked))
+                    {*@
+                        <tr>
+                            <td align="center" valign="middle" style="text-align: center; vertical-align: middle;">@no</td>
+                            <td>@Model.ListGridPrint[i].LocationArea</td>
+                            <td align="center" valign="middle" style="text-align: center; vertical-align: middle;">@Model.ListGridPrint[i].SealNumber</td>
+                            <td>&nbsp;</td>
+                            <td></td>
+                        </tr>
+                    {
+                        no++;
+                    }
+                    @*}*@
+                }
+            </tbody>
+        </table>
+        <div class="bottom-gudang">
+            <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+            <div class="form-group">
+                <label class="control-label">Notes : </label> <br/>
+                @*@{var Remarks = Model.ListGridPrint[0].Remarks != null ? Model.ListGridPrint[0].Remarks.Split('$') : new string[] { };}
+                @for (var i = 0; i < Remarks.Count(); i++)
+                {
+                    <label>@Remarks[i]</label> <br />
+                }*@
+                @{var Remarks = Model.ListGridPrint[0].Remarks != null ? Model.ListGridPrint[0].Remarks : "";}
+                <textarea width="100%" class="form-control">@Remarks</textarea>
+                <label class="signature"><div class="">@Model.WarehouseStaff1</div> <br/><div class="signs">Warehouse Staff-1</div></label>
+
+                @if (!string.IsNullOrEmpty(Model.WarehouseStaff3))
+                {                    
+                    <label class="signature"><div class="">@Model.WarehouseStaff3</div> <br /><div class="signs">Warehouse Staff Other</div></label> 
+                            
+                }else { 
+                    
+                     <label class="signature"><div class=""> @Html.Raw(String.IsNullOrEmpty(Model.WarehouseStaff2) ? "&nbsp" : Model.WarehouseStaff2)</div> <br /><div class="signs">Warehouse Staff-2</div></label>                  
+                    
+                }
+               
+                <label class="signature"><div class="">&nbsp;</div> <br /><div class="signs">Security</div></label>
+            </div>
+        </div>
+        
+       
+        @*<h2 class="title" style="color: white;">Page Break</h2>
+    <div style="page-break-after: always;"></div>
+    <h2 class="title">BERITA ACARA PENUTUPAN GUDANG</h2>
+    <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+    <ul class="col-data">
+        <li><label>Date</label><span>@Model.StatusDate</span></li>
+        <li><label>Time</label><span>@Model.StatusTime</span></li>
+    </ul>
+
+    <ul class="col-data">
+        <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+        <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+    </ul>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Location</th>
+                <th>Seal Number</th>
+                <th>Condition</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{var num = 1;}
+            @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+            {
+                if (Model.ListGridPrint[i].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.close) || Model.ListGridPrint[i].Status.ToUpper() == EnumHelper.GetDescription(DFIS.Utils.Enums.SealStatus.locked))
+                {
+                    <tr>
+                        <td>@num</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        num++;
+                    }
+                }
+
+            }
+        </tbody>
+    </table>
+
+    <div class="bottom-gudang">
+        <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+        <div class="form-group">
+            <label class="control-label">Notes :</label>
+            <textarea class="form-control"></textarea>
+        </div>
+        <label class="signature"><div class="">@Model.WarehouseStaff1</div> <br /><div class="signs">Warehouse Staff-1</div></label>
+        <label class="signature"><div class="">@Model.WarehouseStaff2</div> <br /><div class="signs">Warehouse Staff-2</div></label>
+        <label class="signature"><div class="">&nbsp;</div> <br /><div class="signs">Security</div></label>
+    </div>
+        <h2 class="title">BERITA ACARA PEMBUKAAN GUDANG</h2>
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>@Model.StatusDate</span></li>
+            <li><label>Time</label><span>@Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+        </ul>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Location</th>
+                    <th>Seal Number</th>
+                    <th>Condition</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var nomor = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    <tr>
+                        <td>@nomor</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        nomor++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="signature">
+            <div class="sign">
+                <p>Driver/Transporter</p>
+                <p class="name">AJI/BAYU</p>
+            </div>
+            <div class="sign text-center">
+                <p>Receiver</p>
+                <p class="name">Warehouse Staff-1</p>
+            </div>
+            <div class="sign text-center">
+                <p>Witness</p>
+                <p class="name">Warehouse Staff-2</p>
+            </div>
+            <div class="sign text-center">
+                <p>Supervisor Area</p>
+                <p class="name">Security</p>
+            </div>
+        </div>*@
+
+</main>
+</body>

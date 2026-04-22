@@ -1,0 +1,356 @@
+﻿@{
+    ViewBag.Title = " Master Data > Master Survey Question";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+
+<table id="dtQuestion" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Question</th>
+            <th>Group</th>
+            <th>Ordering</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Question</th>
+            <th>Group</th>
+            <th>Ordering</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Survey Question</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <form id="newData">
+                            <div class="col-md-6" hidden>
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6" hidden>
+                                <div class="form-group">
+                                    <label>IDSurvey</label>
+                                    <input type="text" id="IDSurvey" class="form-control">
+                                </div>
+                            </div>                              
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Question</label>
+                                    <input type="text" id="txtQuestion" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Group</label>
+                                            <select class="select2" id="ListGroup"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Ordering</label>
+                                            <input type="text" id="Ordering" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select class="form-control" id="Status">
+                                                <option value="1">YES</option>
+                                                <option value="0">NO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" hidden>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>CreatedDate</label>
+                                        <input type="text" id="CreatedDate" class="form-control datepicker">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" hidden>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>CreatedBy</label>
+                                        <input type="text" id="CreatedBy" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var OldGroup;
+    var OldOrdering;
+    var OldIsActive;
+
+    $(document).ready(function () {
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            generateDropDownGroup();
+        });
+    });
+
+    function resetData() {
+        $('#newData')[0].reset();
+        $("#ListGroup").select2();
+    }
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    generateDropDownGroup();
+    generateTable();
+
+    function generateTable() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait... Refresh Table</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: 'MstSurveyQuestion/GetMasterDataSurveyQuestion',
+            method: 'GET',
+            dataType: 'JSON',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtQuestion').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[5, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'Question', 'searchable': true },
+                        { 'data': 'Group', 'searchable': true },
+                        { 'data': 'Ordering', 'searchable': true },
+                        {
+                            render: function (data, type, row) { 
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDMasterSurveyQuestion", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    "initComplete": function () {
+                        dialog.modal('hide');
+                    }
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtQuestion thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 5)) {
+                        var title = $('#dtQuestion thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtQuestion thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN TYPE
+    function generateDropDownGroup(selectedValue) {
+        $.ajax({
+            url: 'MstSurveyQuestion/GetDropDownGroup',
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (data) {
+                var select = document.getElementById('ListGroup');
+                var len = document.getElementById('ListGroup').length;
+                var option;
+                if (len > 0)
+                    $('#ListGroup').empty().append('');
+                for (var i = 0; i < data.length; i++) {
+                    option = document.createElement('option');
+                    option.value = data[i]["FieldValue"];
+                    option.text = data[i]["FieldValue"];
+                    select.add(option);
+                }
+                $("#ListGroup").select2('val', selectedValue);
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN TYPE
+
+    $('#btnSaveNew').click(function () {
+        if ($('#InsertOrUpdate').val() == "UPDATE") {
+            save(false);
+        } else {
+            save(true);
+        }
+    });
+
+    function save(statusSave) {
+        var idSurvey = $('#IDSurvey').val();
+        var question = $('#txtQuestion').val();
+        var section = "CheckListSupriseVisit";
+        var group = $('#ListGroup :selected').val();
+        var ordering = $('#Ordering').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var createddate = $('#CreatedDate').val();
+        var createdby = $('#CreatedBy').val();
+        var data;
+        if (statusSave) {
+            data = {
+                "new": [{ "Question": question, "Section": section, "Group": group, "Ordering": ordering, "IsActive": status, "OldIsActive": true }],
+                "edit": [{}]
+            };
+        } else {
+            data = {
+                "new": [{}],
+                "edit": [{ "IDMasterSurveyQuestion": idSurvey, "Question": question, "Section": section, "Group": group, "OldGroup": OldGroup, "Ordering": ordering, "OldOrdering": OldOrdering, "IsActive": status, "OldIsActive": OldIsActive, "CreatedDate": createddate, "CreatedBy": createdby }]
+            };
+        }
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait... Save Data</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'MstSurveyQuestion/InsertList',
+            data: data,
+            success: function (result) {
+                dialog.modal('hide');
+                if (result == "Success") {
+                    generateTable();
+                    $('#modalsuccess').modal('show');
+                    resetData();
+                } else {
+                    $("#textModalError").html('');
+                    $("#textModalError").html('there are already ordering number in the same group');
+                    $("#modalerror").modal('show');
+                }
+            }
+        });
+    }
+    // END : Insert New Data
+
+    //BEGIN : Edit Data
+    function editTable(id) {
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        var table = $('#dtQuestion').DataTable();
+        $('#dtQuestion tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDSurvey').val(data["IDMasterSurveyQuestion"]);     
+            $('#txtQuestion').val(data["Question"].trim());
+            generateDropDownGroup(data["Group"].trim());
+            $('#Ordering').val(data["Ordering"]);
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+            OldGroup = data["Group"].trim();
+            OldOrdering = data["Ordering"];
+            OldIsActive = data["IsActive"];
+        });
+        $('#inputModal').modal('show');
+    }
+    // END : Edit Data
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+</script>

@@ -1,0 +1,471 @@
+
+@{
+    ViewBag.Title = "Master Data > Master Configuration > Value Parameter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Page Name</th>
+            <th>Value</th>
+            <th>Description</th>
+           
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+
+            <th>Page Name</th>
+            <th>Value</th>
+            <th>Description</th>
+            
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Value Parameter</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">                        
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IDConfiguration</label>
+                                            <input type="text" id="IDConfiguration" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">                                  
+                                        <div class="form-group">
+                                            <label>Page Name</label>
+                                            <select class="select2" id="PageName"></select>
+                                        </div>                                   
+                                </div>
+                                <div class="col-md-6">                                   
+                                        <div class="form-group">
+                                            <label>Value</label>
+                                            <input id="Value" type="text" class="form-control">
+                                        </div>                                   
+                                </div>
+                                <div class="col-md-6">                                   
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea id="Description" class="form-control"></textarea>
+                                        </div>                                    
+                                </div>
+                                <div class="col-md-6">
+                                  
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select class="form-control" id="Status">
+                                                <option value="1">YES</option>
+                                                <option value="0">NO</option>
+                                            </select>
+                                        </div>                                
+                                </div>                                                   
+                                    <div class="row" hidden>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>CreatedDate</label>
+                                                <input type="text" id="CreatedDate" class="form-control datepicker">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" hidden>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>CreatedBy</label>
+                                                <input type="text" id="CreatedBy" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                            </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="notexist" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted user not exist</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="doubledata" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted user already exist</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        generateDropDownPageName();
+     
+    });
+    $('#addNew').click(function () {
+        document.getElementById("PageName").disabled = false;
+        document.getElementById("PageName").readonly = false;
+        document.getElementById("Description").disabled = false;
+        document.getElementById("Value").disabled = false;
+        resetData();
+        $('#InsertOrUpdate').val("INSERT");
+        generateDropDownPageName();
+    });
+
+    $('#inputModal').on('hidden.bs.modal', function () {
+        $('#PageName').select2("close");
+    });
+
+    function resetData() {
+        $("#PageName").select2("val", "");
+        $('#newData')[0].reset();
+    }
+        // END : GENERAL Logic
+
+        // BEGIN : JQUERY SELECT TO DataTable
+        generateTable();
+       
+        //generate table
+        function generateTable() {
+            $.ajax({
+                url: 'MstConfiguration/GetMasterConfiguration',
+                method: 'get',
+                dataType: 'json',
+                cache: false,
+                success: function (json) {
+                    var table = $('#dtFilterMaster').DataTable({
+                        'destroy': true,
+                        data: json,
+                        'destroy': true,
+                        'paging': true,
+                        'sort': true,
+                        'searching': true,
+                        "iDisplayLength": 25,
+                        aaSorting: [[5, 'desc']],
+                        columns: [
+                             {
+                                 "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                                     if (data == true) {
+
+                                         return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                     } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                                 }
+                             },
+                            { 'data': 'PageName', 'searchable': true },
+                              { 'data': 'Value', 'searchable': true },
+                            { 'data': 'Description', 'searchable':true },
+                          
+                             {
+                                 render: function (data, type, row) {
+                                     // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                     var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                     var formatted = date.getFullYear() + "-" +
+                                           ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                           ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                           date.getMinutes();
+                                     //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                     //var dtStr = dt.toString();
+                                     //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                     //      dt.getMinutes();
+                                     var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                     return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                                 }
+                             },
+                          { 'data': 'UpdatedDate', 'class': 'hidden' },
+                         
+                            {
+                                "data": "IDConfiguration", "class":"text-center", "render": function (data) {
+                                    return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                                }
+                            }
+                        ],
+                        "dom": 'lf<"table-overflow"t>ip',
+                        orderCellsTop: true
+                    });
+
+                    $('.dataTables_filter input').attr("placeholder", "Search Here");
+                    // Setup - add a text input to each footer cell
+                    $('#dtFilterMaster thead.filters th').each(function (index) {
+                        if ((index >= 1) && (index < 6)) {
+                            var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                            $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                        }
+                    });
+                    //searching with column on datatable
+                    table.columns().every(function (index) {
+                        $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                            table.column($(this).parent().index() + ':visible')
+                                .search(this.value)
+                                .draw();
+                        });
+                    });
+                }
+            });
+        }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN TYPE
+        function generateDropDownPageName(selectedValue) {
+            $select = $('#PageName');
+            $select.html('<option value="NULL"></option>').trigger('change');
+        $.ajax({
+            url: 'MstConfiguration/GetDropDownPageName',
+            method: 'get',
+            cache: false,
+            dataType: 'json',
+            success: function (data) {
+                $select.html('');
+                $.each(data,
+                    function(key, val) {
+                        $select.append('<option value="' + val + '">' + val + '</option>');
+                    });
+            },
+            error:function(){
+                $select.html('<option value="NULL">none available</option>');
+            }
+            
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN TYPE
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save(false);
+        $('#setinactive').modal('hide');
+        $('#inputModal').modal('hide');
+    });
+
+        $('#btnSaveNew').click(function () {
+            if ($('#InsertOrUpdate').val() == "UPDATE") {
+                $('#setinactive').modal('show');
+            } else {
+                save(true);  
+            }
+        });
+
+        function save(statusSave) {
+            $('#Loading').modal('show');
+            var idConfiguration = $('#IDConfiguration').val();
+            var pagename = $('#PageName').val();
+            var description = $('#Description').val();
+            var value = $('#Value').val();
+            var status = $('#Status :selected').val() == 1 ? true : false;
+            var createddate = $('#CreatedDate').val();
+            var createdby = $('#CreatedBy').val();
+            var data;
+            if (statusSave) {
+                data = {
+                    "new": [{ "PageName": pagename, "Description": description, "Value": value, "IsActive": status }],
+                    "edit": [{}]
+                };
+            } else {
+                data = {
+                    "new": [{}],
+                    "edit": [{ "IDConfiguration": idConfiguration, "PageName": pagename, "Description": description, "Value": value, "IsActive": status, "CreatedDate": createddate, "CreatedBy": createdby }]
+                };
+            }
+            $.ajax({
+                type: 'POST',
+                url: 'MstConfiguration/InsertList',
+                data: data,
+                success: function (result) {
+                   
+                if (result == "Success"){
+                    resetData();
+                    generateTable();
+                    $('#modalsuccess').modal('show');
+
+                    $('#Loading').modal('hide');
+                }
+                else if (result == "NotExist") {
+                    $('#notexist').modal('show');
+                    $('#Loading').modal('hide');
+                }
+                else if (result == "DoubleData") {
+                    $('#doubledata').modal('show');
+                    $('#Loading').modal('hide');
+                }
+                else
+                    $('#modalerror').modal('show');
+
+                $('#Loading').modal('hide');
+                }
+            });
+        }
+        // END : Insert New Data
+
+    //BEGIN : Edit Data
+        function editTable(id) {
+            $('#newData')[0].reset();
+            $('#InsertOrUpdate').val("UPDATE");
+            document.getElementById("PageName").disabled = true;
+            document.getElementById("PageName").readonly = true;        
+            document.getElementById("Description").disabled = true;
+            document.getElementById("Value").disabled = true;
+                       
+           // generateDropDownPageName();
+            var table = $('#dtFilterMaster').DataTable();
+            $('#dtFilterMaster tbody').one('click', 'tr', function () {
+                var data = table.row(this).data();
+                $('#IDConfiguration').val(data["IDConfiguration"]);
+                // generateDropDownPageName(data["PageName"].trim());
+                if ($("#PageName option[value='" + data["PageName"] + "']").length == 0)
+                {
+                    $('#PageName').append('<option value=' + data['PageName'] + '>' + data['PageName'] + '</option>');
+                }
+
+                $('#PageName').val(data["PageName"]).trigger('change');
+                $('#PageName').val(data["PageName"].trim());
+                $('#Description').val(data["Description"]);
+                $('#Value').val(data["Value"]);
+                if (data["IsActive"])
+                    $('#Status').val("1");
+                else
+                    $('#Status').val("0");
+                $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+                $('#CreatedBy').val(data["CreatedBy"]);
+            });
+            $('#inputModal').modal('show');
+        }
+    // END : Edit Data
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+</script>

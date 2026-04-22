@@ -1,0 +1,337 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Loading & Unloading History > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+     .main {
+        overflow: scroll;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+    }
+
+     .bootstrap-datetimepicker-widget table td, .bootstrap-datetimepicker-widget table th {
+         border-radius: 0px !important;
+         padding: 3px !important;
+     }
+
+     .box {
+         width: auto !important;
+     }
+</style>
+
+<div class="row"  style="min-width: 1300px;">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "LoadingUnloadingHistory")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="editButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="saveButton" onclick="Save()">Save</button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12" >
+        <div class="box">
+            <div class="form-group" style="width: 300px;">
+                <label for="transportationNumber">TRANSPORTATION NUMBER</label>
+                <input id="transportationNumber" class="form-control">
+                <input id="IDTransportExecution" type="hidden" />
+            </div>
+            <div class="form-group">
+                <div id="tableList" class="tableEditLoadUnload"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#saveButton').prop("disabled", true);
+        $('#IDTransportExecution').val();
+        //generateInput();
+        generateTable1();
+    });
+
+    function ResetData() {
+
+    }
+
+    //$(document).on("click", "#editButton", function (e) {
+    //    for (var i = 0; i < totalinputRecord; i++) {
+    //        document.getElementById('loadStartTime[' + i + ']').disabled = false;
+    //        document.getElementById('loadFinishTime[' + i + ']').disabled = false;
+    //        document.getElementById('unloadStartTime[' + i + ']').disabled = false;
+    //        document.getElementById('unloadFinishTime[' + i + ']').disabled = false;
+
+    //        $('#saveButton').prop("disabled", false);
+    //    }
+    //});
+
+    $('#editButton').on({
+        click: function (e) {
+            $('#saveButton').prop("disabled", false);
+            $("#editButton").prop("disabled", true);
+
+            for (var i = 0; i < generatedtable1data.length; i++) {
+                if (generatedtable1data[i].LoadStartTime != null || true)
+                    document.getElementById('loadStartTime[' + i + ']').disabled = false;
+                if (generatedtable1data[i].LoadFinishTime != null || true)
+                    document.getElementById('loadFinishTime[' + i + ']').disabled = false;
+                if (generatedtable1data[i].UnloadStartTime != null || true)
+                    document.getElementById('unloadStartTime[' + i + ']').disabled = false;
+                if (generatedtable1data[i].UnloadFinishTime != null || true)
+                    document.getElementById('unloadFinishTime[' + i + ']').disabled = false;
+            }
+        }
+    });
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function createElement(elementType,elementAttr, id, elementClass, parent, state) {
+        var newElement = document.createElement(elementAttr);
+        newElement.setAttribute('id', id);
+        newElement.setAttribute('type', elementType);
+        newElement.setAttribute('class', elementClass);
+        newElement.setAttribute('disabled', state);
+        var element = document.getElementById(parent);
+        element.appendChild(newElement);
+        //$('.select2').select2();
+    }
+
+    $('body').on('focus', ".datepicker", function () {
+        $(this).datetimepicker({
+            format: 'DD-MMM-YYYY HH:mm:ss'
+        });
+    });
+
+    var totalInputData = 0;
+    var generatedtable1data;
+    var generateTable1 = function () {
+        $("#transportationNumber").val(gup('sn'));
+        $("#transportationNumber").prop("disabled", true);
+        var input = {
+            "TransportNo": gup('sn'),"State":"edit"//$("#transportationNumber").val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetTransportOrderByNo", "LoadingUnloadingHistory")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: input,
+            success: function (json) {
+                generatedtable1data = json;
+                //dialogloading.modal("hide");
+                totalInputData = json.length;
+                var datalist = "<table class='display table dataTable' style='width: 100%' id='tbHeader'><thead><tr><th>Order Number</th><th width='5px'>Sender</th><th hidden>Senderid</th><th>Load Start</th><th>Load Finish</th><th width='2px'>Load box/working time</th><th>Receiver</th><th hidden>Receiverid</th><th>Unload Start</th><th>Unload Finish</th><th width='2px'>Unload box/working time</th></tr></thead><tbody id='datalist'>";
+                if (totalInputData > 0) {
+                    for (var i = 0; i < totalInputData; i++) {
+                        datalist += "<tr>";
+                        datalist += "<td hidden><div id='idTransportOrder[" + i + "]'>" + json[i].IDTransportOrder + "</div></td>";
+                        datalist += "<td><div id='OrderNumber[" + i + "]'>" + json[i].STONo + "</div></td>";
+                        datalist += "<td hidden><div id='senderIDLocation[" + i + "]' >" + json[i].SenderIDLocation + "</div></td>";
+                        datalist += "<td><div id='senderLocationName[" + i + "]' >" + json[i].SenderLocationName + "</div></td>";
+                        if (json[i].LoadStartTime == null) {
+                            //datalist += "<td><input class='form-control' id='loadStartTime[" + i + "]' value=''  disabled/></td>";
+                            datalist += "<td><input class='datepicker form-control' id='loadStartTime[" + i + "]' value=''  disabled/></td>";
+                        } else {
+                            datalist += "<td><input class='datepicker form-control' id='loadStartTime[" + i + "]' value='" + moment(json[i].LoadStartTime).format("DD-MMM-YYYY HH:mm") + "'  disabled/></td>";
+                        }
+                        if (json[i].LoadFinishTime == null) {
+                            //datalist += "<td><input class='form-control' id='loadFinishTime[" + i + "]' value=''  disabled/></td>";
+                            datalist += "<td><input class='datepicker form-control' id='loadFinishTime[" + i + "]' value=''  disabled/></td>";
+                        } else {
+                            datalist += "<td><input class='datepicker form-control' id='loadFinishTime[" + i + "]' value='" + moment(json[i].LoadFinishTime).format("DD-MMM-YYYY HH:mm") + "'  disabled/></td>";
+                        }
+                        if (json[i].LoadBoxperWorkingTime == null)
+                            datalist += "<td><div id='loadBoxperWorkingTime[" + i + "]'>0 box/minute</div></td>";
+                        else
+                            datalist += "<td><div id='loadBoxperWorkingTime[" + i + "]'>" + json[i].LoadBoxperWorkingTime + " box/minute</div></td>";
+                        datalist += "<td hidden><div id='receiverIDlocation[" + i + "]'>" + json[i].ReceiverIDLocation + "</div></td>";
+                        datalist += "<td><div id='receiverLocationName[" + i + "]'>" + json[i].ReceiverLocationName + "</div></td>";
+                        if (json[i].UnloadStartTime == null) {
+                            //datalist += "<td><input class='form-control datepicker' id='unloadStartTime[" + i + "]' value=''  disabled/></td>";
+                            datalist += "<td><input class='form-control datepicker' id='unloadStartTime[" + i + "]' value=''  disabled/></td>";
+                        } else {
+                            datalist += "<td><input class='form-control datepicker' id='unloadStartTime[" + i + "]' value='" + moment(json[i].UnloadStartTime).format("DD-MMM-YYYY HH:mm") + "'  disabled/></td>";
+                        }
+                        if (json[i].UnloadFinishTime == null) {
+                            //datalist += "<td><input class='form-control datepicker' id='unloadFinishTime[" + i + "]' value=''  disabled/></td>";
+                            datalist += "<td><input class='form-control datepicker' id='unloadFinishTime[" + i + "]' value=''  disabled/></td>";
+                        } else {
+                            datalist += "<td><input class='form-control datepicker' id='unloadFinishTime[" + i + "]' value='" + moment(json[i].UnloadFinishTime).format("DD-MMM-YYYY HH:mm") + "'  disabled/></td>";
+                        }
+                        if (json[i].UnloadBoxperWorkingTime == null)
+                            datalist += "<td><div id='unloadBoxperWorkingTime[" + i + "]'>0 box/minute</div></td>";
+                        else
+                            datalist += "<td><div id='unloadBoxperWorkingTime[" + i + "]'>" + json[i].UnloadBoxperWorkingTime + " box/minute</div></td>";
+                        datalist += "</tr>";
+                    }
+                    datalist += '</tbody></table>';
+                    $('#tableList').html(datalist);
+                    //total = 0;
+                    $('#IDTransportExecution').val(json[0].IDTransportExecution);
+                    //generateInputData();
+                } else {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Transportation number not found</div>",
+                        size: "small",
+                        closeButton: false
+                    });
+                    $('#IDTransportExecution').val("0");
+                }
+            }
+        });
+
+    };
+
+    @*var totalinputRecord = 0;
+    function generateInput() {
+        var input = {
+            SealNumber: gup("sn"),
+            IDLocation: gup("il"),
+            SortExpression: "SealNumber",
+            SortOrder: "ASC",
+            SortExpression2: "SealActivity"
+        };
+        console.log(input);
+        alert(input);
+        $.ajax({
+            url: '@Url.Action("GetData", "TransportationSeal")',
+            method: 'get',
+            dataType: 'json',
+            data: input,
+            cache: false,
+            success: function (json) {
+                console.log(json);
+                totalinputRecord = json.length;
+                $('#transportationNumber').val(json[0].TransportExecution.TransportNo);
+                document.getElementById('transportationNumber').setAttribute("disabled", true);
+                $('#IDTransportExecution').val(json[0].TransportExecution.IDTransportExecution);
+
+                createElement("text", "input", "sealNumber[0]", "form-control", "divsealNumber[0]", true);
+                document.getElementById("sealNumber[0]").value = json[0].SealNumber;
+                for (var i = 0; i < json.length; i++) {
+                    createElement("hidden", "input", "idtransportseal[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("idtransportseal[" + i + "]").value = json[i].IDTransportSeal;
+
+                    createElement("hidden", "input", "isactive[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("isactive[" + i + "]").value = json[i].IsActive;
+
+                    createElement("text", "input", "sealActivity[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("sealActivity[" + i + "]").value = json[i].SealActivity;
+
+                    createElement("text", "input", "location[" + i + "]", "form-control", "divlocation[" + i + "]", true);
+                    document.getElementById("location[" + i + "]").value = json[i].IDLocation;
+                    document.getElementById("location[" + i + "]").innerHTML = json[i].LocationName;
+
+                    createElement("text", "input", "dateandtime[" + i + "]", "form-control datepicker", "divdateandtime[" + i + "]", true);
+                    document.getElementById("dateandtime[" + i + "]").value = moment(json[i].SealTime).format("DD-MMM-YYYY HH:mm");
+
+                    createElement("text", "input", "remarks[" + i + "]", "form-control", "divremarks[" + i + "]", true);
+                    document.getElementById("remarks[" + i + "]").value = json[i].Remarks;
+
+                    createElement("text", "input", "user[" + i + "]", "form-control", "divuser[" + i + "]", true);
+                    document.getElementById("user[" + i + "]").value = json[i].CreatedByFullName;
+
+
+                }
+            }
+        });
+    }*@
+
+    //function removeElement() {
+    //    document.getElementById("sealNumber[0]").setAttribute("type", "hidden");
+    //    for (var i = 0; i < totalinputRecord; i++) {
+    //        document.getElementById("location[" + i + "]").setAttribute("type", "hidden");
+    //        document.getElementById("sealActivity[" + i + "]").setAttribute("type", "hidden");
+    //        document.getElementById("dateandtime[" + i + "]").setAttribute("type", "hidden");
+    //        document.getElementById("remarks[" + i + "]").setAttribute("type", "hidden");
+    //        document.getElementById("user[" + i + "]").setAttribute("type", "hidden");
+    //        document.getElementById("isactive[" + i + "]").value = 0;
+    //    }
+    //}
+
+    function Save() {
+        var dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        var listarr = [];
+        console.log(totalInputData);
+        for (var i = 0; i < totalInputData; i++) {
+            listarr.push({
+                IDTransportOrder: document.getElementById("idTransportOrder[" + i + "]").innerHTML,
+                LoadStartTime: document.getElementById("loadStartTime[" + i + "]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                LoadFinishTime: document.getElementById("loadFinishTime[" + i + "]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                UnloadStartTime: document.getElementById("unloadStartTime[" + i + "]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                UnloadFinishTime: document.getElementById("unloadFinishTime[" + i + "]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                IsActive: true
+            });
+        }
+
+        var data = {
+            "New": [{}],
+            "Edit": listarr
+        };
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("EditList", "LoadingUnloadingHistory")',
+            data: data,
+            success: function (result) {
+                dialogloading.modal("hide");
+                if ((result.Edit[0].ResponseType === "Invalid") || (result.Edit[0].ResponseType === "Error")) {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='@Url.Content("~/assets/images/danger.png")' alt='' /> " + result.Edit[0].Message + "</div>",
+                        size: "small",
+                        closeButton: false
+                    });
+                } else if (result.Edit[0].ResponseType === "Success") {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='@Url.Content("~/assets/images/checked.png")' alt='' /> " + result.Edit[0].Message + "</div>",
+                        size: "small",
+                        closeButton: false,
+                        callback: function () {
+                            generateTable1();
+                            $('#saveButton').prop('disabled', true);
+                            $('#editButton').prop('disabled', false);
+                        }
+                    });
+                    
+                    //generateTable();
+                    //resetDataTn();
+                }
+            }
+        });
+    }
+</script>

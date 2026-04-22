@@ -1,0 +1,40 @@
+/* VENDORS COMPONENTS */
+@import "bower_components/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "bower_components/components-font-awesome/scss/font-awesome.scss";
+
+/* CUSTOM SITE HELPERS */
+@import "helpers/variables";
+@import "helpers/mixins";
+
+/* BASE STYLESHEET AND RESETTER */
+@import "base/reset";
+@import "base/typhography";
+
+/* CUSTOM SITE COMPONENTS */
+@import "components/input";
+@import "components/button";
+@import "components/select";
+@import "components/tab";
+@import "components/table";
+@import "components/modal";
+@import "components/loader";
+@import "components/breadcrumb";
+@import "components/pagination";
+@import "components/box-panel";
+@import "components/component";
+@import "components/carousel";
+
+/* MAIN SITE REGIONS */
+@import "layout/header";
+@import "layout/footer";
+@import "layout/content";
+@import "layout/sidebar";
+
+/* PAGES */
+@import "pages/login";
+@import "pages/landing";
+@import "pages/news";
+@import "pages/dashboard";
+@import "pages/interactive";
+@import "pages/lost&damage";
+@import "pages/building";

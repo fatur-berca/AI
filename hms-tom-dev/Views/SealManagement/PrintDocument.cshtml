@@ -1,0 +1,296 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.Warehouse.WarehouseSealManagementViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+</style>
+
+<body class="report-page">
+    <main>
+
+        <h2 class="title">BERITA ACARA PEMBUKAAN GUDANG</h2>
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>@Model.StatusDate</span></li>
+            <li><label>Time</label><span>@Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+        </ul>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Location</th>
+                    <th>Seal Number</th>
+                    <th>Condition</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var no = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    <tr>
+                        <td>@no</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        no++;
+                    }
+                }
+            </tbody>
+        </table>
+        
+        <div class="bottom-gudang">
+            <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+            <div class="form-group">
+                <label class="control-label">Notes :</label>
+                <textarea class="form-control"></textarea>
+            </div>
+            <label class="signature"><div class="signs">Warehouse Staff-1</div></label>
+            <label class="signature"><div class="signs">Warehouse Staff-2</div></label>
+            <label class="signature"><div class="signs">Security</div></label>
+        </div>
+
+        <div style="page-break-after: always;"></div>
+        <h2 class="title">BERITA ACARA PENUTUPAN GUDANG</h2>
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>@Model.StatusDate</span></li>
+            <li><label>Time</label><span>@Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+        </ul>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Location</th>
+                    <th>Seal Number</th>
+                    <th>Condition</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var num = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    <tr>
+                        <td>@num</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        num++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="bottom-gudang">
+            <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+            <div class="form-group">
+                <label class="control-label">Notes :</label>
+                <textarea class="form-control"></textarea>
+            </div>
+            <label class="signature"><div class="signs">Warehouse Staff-1</div></label>
+            <label class="signature"><div class="signs">Warehouse Staff-2</div></label>
+            <label class="signature"><div class="signs">Security</div></label>
+        </div>
+        
+        <h2 class="title">BERITA ACARA PENUTUPAN GUDANG</h2>
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>@Model.StatusDate</span></li>
+            <li><label>Time</label><span>@Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+        </ul>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Location</th>
+                    <th>Seal Number</th>
+                    <th>Condition</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var no = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    <tr>
+                        <td>@no</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        no++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="bottom-gudang">
+            <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+            <div class="form-group">
+                <label class="control-label">Notes :</label>
+                <textarea class="form-control"></textarea>
+            </div>
+            <label class="signature"><div class="signs">Warehouse Staff-1</div></label>
+            <label class="signature"><div class="signs">Warehouse Staff-2</div></label>
+            <label class="signature"><div class="signs">Security</div></label>
+        </div>
+
+        <div style="page-break-after: always;"></div>
+        <h2 class="title">BERITA ACARA PENUTUPAN GUDANG</h2>
+        <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>@Model.StatusDate</span></li>
+            <li><label>Time</label><span>@Model.StatusTime</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+            <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+        </ul>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Location</th>
+                    <th>Seal Number</th>
+                    <th>Condition</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var num = 1;}
+                @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                {
+                    <tr>
+                        <td>@num</td>
+                        <td>@Model.ListGridPrint[i].LocationArea</td>
+                        <td>@Model.ListGridPrint[i].SealNumber</td>
+                        <td>@Model.ListGridPrint[i].Status</td>
+                        <td>@Model.ListGridPrint[i].Remarks</td>
+                    </tr>
+                    {
+                        num++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="bottom-gudang">
+            <p class="ket-gudang">* give <i class="fa fa-check-square-o"></i> if seal in proper condition</p>
+            <div class="form-group">
+                <label class="control-label">Notes :</label>
+                <textarea class="form-control"></textarea>
+            </div>
+            <label class="signature"><div class="signs">Warehouse Staff-1</div></label>
+            <label class="signature"><div class="signs">Warehouse Staff-2</div></label>
+            <label class="signature"><div class="signs">Security</div></label>
+        </div>
+        @*<h2 class="title">BERITA ACARA PEMBUKAAN GUDANG</h2>
+            <h3 class="renumber">@Model.IDLocation - @Model.LocationName</h3>
+
+            <ul class="col-data">
+                <li><label>Date</label><span>@Model.StatusDate</span></li>
+                <li><label>Time</label><span>@Model.StatusTime</span></li>
+            </ul>
+
+            <ul class="col-data">
+                <li><label>Warehouse Staff 1</label><span>@Model.WarehouseStaff1</span></li>
+                <li><label>Warehouse Staff 2</label><span>@Model.WarehouseStaff2</span></li>
+            </ul>
+
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Location</th>
+                        <th>Seal Number</th>
+                        <th>Condition</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{var nomor = 1;}
+                    @for (var i = 0; i < Model.ListGridPrint.Count(); i++)
+                    {
+                        <tr>
+                            <td>@nomor</td>
+                            <td>@Model.ListGridPrint[i].LocationArea</td>
+                            <td>@Model.ListGridPrint[i].SealNumber</td>
+                            <td>@Model.ListGridPrint[i].Status</td>
+                            <td>@Model.ListGridPrint[i].Remarks</td>
+                        </tr>
+                        {
+                            nomor++;
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div class="signature">
+                <div class="sign">
+                    <p>Driver/Transporter</p>
+                    <p class="name">AJI/BAYU</p>
+                </div>
+                <div class="sign text-center">
+                    <p>Receiver</p>
+                    <p class="name">Warehouse Staff-1</p>
+                </div>
+                <div class="sign text-center">
+                    <p>Witness</p>
+                    <p class="name">Warehouse Staff-2</p>
+                </div>
+                <div class="sign text-center">
+                    <p>Supervisor Area</p>
+                    <p class="name">Security</p>
+                </div>
+            </div>*@
+
+</main>
+</body>

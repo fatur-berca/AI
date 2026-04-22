@@ -1,0 +1,865 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Vehicle Data Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("../VehicleData")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton">Save</button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <form id="newData">
+            <div class="box">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="IDPoliceRegNumber" id="IDPoliceRegNumberLabel">Police Registration Number</label>
+                            <input type="text" class="form-control" id="IDPoliceRegNumber" maxlength="13">
+                            <input type="hidden" id="state" value="create">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="ManufacturingYear">Manufacturing Year</label>
+                            <input type="text" class="form-control IsInteger" id="ManufacturingYear">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Karoseri">Karoseri</label>
+                            <select class="form-control" id="Karoseri"><option>Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Merk">Unit Brand</label>
+                            <select class="form-control" id="Merk"><option>Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Type">Unit Type</label>
+                            <select class="form-control" id="Type"><option>Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Cargo">Cargo</label>
+                            <select class="form-control" id="Cargo"><option>Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="BaseTown">Base Town</label>
+                            <select class="form-control" id="BaseTown"><option>Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="STNKValidityPeriod">STNK Expired Date</label>
+                            <input type="text" class="form-control datepicker" id="STNKValidityPeriod">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="GPS">GPS</label>
+                            <select class="form-control" id="GPS">
+                                <option value=""></option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="VehicleIdentityNumber">Vehicle Identity Number</label>
+                            <input type="text" class="form-control" id="VehicleIdentityNumber">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Vendor">Vendor</label>
+                            <select class="select2" id="Vendor">
+                                @*<option value="">Loading...</option>*@
+                            </select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Upload Front View</label>
+                            <input type="file" class="filestyle" id="AttachmentPhoto" accept="image/png,image/jpg,image/jpeg">
+                            <input type="hidden" id="AttachmentPhotoPath">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Upload Side View</label>
+                            <input type="file" class="filestyle" id="AttachmentPhotoTwo" accept="image/png,image/jpg,image/jpeg">
+                            <input type="hidden" id="AttachmentPhotoTwoPath">
+                        </div>
+                    </div>
+                    <!--div class="clearfix"></div-->
+                    <div class="col-md-12" style="display: none;">
+                        <div class="form-group">
+                            <label>Upload Attachment Photo 3</label>
+                            <input type="file" class="filestyle" id="AttachmentPhotoThree" accept="image/png,image/jpg,image/jpeg">
+                            <input type="hidden" id="AttachmentPhotoThreePath">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label >Upload STNK</label>
+                            <input type="file" class="filestyle" id="AttachmentSTNK" accept="image/png,image/jpg,image/jpeg">
+                            <input type="hidden" id="AttachmentSTNKPath">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="box">
+            <label class="box-title">ATTACHMENTS PREVIEW</label>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <img src="~/Assets/Images/cancel.png" style="width:25px; height:25px; float:right; padding-top:10px; padding-right:10px; cursor:pointer; display:none;" onclick="clearImage(1)" id="cancel1"/>
+                        <a href="../assets/images/no-image-available.png" data-lightbox="preview-attachment" data-title="Front View" class="AttachmentPhotoThumb" style="padding: 0 10px; display: block;">
+                            <div id="AttachmentPhotoThumb" style="background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;"></div>
+                        </a>
+                        <label class="text-center">Front View</label>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <img src="~/Assets/Images/cancel.png" style="width:25px; height:25px; float:right; padding-top:10px; padding-right:10px; cursor:pointer; display:none;" onclick="clearImage(2)" id="cancel2"/>
+                        <a href="../assets/images/no-image-available.png" data-lightbox="preview-attachment" data-title="Side View" class="AttachmentPhotoTwoThumb" style="padding: 0 10px; display: block;">
+                            <div id="AttachmentPhotoTwoThumb" style="background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;"></div>
+                        </a>
+                        <label class="text-center">Side View</label>                        
+                    </div>
+                </div>
+                <!--div class="clearfix"></div-->
+                <div class="col-md-12" style="display: none;">
+                    <div class="form-group">
+                        <a href="../assets/images/no-image-available.png" data-lightbox="preview-attachment-hide" data-title="Attachment Photo 3" class="AttachmentPhotoThreeThumb" style="padding: 0 10px; display: block;">
+                            <div id="AttachmentPhotoThreeThumb" style="background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;"></div>
+                        </a>
+                        <label class="text-center">Attachment Photo 3</label>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <img src="~/Assets/Images/cancel.png" style="width:25px; height:25px; float:right; padding-top:10px; padding-right:10px; cursor:pointer; display:none;" onclick="clearImage(3)" id="cancel3"/>
+                        <a href="../assets/images/no-image-available.png" data-lightbox="preview-attachment" data-title="STNK" class="AttachmentSTNKThumb" style="padding: 0 10px; display: block;">
+                            <div id="AttachmentSTNKThumb" style="background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;"></div>
+                        </a>
+                        <label class="text-center">STNK</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var getUrlParameter = function (sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+    jQuery(function ($) {
+        $("#IDPoliceRegNumberLabel").html("Police Registration Number");
+        $('#EditButton').prop("disabled", true);
+        $('#newData input, #newData select').prop("disabled", false);
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.when(generateDropDownVendor(), generateDropdownKaroseri(), generateDropdownUnitType(), generateDropDownUnitBrand(), generateDropDownCargo(), generateDropDownBaseTown()).done(function (a1, a2, a3, a4, a5) {
+            if (typeof getUrlParameter('IDPoliceRegNumber') === "undefined") {
+                $("#state").val("create");
+                dialog.modal('hide');
+            } else {
+                $("#state").val("update");
+                loadRecord(getUrlParameter('IDPoliceRegNumber'),getUrlParameter('IDVendor'), dialog);
+            }
+        });
+
+        /*
+        $(document).on('blur', '#IDPoliceRegNumber', function(e){
+            var temp = $('#IDPoliceRegNumber').val();
+            temp = temp.toUpperCase();
+            $('#IDPoliceRegNumber').val(temp);
+
+            if (temp.split('-').length - 1 != 2){
+                bootbox.alert({
+                    title: "TOM Notification Center",
+                    message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''> Police Registration Number Format is Incorrect.<br/> <b>Example</b>: L-XXXX-EF</div>",
+                    closeButton: false
+                });
+            }
+        });
+        */
+
+
+        $(document).on('click', '#SaveButton', function (e) {
+            //var temp = $('#IDPoliceRegNumber').val();
+            //temp = temp.toUpperCase();
+            //$('#IDPoliceRegNumber').val(temp);
+            //if (checkRegNo())
+                Save();
+            //if (temp.split('-').length - 1 == 2){
+            //    Save();
+            //}
+            //else{
+            //    bootbox.alert({
+            //        title: "TOM Notification Center",
+            //        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Police Registration Number Format is Incorrect Example: L-XXXX-EF</div>",
+            //        size: "small",
+            //        closeButton: false
+            //    });
+            //}
+
+            //e.preventDefault();
+        });
+
+        $(document).on('click', '#EditButton', function (e) {
+            $(this).prop("disabled", true);
+            $('#SaveButton').prop("disabled", false);
+            $('#newData input, #newData select').prop("disabled", false);
+            $('#IDPoliceRegNumber').prop("disabled", true);
+            $('#Vendor').prop("disabled", true);
+            if($("#AttachmentPhotoThumb").attr("style") != "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;")
+                $("#cancel1").show();
+            if ($("#AttachmentPhotoTwoThumb").attr("style") != "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;")
+                $("#cancel2").show();
+            if ($("#AttachmentSTNKThumb").attr("style") != "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;")
+                $("#cancel3").show();
+        });
+
+        $(document).on('change', '#AttachmentPhoto', function (e) {
+            var file = document.querySelector('input#AttachmentPhoto').files[0];
+            var reader = new FileReader();
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            reader.onload = function (event) {
+                // get loaded data and render thumbnail
+                $("#AttachmentPhotoThumb").attr("style", "background: url('" + event.target.result + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                $(".AttachmentPhotoThumb").attr("href", event.target.result);
+                $("#AttachmentPhotoPath").val('');
+
+                $("#cancel1").show();
+            };
+
+            // read the image file as a data URL
+            if (file) {
+                reader.readAsDataURL(this.files[0]);
+                dialog.modal('hide');
+            }
+        });
+
+        $(document).on('change', '#AttachmentPhotoTwo', function (e) {
+            var file = document.querySelector('input#AttachmentPhotoTwo').files[0];
+            var reader = new FileReader();
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            reader.onload = function (event) {
+                // get loaded data and render thumbnail
+                $("#AttachmentPhotoTwoThumb").attr("style", "background: url('" + event.target.result + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                $(".AttachmentPhotoTwoThumb").attr("href", event.target.result);
+                $("#AttachmentPhotoTwoPath").val('');
+
+                $("#cancel2").show();
+            };
+
+            // read the image file as a data URL
+            if (file) {
+                reader.readAsDataURL(this.files[0]);
+                dialog.modal('hide');
+            }
+        });
+
+        $(document).on('change', '#AttachmentPhotoThree', function (e) {
+            var file = document.querySelector('input#AttachmentPhotoThree').files[0];
+            var reader = new FileReader();
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            reader.onload = function (event) {
+                // get loaded data and render thumbnail
+                $("#AttachmentPhotoThreeThumb").attr("style", "background: url('" + event.target.result + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                $(".AttachmentPhotoThreeThumb").attr("href", event.target.result);
+                $("#AttachmentPhotoThreePath").val('');
+            };
+
+            // read the image file as a data URL
+            if (file) {
+                reader.readAsDataURL(this.files[0]);
+                dialog.modal('hide');
+            }
+        });
+
+        $(document).on('change', '#AttachmentSTNK', function (e) {
+            var file = document.querySelector('input#AttachmentSTNK').files[0];
+            var reader = new FileReader();
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            reader.onload = function (event) {
+                // get loaded data and render thumbnail
+                $("#AttachmentSTNKThumb").attr("style", "background: url('" + event.target.result + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                $(".AttachmentSTNKThumb").attr("href", event.target.result);
+                $("#AttachmentSTNKPath").val('');
+
+                $("#cancel3").show();
+            };
+
+            // read the image file as a data URL
+            if (file) {
+                reader.readAsDataURL(this.files[0]);
+                dialog.modal('hide');
+            }
+        });
+    });
+
+    function checkRegNo() {
+        var temp = $('#IDPoliceRegNumber').val();
+        temp = temp.toUpperCase();
+        $('#IDPoliceRegNumber').val(temp);
+
+        if (temp.match(/^([a-zA-Z]{1,2}-[0-9]{4}-[a-zA-Z]{1,3})$/) === null) {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''> Police Registration Number Format is Incorrect.<br/> <b>Example</b>: L-XXXX-EF</div>",
+                closeButton: false
+            });
+            return false;
+        }
+        return true;
+    }
+
+    function Save() {
+
+        if (!checkRegNo()) return;
+
+        var IDPoliceRegNumber = $('#IDPoliceRegNumber').val(),
+            ManufacturingYear = $('#ManufacturingYear').val(),
+            Karoseri = $('#Karoseri').val(),
+            Merk = $('#Merk :selected').val(),
+            Type = $('#Type').val(),
+            Cargo = $('#Cargo :selected').val(),
+            BaseTown = $('#BaseTown :selected').val(),
+            STNKValidityPeriod = $('#STNKValidityPeriod').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            GPS = $('#GPS :selected').val(),
+            Vendor = $('#Vendor :selected').val(),
+            Status = $('#Status :selected').val(),
+            VehicleIdentityNumber = $('#VehicleIdentityNumber').val(),
+            AttachmentPhoto = $('#AttachmentPhoto').val(),
+            AttachmentPhotoTwo = $('#AttachmentPhotoTwo').val(),
+            AttachmentPhotoThree = $('#AttachmentPhotoThree').val(),
+            AttachmentSTNK = $('#AttachmentSTNK').val(),
+            notvalid = false;
+
+        // validation
+        if (IDPoliceRegNumber == "") {
+            $('#IDPoliceRegNumber').css('border-color', 'orange');
+            notvalid = true;
+        } else {
+            $('#IDPoliceRegNumber').css('border-color', '#ccc');
+        }
+        if (Type == "") {
+            $('#Type').css('border-color', 'orange');
+            notvalid = true;
+        } else {
+            $('#Type').css('border-color', '#ccc');
+        }
+        if (BaseTown == "") {
+            $('#BaseTown').css('border-color', 'orange');
+            notvalid = true;
+        } else {
+            $('#BaseTown').css('border-color', '#ccc');
+        }
+        if (STNKValidityPeriod == "") {
+            $('#STNKValidityPeriod').css('border-color', 'orange');
+            notvalid = true;
+        } else {
+            $('#STNKValidityPeriod').css('border-color', '#ccc');
+        }
+        if (Vendor == "") {
+            $('#Vendor').prev().children().css('border-color', 'orange');
+            notvalid = true;
+        } else {
+            $('#Vendor').prev().children().css('border-color', '#ccc');
+        }
+
+        if (notvalid == true) {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: '<div><img src="../assets/images/danger.png" alt=""> Please fill the yellow field(s)! </div>',
+                backdrop: true
+            });
+            return false;
+        } else {
+            var msg = "Changes have been made to this record, Do you want to Save these changes?";
+            if (typeof getUrlParameter('IDPoliceRegNumber') === "undefined") {
+                msg = "Do you want to save the data? </br> Press Ok to continue, or Cancel to stay on the current page";
+            }
+
+            bootbox.confirm({
+                title: "TOM Notification Center",
+                message: msg,
+                buttons: {
+                    confirm: {
+                        label: 'Ok',
+                        className: 'btn btn-primary'
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        className: 'btn btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        var dialog = bootbox.dialog({
+                            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                            closeButton: false
+                        });
+
+                        // check record
+                        $.ajax({
+                            url: '@Url.Action("GetTransportVehicleDatas")',
+                            method: 'get',
+                            dataType: 'json',
+                            data: {
+                                "IDPoliceRegNumber": IDPoliceRegNumber,
+                                "IDVendor": Vendor
+                            },
+                            success: function (reponse) {
+                                if ( reponse.length && ($("#state").val() == "create") ) {
+                                    $('#IDPoliceRegNumber').css('border-color', 'red');
+                                    $('#Vendor').prev().children().css('border-color', 'red');
+                                    dialog.modal('hide');
+                                    alertSaveErrorDuplicate();
+                                } else {
+                                    $('#IDPoliceRegNumber').css('border-color', '#ccc');
+                                    $('#Vendor').prev().children().css('border-color', '#ccc');
+                                    // create and or update
+                                    $.when(uploadPhoto(), uploadPhotoTwo(), uploadPhotoThree(), uploadSTNK()).done(function (a1, a2, a3, a4) {
+                                        var newRecord = {
+                                            "IDPoliceRegNumber": IDPoliceRegNumber,
+                                            "ManufacturingYear": ManufacturingYear,
+                                            "Karoseri": Karoseri,
+                                            "Merk": Merk,
+                                            "Type": Type,
+                                            "Cargo": Cargo,
+                                            "BaseTown": BaseTown,
+                                            "STNKValidityPeriod": STNKValidityPeriod,
+                                            "GPS": GPS,
+                                            "IDVendor": Vendor,
+                                            "Status": Status,
+                                            "VehicleIdentityNumber": VehicleIdentityNumber,
+                                            "IsActive": true
+                                        };
+                                        newRecord["AttachmentPhoto"] = $("#AttachmentPhotoPath").val();
+                                        newRecord["AttachmentPhotoTwo"] = $("#AttachmentPhotoTwoPath").val();
+                                        newRecord["AttachmentPhotoThree"] = $("#AttachmentPhotoThreePath").val();
+                                        newRecord["AttachmentSTNK"] = $("#AttachmentSTNKPath").val();
+
+                                        insert(newRecord, dialog);
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    function insert(record, dialog) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateRecord")',
+            data: record,
+            success: function (response) {
+                dialog.modal("hide");
+                jQuery('#cancel1, #cancel2, #cancel3').hide();
+
+                bootbox.alert({
+                    title: "TOM Notification Center",
+                    message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully saved to the database! </div>',
+                });
+
+                if (typeof getUrlParameter('IDPoliceRegNumber') === "undefined") { // create
+                    //jQuery('#newData')[0].reset();
+                    //jQuery("#AttachmentPhotoPath").val('');
+                    //jQuery("#AttachmentPhotoTwoPath").val('');
+                    //jQuery("#AttachmentPhotoThreePath").val('');
+                    //jQuery("#AttachmentSTNKPath").val('');
+                    //jQuery("#AttachmentPhotoThumb, #AttachmentPhotoTwoThumb, #AttachmentPhotoThreeThumb, #AttachmentSTNKThumb").attr("style", "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 282px; height: 282px;");
+                    //jQuery(".AttachmentPhotoThumb, .AttachmentPhotoTwoThumb, .AttachmentPhotoThreeThumb, .AttachmentSTNKThumb").attr("href", "../assets/images/no-image-available.png");
+                    //jQuery('#EditButton').prop("disabled", true);
+                    //jQuery('#SaveButton').prop("disabled", false);
+
+                    @*window.location.replace('@Url.Action("../VehicleData")');*@
+                    window.location.href = "@Url.Action("AddNewVehicleData")?IDPoliceRegNumber=" + $('#IDPoliceRegNumber').val() + "&IDVendor=" + $('#Vendor :selected').val() + "";
+                } else { // update
+                    jQuery('#EditButton').prop("disabled", false);
+                    jQuery('#SaveButton').prop("disabled", true);
+                    jQuery('#newData input, #newData select').prop("disabled", true);
+                }
+            },
+            error: function (jqXHR, exception) {
+                dialog.modal('hide');
+                jQuery('#cancel1, #cancel2, #cancel3').hide();
+                jQuery('#EditButton').prop("disabled", true);
+                jQuery('#SaveButton').prop("disabled", false);
+                alertSaveFail();
+            }
+        });
+    }
+
+    function generateDropDown(FieldName, IDSelector) {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterListByFieldName")',
+            dataType: 'JSON',
+            cache: false,
+            data: { 'FieldName': FieldName },
+            success: function (response) {
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value=""></option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+                jQuery('#' + IDSelector).html(options);
+            },
+            error: function () {
+                jQuery('#' + IDSelector).html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownVendor() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetVendor")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (response) {
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value=""></option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDVendor + '">' + val.VendorName + '</option>';
+                });
+
+                jQuery('#Vendor').html(options);
+            },
+            error: function () {
+                jQuery('#' + IDSelector).html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropdownKaroseri() {
+        return generateDropDown("Karoseri", "Karoseri");
+    }
+
+    function generateDropdownUnitType() {
+        return generateDropDown("VehicleType", "Type");
+    }
+
+    function generateDropDownUnitBrand() {
+        return generateDropDown("UnitBrand", "Merk");
+    }
+
+    function generateDropDownCargo() {
+        return generateDropDown("Cargo", "Cargo");
+    }
+
+    function generateDropDownBaseTown() {
+        return generateDropDown("BaseTown", "BaseTown");
+    }
+
+    function loadRecord(IDPoliceRegNumber, IDVendor, dialog) {
+        jQuery('#EditButton').prop("disabled", false);
+        jQuery('#SaveButton').prop("disabled", true);
+
+        jQuery.ajax({
+            url: '@Url.Action("GetDataById")',
+            dataType: 'JSON',
+            cache: false,
+            data: {
+                'IDPoliceRegNumber': IDPoliceRegNumber,
+                'IDVendor': IDVendor
+            },
+            success: function (response) {
+                //var createdDate = moment(Number(response.CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                //setBtnEdit(createdDate, null);
+
+                $("#IDPoliceRegNumber").val(response.IDPoliceRegNumber);
+                $("#IDPoliceRegNumberLabel").html("Police Registration Number (Read Only)");
+                $("#ManufacturingYear").val(response.ManufacturingYear);
+                $("#Karoseri").val(response.Karoseri);
+                $("#Type").val(response.Type);
+                $('#STNKValidityPeriod').val(moment(Number(response.STNKValidityPeriod.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                $("#VehicleIdentityNumber").val(response.VehicleIdentityNumber);
+                $("#GPS").val(response.GPS);
+                $("#Vendor").select2('val',response.IDVendor);
+                $("#Status").val(response.Status);
+                $("#Merk").val(response.Merk);
+                $("#Cargo").val(response.Cargo);
+                $("#BaseTown").val(response.BaseTown);
+
+                if (response.AttachmentPhoto) {
+                    $("#AttachmentPhotoThumb").attr("style", "background: url('" + response.AttachmentPhoto.replace("~", "..") + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                    $(".AttachmentPhotoThumb").attr("href", response.AttachmentPhoto.replace("~", ".."));
+                }
+                if (response.AttachmentPhotoTwo) {
+                    $("#AttachmentPhotoTwoThumb").attr("style", "background: url('" + response.AttachmentPhotoTwo.replace("~", "..") + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                    $(".AttachmentPhotoTwoThumb").attr("href", response.AttachmentPhotoTwo.replace("~", ".."));
+                }
+                if (response.AttachmentPhotoThree) {
+                    $("#AttachmentPhotoThreeThumb").attr("style", "background: url('" + response.AttachmentPhotoThree.replace("~", "..") + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                    $(".AttachmentPhotoThreeThumb").attr("href", response.AttachmentPhotoThree.replace("~", ".."));
+                }
+                if (response.AttachmentSTNK) {
+                    $("#AttachmentSTNKThumb").attr("style", "background: url('" + response.AttachmentSTNK.replace("~", "..") + "') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+                    $(".AttachmentSTNKThumb").attr("href", response.AttachmentSTNK.replace("~", ".."));
+                }
+
+                $("#AttachmentPhotoPath").val(response.AttachmentPhoto);
+                $("#AttachmentPhotoTwoPath").val(response.AttachmentPhotoTwo);
+                $("#AttachmentPhotoThreePath").val(response.AttachmentPhotoThree);
+                $("#AttachmentSTNKPath").val(response.AttachmentSTNK);
+
+                $('#newData input, #newData select').prop("disabled", true);
+                dialog.modal('hide');
+            },
+            error: function (jqXHR, exception) {
+                dialog.modal('hide');
+                alertNoRecord("Police Registration Number equal to " + IDPoliceRegNumber);
+            }
+        });
+    }
+
+    function uploadPhoto() {
+        if (window.FormData !== undefined) {
+            var filePhoto = $('#AttachmentPhoto').val(),
+                attachmentPhoto = document.getElementById('AttachmentPhoto');
+            if (filePhoto) {
+                var dataAttachmentPhoto = new FormData();
+                dataAttachmentPhoto.append("imageFile", attachmentPhoto.files[0]);
+                return jQuery.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadPhoto")',
+                    contentType: false,
+                    processData: false,
+                    data: dataAttachmentPhoto,
+                    cache: false,
+                    success: function (response) {
+                        jQuery("#AttachmentPhotoPath").val(response);
+                    },
+                    error: function () {
+                    }
+                });
+            } else {
+                return true;
+            }
+        }
+    }
+
+    function uploadPhotoTwo() {
+        if (window.FormData !== undefined) {
+            var filePhotoTwo = $('#AttachmentPhotoTwo').val(),
+                attachmentPhotoTwo = document.getElementById('AttachmentPhotoTwo');
+            if (filePhotoTwo) {
+                var dataAttachmentPhotoTwo = new FormData();
+                dataAttachmentPhotoTwo.append("imageFile", attachmentPhotoTwo.files[0]);
+                return jQuery.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadPhotoTwo")',
+                    contentType: false,
+                    processData: false,
+                    data: dataAttachmentPhotoTwo,
+                    cache: false,
+                    success: function (response) {
+                        jQuery("#AttachmentPhotoTwoPath").val(response);
+                    },
+                    error: function () {
+                    }
+                });
+            } else {
+                return true;
+            }
+        }
+    }
+
+    function uploadPhotoThree() {
+        if (window.FormData !== undefined) {
+            var filePhotoThree = $('#AttachmentPhotoThree').val(),
+                attachmentPhotoThree = document.getElementById('AttachmentPhotoThree');
+            if (filePhotoThree) {
+                var dataAttachmentPhotoThree = new FormData();
+                dataAttachmentPhotoThree.append("imageFile", attachmentPhotoThree.files[0]);
+                return jQuery.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadPhotoThree")',
+                    contentType: false,
+                    processData: false,
+                    data: dataAttachmentPhotoThree,
+                    cache: false,
+                    success: function (response) {
+                        jQuery("#AttachmentPhotoThreePath").val(response);
+                    },
+                    error: function () {
+                    }
+                });
+            } else {
+                return true;
+            }
+        }
+    }
+
+    function uploadSTNK() {
+        if (window.FormData !== undefined) {
+            var fileSTNK = $('#AttachmentSTNK').val(),
+                attachmentSTNK = document.getElementById('AttachmentSTNK');
+            if (fileSTNK) {
+                var dataAttachmentSTNK = new FormData();
+                dataAttachmentSTNK.append("imageFile", attachmentSTNK.files[0]);
+                return jQuery.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadSTNK")',
+                    contentType: false,
+                    processData: false,
+                    data: dataAttachmentSTNK,
+                    cache: false,
+                    success: function (response) {
+                        jQuery("#AttachmentSTNKPath").val(response);
+                    },
+                    error: function () {
+                    }
+                });
+            } else {
+                return true;
+            }
+        }
+    }
+
+    function clearImage(seq) {
+        if (seq == 1) {
+            $("#AttachmentPhoto").val("");
+            $("#AttachmentPhoto").jfilestyle('clear');
+            $("#AttachmentPhotoThumb").attr("style", "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+            $(".AttachmentPhotoThumb").attr("href", "../assets/images/no-image-available.png");
+            $("#AttachmentPhotoPath").val("");
+            $("#cancel1").hide();
+        }
+        if (seq == 2) {
+            $("#AttachmentPhotoTwo").val("");
+            $("#AttachmentPhotoTwo").jfilestyle('clear');
+            $("#AttachmentPhotoTwoThumb").attr("style", "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+            $(".AttachmentPhotoTwoThumb").attr("href", "../assets/images/no-image-available.png");
+            $("#AttachmentPhotoTwoPath").val("");
+            $("#cancel2").hide();
+        }
+        if (seq == 3) {
+            $("#AttachmentSTNK").val("");
+            $("#AttachmentSTNK").jfilestyle('clear');
+            $("#AttachmentSTNKThumb").attr("style", "background: url('../assets/images/no-image-available.png') no-repeat center center; background-size: contain; width: 100%; height: 282px;");
+            $(".AttachmentSTNKThumb").attr("href", "../assets/images/no-image-available.png");
+            $("#AttachmentSTNKPath").val("");
+            $("#cancel3").hide();
+        }
+        $('.bootbox').modal("hide");
+    }
+
+    // BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+    var closingPageDate = '@ViewBag.ClosingPageDate';
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        var disabled = true;
+        for (var j = 0; j < listUserRole.length; j++) {
+            if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+                if (listUserRole[j] != "SUPER ADMIN") continue;
+                disabled = false;
+            } else {
+                var closingDateArr = moment(closingPageDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var closingDate = new Date(''+closingDateArr[2]+'-'+closingDateArr[1]+'-'+(closingDateArr[0]-1));
+                var createdDateArr = moment(param1, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var createdDate = new Date(''+createdDateArr[2]+'-'+createdDateArr[1]+'-'+(createdDateArr[0]-1));
+                if (param2 != null) { //begin : untuk page yg memiliki lokasi
+                    for (var i = 0; i < listLocation.length; i++) {
+                        if (listLocation[i] != param2) continue;
+                        if (closingDate < createdDate) {
+                            disabled = false;
+                        } else if(closingDate > createdDate) {
+                            disabled = true;
+                        }
+                    }
+                    //end : untuk page yg memiliki lokasi
+                } else {
+                    if (closingDate < createdDate) {
+                        disabled = false;
+                    } else if(closingDate > createdDate) {
+                        disabled = true;
+                    }
+                }
+            }
+        }
+        //console.log(disabled);
+        $("#EditButton").prop("disabled", disabled);
+    }
+</script>

@@ -1,0 +1,1420 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Warehouse > Seal Management > Add New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var listLocation = ViewBag.LocationList;
+} 
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href ='@Url.Action("../SealManagement")'">Back</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.SealStock)))
+                {
+                    <button class="btn btn-primary" onclick="window.location.href = '../SealStock/AddNew'" id="BtnNewSeal">Seal Stock</button>
+                }
+                @*if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditButton" onclick="disableEnableInput(false)">Edit</button>
+                }*@
+                <button class="btn btn-primary" id="EditButton" onclick="ResetData()">Reset</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveButton">Save</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.PrintDocument)))
+                {
+                    <button class="btn btn-primary" id="PrintButton" >Print Document</button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="box">
+            <form>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Warehouse Name</label>
+                            <select id="DDWarehouse" class="select2" onchange="GetLocationDataFromWarehouse('','firstload')"></select>
+                            @*@Html.DropDownList("IDLocation", new SelectList(ViewBag.LocationList, "IDLocation","LocationName"), new { @class = "select2", @id = "DDWarehouse" })*@
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <input class="form-control" id="DDStatus" value="Locked" disabled="true"/>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Date Time</label>
+                            <input type="text" name="" class="form-control datetimepickerside" id="SealDate" onchange="onChangeSealDate();" onfocusout="onChangeSealDate();">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Warehouse Staff-1</label>
+                            <select class="select2" id="DDStaff1"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Warehouse Staff-2</label>
+                            <select class="select2" id="DDStaff2"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Warehouse Staff other</label>
+                            <input class="form-control" id="DDStaff3" />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea class="form-control" id="Remarks" maxlength="1000"></textarea>
+                            <span class="ket">* Maximum 1000 Characters</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-12">
+        <div class="table-overflow-outer">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Location/Area</th>
+                        <th>Seal Number</th>
+                    </tr>
+                </thead>
+                <tbody id="DynamicLocation"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>*@
+				<a id="redirectUrl" href="#" class="btn btn-primary">OK</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry theres no result with this keyword</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnClose">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    jQuery(function ($) {
+
+        $(document).on('keyup, blur', '.inputseal', function(){
+            var SealNumber = $.trim($(this).val());
+            if (SealNumber != '')
+            {
+                ValidateSealNumber(SealNumber, $(this));
+            }
+        });
+
+        var id = gup('id');
+        var param = id == "" ? false : true;
+        if (!param) {// new data
+            $('#SaveButton').prop("disabled", false);
+            $('#BtnNewSeal').prop("disabled", false);
+            $("#PrintButton").prop("disabled", true);
+        } else {/** edit data */
+            disableEnableInput(true);
+            $("#PrintButton").prop("disabled", false);
+        }
+        $('#editButton').on('click', function (e) {
+            disableEnableInput(false);
+            $('#SaveButton').prop("disabled", false);
+            $('#BtnNewSeal').prop("disabled", false);
+        });
+        ResetData();
+        $("#SaveButton").on("click", function (e) {
+
+            if($("#DDWarehouse").val() == null){
+                bootbox.alert({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Please choose <b>Warehouse Name</b> first</span>',
+                    size: 'small',
+                    closeButton: false
+                });
+
+            }else if($("#DDWarehouse").val() == '-'){
+                bootbox.alert({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Please choose <b>Warehouse Name</b> first</span>',
+                    size: 'small',
+                    closeButton: false
+                });
+            }else{ confirmSave();};
+
+        });
+        $("#SealDate").val(moment(new Date()).format("DD/MM/YYYY HH:mm"));
+        GenerateDropDownWarehouse();
+    });
+    var indexPrev = [];
+    var prevIdLoc = "";
+    var prevStatus = "";
+    var prevDate = "";
+    function ResetData() {
+        $('#DDWarehouse').select2("val","");
+        $('#SealDate').val(moment(new Date()).format("DD/MM/YYYY HH:mm"));
+        $('#DDStaff1').select2("val","");
+        $('#DDStaff2').select2("val","");
+        $('#DDStaff3').val("");
+        $('#Remarks').val("");
+
+
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function disableEnableInput(param) {
+        $('#DDWarehouse').prop("disabled", param);
+        //$('#DDStatus').prop("disabled", param);
+        $('#SealDate').prop("disabled", param);
+        $('#DDStaff1').prop("disabled", param);
+        $('#DDStaff2').prop("disabled", param);
+        $('#DDStaff3').prop("disabled", param);
+        $('#Remarks').prop("disabled", param);
+        if (gup('id') == "") {
+            $('#DDWarehouse').prop("disabled", param);
+        } else {
+            $('#DDWarehouse').prop("disabled", true);
+        }
+
+        if(!param){
+            for (i = 0; i < equipmentLength; i++) {
+                document.getElementById("SealNumber[" + i + "]").disabled = param;
+            }
+        }
+        $('#SaveButton').prop("disabled", param);
+        $('#BtnNewSeal').prop("disabled", param);
+    }
+
+    var GenerateDropDownWarehouse = function () {
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetUserWarehouse", "SealManagement")',
+            success: function (listLocation) {
+                var options = '<option value="-"></option>';
+                if (listLocation.length) {
+                    for (i = 0; i < listLocation.length; i++) {
+                        options = options + '<option value="' + listLocation[i].IDLocation + '">' + listLocation[i].IDLocation + ' - ' + listLocation[i].LocationName + '</option>';
+                    }
+                }
+                $('#DDWarehouse').html(options);
+                //GenerateDropDownStatus();
+                GenerateDropDownStaff();
+            }
+        });
+    };
+
+    @*var GenerateDropDownStatus = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "SealStatus"
+            },
+            url: '@Url.Action("../SealManagement/GetMasterList")',
+            success: function (response) {
+                var options = '<option value="-"></option>';
+                if (response.length != 0) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#DDStatus').html(options);
+                GenerateDropDownStaff();
+            }
+        });
+    };*@
+
+    var GenerateDropDownStaff = function () {
+        $.ajax({
+            type: 'GET',
+            cache:false,
+            url: '@Url.Action("GetDataStaffView", "SealManagement")',
+            data: {
+                "id" : (gup('id') == "") ? ($("#DDWarehouse").val() == '-' ? null :$("#DDWarehouse").val()) : gup('id')
+            } ,
+            success: function (response) {
+                var options = '<option value="-"></option>',
+                    u = [];
+                if (response.length) {
+                    var fullName = "";
+                    for (i = 0; i < response.length; i++) {
+                        if (fullName !== response[i].FULL_NAME) {
+                            fullName = response[i].FULL_NAME;
+
+                            u = fullName.split('\\');
+                            if (u.length > 1) {
+                                response[i].FULL_NAME = u[0].toLowerCase() + "\\" + u[1];
+                            }
+
+                            options = options + '<option value="' + response[i].FULL_NAME + '">' + response[i].NAME + '</option>';
+                        }
+                    }
+                }
+                $('#DDStaff1, #DDStaff2').html(options);
+                if (gup('id') == "") {
+                    //dialogloading.modal("hide");
+                    //generateUpdateData($("#DDWarehouse").val());
+
+                    //getSameSealNumber();
+                    validateLastData();
+                } else {
+                    generateUpdateData(gup('id'));
+                }
+            }
+        });
+    };
+
+    var validateLastData = function() {
+        var validateInput = new Object();
+        validateInput.IDLocation = $("#DDWarehouse").val();
+        validateInput.IsUnlock = false;
+        $.ajax({
+            type: 'GET',
+            cache:false,
+            url: '@Url.Action("GetvalidateLastData")',
+            data: validateInput,
+            @*url: '@Url.Action("GetvalidateLastData", "SealManagement")',
+            data: {
+                input: validateInput,
+                date: $("#SealDate").val(),
+            },*@
+            success: function (response) {
+                $('.modal-backdrop, .bootbox').remove();
+                if (response.length && equipmentLength) {
+                    for (i = 0; i < response.length; i++) {
+                        var destIdEquipmentType = response[i].IDEquipmentType;
+                        for (j = 0; j < equipmentLength; j++) {
+                            var srcIdEquipmentType = document.getElementById("DDLocation[" + j + "]").value;
+                            if (srcIdEquipmentType == destIdEquipmentType) {
+                                document.getElementById("SealNumber[" + j + "]").value = response[i].SealNumber;
+                                if (response[i].sealNumber != null || response[i].sealNumber != "" || response[i].sealNumber != "-"){
+                                    document.getElementById("SealNumber[" + j + "]").disabled = true;
+                                }
+                                else {
+                                    document.getElementById("SealNumber[" + j + "]").value = "";
+                                    document.getElementById("SealNumber[" + j + "]").disabled = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $('#SaveButton').prop("disabled", true);
+                var IsValid = false;
+                $(".inputseal").each(function(e){
+                    //alert($(this).val());
+                    if ($(this).val() == '' && !IsValid)
+                    {
+                        $('#SaveButton').prop("disabled", false);
+                        IsValid = true;
+                    }
+                });
+            }
+        });
+    };
+
+    var btnSaveState = true;
+    var equipmentLength = 0;
+    var dialogloading = "";
+
+    function loadingPage() {
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+    }
+
+    function GetLocationDataFromWarehouse(param,param2) { //cek
+        if (param2 == 'firstload') {
+            loadingPage();
+        }
+        var lenghtcek;
+        $.ajax({
+            type: 'GET',
+            cache: false,
+            url: '@Url.Action("GetMasterEquipmentTypeListByIdLocType", "SealManagement")',
+            data: {
+                idloc: gup('id') == "" ? $("#DDWarehouse").val() : gup('id'),
+                type: $("#DDWarehouse").val() == "-" ? "" : "Seal",
+            },
+            success: function (response) {
+                var elem = "";
+                lenghtcek =  response.length;
+                if (response.length != 0) {
+                    equipmentLength = 0;
+                    if (gup('id') != "") { //edit data
+                        for (i = 0; i < response.length; i++) {
+                            var sealNumberId = 'SealNumber[' + i + ']';
+                            var sealNumberText = '\'' + sealNumberId + '\'';
+                            sealNumberText = sealNumberText.trim();
+                            elem = elem + '<tr><td><input id="DDLocation[' + i + ']" hidden value="' + response[i].IDEquipmentType + '"><label id="">' + response[i].Name + '</label></td><td><input onkeyup="" type="text" id='+ sealNumberId +' class="form-control IsInteger selector inputseal" value="' + param[i] + '" disabled="true"></td></tr>';
+                            equipmentLength = equipmentLength + 1;
+                        }
+                        disableEnableInput(true);
+                    } else { //new data
+                        for (i = 0; i < response.length; i++) {
+                            var sealNumberId = 'SealNumber[' + i + ']';
+                            var sealNumberText = '\'' + sealNumberId + '\'';
+                            sealNumberText = sealNumberText.trim();
+                            //elem = elem + '<tr><td><input id="DDLocation[' + i + ']" hidden value="' + response[i].IDEquipmentType + '"><label id="SealName[' + i + ']">' + response[i].Name + '</label></td><td><input onkeyup="CheckSealNumber(' + i + ', event, 0)" type="text" id='+ sealNumberId +' onblur="CheckSealNumber(' + i + ', event, 1)" class="form-control IsInteger selector inputseal"></td></tr>';
+                            elem = elem + '<tr><td><input id="DDLocation[' + i + ']" hidden value="' + response[i].IDEquipmentType + '"><label id="SealName[' + i + ']">' + response[i].Name + '</label></td><td><input onkeyup="" type="text" id='+ sealNumberId +' onblur="" class="form-control IsInteger selector inputseal"></td></tr>';
+                            equipmentLength = equipmentLength + 1;
+                        }
+                        btnSaveState = false;
+                        $('#SaveButton').prop("disabled", btnSaveState);
+                    }
+
+                    GetDataSealStock();
+                } else {
+                    btnSaveState = true;
+                    dialogloading.modal("hide");
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: '<img src="../assets/images/danger.png" alt=""><span>Warning : No Available <b>equipment seal type</b> data for Warehouse <b>' + $("#DDWarehouse option:selected").text() + '</b></span>',
+                        callback: function() { /* your callback code */
+                            $('#SaveButton').prop("disabled", btnSaveState);
+                            loadingPage();
+                            GetDataSealStock();
+                        }
+                    });
+                }
+
+                $('#DynamicLocation').html(elem);
+
+
+            }
+        });
+
+
+
+    }
+    var maxSealStockLength;
+    //$(document).on('blur','.form-control.IsInteger.selector',function (event) {
+    //    //var current_value = $(this).val();
+    //    //$(this).attr('value',current_value);
+
+    //    var current_value = $(this).val();
+    //    $(this).attr('value',current_value);
+    //    //if (event.which == 13)
+    //    //{ // if hit enter
+    //        $(this).val("");
+    //        if ($('.form-control.IsInteger.selector[value="' + current_value + '"]').not($(this)).length > 0 ) {
+    //            $(this).focus();
+    //            $(this).val("");
+    //            bootbox.alert({
+    //                title: "DFIS Notification Center",
+    //                message: '<img src="../assets/images/danger.png" alt=""><span>Warning : cannot use same seal number on different location</span>',
+    //                size: 'small',
+    //                closeButton: false
+    //            });
+    //            $("#SaveButton").prop("disabled", true);
+    //            return false;
+    //        }
+    //    //}
+
+
+    //    //if (event.which == 13) { // if hit enter
+    //    //if ($('.form-control.IsInteger.selector[value="' + $(this).val() + '"]').length > 0 ) {
+
+    //    //    $(this).focus();
+    //    //    $(this).val("");
+
+    //    //    bootbox.alert({
+    //    //        title: "DFIS Notification Center",
+    //    //        message: '<img src="../assets/images/danger.png" alt=""><span>Warning : cannot use same seal number on different location</span>',
+    //    //        size: 'small',
+    //    //        closeButton: false
+    //    //    });
+    //    //    $("#SaveButton").prop("disabled", true);
+    //    //    return false;
+    //    //}}
+    //    //e.preventDefault();
+    //});
+
+    function ValidateSealNumber(SealNumber, Obj)
+    {
+        $('#SaveButton').prop("disabled", true);
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.ajax({
+            complete: function () { dialog.modal('hide'); },
+            url:"@Url.Action("CheckSealNumberExistence")",
+            data:{
+                "idLocation":$('#DDWarehouse').val(),
+                "sealNumber":SealNumber
+            },
+            cache: false,
+            success: function(response){
+                if(response.Status){
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: response.Reason,
+                        size: 'small'
+                    });
+                    Obj.val('');
+                } else{
+                    if (Object.keys(prevSealStockList).length > 0)
+                    {
+                        var IsFound = false;
+                        for (var idx in prevSealStockList)
+                        {
+                            if (((SealNumber * 1) >= (prevSealStockList[idx].SealNumberFrom * 1)) && ((SealNumber * 1) <= (prevSealStockList[idx].SealNumberTo * 1))) {
+                                IsFound = true;
+                                $('#SaveButton').prop("disabled", false);
+                                break;
+                            }
+                        }
+
+                        if (!IsFound)
+                        {
+                            //$('#SaveButton').prop("disabled", true);
+                            bootbox.alert({
+                                title: "DFIS Notification Center",
+                                message: 'Seal number ' + "'" + SealNumber + "'" + '  not found. Please input seal number based on seal stock data',
+                                size: 'small'
+                            });
+
+                            Obj.val('');
+                        }
+                    }
+                    else
+                    {
+                        bootbox.alert({
+                            title: "DFIS Notification Center",
+                            message: 'Seal stock not found, please input seal stock to continue',
+                            size: 'small'
+                        });
+                    }
+                    /*
+                    if (((SealNumber * 1) >= (prevSealStock[0].SealNumberFrom * 1)) && ((SealNumber * 1) <= (prevSealStock[0].SealNumberTo * 1))) {
+                        // Get all focusable elements on the page
+                        var $canfocus = $(':focusable');
+                        var index = $canfocus.index(document.activeElement) + 1;
+                        if (index >= $canfocus.length) index = 0;
+                        $canfocus.eq(index).focus();
+                        $('#SaveButton').prop("disabled", false);
+                        return true;
+                    } else {
+                        if(currVal*1 != 0){
+                            bootbox.confirm({
+                                title: "DFIS Notification Center",
+                                message: '<img src="../assets/images/danger.png" alt=""><span>Seal Number Should be greater than <b>' + prevSealStock[0].SealNumberFrom + '</b> and less than <b>' + prevSealStock[0].SealNumberTo + '</b> for Location / Area <b>' + locName + '</b></span>',
+                                buttons: {
+                                    confirm: {
+                                        label: 'Ok',
+                                        className: 'btn btn-primary'
+                                    },
+                                    cancel: {
+                                        label: 'Cancel',
+                                        className: 'btn btn-purple'
+                                    }
+                                },
+                                callback: function (result) {
+                                    if (result) {
+                                        btnClose(i);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    */
+                    /*
+                    if(response.Reason!=""){
+                        bootbox.alert({
+                            title: "DFIS Notification Center",
+                            message: response.Reason,
+                            size: 'small'
+                        });
+                        ev.target.value = "";
+                    } else {
+                        $("#SaveButton").attr("disabled",false);
+                    }
+                    */
+                }
+            },
+            error: function(){
+                console.log("Error while checking seal number existence");
+            }
+        })
+    }
+
+    function CheckSealNumber(i, evt, IsOnBlur) {
+        //alert(1);
+        var currVal = evt.target.value;
+        //var locName = document.getElementById("SealName[" + i + "]").innerHTML;
+        if (evt.keyCode == 13 || IsOnBlur == 1) { // if hit enter
+            //var IDLocation = locName.split('-')[0];
+            //ValidateSealNumber(currVal);
+            //if (((currVal * 1) >= (prevSealStock[0].SealNumberFrom * 1)) && ((currVal * 1) <= (prevSealStock[0].SealNumberTo * 1))) {
+            //    // Get all focusable elements on the page
+            //    var $canfocus = $(':focusable');
+            //    var index = $canfocus.index(document.activeElement) + 1;
+            //    if (index >= $canfocus.length) index = 0;
+            //    $canfocus.eq(index).focus();
+            //    $('#SaveButton').prop("disabled", false);
+            //    return true;
+            //} else {
+            //    if(currVal*1 != 0){
+            //    bootbox.confirm({
+            //        title: "DFIS Notification Center",
+            //        message: '<img src="../assets/images/danger.png" alt=""><span>Seal Number Should be greater than <b>' + prevSealStock[0].SealNumberFrom + '</b> and less than <b>' + prevSealStock[0].SealNumberTo + '</b> for Location / Area <b>' + locName + '</b></span>',
+            //        buttons: {
+            //            confirm: {
+            //                label: 'Ok',
+            //                className: 'btn btn-primary'
+            //            },
+            //            cancel: {
+            //                label: 'Cancel',
+            //                className: 'btn btn-purple'
+            //            }
+            //        },
+            //        callback: function (result) {
+            //            if (result) {
+            //                btnClose(i);
+            //            }
+            //        }
+            //    });
+            //   }
+            //}
+        }
+        return false;
+    }
+
+    var prevSealStock = [];
+    var prevSealStockList = new Object();
+    function GetDataSealStock() {
+        prevSealStockList = new Object();
+        var SealStockDateText = $("#SealDate").val();
+        if (SealStockDateText) {
+            SealStockDateText = SealStockDateText.split(" ");
+            SealStockDateText = SealStockDateText[0].replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        }
+
+        $.ajax({
+            method: 'get',
+            dataType: 'json',
+            url: '@Url.Action("GetDataStock","SealManagement")',
+            cache: false,
+            data: {
+                "IDLocation": $("#DDWarehouse").val() == "-" ? "" : $("#DDWarehouse").val(),
+                "SealStockDateText": SealStockDateText
+            },
+            success: function (response) {
+
+                maxSealStockLength = response.length;
+                if (maxSealStockLength > 0) {
+                    if (gup('id') == "") {
+                        if (!btnSaveState) {
+                            $('#SaveButton').prop("disabled", btnSaveState);
+                        }
+                    }
+                    for (var i = 0; i < maxSealStockLength; i++) {
+                        prevSealStockList[i] = { "SealNumberFrom": response[i].SealNumberFrom, "SealNumberTo": response[i].SealNumberTo, "Message": response[i].Message };
+                    }
+
+                } else {
+                    $('#SaveButton').prop("disabled", btnSaveState);
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: '<img src="../assets/images/danger.png" alt=""><span>Warning : No Available <b>warehouse seal stock</b> data for Warehouse <b>' + $("#DDWarehouse option:selected").text() + '</b></span>',
+                        callback: function() { /* your callback code */
+                            $('#SaveButton').prop("disabled", true);
+                        }
+                    });
+                }
+
+                /**
+                if (response != null) {
+                    if (gup('id') == "") {
+                        if (!btnSaveState) {
+                            $('#SaveButton').prop("disabled", btnSaveState);
+                        }
+                    }
+                    prevSealStock[0] = { "SealNumberFrom": response.SealNumberFrom, "SealNumberTo": response.SealNumberTo };
+                } else {
+                    if (btnSaveState) {
+                        $('#SaveButton').prop("disabled", btnSaveState);
+                    }
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: '<img src="../assets/images/danger.png" alt=""><span>Warning : No Available <b>warehouse seal stock</b> data for Warehouse <b>' + $("#DDWarehouse option:selected").text() + '</b></span>',
+                        callback: function() { // your callback code
+                            $('#SaveButton').prop("disabled", true);
+                        }
+                    });
+                }*/
+
+                if (gup('id') == "") {
+                    $("#DDStaff1").select2("val", "");
+                    $("#DDStaff2").select2("val", "");
+                    GenerateDropDownStaff();
+
+                }
+
+
+            }
+        });
+    }
+
+    @*var exisingSealNumber = [];
+    function getSameSealNumber() {
+        var fileInput = new Object();
+        var StatusDateTimeText = ($("#SealDate").val()) ? $("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : "";
+
+        StatusDateTimeText = StatusDateTimeText.split(" ");
+
+        fileInput.Type = "firstload";
+        fileInput.IDLocation = $("#DDWarehouse").val();
+        fileInput.Status = $("#DDStatus").val();
+        fileInput.StatusDateTimeText = StatusDateTimeText[0];
+
+        $.ajax({
+            url: '@Url.Action("GetData")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: fileInput,
+            success: function (json) {
+                if (json.length > 0) {
+                    for (i = 0; i < json.length; i++) {
+
+                        //exisingSealNumber[i]["idequipment"] = json[i].IDEquipmentType;
+                        //exisingSealNumber[i]["sealnumber"] = json[i].SealNumber;
+                        exisingSealNumber[i] = {
+                            "IDEquipmentType": json[i].IDEquipmentType,
+                            "SealNumber": json[i].SealNumber
+                        };
+                    }
+                }
+            }
+        });
+    }*@
+
+    var validate = [];
+    var validate2 = [];
+    var sealNum = [];
+    var resultsSeal = [];
+    function CheckSealNumber(i, evt) {
+        //var camparingVal = 0;
+        var currVal = evt.target.value * 1;//document.getElementById("SealNumber[" + i + "]").value;
+        var locName = document.getElementById("SealName[" + i + "]").innerHTML;
+        if (evt.keyCode == 13) { // if hit enter
+            for (var j = 0; j < maxSealStockLength; j++) {
+                if (((currVal) >= (prevSealStockList[j].SealNumberFrom * 1)) && ((currVal) <= (prevSealStockList[j].SealNumberTo * 1))) {
+                    validate[j] = true;
+
+                } else {
+                    validate[j] = false;
+                }
+            }
+
+            for (var v = 0; v < equipmentLength; v++) {
+                if (document.getElementById("SealNumber[" + v + "]").value != "") {
+                    sealNum[v] = document.getElementById("SealNumber[" + v + "]").value;
+                }
+            }
+
+            var sorted_arr = sealNum.slice().sort();
+
+            for (var z = 0; z < sorted_arr.length - 1; z++) {
+                if (sorted_arr[z + 1] == sorted_arr[z]) {
+                    resultsSeal.push(sorted_arr[z]);
+                }
+            }
+
+            if (validate.indexOf(true) > -1) {
+
+                if (resultsSeal.length > 0) {
+                    bootbox.confirm({
+                        title: "DFIS Notification Center",
+                        message: '<img src="../assets/images/danger.png" alt=""><span>Seal Number already used on other location area</span>',
+                        buttons: {
+                            confirm: {
+                                label: 'Ok',
+                                className: 'btn btn-primary'
+                            }
+                        },
+                        callback: function (result) {
+                            //if (result) {
+                            btnClose(i);
+                            resultsSeal = [];
+                            //}
+                        }
+                    });
+                    return false;
+                }
+
+                // Get all focusable elements on the page
+                var $canfocus = $(':focusable');
+                var index = $canfocus.index(document.activeElement) + 1;
+                if (index >= $canfocus.length) index = 0;
+                $canfocus.eq(index).focus();
+                $('#SaveButton').prop("disabled", false);
+                return true;
+            } else {
+                bootbox.confirm({
+                    title: "DFIS Notification Center",
+                    //message: '<img src="../assets/images/danger.png" alt=""><span>Seal Number Should be greater than <b>' + prevSealStock[0].SealNumberFrom + '</b> and less than <b>' + prevSealStock[0].SealNumberTo + '</b> for Location / Area <b>' + locName + '</b></span>',
+                    message: '<img src="../assets/images/danger.png" alt=""><span>'+prevSealStockList[maxSealStockLength-1].Message+'</span>',
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn btn-primary'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-purple'
+                        }
+                    },
+                    callback: function (result) {
+                        //if (result) {
+                        btnClose(i);
+                        //}
+                    }
+                });
+                return false;
+            }
+        }
+        return false;
+    }
+
+
+    function btnClose(i) {
+        document.getElementById("SealNumber[" + i + "]").value = "";
+        $('#modalwarning').modal('hide');
+        $('#SaveButton').prop("disabled", true);
+        return false;
+    }
+
+    function confirmSave() {
+        //var sealNumberCondition = true;
+        var msg;
+        if (gup('id') != "") {
+            msg = "Changes have been made to this record, Do you want to Save these changes?";
+        } else {
+            msg = "Do you want to save the data? </br> Press Ok to continue, or Cancel to stay on the current page";
+        }
+
+        bootbox.confirm({
+            title: "DFIS Notification Center",
+            message: msg,
+            buttons: {
+                confirm: {
+                    label: 'Ok',
+                    className: 'btn btn-primary'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn btn-purple'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    //if (exisingSealNumber.length != 0) { //jika data pasangannya, data pertama lolos
+                    //    var inputIndex = [];
+                    //    for (var j = 0; j < equipmentLength; j++) {
+                    //        inputIndex[j] = {
+                    //            "IDEquipmentType": document.getElementById("DDLocation[" + j + "]").value,
+                    //            "SealNumber": document.getElementById("SealNumber[" + j + "]").value
+                    //        };
+                    //    }
+
+                    //    for (var a = 0; a < inputIndex.length; a++) {
+                    //        if (inputIndex[a].SealNumber != exisingSealNumber[a].SealNumber) {
+                    //            sealNumberCondition = false;
+                    //            break;
+                    //        } else {
+                    //            sealNumberCondition = true;
+                    Save();
+                }
+                //    if (!sealNumberCondition) {
+                //        bootbox.confirm({
+                //            title: "DFIS Notification Center",
+                //            message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''> Seal number doesn't match with Open/Locked condition!</div>",
+                //            buttons: {
+                //                confirm: {
+                //                    label: 'Ok',
+                //                    className: 'btn btn-primary'
+                //                },
+                //                cancel: {
+                //                    label: 'Cancel',
+                //                    className: 'btn btn-purple'
+                //                }
+                //            },
+                //            callback: function(res) {
+                //                if (res) {
+                //                    Save();
+                //                }
+                //            }
+                //        });
+                //    }
+                //// else if(exisingSealNumber.length == 0) {
+                ////    Save(); // jika data awal
+                //////}
+                //        // }
+                //    else {
+                //     Save();
+                // }
+            }
+        });
+    }
+
+    function Save() {
+        var nonvalid = false;
+        var state = false;
+        var ddWarehouse = $("#DDWarehouse"),
+            ddStatus = $("#DDStatus"),
+            sealDate = $("#SealDate"),
+            ddStaff1 = $("#DDStaff1"),
+            ddStaff2 = $("#DDStaff2"),
+            ddStaff3 = $("#DDStaff3"),
+            remarks = $("#Remarks");
+        var _idLocation = gup('id') == "" ? ddWarehouse.val() : gup('id');
+        var _statusDateTime = ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "";
+        var _status = ddStatus.val();
+        var _url = "Detail?id=" + _idLocation + "&p3=" + _statusDateTime + "&p2=" + _status;
+
+        var index = [];
+        for (var j = 0; j < equipmentLength; j++) {
+            index[j] = {
+                "IDLocation": _idLocation,
+                "Status": _status,
+                "StatusDateTime": _statusDateTime,
+                "WarehouseStaff1": ddStaff1.val(),
+                "WarehouseStaff2": ddStaff2.val(),
+                "WarehouseStaff3": ddStaff3.val(),
+                "Remarks": remarks.val(),
+                "IsUnlock": false,
+                "IDEquipmentType": document.getElementById("DDLocation[" + j + "]").value,
+                "SealNumber": document.getElementById("SealNumber[" + j + "]").value
+            };
+        }
+        var datas;
+        if (gup('id') != "") {
+            datas = {
+                "edit": index,
+                "new": [{}],
+                "prevList" : indexPrev
+            };
+        } else {
+            datas = {
+                "new": index,
+                "edit": [{}],
+                "prevList": [{}],
+            };
+        }
+
+        // validasi isi seal number
+        for (var i = 0; i < equipmentLength; i++) {
+            var val = document.getElementById("SealNumber[" + i + "]").value;
+            if (val == "") {
+                document.getElementById("SealNumber[" + i + "]").style.borderColor = "orange";
+                nonvalid = true;
+                break;
+            } else {
+                document.getElementById("SealNumber[" + i + "]").style.borderColor = "white";
+                nonvalid = false;
+            }
+        }
+
+        if(!nonvalid) {
+            // begin : validasi pengisian seal number yang berulang pada area seal
+            for (var v = 0; v < equipmentLength; v++) {
+                if (document.getElementById("SealNumber[" + v + "]").value != "") {
+                    sealNum[v] = document.getElementById("SealNumber[" + v + "]").value;
+                }
+            }
+
+            var sorted_arr = sealNum.slice().sort();
+
+            for (var z = 0; z < sorted_arr.length - 1; z++) {
+                if (sorted_arr[z + 1] == sorted_arr[z]) {
+                    resultsSeal.push(sorted_arr[z]);
+                }
+            }
+
+            if (resultsSeal.length > 0) {
+                bootbox.confirm({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>Seal Number already used on other location area</span>',
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn btn-primary'
+                        }
+                    },
+                    callback: function (result) {
+                        //if (result) {
+                        //btnClose(i);
+                        resultsSeal = [];
+                        //}
+                    }
+                });
+                return false;
+            }
+            //end : validasi pengisian seal number yang berulang pada area seal
+
+            //begin : validasi seal number sesuai seal stock
+            for (var n = 0; n < maxSealStockLength; n++) {
+                for (var m = 0; m < equipmentLength; m++) {
+                    var sealNumberValue = document.getElementById("SealNumber[" + m + "]").value;
+                    if (((parseInt(sealNumberValue) >= parseInt(prevSealStockList[n].SealNumberFrom)) && (parseInt(sealNumberValue) <= parseInt(prevSealStockList[n].SealNumberTo))) ) {
+                        validate[n] = true;
+
+                    } else {
+                        validate[n] = false;
+                    }
+                }
+            }
+            if (validate.indexOf(true) < 0) {
+                bootbox.confirm({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>'+prevSealStockList[maxSealStockLength-1].Message+'</span>',
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn btn-primary'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-purple'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            //btnClose(i);
+                        }
+                    }
+                });
+                return false;
+            }
+            //end : validasi seal number sesuai seal stock
+        }
+
+        if (ddWarehouse.val() == "-") {
+            $('#s2id_DDWarehouse a').css('border-color', 'orange');
+            nonvalid = true;
+        }
+        else {
+            $('#s2id_DDWarehouse a').css('border-color', '#ccc');
+        }
+        //if (ddStatus.val() == "-") {
+        //    ddStatus.css('border-color', 'orange');
+        //    nonvalid = true;
+        //}
+        //else {
+        //    ddStatus.css('border-color', '#ccc');
+        //}
+        if (sealDate.val() == "") {
+            sealDate.css('border-color', 'orange');
+            nonvalid = true;
+        }
+        else {
+            sealDate.css('border-color', '#ccc');
+        }
+        //if (ddStaff3.val() == "") {
+        //    if (ddStaff1.val() == "-") {
+        //        $('#s2id_DDStaff1 a').css('border-color', 'orange');
+        //        //ddStaff1.select2('css', 'orange');
+        //        nonvalid = true;
+        //    } else {
+        //        $('#s2id_DDStaff1 a').css('border-color', '#ccc');
+        //    }
+        //}
+        if (ddStaff1.val() == "-" || ddStaff1.val()=="") {
+            $('#s2id_DDStaff1 a').css('border-color', 'orange');
+            //ddStaff1.select2('css', 'orange');
+            nonvalid = true;
+        } else {
+            $('#s2id_DDStaff1 a').css('border-color', '#ccc');
+        }
+
+        //else {
+        //    //if (ddStaff1.val() != "-" || ddStaff2.val() != "-") {
+        //    //    bootbox.alert({
+        //    //        title: "DFIS Notification Center",
+        //    //        message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Warehouse Staff 1/2 and Warehouse Staff 3 cannot be filled in the same time</span>',
+        //    //        size: 'small',
+        //    //        closeButton: false
+        //    //    });
+        //    //    return false;
+        //    //}
+        // }
+
+        if (ddStaff1.val() != "-" && ddStaff2.val() != "-") {
+            if (ddStaff1.val() == ddStaff2.val()) {
+
+                bootbox.alert({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Warehouse Staff 1 and Warehouse Staff 2 cannot be same person</span>',
+                    size: 'small',
+                    closeButton: false
+                });
+                return false;
+            }
+        }
+
+        if (ddStaff1.val() != "-" && ddStaff2.val() != "-") {
+            if (ddStaff1.val() == ddStaff2.val()) {
+                bootbox.alert({
+                    title: "DFIS Notification Center",
+                    message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Warehouse Staff 1 and Warehouse Staff 2 cannot be same person</span>',
+                    size: 'small',
+                    closeButton: false
+                });
+                return false;
+            }
+        }
+
+        if (nonvalid) {
+            alertPleaseFill();
+            return false;
+        }else if(state) {
+            return false;
+        }else {
+            loadingPage();
+            var isEdit = false;
+            jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveSeal")',
+                data: datas,
+                success: function (res) {
+                    dialogloading.modal("hide");
+                    var data;
+                    if (gup('id') != "") {
+                        isEdit = true;
+                        data = res.Edit;
+                    } else {
+                        isEdit = false;
+                        data = res.New;
+                    }
+                    $.each(data, function (l, value) {
+                        if(l == 0) {
+                            if (value.ResponseType == "Success") {
+                                if(l == 0) {
+                                    prevIdLoc = $("#DDWarehouse :selected").val();
+                                    prevStatus = $("#DDStatus :selected").val(); // prevStatus
+                                    prevDate = $("#SealDate").val(); // prevDate
+                                    $("#PrintButton").prop("disabled", false);
+                                    if(isEdit){
+                                        alertSaveSuccess();
+                                    } else {
+                                        $("#redirectUrl").attr("href",_url);
+                                        $("#modalsuccess").modal();
+                                    }
+                                }
+                                //ResetData();
+                                if (gup('id') != "") { // jika saat edit
+                                    disableEnableInput(true);
+                                    generateUpdateData(gup('id'));
+                                } else {
+                                    // ResetData();
+                                    $('#DynamicLocation').html("");
+                                }
+                            }
+                            if(value.ResponseType == "Error") {
+                                if(l == 0) {
+                                    dialogloading.modal("hide");
+                                    alertSaveFail();}
+                            }
+                            if (value.ResponseType == "Invalid") {
+                                dialogloading.modal("hide");
+                                if(l == 0) {
+                                    bootbox.alert({
+                                        title: "DFIS Notification Center",
+                                        message: value.Message,
+                                        size: 'small',
+                                        closeButton: false
+                                    });
+                                }
+                            }
+                        }
+                    });
+                    //dialogloading.modal("hide");
+                }
+
+            });
+        }
+        return true;
+    }
+
+    var sealNumber = [];
+    function generateUpdateData(param) {
+        var statusIsUnlocked = false;
+        if (param != "") {
+            $.ajax({
+                url: '@Url.Action("GetDataUpdate")',
+                method: 'get',
+                cache : false,
+                dataType: 'json',
+                cache:false,
+                data: {
+                    "IDLocation": gup('id'),
+                    "Type": "firstload",
+                    "Status" : gup('p2'),
+                    "statusDate" : moment(gup('p3')).format("YYYY-MM-DD")
+                },
+                success: function (json) {
+                    if (json.length == 0) {
+                        dialogloading.modal("hide");
+
+                        bootbox.alert({
+                            title: "DFIS Notification Center",
+                            message: '<img src="../assets/images/danger.png" alt=""><span>Warning : Please return to Seal Management list, unable to load data because of changed <b>Status</b> or <b>Date</b></span>'
+                        });
+                    }
+                    if (json != "") {
+                        var username1 = [],
+                            username2 = [];
+
+                        for (var i = 0; i < json.length; i++) {
+                            username1 = json[i].WarehouseStaff1.split('\\');
+                            if (username1.length > 1) {
+                                json[i].WarehouseStaff1 = username1[0].toLowerCase() + "\\" + username1[1];
+                            }
+                            username2 = json[i].WarehouseStaff2.split('\\');
+                            if (username2.length > 1) {
+                                json[i].WarehouseStaff2 = username2[0].toLowerCase() + "\\" + username2[1];
+                            }
+
+                            $('#SealDate').val(moment(Number(json[i].StatusDateTime.match(/\d+/)[0])).format('DD/MM/YYYY HH:mm'));
+                            $("#DDWarehouse").select2('data', { id: json[i].IDLocation, text: json[i].IDLocation + ' - ' + json[i].MasterLocation.LocationName });
+                            $("#DDStatus option[value=" + json[i].Status + "]").prop("selected", true);
+                            $('#DDStaff1').select2('val', json[i].WarehouseStaff1);
+                            $('#DDStaff2').select2('val', json[i].WarehouseStaff2);
+                            $('#DDStaff3').val(json[i].WarehouseStaff3);
+                            $('#Remarks').val(json[i].Remarks);
+
+                            indexPrev[i] = {
+                                "IDLocation": json[i].IDLocation,
+                                "Status": json[i].Status,
+                                "StatusDateTime": moment(json[i].StatusDateTime).format("YYYY-MM-DD"),
+                                "WarehouseStaff1": json[i].WarehouseStaff1,
+                                "WarehouseStaff2": json[i].WarehouseStaff2,
+                                "Remarks": json[i].Remarks,
+                                "IDEquipmentType": json[i].IDEquipmentType,
+                                "SealNumber": json[i].SealNumber
+                            };
+                            sealNumber[i] = json[i].SealNumber;
+                            // jika salah satu sealnumber ada yg sdah unlocked maka disable semua kolom
+                            if (json[i].IsUnlock) {
+                                statusIsUnlocked = json[i].IsUnlock;
+                                continue;
+                            }
+
+                            var createdDate = moment(Number(json[i].CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                            setBtnEdit(createdDate, json[i].IDLocation);
+
+                            dialogloading.modal("hide");
+                        }
+                        if (statusIsUnlocked) {
+                            $("#EditButton").prop("disabled", true);
+                            bootbox.alert({
+                                title: "DFIS Notification Center",
+                                message: '<img src="../assets/images/danger.png" alt=""><span>Warning : View mode only, one of several seal number is already <b>Unlocked</b></span>'
+                            });
+                        }
+                        GetLocationDataFromWarehouse(sealNumber,'edit');
+                    }
+                }
+            });
+        }
+    }
+
+
+    $('#PrintButton').on('click', function (e) {
+        var //id = (gup('id') != "") ? gup('id') : prevIdLoc,
+             id = $("#DDWarehouse option:selected").val(),
+            //status = (gup('p2') != "") ? gup('p2') : prevStatus,
+            status = "Locked",
+            //statusDate = (gup('p3') != "") ? moment(gup('p3')).format("YYYY-MM-DD").replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : prevDate.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            statusDate = ($("#SealDate").val()) ? moment($("#SealDate").val(), "DD/MM/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss") : "",
+                        //statusDate = jQuery("#SealDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            getUrl = location.origin;
+
+        // window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '&id=' + $("#DDWarehouse option:selected").val();
+
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+        window.location.href = '@Url.Action("GetDocument")' + '?strUrl=' + getUrl + '&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '	&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+        //window.location.href = '../SealManagement/GetDocument?strUrl=' + getUrl + '/&id=' + id + '&status=' + status + '&statusDate=' + statusDate;
+    });
+
+
+    // BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+    var closingPageDate = '@ViewBag.ClosingPageDate';
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        var disabled = true;
+        for (var j = 0; j < listUserRole.length; j++) {
+            if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+                if (listUserRole[j] != "SUPER ADMIN") continue;
+                disabled = false;
+            } else {
+                var closingDateArr = moment(closingPageDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var closingDate = new Date(''+closingDateArr[2]+'-'+closingDateArr[1]+'-'+(closingDateArr[0]-1));
+                var createdDateArr = moment(param1, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                var createdDate = new Date(''+createdDateArr[2]+'-'+createdDateArr[1]+'-'+(createdDateArr[0]-1));
+                if (param2 != null) { //begin : untuk page yg memiliki lokasi
+                    for (var i = 0; i < listLocation.length; i++) {
+                        if (listLocation[i] != param2) continue;
+                        if (closingDate < createdDate) {
+                            disabled = false;
+                        } else if(closingDate > createdDate) {
+                            disabled = true;
+                        }
+                    }
+                    //end : untuk page yg memiliki lokasi
+                } else {
+                    if (closingDate < createdDate) {
+                        disabled = false;
+                    } else if(closingDate > createdDate) {
+                        disabled = true;
+                    }
+                }
+            }
+        }
+        //$("#EditButton").prop("disabled", disabled);
+    }
+
+    @*function checkSealNumberExistence(ev){
+
+    	var id = (gup('id') == "") ? ($("#DDWarehouse").val() == '-' ? null :$("#DDWarehouse").val()) : gup('id')
+    	var sealNumber = ev.target.value == null ? "" : ev.target.value;
+    	if(sealNumber!=""){
+    		$("#SaveButton").attr("disabled",true);
+    		$.ajax({
+    			url:"@Url.Action("CheckSealNumberExistence")",
+    			data:{
+    				"idLocation":id,
+					"sealNumber":sealNumber
+    			},
+                cache: false,
+    		    success: function(response){
+    			    if(response.Status){
+    				    bootbox.alert({
+                            title: "DFIS Notification Center",
+    					    message: response.Reason,
+    					    size: 'small'
+    				    });
+    				    ev.target.value = "";
+    			    } else{
+    				    if(response.Reason!=""){
+    					    bootbox.alert({
+                                title: "DFIS Notification Center",
+    						    message: response.Reason,
+    						    size: 'small'
+    					    });
+    					    ev.target.value = "";
+    				    } else {
+    					    $("#SaveButton").attr("disabled",false);
+    				    }
+    			    }
+    		},
+    		error: function(){
+    			console.log("Error while checking seal number existence");
+    		}
+    	})
+
+    	}
+    }*@
+
+    function onChangeSealDate() {
+        GetLocationDataFromWarehouse('', 'firstload');
+    }
+</script>

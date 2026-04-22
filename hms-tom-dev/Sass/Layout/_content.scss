@@ -1,0 +1,63 @@
+// content
+
+body{
+	background-color: $graybg;
+}
+
+.canvas-container, .upper-canvas, .lower-canvas {
+    margin: 0 auto;
+}
+
+.main{
+	margin-top: 63px;
+	position: relative;
+	margin-left: 270px;
+	@include transition(all, 0.3s, ease);
+	&.fulled{
+		margin-left: 65px;
+	}
+
+	.content{
+		padding: 30px 30px 110px 30px;
+		float: left;
+		width: 100%;
+		margin-bottom: -110px;
+		min-height: calc(100vh - 63px);
+		.title-deck{
+			float: left;
+			width: 100%;
+			.title-page{
+				float: left;
+				margin-top: 9px;
+			}
+			.button-wrap{
+				float: right;
+			}
+			&.wborder{
+				margin-bottom: 20px;
+				border-bottom: 1px solid rgba(76,88,105,0.1)
+			}
+			&.wmb{
+				margin-bottom: 20px;
+			}
+		}
+		.title-page{
+			font-size: 18px;
+			color: $main;
+			margin: 0 0 25px 0;
+		}
+		hr{
+			background-color: $border2;
+			&.lmtop{
+				margin-top: 5px;
+			}
+		}
+		.bold{
+			font-family: $b;
+		}
+	}
+}
+
+.lb-data .lb-close{
+	background-image: url('../images/close-big.png');
+}

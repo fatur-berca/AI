@@ -1,0 +1,2771 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportExecutionViewModel
+@{
+    ViewBag.Title = "Transport > Transportation Execution > Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .orderDetail {
+        padding-right: 0px;
+        width: 145px;
+    }
+
+    .orderDetail--small {
+        width: 90px;
+    }
+
+    .orderDetail--last {
+        padding-right: 15px;
+    }
+
+    .orderDetail--element {
+        padding: 6px 12px !important;
+    }
+
+    .orderDetail--element--normal {
+        width: 135px;
+    }
+
+    .orderDetail--element--small {
+        width: 80px;
+    }
+
+    .orderDetail--elemen--close {
+        background-color: Transparent;
+        background-repeat: no-repeat;
+        border: none;
+        overflow: hidden;
+        outline: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 20px;
+        content: "\00D7";
+        position: relative;
+        left: 15px;
+        top: 24px;
+    }
+
+    .row-order-detail {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .disabled--textbox
+    {
+        background-color: #e0e0e0 !important;
+        cursor: not-allowed;
+        color: #555 !important;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .routeDetail--checkbox {
+        margin-top: 0 !important;
+        margin-right: 9px !important;
+    }
+
+    .routeDetail--button {
+        margin-right: 20px !important;
+        margin-bottom: 10px !important;
+    }
+    /*SORTABLE STYLE*/
+    body.dragging, body.dragging * {
+        cursor: move !important;
+    }
+
+    .dragged {
+        position: absolute;
+        opacity: 0.5;
+        z-index: 2000;
+    }
+
+    ul
+    {
+        list-style-type: none;
+    }
+
+    ul.RouteMainSortable li.placeholder, ul.RouteAdditionalSortable li.placeholder, ul.RouteStartLocation li.placeholder, ul.RouteSortable li.placeholder , ul.RouteFinishLocation li.placeholder {
+        position: relative;
+        /** More li styles **/
+    }
+    ul.RouteMainSortable li.placeholder:before, ul.RouteAdditionalSortable li.placeholder:before, ul.RouteStartLocation li.placeholder:before, ul.RouteSortable li.placeholder:before, ul.RouteFinishLocation li.placeholder:before {
+        position: absolute;
+        /** Define arrowhead **/
+    }
+
+    .RouteMainSortable, .RouteMainSortable ul, .RouteMainSortable li, .RouteAdditionalSortable, .RouteAdditionalSortable ul, .RouteAdditionalSortable li { display: inline; }
+    /*SORTABLE STYLE*/
+
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+
+    .datetimepicker {
+        padding-left: 30px !important;
+        background-image: url("../assets/images/date.png");
+        background-repeat: no-repeat;
+        background-position: center left 10px;
+    }
+
+    .barShipTrain {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .sectionShipTrain {
+        margin-top: 5px;
+    }
+    .dtl-order {
+        width: 12%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .remove-order {
+        width: 5%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .km-order {
+        width: 8%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .category-order {
+        width: 16%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .orderDetail--elemen--close{
+        top : 0px !important;
+    }
+</style>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationExecution")'">Back</button>
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+        {
+            <button type="button" class="btn btn-primary" id="btnSave" disabled>Save</button>
+        }
+        <button type="button" class="btn btn-primary" id="btnEdit">Edit</button>
+    </div>
+</div>
+<br/>
+<br/>
+<br/>
+
+<div>
+<!--START: BAGIAN COLLAPSE MAIN--> 
+<a role="button" class="toggle-collapse" data-toggle="collapse" href="#collapseMain" aria-expanded="true" aria-controls="collapseMain">
+    Main
+    <i class="fa fa-angle-up pull-right"></i>
+</a>
+<div id="collapseMain" class=" in">
+    <div class="col-panel">
+        <div class="row">
+            @Html.DropDownListFor(model => Model.orderCategoryList, Model.orderCategoryList, new { @class = "form-control hidden", @id = "OrderCategoryCopy" })
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Transportation Number</label>
+                    <input type="text" class="form-control" id="TransportNo" disabled>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Transportation Date</label>
+                    <input type="text" id="TransportDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Transportation Category</label>
+                    <!--<input type="text" id="TransportCategory" class="form-control">-->
+                    @Html.DropDownListFor(model => Model.transportCategoryList, Model.transportCategoryList, new { @class = "form-control", @id = "TransportCategory", @disabled = "disabled" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Actual Vehicle Type</label>
+                    @*<select class="form-control" id="VehicleType"></select>*@
+                    @Html.DropDownListFor(model => Model.vehicleTypeList, Model.vehicleTypeList, new {@class = "form-control", @id = "VehicleType"})
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Transportation Mode</label>
+                    @*<select class="form-control" id="TransportMode"></select>*@
+                    @Html.DropDownListFor(model => Model.transportationModeList, Model.transportationModeList, new {@class = "form-control", @id = "TransportMode"})
+                </div>
+            </div>
+        </div>
+        <!--START: BAGIAN SHIP AND TRAIN--> 
+        <div class="row sectionShipTrain" id="sectionShipTrain" style="display: none;">
+            <div class="col-md-12">
+                <div id="ShipTrain" class="form-group">
+                    <label>Ship and Train</label>
+                    <hr class="barShipTrain" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" id="IDTransVessel" disabled>
+                                <label>Vessel Name</label>
+                                @*<select class="form-control" id="VesselName"></select>*@
+                                @Html.DropDownListFor(model => Model.vesselNameList, Model.vesselNameList, new { @class = "select2", @id = "VesselName" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>ETD 1</label>
+                                <input type="text" id="ETD1" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>ETA 1</label>
+                                <input type="text" id="ETA1" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Container Number</label>
+                                <input type="text" class="form-control" id="ContainerNumber">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Container Seal</label>
+                                <input type="text" class="form-control" id="ContainerSeal">
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+        </div>
+        <!--END: BAGIAN SHIP AND TRAIN--> 
+            
+        <!--START: BAGIAN VENDOR BEFORE-->
+        <div class="row" id="sectionVendorBefore">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Vendor</label>
+                            @Html.DropDownListFor(model => Model.vendorList, Model.vendorList, new { @class = "select2", @id = "VendorNameBefore", @disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>SI Type</label>
+                            @*<select class="form-control" id="SIType"></select>*@
+                            @Html.DropDownListFor(model => Model.siTypeList, Model.siTypeList, new { @class = "form-control", @id = "SITypeBefore" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>SI Status</label>
+                            @*<select class="form-control" id="SIStatus"></select>*@
+                            @Html.DropDownListFor(model => Model.siStatusList, Model.siStatusList, new { @class = "form-control", @id = "SIStatusBefore" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Target of Arrival</label>
+                            <input type="text" class="form-control datetimepicker" id="TargetArrivalBefore" data-date-format="DD/MM/YYYY HH:mm">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Actual Arrive</label>
+                            <input type="text" class="form-control datetimepicker" id="ActualArriveBefore" data-date-format="DD/MM/YYYY HH:mm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--START: BAGIAN VENDOR BEFORE-->
+            
+        <!--START: BAGIAN VENDOR NOW--> 
+        <div class="row" id="sectionVendor" style="display: none;">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Vendor</label>
+                            @*<input type="text" class="form-control" id="VendorName">*@
+                            @Html.DropDownListFor(model => Model.vendorList, Model.vendorList, new { @class = "select2", @id = "VendorName" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>SI Type</label>
+                            @*<select class="form-control" id="SIType"></select>*@
+                            @Html.DropDownListFor(model => Model.siTypeList, Model.siTypeList, new { @class = "form-control", @id = "SIType" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>SI Status</label>
+                            @*<select class="form-control" id="SIStatus"></select>*@
+                            @Html.DropDownListFor(model => Model.siStatusList, Model.siStatusList, new { @class = "form-control", @id = "SIStatus" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Target of Arrival</label>
+                            <input type="text" class="form-control datetimepicker" id="TargetArrival" data-date-format="DD/MM/YYYY HH:mm">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Actual Arrive</label>
+                            <input type="text" class="form-control datetimepicker" id="ActualArrive" data-date-format="DD/MM/YYYY HH:mm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--END: BAGIAN VENDOR NOW--> 
+                
+        <!--START: BAGIAN START LOCATION--> 
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Start Location</label>
+                    @*<select class="form-control" id="StartLocation"></select>*@
+                    @Html.DropDownListFor(model => Model.locationList, Model.locationList, new { @class = "select2", @id = "StartLocation" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Finish Location</label>
+                    @*<select class="form-control" id="FinishLocation"></select>*@
+                    @Html.DropDownListFor(model => Model.locationList, Model.locationList, new { @class = "select2", @id = "FinishLocation" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Service PO Number</label>
+                    <input type="text" class="form-control" id="ServicePONumber">
+                </div>
+            </div> 
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Service GR Number</label>
+                    <input type="text" class="form-control" id="ServiceGRNumber">           
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Actual Cost Center</label>
+                    <select class="form-control" id="ActualCostCenter"></select>
+                    @*@Html.DropDownListFor(model => Model.costCenterList, Model.costCenterList, new { @class = "form-control", @id = "ActualCostCenter" })*@
+                </div>
+            </div>
+        </div>
+        <!--END: BAGIAN START LOCATION--> 
+    </div>
+</div>
+<!--END: BAGIAN COLLAPSE MAIN--> 
+    
+<!--START: BAGIAN COLLAPSE ORDER DETAIL--> 
+<a role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#collapseOrderDetail" aria-expanded="false" aria-controls="collapseOrderDetail">
+    Order Detail
+    <i class="fa fa-angle-up pull-right"></i>
+</a>
+<div id="collapseOrderDetail" class="">
+    <div class="col-panel">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button type="button" class="btn btn-primary" id="btnAddTO">Add New Order</button>
+            </div>
+        </div>
+
+        <div id="GenerateOrderDetail"></div>
+    </div>
+</div>
+<!--END: BAGIAN COLLAPSE ORDER DETAIL--> 
+    
+<!--START: BAGIAN COLLAPSE FLEET DETAIL--> 
+<a role="button" class="toggle-collapse" data-toggle="collapse" href="#collapseFleetDetail" aria-expanded="true" aria-controls="collapseFleetDetail">
+    Fleet Detail
+    <i class="fa fa-angle-up pull-right"></i>
+</a>
+<div id="collapseFleetDetail" class="in">
+    <div class="col-panel">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Police Registration Number</label>
+                    <select class="select2" id="PoliceRegNumber"></select>
+                    @*@Html.DropDownListFor(model => Model.policeRegNumberList, Model.policeRegNumberList, new { @class = "select2", @id = "PoliceRegNumber" })*@
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Driver 1</label>
+                    <select class="select2" id="Driver1"></select>
+                    @*@Html.DropDownListFor(model => Model.driverList, Model.driverList, new { @class = "select2", @id = "Driver1" })*@
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Driver 2</label>
+                    <select class="select2" id="Driver2"></select>
+                    @*@Html.DropDownListFor(model => Model.driverList, Model.driverList, new { @class = "select2", @id = "Driver2" })*@
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Co-Driver</label>
+                    <select class="select2" id="CoDriver"></select>
+                    @*@Html.DropDownListFor(model => Model.codriverList, Model.codriverList, new { @class = "select2", @id = "CoDriver" })*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--END: BAGIAN COLLAPSE FLEET DETAIL--> 
+    
+<!--START: BAGIAN COLLAPSE ROUTE DETAIL--> 
+<a role="button" class="toggle-collapse"  data-toggle="collapse" href="#collapseRouteDetail" aria-expanded="true" aria-controls="collapseRouteDetail">
+    Route Detail
+    <i class="fa fa-angle-up pull-right"></i>
+</a>
+<div id="collapseRouteDetail" class="in">
+    <div class="col-panel">
+        <h4><b><label id="lblVendorCategory"></label></b></h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-1">
+                <h4><b><label>Main</label></b></h4>
+            </div>
+            <div class="col-md-11">
+                <div class="form-group">
+                    <div>
+                        <ul id="RouteMainSortable" class="RouteMainSortable"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+                <h4><b><label>Additional</label></b></h4>
+            </div>
+            <div class="col-md-11">
+                <div class="form-group">
+                    <div>
+                        <ul id="RouteAdditionalSortable" class="RouteAdditionalSortable"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-6">
+                <h4><b><label>Route</label></b></h4>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div id="route">
+                                <ul id="RouteStartLocation" class="RouteStartLocation"></ul>
+                                <ul id="RouteSortable" class="RouteSortable"></ul>
+                                <ul id="RouteFinishLocation" class="RouteFinishLocation"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Additional Cost</label>
+                            <input type="text" class="form-control" id="AddCost">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <input type="text" class="form-control" id="Remarks">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div id="ViaSection">
+                                <label>Via</label>
+                                @*<select class="form-control" id="Via"></select>*@
+                                @Html.DropDownListFor(model => Model.viaList, Model.viaList, new { @class = "form-control", @id = "Via" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" id="btnCalculate">Calculate</button>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Total KM Based</label>
+                            <input type="text" class="form-control" id="DisplayTotalKM" disabled>
+                            <input type="hidden" class="form-control" id="TotalKM" disabled>
+                            <input type="hidden" class="form-control" id="KMTruck" disabled>
+                            <input type="hidden" class="form-control" id="KMRail" disabled>
+                            <input type="hidden" class="form-control" id="KMSea" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div id="TotalBoxSection">
+                                <label>Grand Total Box</label>
+                                <input type="text" class="form-control" id="TotalBox" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--END: BAGIAN COLLAPSE ROUTE DETAIL--> 
+</div>
+
+<!--START: BAGIAN MODAL-->
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<!--CONTOH PANGGIL DAN ISI NOTIFICATION MODAL-->
+@*$('#notificationModal').modal('show');
+$('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+$('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');*@
+
+<div id="orderDetailModal" class="modal fade" role="dialog"  data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <div id="GeneratePopUpOrderDetail"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.reload()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--END: BAGIAN MODAL-->
+
+<script type="text/javascript">
+    var stringOrderCategory = "";
+    var TO = 0;
+    var addedTOList = [];
+    var saveTOList = [];
+    var dialog;
+    var TransportationModeDefaultLoad = "";
+    var VesselMonitoringDefaultLoad = new Object();
+    var TransportCategoryLoad = "";//dipakai untuk mengset nilai default transport category data, kalau dari db sudah ada nilainya, maka pakai variabel ini
+    var ActualVehicleTypeLoad = "";//dipakai untuk mengset nilai default actual vehicle type data, kalau dari db sudah ada nilainya, maka pakai variabel ini
+    var ActualCostCenterLoad = "";//dipakai untuk mengset nilai default actual cost center data, kalau dari db sudah ada nilainya, maka pakai variabel ini
+    var RouteMainList = [];//digunakan di bagian route, pada saat ngeload data order number atau add/remove to
+    var RouteAdditionalList = [];//digunakan di bagian route, pada saat ngeload data order number atau add/remove to
+    var TOList = [];//digunakan sebagai list to yang ada
+    //var TransportRouteDefaultLoadList = [];//tempat tampung data yang sudah tersave
+    var route = 0;//digunakan untuk checkbox route id, digunakan hanya untuk membedakan karena start location dan finish location bisa sama
+
+    var DisplayRouteMainList = [];//digunakan untuk tampilan route detail bagian main route
+    var DisplayRouteAdditionalList = [];//digunakan untuk tampilan route detail bagian additional route
+    var DisplayTransportRouteList = [];//digunakan untuk tampilan route detail
+
+    var vendorCategory = "";//dipakai buat calculate distance
+    var mandatory = ["TransportDate", "TransportCategory", "VehicleType", "TransportMode", "VendorNameBefore", "StartLocation", "FinishLocation"];
+
+    var saveTransExecution = new Object();//digunakan untuk save
+    var saveTransVessel = new Object();//digunakan untuk save
+    var saveTransRouteList = [];//digunakan untuk save
+    var saveVendorLog = new Object();//digunakan untuk save
+    var dateBefore;
+
+    var warningRoute = "";//digunakan untuk tampilkan warning route mana yang belum ada di master distance, diisi waktu tombol calculate di tekan, di tampilan waktu save
+
+    disabledForm();
+
+    $(window).on('load', function () {
+        $('[data-toggle="collapse"]').next().addClass('collapse');
+    });
+
+    //$('.datepicker').datepicker({
+    //    format: 'DD-MMM-YYYY'
+    //});
+
+    $(document).ready(function () {
+        var pk = GetURLParameter('pk');
+        if (typeof pk == "string") {
+            dataEdit(pk);
+        }
+
+        $("#OrderCategoryCopy option").each(function () {
+            stringOrderCategory = stringOrderCategory + '<option value="' + $(this).val() + '">' + $(this).text() + '</option>';
+        });
+    });
+
+    $(document).on('click', '.routeDetail--checkbox', function () {
+        $("#DisplayTotalKM").val("");
+        $("#TotalKM").val("");
+        $("#KMTruck").val("");
+        $("#KMRail").val("");
+        $("#KMSea").val("");
+        $("#TotalBox").val("");
+        if ($('.routeDetail--checkbox:checkbox:checked').length > 2)
+            $(this).prop("checked", false);
+        else {
+            if ($('.routeDetail--checkbox:checkbox:checked').length > 1) {
+                //jika yang di cek start location
+                if ($(this).parent().parent().parent().attr('id') == "RouteStartLocation") {
+                    if ($("#RouteSortable").children().first().children().children('.routeDetail--checkbox:checkbox').is(":checked")) {
+                        //console.log('okay');
+                    }
+                    else if (DisplayTransportRouteList.length == 0) {//yang di route cuma ada 2, start & finish location
+                        //console.log('okay');
+                    }
+                    else
+                        $(this).prop("checked", false);
+                }
+                    //jika yang di cek finish location
+                else if ($(this).parent().parent().parent().attr('id') == "RouteFinishLocation") {
+                    if ($("#RouteSortable").children().last().children().children('.routeDetail--checkbox:checkbox').is(":checked")) {
+                        //console.log('okay');
+                    }
+                    else if (DisplayTransportRouteList.length == 0) {//yang di route cuma ada 2, start & finish location
+                        //console.log('okay');
+                    }
+                    else
+                        $(this).prop("checked", false);
+                }
+                else {
+                    if ($(this).parent().parent().is(':first-child')) {
+                        if ($("#RouteStartLocation").children().children().children('.routeDetail--checkbox:checkbox').is(":checked") || $(this).parent().parent().next().children().children('.routeDetail--checkbox:checkbox').is(":checked")) {
+                            //console.log('okay');
+                        }
+                        else if (DisplayTransportRouteList.length == 1) {
+                            /*kalau yang di rute cuma ada 1, di anggap sebagai first child, sehingga kalau yang di check finish location, kemudian rute, tidak akan masuk if di bawah
+                            if  ini untuk skenario, cuma ada 1 rute, dan check boxnya mulai dari finish location kemudian rute
+                            */
+                            //console.log('okay');
+                        }
+                        else
+                            $(this).prop("checked", false);
+                    }
+                    else if ($(this).parent().parent().is(':last-child')) {
+                        //console.log('last child');
+                        if ($("#RouteFinishLocation").children().children().children('.routeDetail--checkbox:checkbox').is(":checked") || $(this).parent().parent().prev().children().children('.routeDetail--checkbox:checkbox').is(":checked")) {
+                            //console.log('okay');
+                        }
+                        else
+                            $(this).prop("checked", false);
+                    }
+                    else {
+                        if ($(this).parent().parent().next().children().children('.routeDetail--checkbox:checkbox').is(":checked") || $(this).parent().parent().prev().children().children('.routeDetail--checkbox:checkbox').is(":checked")) {
+                            //console.log('okay');
+                        }
+                        else
+                            $(this).prop("checked", false);
+                    }
+                }
+            }
+        }
+    });
+
+    $("#btnEdit").click(function () {
+        var newRole = '@ViewBag.UserRole';
+        enabledForm(newRole);
+    });
+
+    function dataEdit(pk) {
+        transportStatus = "";
+        var startLocation;
+        var finishLocation;
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: '@Url.Action("GetTransportExecutionByID", "TransportationExecution")',
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            data: { id: pk },
+            success: function (data) {
+                //console.log(data);
+                $("#IDTransVessel").val(0);
+                $("#KMTruck").val(0);
+                $("#KMRail").val(0);
+                $("#KMSea").val(0);
+
+                if (data.TransportStatus == "Close")
+                    $("#btnEdit").prop("disabled", true);
+                else
+                    $("#btnEdit").prop("disabled", false);
+
+                $("#TransportNo").val(data.TransportNo);
+                $("#TransportDate").val(moment(data.TransportDate).format("DD/MM/YYYY"));
+                dateBefore = moment($('#TransportDate').val(), "DD/MM/YYYY").format("DD-MMM-YYYY");
+                $("#TransportCategory").val(data.TransportCategory);
+                TransportCategoryLoad = data.TransportCategory;
+                $("#VehicleType").val(data.ActualVehicleType);
+                ActualVehicleTypeLoad = data.ActualVehicleType;
+                $("#TransportMode").val(data.TransportMode);
+                if (data.TransportVesselMonitorings.length > 0) {
+                    TransportationModeDefaultLoad = data.TransportMode;
+                    VesselMonitoringDefaultLoad = data.TransportVesselMonitorings[0];
+                    LoadShipOrTrain();
+                    $("#sectionShipTrain").show();
+                }
+                if (data.TransportMode == "Ship" || data.TransportMode == "Train") {
+                    if (data.TransportMode == "Ship") mandatory.push("VesselName");
+                    $("#sectionShipTrain").show();
+                }
+
+                if (data.MasterVendor != null) {
+                    GetVehicleData(data.MasterVendor.IDVendor, data.PoliceRegNo);
+                    GetDriverData(data.MasterVendor.IDVendor, data.IDDriver1, data.TransportDriverManagement, data.IDDriver2, data.TransportDriverManagement1, data.IDCoDriver, data.TransportDriverManagement2);
+                    $("#VendorNameBefore").select2('val', data.MasterVendor.IDVendor + '-' + data.MasterVendor.VendorCategory + '-' + data.MasterVendor.TransportationMode);
+                    $("#SITypeBefore").val(data.SIType);
+                    $("#SIStatusBefore").val(data.SIStatus);
+                    if (data.TargetOfArrival != null)
+                        $("#TargetArrivalBefore").val(moment(data.TargetOfArrival).format("DD/MM/YYYY HH:mm"));
+                    else
+                        $("#TargetArrivalBefore").val("");
+                    if (data.ActualArrive != null)
+                        $("#ActualArriveBefore").val(moment(data.ActualArrive).format("DD/MM/YYYY HH:mm"));
+                    else
+                        $("#ActualArriveBefore").val("");
+                    $("#lblVendorCategory").html(data.MasterVendor.VendorCategory);
+                    vendorCategory = data.MasterVendor.VendorCategory;
+                    if (data.MasterVendor.VendorCategory == "KM Based") {
+                        $("#ViaSection").hide();
+                        $("#TotalBoxSection").hide();
+                        $("#Via").val("");
+                        $("#TotalBox").val(0);
+                    }
+                    if (data.MasterVendor.VendorCategory == "Trip Based") {
+                        $("#ViaSection").show();
+                        $("#TotalBoxSection").hide();
+                        $("#TotalBox").val(0);
+                    }
+                    if (data.MasterVendor.VendorCategory == "Box Based") {
+                        $("#ViaSection").show();
+                        $("#TotalBoxSection").show();
+                    }
+                } else {
+                    $("#VendorNameBefore").select2('val', "");
+                    if (data.SIStatus != null)
+                        $("#SIStatusBefore").val(data.SIStatus);
+                    else
+                        $("#SIStatusBefore").val("");
+                }
+
+                $("#StartLocation").select2('val',data.StartLocation);
+                $("#FinishLocation").select2('val', data.FinishLocation);
+
+                if (data.TransportRoutes.length > 0) {
+                    startLocation = data.TransportRoutes[0];
+                    finishLocation = data.TransportRoutes[data.TransportRoutes.length - 1];
+                }
+                $("#ServicePONumber").val(data.ServicePONo);
+                $("#ServiceGRNumber").val(data.ServiceGRNo);
+                //console.log(data.TransportOrders);
+                for (var i = 0; i < data.TransportOrders.length; i++) {
+                    TO++;
+                    $("#GenerateOrderDetail").append(stringHTMLToDetail(TO, data.TransportOrders[i].IDTransportOrder));
+                    assignValueToDetail(TO, false, data.TransportOrders[i]);
+                    addedTOList.push(data.TransportOrders[i]);
+                    $(".enable-detail").prop("disabled", true);
+
+                    var senderLoc = data.TransportOrders[i].MasterLocation2;
+                    var receiveLoc = data.TransportOrders[i].MasterLocation3;
+
+                    var tempTOObject = new Object();
+                    tempTOObject.IDTransportOrder = data.TransportOrders[i].IDTransportOrder;
+                    tempTOObject.SenderIDLocation = data.TransportOrders[i].ActualSenderIDLocation;
+                    tempTOObject.SenderLocationName = data.TransportOrders[i].MasterLocation2.LocationName;
+                    tempTOObject.ReceiverIDLocation = data.TransportOrders[i].ActualReceiverIDLocation;
+                    tempTOObject.ReceiverLocationName = data.TransportOrders[i].MasterLocation3.LocationName;
+                    tempTOObject.OrderCategory = data.TransportOrders[i].OrderCategory;
+                    tempTOObject.OrderStatus = "In Process";
+                    tempTOObject.TotalBox = Math.round(data.TransportOrders[i].TotalBox);
+                    tempTOObject.OrderType = data.TransportOrders[i].OrderType;
+                    tempTOObject.TransportOrderDetails = data.TransportOrders[i].TransportOrderDetails;
+                    tempTOObject.TransportOrderDetails.forEach(function (x) {
+                        delete x.TransportOrder;
+                    });
+                    TOList.push(tempTOObject);
+
+                    //START: BAGIAN MENGISI RUTE MAIN ORDER
+                    if (data.TransportOrders[i].OrderCategory == "Main Order") {
+                        var temp = CheckObjectOnList(DisplayRouteMainList, senderLoc.IDLocation, senderLoc.LocationName, true, false);
+                        if (temp != "undefined")
+                            DisplayRouteMainList.push(temp);
+                        var temp2 = CheckObjectOnList(DisplayRouteMainList, receiveLoc.IDLocation, receiveLoc.LocationName, true, false);
+                        if (temp2 != "undefined")
+                            DisplayRouteMainList.push(temp2);
+                    }
+                    //END: BAGIAN MENGISI RUTE MAIN ORDER
+
+                    //START: BAGIAN MENGISI RUTE ADDITIONAL ORDER
+                    else {
+                        var temp3 = CheckObjectOnList(DisplayRouteAdditionalList, senderLoc.IDLocation, senderLoc.LocationName, false, false);
+                        if (temp3 != "undefined")
+                            DisplayRouteAdditionalList.push(temp3);
+                        var temp4 = CheckObjectOnList(DisplayRouteAdditionalList, receiveLoc.IDLocation, receiveLoc.LocationName, false, false);
+                        if (temp4 != "undefined")
+                            DisplayRouteAdditionalList.push(temp4);
+                    }
+                    //END: BAGIAN MENGISI RUTE ADDITIONAL ORDER
+                }
+                //INI DIBAGIAN BAWAH, KARENA HARUS MENGISI DROP DOWNNYA TERLEBIH DAHULU, DROP DOWNNYA DIISI PADA SAAT stringHTMLToDetail
+                $("#ActualCostCenter").val(data.IDCostCenter);
+                ActualCostCenterLoad = data.IDCostCenter;
+
+                //if (DisplayRouteMainList.length > 0) {
+                //    //START: BAGIAN MENGELUARKAN LOKASI ADDITIONAL ORDER YANG ADA DI MAIN ORDER
+                //    DisplayRouteAdditionalList = RemoveDuplicateObjectOnList(DisplayRouteAdditionalList, DisplayRouteMainList);
+                //    //END: BAGIAN MENGELUARKAN LOKASI ADDITIONAL ORDER YANG ADA DI MAIN ORDER
+                //}
+
+                DisplayTransportRouteList = data.TransportRoutes.filter(function (x) { return x.IsMain });
+                //DisplayTransportRouteList.splice((data.TransportRoutes.length - 1), 1);
+                //DisplayTransportRouteList.splice(0, 1);
+
+                var TransportRouteMain = data.TransportRoutes.filter(function (x) { return x.IsMain });
+                var TransportRouteAdditional = data.TransportRoutes.filter(function (x) { return !x.IsMain });
+
+                //console.log(TransportRouteMain);
+                //console.log(TransportRouteAdditional);
+
+                //START: BAGIAN NGELOAD DATA TRANSPORT ROUTE DARI DATABASE
+                if (data.TransportRoutes.length > 0) {
+                    if (TransportRouteMain.length > 0)
+                        DisplayRouteMainList = RemoveDuplicateObjectOnList(DisplayRouteMainList, TransportRouteMain);
+                    if (TransportRouteAdditional.length > 0)
+                        DisplayRouteAdditionalList = RemoveDuplicateObjectOnList(DisplayRouteAdditionalList, TransportRouteAdditional);
+                }
+                //END: BAGIAN NGELOAD DATA TRANSPORT ROUTE DARI DATABASE
+
+                //START: BAGIAN GENERATE MAIN ROUTE, ADDITIONAL ROUTE, TRANSPORT ROUTE
+                DrawRouteDetail();
+
+                var checkedStartLocation = "";
+                var checkedFinishLocation = "";
+                //console.log(startLocation);
+                if(startLocation){
+                    if (startLocation.IsNonKMBased)
+                        checkedStartLocation = "checked";
+                }
+                if (finishLocation) {
+                    if (finishLocation.IsNonKMBased)
+                        checkedFinishLocation = "checked";
+                }
+                $("#RouteStartLocation").append(stringHTMLRouteDetail(route, "startLocationClass", $("#StartLocation :selected").val(), $("#StartLocation :selected").text(), checkedStartLocation));
+                route++;
+                if ($("#FinishLocation :selected").val() != "") {
+                    $("#RouteFinishLocation").append(stringHTMLRouteDetail(route, "finishLocationClass", $("#FinishLocation :selected").val(), $("#FinishLocation :selected").text(), checkedFinishLocation));
+                    route++;
+                }
+
+                $("#Via").val(data.Via);
+                $("#AddCost").val(data.AdditionalCost);
+                $("#Remarks").val(data.Remarks);
+                $("#KMTruck").val(Math.round(data.TotalKMBased));
+                $("#KMRail").val(Math.round(data.TotalKMRail));
+                $("#KMSea").val(Math.round(data.TotalKMSea));
+                $("#DisplayTotalKM").val(Math.round(data.TotalKMBased));
+                $("#TotalKM").val(Math.round(data.TotalKMBased));
+                $("#TotalBox").val(Math.round(data.TotalBox));
+
+            },
+            complete: function () {
+                SetDefaultVehicleType(true);
+                SetDefaultTransportCategory(true);
+                SetDefaultCostCenter(true);
+                $(".routeDetail--button").attr("disabled", true);
+                $(".routeDetail--checkbox").attr("disabled", true);
+                $(".RouteMainSortable").sortable("disable");
+                $(".RouteAdditionalSortable").sortable("disable");
+                $(".RouteSortable").sortable("disable");
+                removeRedMark();
+                dialog.modal('hide');
+
+            }
+        });
+    }
+
+    function LoadShipOrTrain() {
+        //$("#VesselName").val(VesselMonitoringDefaultLoad.VesselName);
+        $("#VesselName").select2("val", VesselMonitoringDefaultLoad.VesselName);
+        if (VesselMonitoringDefaultLoad.ETD1 != null)
+            $("#ETD1").val(moment(VesselMonitoringDefaultLoad.ETD1).format("DD/MM/YYYY"));
+
+        if (VesselMonitoringDefaultLoad.ETA1 != null)
+            $("#ETA1").val(moment(VesselMonitoringDefaultLoad.ETA1).format("DD/MM/YYYY"));
+
+        $("#ContainerNumber").val(VesselMonitoringDefaultLoad.ContainerNo);
+        $("#ContainerSeal").val(VesselMonitoringDefaultLoad.ContainerSeal);
+    }
+
+    function EmptyShipOrTrain() {
+        $("#VesselName").select2("val","");
+        $("#ETD1").val("");
+        $("#ETA1").val("");
+        $("#ContainerNumber").val("");
+        $("#ContainerSeal").val("");
+    }
+
+    function SetDefaultTransportCategory(loadData) {
+        var transCategory = checkGategory(TOList)
+        $("#TransportCategory").val(transCategory);
+
+        //var arrayTempTransportCategory = {};
+        //var array = $(".hiddenOrderType");
+        //for (var i = 0; i < array.length; i++) {
+        //    arrayTempTransportCategory[array[i].value] = 1 + (arrayTempTransportCategory[array[i].value] || 0);
+        //}
+
+        //if (loadData && TransportCategoryLoad != "") {
+        //    //jika load pertama kali data dari db, dan ada nilainya di db
+        //    $("#TransportCategory").val(TransportCategoryLoad);
+        //}
+        //else {
+        //    if (arrayTempTransportCategory.length > 1) {
+        //        $("#TransportCategory").val("");
+        //    } else {
+        //        $("#TransportCategory").val(Object.keys(arrayTempTransportCategory)[0]);
+        //    }
+        //}
+    }
+
+    function SetDefaultVehicleType(loadData) {
+        var arrayTempVehicleType = {};
+        var array = $(".orderedVehicleType");
+        for (var i = 0; i < array.length; i++) {
+            arrayTempVehicleType[array[i].value] = 1 + (arrayTempVehicleType[array[i].value] || 0);
+        }
+
+        if (loadData && ActualVehicleTypeLoad != "") {
+            //jika load pertama kali data dari db, dan ada nilainya di db
+            $("#VehicleType").val(ActualVehicleTypeLoad);
+        }
+        else {
+            if (arrayTempVehicleType.length > 1) {
+                $("#VehicleType").val("");
+            } else {
+                $("#VehicleType").val(Object.keys(arrayTempVehicleType)[0]);
+            }
+        }
+    }
+
+    function SetDefaultCostCenter(loadData) {
+        console.log("SET DROP DOWN LIST COST CENTER");
+        var arrayTempCostCenter = {};
+        var array = $(".orderedCostCenter");
+
+        // for (var i = 0; i < array.length; i++) {
+        //    arrayTempCostCenter[array[i].value] = 1 + (arrayTempCostCenter[array[i].value] || 0);
+        // }
+
+        for (var i = 0; i < array.length; i++) {
+            arrayTempCostCenter[i] = array[i].value;
+        }
+        // console.log(arrayTempCostCenter);
+
+        if (loadData && ActualCostCenterLoad != "") {
+            //jika load pertama kali data dari db, dan ada nilainya di db
+            $("#ActualCostCenter").val(ActualCostCenterLoad);
+
+            //var uniqueTempCostCenter = [];
+            //$.each(arrayTempCostCenter, function (i, el) {
+            //    if ($.inArray(el, uniqueTempCostCenter) === -1 &&
+            //        arrayTempCostCenter[i] != "") {
+            //        uniqueTempCostCenter.push(el);
+            //    }
+            //});
+            //// console.log(uniqueTempCostCenter);
+
+            //if (uniqueTempCostCenter.length > 1) {
+            //    $("#ActualCostCenter").val("");
+            //} else {
+            //    $("#ActualCostCenter").val($("#ActualCostCenter option:first").val());
+            //}
+        }
+        else {
+            $("#ActualCostCenter").val("");
+        }
+    }
+
+    $("#TransportMode").on('change', function () {
+        mandatory = $.grep(mandatory, function (e) { return e != "VesselName"; });
+        //mandatory = $.grep(mandatory, function (e) { return e != "ContainerNumber"; });
+        //mandatory = $.grep(mandatory, function (e) { return e != "ContainerSeal"; });
+        if ($("#TransportMode").val() == "Ship" || $("#TransportMode").val() == "Train") {
+            if ($("#TransportMode").val() == "Ship") mandatory.push("VesselName");
+            if ($("#TransportMode").val() == TransportationModeDefaultLoad)
+                LoadShipOrTrain();
+            else
+                EmptyShipOrTrain();
+            //if ($("#TransportMode").val() == "Ship") {
+            //    mandatory.push("VesselName");
+            //    mandatory.push("ContainerNumber");
+            //    mandatory.push("ContainerSeal");
+            //}
+            //else if ($("#TransportMode").val() == "Train") {
+            //    mandatory.push("ContainerNumber");
+            //    mandatory.push("ContainerSeal");
+            //}
+            $("#sectionShipTrain").show();
+
+            if ($("#TransportMode").val() == "Train")
+                $('#VesselName').prop("disabled", true);
+            else
+                $('#VesselName').prop("disabled", false);
+        } else {
+            $("#sectionShipTrain").hide();
+        }
+    });
+
+    $("#VendorNameBefore").on('change', function () {
+        var IDVendor = $(this).val().split("-")[0];
+
+        //console.log($("#SIStatusBefore").val());
+        if ($("#SIStatusBefore").val() == "Fullfill" || $("#SIStatusBefore").val() == "" || $("#SIStatusBefore").val() == null) {
+            GetVehicleData(IDVendor,null);
+            GetDriverData(IDVendor, null, null, null, null, null, null);
+            var splitVendor = $("#VendorNameBefore").val().split('-');
+            $("#lblVendorCategory").html(splitVendor[1]);
+            $("#TransportMode").val(splitVendor[2]);
+            $('#TransportMode').trigger('change');
+            vendorCategory = splitVendor[1];
+            if (splitVendor[1] == "KM Based") {
+                $("#ViaSection").hide();
+                $("#TotalBoxSection").hide();
+            }
+            if (splitVendor[1] == "Trip Based") {
+                $("#ViaSection").show();
+                $("#TotalBoxSection").hide();
+            }
+            if (splitVendor[1] == "Box Based") {
+                $("#ViaSection").show();
+                $("#TotalBoxSection").show();
+            }
+
+            $("#Via").val("");
+            $("#AddCost").val("");
+            $("#Remarks").val("");
+            $("#DisplayTotalKM").val(0);
+            $("#TotalKM").val(0);
+            $("#KMTruck").val(0);
+            $("#KMRail").val(0);
+            $("#KMSea").val(0);
+            $("#TotalBox").val(0);
+            getServicePO(splitVendor[0], $("#TransportDate").val());
+        }
+    });
+
+    function GetVehicleData(IDVendor,policeRegNumber)
+    {
+        $('#PoliceRegNumber').html('');
+        $.ajax({
+            type: "get",
+            method: "post",
+            url: '@Url.Action("GetVehicleByCriteriaActive", "TransportationExecution")',
+            data: { IDVendor: IDVendor },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+               // console.log(result);
+                $('#PoliceRegNumber').append('<option value="-"></option>');
+
+                for (var i = 0; i < result.length; i++)
+                {
+                    $('#PoliceRegNumber').append('<option value=' + result[i].IDPoliceRegNumber + '>' + result[i].IDPoliceRegNumber + '</option>');
+                }
+            },
+            complete: function () {
+                var exists = false;
+                $("#PoliceRegNumber option").each(function () {
+                    if ($(this).val() == policeRegNumber) {
+                        exists = true;
+                        return false;
+                    }
+                });
+                if (exists)
+                    $("#PoliceRegNumber").select2('val', policeRegNumber);
+                else if (exists == false && policeRegNumber != null) {
+                    $('#PoliceRegNumber').append('<option value=' + policeRegNumber + '>' + policeRegNumber + '</option>');
+                    $("#PoliceRegNumber").select2('val', policeRegNumber);
+                }
+            }
+        });
+    }
+
+    function GetDriverData(IDVendor,iddriver1,driver1,iddriver2,driver2,idcodriver,codriver) {
+        $('#Driver1').html('');
+        $('#Driver2').html('');
+        $('#CoDriver').html('');
+        $.ajax({
+            type: "get",
+            method: "post",
+            url: '@Url.Action("GetDriverByCriteriaActive", "TransportationExecution")',
+            data: { IDVendor: IDVendor },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                $('#Driver1').append('<option value="-"></option>');
+                for (var i = 0; i < result.driver.length; i++) {
+                    $('#Driver1').append('<option value=' + result.driver[i].ID + '>' + result.driver[i].Name + '</option>');
+                }
+                $('#Driver2').html($('#Driver1').html());
+                $('#CoDriver').append('<option value="-"></option>');
+                for (var i = 0; i < result.codriver.length; i++) {
+                    $('#CoDriver').append('<option value=' + result.codriver[i].ID + '>' + result.codriver[i].Name + '</option>');
+                }
+                //$('#CoDriver').html($('#Driver1').html());
+            },
+            complete: function () {
+                var existsDriver1 = false;
+                var existsDriver2 = false;
+                var existsCoDriver = false;
+
+                $("#Driver1 option").each(function () {
+                    if ($(this).val() == iddriver1) {
+                        existsDriver1 = true;
+                    }
+                    if ($(this).val() == iddriver2) {
+                        existsDriver2 = true;
+                    }
+                });
+                $("#CoDriver option").each(function () {
+                    if ($(this).val() == idcodriver) {
+                        existsCoDriver = true;
+                        return false;
+                    }
+                });
+                if (existsDriver1)
+                    $("#Driver1").select2('val', iddriver1);
+                else if (existsDriver1 == false && iddriver1 != null && driver1 != null) {
+                    $('#Driver1').append('<option value=' + iddriver1 + '>' + driver1.Name + '</option>');
+                    $("#Driver1").select2('val', iddriver1);
+                }
+                if (existsDriver2)
+                    $("#Driver2").select2('val', iddriver2);
+                else if (existsDriver2 == false && iddriver2 != null && driver2 != null){
+                    $('#Driver2').append('<option value=' + iddriver2 + '>' + driver2.Name + '</option>');
+                    $("#Driver2").select2('val', iddriver2);
+                }
+                if (existsCoDriver)
+                    $("#CoDriver").select2('val', idcodriver);
+                else if (existsCoDriver == false && codriver != null && codriver != null){
+                    $('#CoDriver').append('<option value=' + idcodriver + '>' + codriver.Name + '</option>');
+                    $("#CoDriver").select2('val', idcodriver);
+                }
+            }
+        });
+    }
+
+    $("#VendorName").on('change', function () {
+        var IDVendor = $(this).val().split("-")[0];
+
+        if ($("#SIStatusBefore").val() == "Unfullfill") {
+            GetVehicleData(IDVendor,null);
+            GetDriverData(IDVendor, null, null, null, null, null, null);
+            var splitVendor = $("#VendorName").val().split('-');
+            $("#lblVendorCategory").html(splitVendor[1]);
+            $("#TransportMode").val(splitVendor[2]);
+            $('#TransportMode').trigger('change');
+            vendorCategory = splitVendor[1];
+            if (splitVendor[1] == "KM Based") {
+                $("#ViaSection").hide();
+                $("#TotalBoxSection").hide();
+            }
+            if (splitVendor[1] == "Trip Based") {
+                $("#ViaSection").show();
+                $("#TotalBoxSection").hide();
+            }
+            if (splitVendor[1] == "Box Based") {
+                $("#ViaSection").show();
+                $("#TotalBoxSection").show();
+            }
+
+            $("#Via").val("");
+            $("#AddCost").val("");
+            $("#Remarks").val("");
+            $("#DisplayTotalKM").val(0);
+            $("#TotalKM").val(0);
+            $("#KMTruck").val(0);
+            $("#KMRail").val(0);
+            $("#KMSea").val(0);
+            $("#TotalBox").val(0);
+
+            getServicePO(splitVendor[0], $("#TransportDate").val());
+        }
+    });
+
+    $("#SIStatusBefore").on('change', function () {
+        mandatory = $.grep(mandatory, function (e) { return e == "VendorName"; });
+        if ($("#SIStatusBefore").val() == "Unfullfill") {
+
+            $('#PoliceRegNumber').html('');
+            $('#Driver1').html('');
+            $('#Driver2').html('');
+            $('#CoDriver').html('');
+
+            $('#PoliceRegNumber').select2('val', '');
+            $('#Driver1').select2('val', '');
+            $('#Driver2').select2('val', '');
+            $('#CoDriver').select2('val', '');
+            //$("#VendorNameBefore").val($("#VendorName").val());
+            //$("#SITypeBefore").val($("#SIType").val());
+            //$("#SIStatusBefore").val("Fullfill");
+            //$("#TargetArrivalBefore").val($("#TargetArrival").val());
+            //$("#ActualArriveBefore").val($("#ActualArrive").val());
+            mandatory.push("VendorName");
+
+            $("#VendorName").select2('val', "");
+            $("#SIType").val("");
+            $("#SIStatus").val("Fullfill");
+            $("#TargetArrival").val("");
+            $("#ActualArrive").val("");
+
+            //$("#VendorName").prop("disabled", false);
+            $("#sectionVendor").show();
+        } else {
+            //$("#VendorName").val($("#VendorNameBefore").val());
+            //$("#SIType").val($("#SITypeBefore").val());
+            //$("#SIStatus").val("Fullfill");
+            //$("#TargetArrival").val($("#TargetArrivalBefore").val());
+            //$("#ActualArrive").val($("#ActualArriveBefore").val());
+
+            //$("#VendorNameBefore").val("");
+            //$("#SITypeBefore").val("");
+            //$("#SIStatusBefore").val("");
+            //$("#TargetArrivalBefore").val("");
+            //$("#ActualArriveBefore").val("");
+
+            $("#VendorName").select2('val', "");
+            $("#SIType").val("");
+            $("#SIStatus").val("");
+            $("#TargetArrival").val("");
+            $("#ActualArrive").val("");
+
+            //$("#VendorName").prop("disabled", true);
+            $("#sectionVendor").hide("");
+            var index = mandatory.indexOf("VendorName");
+            if (index > -1) {
+                mandatory.splice(index, 1);
+            }
+            mandatory.push("FinishLocation");
+        }
+    });
+
+    function getServicePO(idvendor, date) {
+        var split = date.split("/");
+        var strDate = split[2] + "-" + split[1] + "-" + split[0];
+        var d = moment(strDate.toString());
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetServicePO", "TransportationExecution")',
+            dataType: 'json',
+            cache: false,
+            data: {
+                idvendor: idvendor,
+                date: d.toISOString()
+            },
+            success: function (data) {
+                if(data != 'null') {
+                    $("#ServicePONumber").val(data.ServicePONumber);
+                } else {
+                    $("#ServicePONumber").val("");
+                }
+            }
+        });
+    }
+
+    $("#StartLocation").on('select2-selecting', function (e) {
+        $("#RouteStartLocation").html('');
+        $("#RouteStartLocation").append(stringHTMLRouteDetail(route, "startLocationClass", e.val, e.choice.text, ''));
+        route++;
+        $("#DisplayTotalKM").val(0);
+        $("#TotalKM").val(0);
+        $("#KMTruck").val(0);
+        $("#KMRail").val(0);
+        $("#KMSea").val(0);
+        $("#TotalBox").val(0);
+    });
+
+    $("#FinishLocation").on('select2-selecting', function (e) {
+        $("#RouteFinishLocation").html('');
+        $("#RouteFinishLocation").append(stringHTMLRouteDetail(route, "finishLocationClass", e.val, e.choice.text, ''));
+        route++;
+        $("#DisplayTotalKM").val(0);
+        $("#TotalKM").val(0);
+        $("#KMTruck").val(0);
+        $("#KMRail").val(0);
+        $("#KMSea").val(0);
+        $("#TotalBox").val(0);
+    });
+
+    $("#btnAddTO").click(function () {
+        $('#notificationModal').modal('show');
+        $('#notificationModal .modal-body').html('<div class="row">' +
+            '<div class="col-md-6">' +
+            '<div class="form-group">' +
+            '<label>Order Number/STO</label>' +
+            '<input type="text" class="form-control" id="txtAddON">' +
+            '</div>' +
+            '</div>' +
+            '</div>');
+        $('#notificationModal .modal-footer').html('<button type="button" id="btnAddNewTO" onclick="AddTO()" class="btn btn-primary">Add New</button>');
+    });
+
+    $("#btnAddNewTO").on('click', function () {
+        //TO++;
+        //console.log(TO);
+        //$("#GenerateOrderDetail").append(stringHTMLToDetail(TO));
+        //$('#notificationModal').modal('hide');
+    });
+
+    $("#btnCalculate").on('click', function () {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        warningRoute = "";
+
+        var transRouteList = [];
+        $("#route .routeDetail--checkbox").each(function (i, obj) {
+            var transRoute = new Object();
+            var split = obj.id.split('-');
+            transRoute.IDLocation = split[1];
+            transRoute.IsNonKMBased = obj.checked;
+            transRoute.LocationName = $('#' + obj.id + '').parent().text();
+            transRoute.IsMain = true;
+            //if (transRoute.LocationName.toUpperCase().indexOf("AOT ") == -1 || TOList.filter(x => x.MasterLocation2 == transRoute.LocationName || x.MasterLocation3 == transRoute.LocationName).length > 0) {
+            //    transRouteList.push(transRoute);
+            //}
+            var ArrayTOList = TOList.filter(function (obj) {
+                return obj.MasterLocation2 == transRoute.LocationName || obj.MasterLocation3 == transRoute.LocationName;
+            });
+            if (transRoute.LocationName.toUpperCase().indexOf("AOT ") == -1 || ArrayTOList.length > 0) {
+                transRouteList.push(transRoute);
+            }
+        });
+
+        var array = $(".hiddenTotalBox");
+        var totalBox = 0.0;
+        if (vendorCategory == "Box Based") {
+            for (var i = 0; i < array.length; i++) {
+                totalBox = totalBox + parseFloat(array[i].value);
+            }
+        }
+        $("#TotalBox").val(Math.round(totalBox));
+        var split = $("#TransportDate").val().split("/");
+        var strDate = split[2] + "-" + split[1] + "-" + split[0];
+        var d = moment(strDate.toString());
+        $.ajax({
+            url: '@Url.Action("CalculateDistance", "TransportationExecution")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: {
+                vendorCategory: 'KM Based',
+                transDate: d.toISOString(),
+                transportMode: $("#TransportMode").val(),
+                transRoute: transRouteList,
+            },
+            success: function (data) {
+                $("#DisplayTotalKM").val(Math.round(data));
+                $("#TotalKM").val(Math.round(data));
+                dialog.modal('hide');
+                //var truck = 0;
+                //var sea = 0;
+                //var train = 0;
+                //var total = 0;
+                //for (var i = 0; i < data.length; i++) {
+                //    var splitString = data[i].split("-");
+                //    if (splitString[0] == "Distance") {
+                //        if (splitString[1] == "Land") {
+                //            truck = splitString[2];
+                //        } else if (splitString[1] == "Sea") {
+                //            sea = splitString[2];
+                //        } else if (splitString[1] == "Train") {
+                //            train = splitString[2];
+                //        }
+                //    }
+                //    else if (splitString[0] == "Error") {
+                //        warningRoute = warningRoute + "There is no data in Master Distance from location " + splitString[1] + " to " + splitString[2] + "<br/><br/>";
+                //    }
+                //}
+                //total = parseFloat(truck) + parseFloat(sea) + parseFloat(train);
+                //$("#DisplayTotalKM").val(Math.ceil(parseFloat(truck).toFixed()));
+                //$("#TotalKM").val(parseFloat(truck).toFixed());
+                //$("#KMTruck").val(truck);
+                //$("#KMRail").val(train);
+                //$("#KMSea").val(sea);
+            },
+            error: function (data) {
+                dialog.modal('hide');
+                console.log("ERROR", data);
+                alert("error. see console.");
+            }
+        });
+    });
+
+    $("#btnSave").click(function() {
+        var textError = "";
+        //console.log(mandatory);
+        if (!checkField(mandatory)) {
+            //if ($("#RouteMainSortable .mainRouteClass").length > 0) {
+            //    textError = "Main route must be empty <br/>";
+            //}
+            if ($("#RouteAdditionalSortable .additionalRouteClass").length > 0) {
+                textError = textError + "Additional route must be empty";
+            }
+            if (textError == "") {
+                saveData();
+            } else {
+                $("#textModalWarning").html("");
+                $("#textModalWarning").append(textError);
+                $('#warningModal').modal('show');
+            }
+        } else {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please fill field with red mark");
+            $('#warningModal').modal('show');
+        }
+    });
+
+    function saveData() {
+        saveTransRouteList = [];
+        saveTransExecution = new Object();
+        saveTransVessel = new Object();
+        saveTransRouteList = [];
+        saveVendorLog = new Object();
+
+        saveTransExecution.IDTransportExecution = GetURLParameter('pk');
+        saveTransExecution.TransportNo = $("#TransportNo").val();
+        saveTransExecution.TransportDate = moment($('#TransportDate').val(), 'DD-MM-YYYY').format('YYYY-MM-DD');//$("#TransportDate").val();
+        saveTransExecution.TransportCategory = $("#TransportCategory").val();
+        saveTransExecution.ActualVehicleType = $("#VehicleType").val();
+        saveTransExecution.TransportMode = $("#TransportMode").val();
+        if ($("#VendorNameBefore").val() != null) {
+            var splitVendor = $("#VendorNameBefore").val().split('-');
+            saveTransExecution.IDVendor = splitVendor[0];
+        }
+        saveTransExecution.SIType = $("#SITypeBefore").val();
+        saveTransExecution.SIStatus = $("#SIStatusBefore").val();
+        saveTransExecution.TargetOfArrival = moment($('#TargetArrivalBefore').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');//moment($("#TargetArrivalBefore").val()).format("YYYY-MM-DD HH:mm");
+        saveTransExecution.ActualArrive = moment($('#ActualArriveBefore').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'); //moment($("#ActualArriveBefore").val()).format("YYYY-MM-DD HH:mm");
+        saveTransExecution.StartLocation = $("#StartLocation").val();
+        saveTransExecution.FinishLocation = $("#FinishLocation").val();
+        saveTransExecution.ServicePONo = $("#ServicePONumber").val();
+        saveTransExecution.IDCostCenter = $("#ActualCostCenter").val();
+        saveTransExecution.ActualCostCenter = $("#ActualCostCenter option:selected").text();
+        saveTransExecution.PoliceRegNo = $("#PoliceRegNumber").val();
+        //console.log($("#Driver1").val());
+        saveTransExecution.IDDriver1 = $("#Driver1").val();
+        saveTransExecution.IDDriver2 = $("#Driver2").val();
+        saveTransExecution.IDCoDriver = $("#CoDriver").val();
+        saveTransExecution.TotalKM = $("#TotalKM").val();
+        saveTransExecution.KMRail = $("#KMRail").val();
+        saveTransExecution.KMBased = $("#TotalKM").val();
+        saveTransExecution.KMSea = $("#KMSea").val();
+        saveTransExecution.TotalBox = $("#TotalBox").val();
+        saveTransExecution.AdditionalCost = $("#AddCost").val();
+        saveTransExecution.Via = $("#Via").val();
+        saveTransExecution.ServiceGRNo = $("#ServiceGRNumber").val();
+        saveTransExecution.Remarks = $("#Remarks").val();
+        saveTransExecution.VendorCategory = $("#lblVendorCategory").html();
+
+        if ($("#TransportMode").val() == "Ship" || $("#TransportMode").val() == "Train") {
+            saveTransVessel.IDTransportVesselMonitoring = $("#IDTransVessel").val();
+            saveTransVessel.IDTransportExecution = GetURLParameter('pk');
+            saveTransVessel.VesselName = $("#VesselName").val();
+            saveTransVessel.ETD1 = moment($('#ETD1').val(), 'DD-MM-YYYY').format('YYYY-MM-DD');//moment($("#ETD1").val()).format("YYYY-MM-DD");
+            saveTransVessel.ETA1 = moment($('#ETA1').val(), 'DD-MM-YYYY').format('YYYY-MM-DD');//moment($("#ETA1").val()).format("YYYY-MM-DD");
+            saveTransVessel.ContainerNo = $("#ContainerNumber").val();
+            saveTransVessel.ContainerSeal = $("#ContainerSeal").val();
+        }
+
+        $("#route .routeDetail--checkbox").each(function (i, obj) {
+            //console.log($('#' + obj.id + '').parent().parent()[0].className);
+            var transRoute = new Object();
+            var split = obj.id.split('-');
+            transRoute.IDLocation = split[1];
+            transRoute.IsNonKMBased = obj.checked;
+            if ($('#' + obj.id + '').parent().parent()[0].className == "mainRouteClass") {
+                transRoute.IsMain = true;
+            } else {
+                transRoute.IsMain = false;
+            }
+            saveTransRouteList.push(transRoute);
+        });
+        //console.log(saveTransRouteList);
+
+        if ($("#SIStatusBefore").val() == "Unfullfill") {
+            var splitVendorNow = $("#VendorName").val().split('-');
+            saveTransExecution.IDVendor = splitVendorNow[0];
+            saveTransExecution.SIType = $("#SIType").val();
+            saveTransExecution.SIStatus = $("#SIStatus").val();
+            saveTransExecution.TargetOfArrival = moment($('#TargetArrival').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');
+            saveTransExecution.ActualArrive = moment($('#ActualArrive').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');
+
+            var splitVendorBefore = $("#VendorNameBefore").val().split('-');
+            saveVendorLog.IDVendor = splitVendorBefore[0];
+            saveVendorLog.TransportDate = dateBefore;
+            saveVendorLog.SIType = $("#SITypeBefore").val();
+            saveVendorLog.SIStatus = $("#SIStatusBefore").val();
+            saveVendorLog.TargetOfArrival = moment($('#TargetArrivalBefore').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');
+            saveVendorLog.ActualArrive = moment($('#ActualArriveBefore').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm');
+        }
+        //console.log(saveVendorLog);
+        //return false;
+        $('.orderCategoryDetail').each(function (e) {
+            var obj = $(this);
+            var IDTO = obj.parents('.row').find('.OrderNumber').attr('idto');
+
+            var OrderCategory = obj.parents('.row').find('.orderCategoryDetail').val();
+            //console.log(IDTO);
+            for (var idx = 0; idx < TOList.length; idx++)
+            {
+                if (TOList[idx].IDTransportOrder == IDTO)
+                {
+                    TOList[idx].OrderCategory = OrderCategory;
+                    break;
+                }
+            }
+            //console.log(obj.val());
+        });
+         var transCategory = checkGategory(TOList)
+        // if (transCategory == "Synergy" && TransportCategoryLoad == "Regular") {
+        //     var category = "Synergy"
+        //     $('#notificationModal').modal('show');
+        //     $('#notificationModal .modal-body').html("Your changes affect to the Transportation Category.<br/>Transportation Category will change from <b>Regular</b> to <b>Synergy</b> <br/>Are you sure you want to proceed ?");
+        //     $('#notificationModal .modal-footer')
+        //         .html("<button type='button' id='btnConfirmSave' onclick='saveExecution(\"" + category + "\")' class='btn btn-primary'>Save</button><button type='button' class='btn btn-primary' data-dismiss='modal'>Cancel</button>");
+        // } else if (transCategory == "Regular" && TransportCategoryLoad == "Synergy") {
+        //     var category = "Regular"
+        //     $('#notificationModal').modal('show');
+        //     $('#notificationModal .modal-body').html("Your changes affect to the Transportation Category.<br/>Transportation Category will change from <b>Synergy</b> to <b>Regular</b> <br/>Are you sure you want to proceed ?");
+        //     $('#notificationModal .modal-footer')
+        //         .html("<button type='button' id='btnConfirmSave' onclick='saveExecution(\"" + category + "\")' class='btn btn-primary'>Save</button><button type='button' class='btn btn-primary' data-dismiss='modal'>Cancel</button>");
+        // } else {
+        //     saveExecution(transCategory)
+        // }
+        saveExecution(transCategory)
+    }
+
+    function checkGategory(TOList) {
+        var OrderDetail = [];
+        var category = [];
+        for (var i in TOList) {
+            OrderDetail = OrderDetail.concat(TOList[i].TransportOrderDetails)
+        }
+        var groupBy = Object.keys(_.groupBy(OrderDetail, "MaterialType"));
+        // DIM
+        // Cutfiller
+        // Cigarette
+
+        for (var g in groupBy) {
+            var TypeOrder = groupBy[g];
+            if (TypeOrder == "DIM" || TypeOrder == "Cutfiller") {
+                category.push("A")
+            } else if (TypeOrder == "Cigarette") {
+                category.push("B")
+            }
+        }
+
+        if (Object.keys(_.groupBy(category)).length > 1) {
+            return 'Synergy'
+        } else {
+            return 'Regular'
+        }
+    }
+
+    function saveExecution(transCategory) {
+        saveTransExecution.TransportCategory = transCategory
+        // $("#TransportCategory").val(TransportCategory)
+        // $('#notificationModal').modal('hide');
+        // var dialog = bootbox.dialog({
+        //     message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+        //     closeButton: false
+        // });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveData", "TransportationExecution")',
+            data: { saveTransExe: saveTransExecution, saveTransRoute: saveTransRouteList, saveTransOrder: TOList, saveTransVessel: saveTransVessel, saveVendorLog: saveVendorLog },
+            cache: false,
+            async: false,
+            success: function (data) {
+                dialog.modal('hide');
+                if (data.length > 0) {
+                    var errorString = "";
+                    var driverUsed = false;
+                    var modified = false;
+                    var invalid = false;
+                    for (var i = 0; i < data.length; i++) {
+                        var errorSplit = data[i].split('-');
+                        if (errorSplit[0] == "STNKInvalid") {
+                            errorString = errorString + errorSplit[1] + '-' + errorSplit[2] + " STNK have Expired<br/>";
+                            invalid = true;
+                        }
+                        if (errorSplit[0] == "SIM1Invalid") {
+                            errorString = errorString + errorSplit[1] + " driving license have expired<br/>";
+                            invalid = true;
+                        }
+                        if (errorSplit[0] == "SIM2Invalid") {
+                            errorString = errorString + errorSplit[1] + " driving license have expired<br/>";
+                            invalid = true;
+                        }
+                        if (errorSplit[0] == "SIM3Invalid") {
+                            errorString = errorString + errorSplit[1] + " driving license have expired<br/>";
+                            invalid = true;
+                        }
+                        if (errorSplit[0] == "Driver1Used") {
+                            if (errorSplit[2] != "E")
+                                errorString = errorString + "Driver 1 <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "</b><br/>";
+                            else
+                                errorString = errorString + "Driver 1 <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "-" + errorSplit[3] + "</b><br/>";
+                            driverUsed = true;
+                        }
+                        if (errorSplit[0] == "Driver2Used") {
+                            if (errorSplit[2] != "E")
+                                errorString = errorString + "Driver 2 <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "</b><br/>";
+                            else
+                                errorString = errorString + "Driver 2 <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "-" + errorSplit[3] + "</b><br/>";
+                            driverUsed = true;
+                        }
+                        if (errorSplit[0] == "Driver3Used") {
+                            if (errorSplit[2] != "E")
+                                errorString = errorString + "Co-Driver <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "</b><br/>";
+                            else
+                                errorString = errorString + "Co-Driver <b>" + errorSplit[1] + "</b> has been used in <b>" + errorSplit[2] + "-" + errorSplit[3] + "</b><br/>";
+                            driverUsed = true;
+                        }
+                        if (errorSplit[0] == "Modified") {
+                            errorString = errorString + "This Transaction have been modified by other user Click OK to refresh<br/>";
+                            modified = true;
+                        }
+                    }
+                    //memunculkan warning route tidak ada di master distance
+                    if (warningRoute != "") {
+                        if (driverUsed)//ada warning drive, maka tambahkan spasi di atasnya
+                            errorString = errorString + "<br/>" + warningRoute;
+                        else
+                            errorString = errorString + warningRoute;
+                        driverUsed = true;
+                    }
+                    $('#notificationModal').modal('show');
+                    if (driverUsed) {
+                        $('#notificationModal .modal-body').html(errorString + "Still want to save the data ?");
+                        $('#notificationModal .modal-footer')
+                            .html(
+                                '<button type="button" id="btnConfirmSave" onclick="ConfirmSave()" class="btn btn-primary">Save</button><button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>');
+                    }
+                    if (modified) {
+                        $('#notificationModal .modal-body').html(errorString);
+                        $('#notificationModal .modal-footer')
+                            .html(
+                                '<button type="button" onclick="window.location.reload()" class="btn btn-primary">OK</button>');
+                    }
+                    if (invalid) {
+                        $('#notificationModal .modal-body').html(errorString);
+                        $('#notificationModal .modal-footer').html('');
+                    }
+                } else {
+                    $('#modalsuccess').modal('show');
+                    //location.reload();
+                }
+            }
+        });
+    }
+
+    function ConfirmSave() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ConfirmSaveData", "TransportationExecution")',
+            data: { saveTransExe: saveTransExecution, saveTransRoute: saveTransRouteList, saveTransOrder: TOList, saveTransVessel: saveTransVessel, saveVendorLog: saveVendorLog },
+            cache: false,
+            async: false,
+            success: function (data) {
+                dialog.modal('hide');
+                $('#modalsuccess').modal('show');
+                $('#notificationModal').modal('hide');
+                //location.reload();
+            }
+        });
+    }
+
+    function enabledForm(newRole) {
+        $("#btnSave").prop("disabled", false);
+        $("#btnEdit").prop("disabled", true);
+
+        if (newRole != '') {
+            $("#PoliceRegNumber").prop("disabled", false);
+            $("#Driver1").prop("disabled", false);
+            $("#Driver2").prop("disabled", false);
+            $("#CoDriver").prop("disabled", false);
+        } else {
+			$("#PoliceRegNumber").prop("disabled", false);
+            $("#Driver1").prop("disabled", false);
+            $("#Driver2").prop("disabled", false);
+            $("#CoDriver").prop("disabled", false);
+
+            $("#TransportDate").prop("disabled", false);
+            $("#TransportCategory").prop("disabled", true);
+            $("#VehicleType").prop("disabled", false);
+            //$("#TransportMode").prop("disabled", false);
+
+            $("#VesselName").prop("disabled", false);
+            $("#ETD1").prop("disabled", false);
+            $("#ETA1").prop("disabled", false);
+            $("#ContainerNumber").prop("disabled", false);
+            $("#ContainerSeal").prop("disabled", false);
+
+            if ($("#VendorNameBefore").val() == "") {
+                $("#VendorNameBefore").prop("disabled", false);
+            }
+            $("#SITypeBefore").prop("disabled", false);
+            $("#SIStatusBefore").prop("disabled", false);
+            $("#TargetArrivalBefore").prop("disabled", false);
+            $("#ActualArriveBefore").prop("disabled", false);
+
+            $("#StartLocation").prop("disabled", false);
+            $("#FinishLocation").prop("disabled", false);
+            $("#ServicePONumber").prop("disabled", false);
+            $("#ServiceGRNumber").prop("disabled", false);
+            $("#ActualCostCenter").prop("disabled", false);
+
+            $("#btnAddTO").prop("disabled", false);
+            $(".enable-detail").prop("disabled", false);
+
+
+
+            $("#Via").prop("disabled", false);
+            $("#AddCost").prop("disabled", false);
+            $("#Remarks").prop("disabled", false);
+            $("#btnCalculate").prop("disabled", false);
+
+            $(".routeDetail--button").removeAttr("disabled");
+            $(".routeDetail--checkbox").removeAttr("disabled");
+
+            $(".RouteMainSortable").sortable("enable");
+            $(".RouteAdditionalSortable").sortable("enable");
+            $(".RouteSortable").sortable("enable");
+        }
+
+
+        if ($("#TransportMode").val() == "Train") {
+            $('#VesselName').attr('disabled', 'disabled');
+        }
+    }
+
+    function disabledForm() {
+        $("#btnSave").prop("disabled", true);
+        $("#btnEdit").prop("disabled", false);
+
+        $("#TransportDate").prop("disabled", true);
+        $("#TransportCategory").prop("disabled", true);
+        $("#VehicleType").prop("disabled", true);
+        $("#TransportMode").prop("disabled", true);
+
+        $("#VesselName").prop("disabled", true);
+        $("#ETD1").prop("disabled", true);
+        $("#ETA1").prop("disabled", true);
+        $("#ContainerNumber").prop("disabled", true);
+        $("#ContainerSeal").prop("disabled", true);
+
+        $("#VendorNameBefore").prop("disabled", true);
+        $("#SITypeBefore").prop("disabled", true);
+        $("#SIStatusBefore").prop("disabled", true);
+        $("#TargetArrivalBefore").prop("disabled", true);
+        $("#ActualArriveBefore").prop("disabled", true);
+
+        $("#StartLocation").prop("disabled", true);
+        $("#FinishLocation").prop("disabled", true);
+        $("#ServicePONumber").prop("disabled", true);
+        $("#ServiceGRNumber").prop("disabled", true);
+        $("#ActualCostCenter").prop("disabled", true);
+
+        $("#btnAddTO").prop("disabled", true);
+        $(".enable-detail").prop("disabled", true);
+
+        $("#PoliceRegNumber").prop("disabled", true);
+        $("#Driver1").prop("disabled", true);
+        $("#Driver2").prop("disabled", true);
+        $("#CoDriver").prop("disabled", true);
+
+        $("#Via").prop("disabled", true);
+        $("#AddCost").prop("disabled", true);
+        $("#Remarks").prop("disabled", true);
+        $("#btnCalculate").prop("disabled", true);
+    }
+
+    function PopUpModalOrderDetail(tod) {
+        $("#GeneratePopUpOrderDetail").html('');
+        var result = findObjectInList(addedTOList, function (e) {
+            return e.IDTransportOrder == tod;
+        });
+        for (var i = 0; i < result.TransportOrderDetails.length; i++) {
+            $("#GeneratePopUpOrderDetail").append(stringHTMLPopUpToDetail(result.TransportOrderDetails[i]));
+        }
+        $("#orderDetailModal").modal('show');
+    }
+
+    function AddTO() {
+        var no = $("#txtAddON").val();
+        var vendorCategory = $("#lblVendorCategory").html();
+        // dialog = bootbox.dialog({
+        //     message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+        //     closeButton: false
+        // });
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetTransportOrderByStoNo", "TransportationExecution")',
+            data: { stoNo: no },
+                cache: false,
+                async: true,
+                success: function (data) {
+                    //console.log(data);
+                    // dialog.modal('hide');
+                    if (data.IDTransportExecution != null) {
+                        $("#textModalError").html("");
+                        $("#textModalError").append("Order Number already use in "+data.TransportNo);
+                        $('#modalerror').modal('show');
+                    } else if (data.OrderStatus == "Cancel" || data.OrderStatus == "Delete" || data.OrderStatus == "Draft" || data.STONo == undefined)
+                    {
+                        $("#textModalError").html("");
+                        $("#textModalError").append("Order Status must be Submit or In Process!");
+                        $('#modalerror').modal('show');
+                    }
+                    else {
+                        TO++;
+                        $("#GenerateOrderDetail").append(stringHTMLToDetail(TO, data.IDTransportOrder));
+                        assignValueToDetail(TO, true, data);
+                        var idto = data.IDTransportOrder;
+                        var result = $.grep(addedTOList, function (e) { return e.IDTransportOrder == idto; });
+                        var result2 = $.grep(saveTOList, function (e) { return e == idto; });
+                        if (result.length == 0)
+                            addedTOList.push(data);
+                        if (result2.length == 0)
+                            saveTOList.push(data.IDTransportOrder);
+
+                        var tempTOObject = new Object();
+                        tempTOObject.IDTransportOrder = data.IDTransportOrder;
+                        // tempTOObject.OrderType = data.FGRMT;
+                        tempTOObject.SenderIDLocation = data.ActualSenderIDLocation;
+                        tempTOObject.SenderLocationName = data.MasterLocation2.LocationName;
+                        tempTOObject.ReceiverIDLocation = data.ActualReceiverIDLocation;
+                        tempTOObject.ReceiverLocationName = data.MasterLocation3.LocationName;
+                        tempTOObject.OrderCategory = "Additional Order";
+                        tempTOObject.OrderStatus = data.OrderStatus;
+                        tempTOObject.KM = Math.round(data.KM);
+                        tempTOObject.TotalBox = Math.round(data.TotalBox);
+                        tempTOObject.TransportOrderDetails = data.TransportOrderDetails;
+                        TOList.push(tempTOObject);
+
+                        //console.log(data);
+                        //console.log(DisplayTransportRouteList);
+                        //console.log(DisplayRouteMainList);
+                        //console.log(DisplayRouteAdditionalList);
+                        var TransportRouteAdditional = new Array();
+                        for (var j = 0; j < DisplayTransportRouteList.length; j++) {
+                            if (DisplayTransportRouteList[j].IsMain == 0)
+                                TransportRouteAdditional.push(DisplayTransportRouteList[j]);
+                        }
+
+                        var temp1 = CheckObjectOnList(TransportRouteAdditional, data.ActualSenderIDLocation, data.MasterLocation2.LocationName, false, false);
+                        var temp2 = CheckObjectOnList(TransportRouteAdditional, data.ActualReceiverIDLocation, data.MasterLocation3.LocationName, false, false);
+                        //var temp3 = CheckObjectOnList(DisplayRouteMainList, data.ActualSenderIDLocation, data.MasterLocation2.LocationName, false, false);
+                        //var temp4 = CheckObjectOnList(DisplayRouteMainList, data.ActualReceiverIDLocation, data.MasterLocation3.LocationName, false, false);
+                        var temp5 = CheckObjectOnList(DisplayRouteAdditionalList, data.ActualSenderIDLocation, data.MasterLocation2.LocationName, false, false);
+                        if (temp1 != "undefined" && temp5 != "undefined")
+                            DisplayRouteAdditionalList.push(temp5);
+                        var temp6 = CheckObjectOnList(DisplayRouteAdditionalList, data.ActualReceiverIDLocation, data.MasterLocation3.LocationName, false, false);
+                        if (temp2 != "undefined" && temp6 != "undefined")
+                            DisplayRouteAdditionalList.push(temp6);
+                        if (DisplayRouteAdditionalList.length > 0) {
+                            //mengosongkan, kemudian menggambar ulang bagian addiitonal
+                            $("#RouteAdditionalSortable").empty();
+                            for (var y = 0; y < DisplayRouteAdditionalList.length; y++) {
+                                $("#RouteAdditionalSortable").append(stringHTMLRouteDetail(route, "additionalRouteClass", DisplayRouteAdditionalList[y].IDLocation, DisplayRouteAdditionalList[y].LocationName), '');
+                                route++;
+                            }
+                        }
+                    }
+                },
+                complete: function () {
+                    SetDefaultVehicleType(false);
+                    SetDefaultTransportCategory(false);
+                    SetDefaultCostCenter(false);
+                    $("#DisplayTotalKM").val(0);
+                    $("#TotalKM").val(0);
+                    $("#KMTruck").val(0);
+                    $("#KMRail").val(0);
+                    $("#KMSea").val(0);
+                    $("#TotalBox").val(0);
+                }
+            });
+        $('#notificationModal').modal('hide');
+        //dialog.modal('hide');
+        }
+
+        function RemoveTO(row, idto) {
+            var result = $.grep(addedTOList, function (e) { return e.IDTransportOrder == idto; });
+            var result2 = $.grep(saveTOList, function (e) { return e == idto; });
+            if (result.length == 1) {
+                addedTOList = addedTOList.filter(function (obj) {
+                    return obj.IDTransportOrder !== idto;
+                });
+            }
+            if (result2.length == 1) {
+                saveTOList = saveTOList.filter(function (obj) {
+                    return obj !== idto;
+                });
+            }
+            //bagian menghilangkan value di drop down actual cost center
+            var costCenterDet = $("#CostCenterDetail" + row + "").val();
+            if (costCenterDet != "") {
+                $("#ActualCostCenter option:contains('" + costCenterDet + "')").remove();
+            }
+
+            $('#TO' + row + '').remove();
+            SetDefaultVehicleType(false);
+            SetDefaultTransportCategory(false);
+            SetDefaultCostCenter(false);
+
+            //uncheck semua route detail & mengosongkan textbox
+            $("#DisplayTotalKM").val(0);
+            $("#TotalKM").val(0);
+            $("#KMTruck").val(0);
+            $("#KMRail").val(0);
+            $("#KMSea").val(0);
+            $("#TotalBox").val(0);
+            $(".routeDetail--checkbox").prop("checked", false);
+            //reset tampilan jadi default
+            var result3 = $.grep(TOList, function (e) { return e.IDTransportOrder == idto; });
+            if (result3.length == 1) {
+                TOList = TOList.filter(function (obj) {
+                    return obj.IDTransportOrder !== idto;
+                });
+            }
+
+            DisplayRouteMainList = [];
+            DisplayRouteAdditionalList = [];
+            DisplayTransportRouteList = [];
+
+            for (var i = 0; i < TOList.length; i++) {
+                //START: BAGIAN MENGISI RUTE MAIN ORDER
+                if (TOList[i].OrderCategory == "Main Order") {
+                    var temp = CheckObjectOnList(DisplayRouteMainList, TOList[i].SenderIDLocation, TOList[i].SenderLocationName, true, false);
+                    if (temp != "undefined")
+                        DisplayRouteMainList.push(temp);
+                    var temp2 = CheckObjectOnList(DisplayRouteMainList, TOList[i].ReceiverIDLocation, TOList[i].ReceiverLocationName, true, false);
+                    if (temp2 != "undefined")
+                        DisplayRouteMainList.push(temp2);
+                }
+                    //END: BAGIAN MENGISI RUTE MAIN ORDER
+
+                    //START: BAGIAN MENGISI RUTE ADDITIONAL ORDER
+                else {
+                    var temp3 = CheckObjectOnList(DisplayRouteAdditionalList, TOList[i].SenderIDLocation, TOList[i].SenderLocationName, false, false);
+                    if (temp3 != "undefined")
+                        DisplayRouteAdditionalList.push(temp3);
+                    var temp4 = CheckObjectOnList(DisplayRouteAdditionalList, TOList[i].ReceiverIDLocation, TOList[i].ReceiverLocationName, false, false);
+                    if (temp4 != "undefined")
+                        DisplayRouteAdditionalList.push(temp4);
+                }
+                //END: BAGIAN MENGISI RUTE ADDITIONAL ORDER
+            }
+            //Auto set TRANSPORTATION CATEGORY
+            transCategory = checkGategory(TOList)
+            $("#TransportCategory").val(transCategory)
+            DrawRouteDetail();
+        }
+
+        $(function () {
+            var ParentDraggingObject = '';
+            $(".RouteMainSortable").sortable({
+                group: 'TransportRoute',
+                onDragStart: function ($item, container, _super) {
+                    ParentDraggingObject = $($item[0]).parent('ul');
+                    _super($item, container);
+                },
+                onDrop: function ($item, container, _super) {
+                    $("#DisplayTotalKM").val(0);
+                    $("#TotalKM").val(0);
+                    $("#KMTruck").val(0);
+                    $("#KMRail").val(0);
+                    $("#KMSea").val(0);
+                    $("#TotalBox").val(0);
+                    $(".routeDetail--checkbox").prop("checked", false);
+                    var tempObject = new Object();
+                    var split = $item[0].firstChild.firstChild.id.split('-');
+                    tempObject.IDLocation = split[1];
+                    tempObject.LocationName = $item[0].firstChild.textContent;
+                    tempObject.IsNonKMBased = false;
+                    if (container.el.prop("id") == "RouteSortable") {
+                        //pindahkan dari list main & additional ke transport route
+                        tempObject.IsMain = false;
+                        DisplayTransportRouteList.push(tempObject);
+                        DisplayRouteMainList = RemoveObjectOnList(DisplayRouteMainList, tempObject);
+                        DisplayRouteAdditionalList = RemoveObjectOnList(DisplayRouteAdditionalList, tempObject);
+                    }
+                    else if (container.el.prop("id") == "RouteMainSortable") {
+                        //pindahkan dari list transport route & additional ke main
+                        tempObject.IsMain = true;
+                        DisplayRouteMainList.push(tempObject);
+                        DisplayTransportRouteList = RemoveObjectOnList(DisplayTransportRouteList, tempObject);
+                        DisplayRouteAdditionalList = RemoveObjectOnList(DisplayRouteAdditionalList, tempObject);
+                    }
+                    else if (container.el.prop("id") == "RouteAdditionalSortable") {
+                        //pindahkan dari list transport route & main ke additional
+                        tempObject.IsMain = false;
+                        DisplayRouteAdditionalList.push(tempObject);
+                        DisplayRouteMainList = RemoveObjectOnList(DisplayRouteMainList, tempObject);
+                        DisplayTransportRouteList = RemoveObjectOnList(DisplayTransportRouteList, tempObject);
+                    }
+
+                    var className = $item[0].className;
+                    //console.log('class name = ' + className);
+                    //console.log('container source = ' + containerSource.el[0].id);
+                    //console.log('container drop = ' + container.el[0].id);
+                    if ((className.includes("additionalRouteClass", 0) &&
+                            container.el[0].id == "RouteMainSortable") ||
+                        (className.includes("mainRouteClass", 0) &&
+                            container.el[0].id == "RouteAdditionalSortable")) {
+                        ParentDraggingObject.append($item);
+                    }
+                    _super($item, container);
+                    //if (className.includes("additionalRouteClass", 0) && container.el[0].id == "RouteAdditionalSortable") {
+                    //    //console.log('masuk additional');
+                    //    _super($item, container);
+                    //}
+                    //else if (className.includes("mainRouteClass", 0) && container.el[0].id == "RouteMainSortable") {
+                    //    //console.log('masuk main');
+                    //    _super($item, container);
+                    //}
+                    //else if (container.el[0].id == "RouteSortable") {
+                    //    //console.log('masuk rute');
+                    //    _super($item, container);
+                    //}
+                    //else {
+                    //    //console.log('balik asal');
+                    //    ParentDraggingObject.append($item);
+                    //    _super($item, container);
+                    //}
+                }
+            });
+        });
+
+        $(function () {
+            $(".RouteAdditionalSortable").sortable({
+                group: 'TransportRoute',
+                onDragStart: function ($item, container, _super) {
+                    //console.log('drag additional');
+                    _super($item, container);
+                },
+                onDrop: function ($item, container, _super) {
+                    $("#DisplayTotalKM").val(0);
+                    $("#TotalKM").val(0);
+                    $("#KMTruck").val(0);
+                    $("#KMRail").val(0);
+                    $("#KMSea").val(0);
+                    $("#TotalBox").val(0);
+                    $(".routeDetail--checkbox").prop("checked", false);
+                    _super($item, container);
+                }
+            });
+        });
+
+        $(function () {
+            $(".RouteSortable").sortable({
+                group: 'TransportRoute',
+                onDragStart: function ($item, container, _super) {
+                    //console.log('drag route');
+                    _super($item, container);
+                },
+                onDrop: function ($item, container, _super) {
+                    $("#DisplayTotalKM").val(0);
+                    $("#TotalKM").val(0);
+                    $("#KMTruck").val(0);
+                    $("#KMRail").val(0);
+                    $("#KMSea").val(0);
+                    $("#TotalBox").val(0);
+                    $(".routeDetail--checkbox").prop("checked", false);
+                    _super($item, container);
+                }
+            });
+        });
+
+        function YesConfirmMoveTO() {
+            $('#notificationModal .modal-body').html('<div class="row">' +
+                '<div class="col-md-6">' +
+                '<div class="form-group">' +
+                '<label>Transportation Number</label>' +
+                '<input type="text" class="form-control" id="txtTransNoMoveTO">' +
+                '</div>' +
+                '</div>' +
+                '</div>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" onclick="MoveTO()">Move</button>');
+        }
+
+        function MoveTO() {
+            $('#notificationModal').modal('hide');
+        }
+
+        function changeOrderCategory(row, idtransorder) {
+            $.each(TOList, function () {
+                if (this.IDTransportOrder == idtransorder) {
+                    this.OrderCategory = $('#OrderCategoryDetail' + row + '').val();
+                }
+            });
+            ChangeOrderCategory();
+        }
+
+        function ChangeOrderCategory() {
+            DistinctMainList = [];
+            DistinctAdditionalList = [];
+            DisplayRouteMainList = [];
+            DisplayRouteAdditionalList = [];
+            console.log('to list');
+            console.log(TOList);
+            for(var i=0;i<TOList.length;i++){
+                //START: BAGIAN MENGISI RUTE MAIN ORDER
+                if (TOList[i].OrderCategory == "Main Order") {
+                    var temp = CheckObjectOnList(DistinctMainList, TOList[i].SenderIDLocation, TOList[i].SenderLocationName, true, false);
+                    if (temp != "undefined")
+                        DistinctMainList.push(temp);
+                    var temp2 = CheckObjectOnList(DistinctMainList, TOList[i].ReceiverIDLocation, TOList[i].ReceiverLocationName, true, false);
+                    if (temp2 != "undefined")
+                        DistinctMainList.push(temp2);
+                }
+                //END: BAGIAN MENGISI RUTE MAIN ORDER
+
+                //START: BAGIAN MENGISI RUTE ADDITIONAL ORDER
+                else {
+                    var temp3 = CheckObjectOnList(DistinctAdditionalList, TOList[i].SenderIDLocation, TOList[i].SenderLocationName, false, false);
+                    if (temp3 != "undefined")
+                        DistinctAdditionalList.push(temp3);
+                    var temp4 = CheckObjectOnList(DistinctAdditionalList, TOList[i].ReceiverIDLocation, TOList[i].ReceiverLocationName, false, false);
+                    if (temp4 != "undefined")
+                        DistinctAdditionalList.push(temp4);
+                }
+            }
+            //console.log('DisplayRouteAdditionalList');
+            //console.log(DisplayRouteAdditionalList);
+            //if (DisplayRouteMainList.length > 0){//kalau semuanya additional rute, tidak usah di filter lagi
+            //    //START: BAGIAN MENGELUARKAN LOKASI ADDITIONAL ORDER YANG ADA DI MAIN ORDER
+            //    DisplayRouteAdditionalList = RemoveDuplicateObjectOnList(DisplayRouteAdditionalList, DisplayRouteMainList);
+            //    //END: BAGIAN MENGELUARKAN LOKASI ADDITIONAL ORDER YANG ADA DI MAIN ORDER
+            //}
+
+            //console.log(DisplayTransportRouteList);
+            var TransportRouteMainOrder = [];
+            var TransportRouteAdditionalOrder = [];
+
+            //mencari di transport route, agar tidak ada yang kembar, di bagian main/additional. kalau ada kembar, di hilangkan dari display sama list transport route
+            //var listDeleteTransportRoute = Object.assign({}, DisplayTransportRouteList);//pakai list temp, karena DisplayTransportRouteList akan berubah-ubah
+            var listDeleteTransportRoute = {}
+            if (DisplayTransportRouteList.length > 0 ) {
+                listDeleteTransportRoute = Object.assign({}, DisplayTransportRouteList)
+            }
+            console.log('Transport Route');
+            console.log(listDeleteTransportRoute);
+            console.log('Distinct Main Route');
+            console.log(DistinctMainList);
+            console.log('Distinct Additional Route');
+            console.log(DistinctAdditionalList);
+            for (var z = 0; z < Object.keys(listDeleteTransportRoute).length; z++) {
+                console.log('ke');
+                console.log(z);
+                //console.log(listDeleteTransportRoute[z]);
+                console.log('Location Name');
+                console.log(listDeleteTransportRoute[z].LocationName);
+                if (listDeleteTransportRoute[z].IsMain == true) {
+                    //cari di list distinct main order, kalau tidak ketemu, remove dari list & display tranport route
+                    var idx = $.map(DistinctMainList, function (obj, index) {
+                        //console.log('to main');
+                        //console.log(obj.LocationName);
+                        if (obj.LocationName === listDeleteTransportRoute[z].LocationName) {
+                            return index;
+                        }
+                    })
+                    if (idx.length == 0) {
+                        $("[id$=" + listDeleteTransportRoute[z].IDLocation + "]").each(function (index, item) {
+                            var namaClass = item.parentElement.parentElement.className;
+                            if (namaClass == "mainRouteClass")
+                                $(this).parent().parent().remove();
+                        });
+                        var delidx = $.map(DisplayTransportRouteList, function (obj, index) {
+                            if (obj.LocationName === listDeleteTransportRoute[z].LocationName) {
+                                return index;
+                            }
+                        })
+                        console.log('delete main');
+                        console.log(listDeleteTransportRoute[z].LocationName);
+                        DisplayTransportRouteList.splice(delidx, 1);
+                    }
+                } else {
+                    var idx2 = $.map(DistinctAdditionalList, function (obj, index) {
+                        if (obj.LocationName === listDeleteTransportRoute[z].LocationName) {
+                            return index;
+                        }
+                    })
+                    if (idx2.length == 0) {
+                        $("[id$=" + listDeleteTransportRoute[z].IDLocation + "]").each(function (index, item) {
+                            var namaClass = item.parentElement.parentElement.className;
+                            if (namaClass == "additionalRouteClass")
+                                $(this).parent().parent().remove();
+                        });
+                        var delidx2 = $.map(DisplayTransportRouteList, function (obj, index) {
+                            if (obj.LocationName === listDeleteTransportRoute[z].LocationName) {
+                                return index;
+                            }
+                        })
+                        console.log('delete additional');
+                        console.log(listDeleteTransportRoute[z].LocationName);
+                        DisplayTransportRouteList.splice(delidx2, 1);
+                    }
+                }
+            }
+
+            if (DistinctMainList.length < 1) {
+                $(".mainRouteClass").each(function (index, item) {
+                    //console.log('main?');
+                    var id1 = item.children[0].children[0].id;
+                    var idx = $.map(DisplayTransportRouteList,
+                        function (obj, index) {
+                            if (obj.LocationName == id1.split('-')[1] && obj.IsMain == true) {
+                                return index;
+                            }
+                        });
+                    if (idx.length > 0)
+                        DisplayTransportRouteList.splice(idx, 1);
+                });
+                $(".mainRouteClass").remove();
+            }
+
+            if (DistinctAdditionalList.length < 1) {
+                $(".additionalRouteClass").each(function (index, item) {
+                    var id2 = item.children[0].children[0].id;
+                    var idx2 = $.map(DisplayTransportRouteList,
+                        function (obj, index) {
+                            if (obj.IDLocation == id2.split('-')[1] && obj.IsMain == false) {
+                                return index;
+                            }
+                        });
+                    if (idx2.length > 0)
+                        DisplayTransportRouteList.splice(idx2, 1);
+                });
+                $(".additionalRouteClass").remove();
+            }
+
+            if (DisplayTransportRouteList.length > 0) {
+                var TransportRouteMain = new Array();
+                var TransportRouteAdditional = new Array();
+                for (var j = 0; j < DisplayTransportRouteList.length; j++) {
+                    if (DisplayTransportRouteList[j].IsMain == 1)
+                        TransportRouteMain.push(DisplayTransportRouteList[j]);
+                    else
+                        TransportRouteAdditional.push(DisplayTransportRouteList[j]);
+                }
+
+                //membandingkan list distinct lokasi semua main order, mencari lokasi yang sama yang ada di transport route dan ordernya main
+                TransportRouteMainOrder = FindDuplicateObjectOnList(DistinctMainList, TransportRouteMain);
+                //membandingkan list distinct lokasi semua additional order, mencari lokasi yang sama yang ada di transport route dan ordernya additional
+                TransportRouteAdditionalOrder =
+                    FindDuplicateObjectOnList(DistinctAdditionalList, TransportRouteAdditional);
+
+                if (TransportRouteMain.length > 0)
+                    DisplayRouteMainList = RemoveDuplicateObjectOnList(DistinctMainList, TransportRouteMain);
+                else
+                    DisplayRouteMainList = DistinctMainList;
+                //console.log('list distinct main order');
+                //console.log(DisplayRouteMainList);
+                //console.log('list main order yang ada di transport route');
+                //console.log(TransportRouteMain);
+                //console.log('DisplayRouteMainList');
+                //console.log(DisplayRouteMainList);
+                if (TransportRouteAdditional.length > 0)
+                    DisplayRouteAdditionalList =
+                        RemoveDuplicateObjectOnList(DistinctAdditionalList, TransportRouteAdditional);
+                else
+                    DisplayRouteAdditionalList = DistinctAdditionalList;
+                //console.log('list distinct additional order');
+                //console.log(DistinctAdditionalList);
+                //console.log('list additional order yang ada di transport route');
+                //console.log(TransportRouteAdditional);
+                //console.log('DisplayRouteAdditionalList');
+                //console.log(DisplayRouteAdditionalList);
+
+            } else {
+                DisplayRouteMainList = DistinctMainList;
+                DisplayRouteAdditionalList = DistinctAdditionalList;
+            }
+
+            //mencari apakah yang ada di list, semuanya sudah main order. kalau ada yang additional order, diubah jadi main order
+            for (var j=0; j<TransportRouteMainOrder.length; j++) {
+                $(".routeDetail--checkbox").each(function (i, obj) {
+                    if (obj.id.indexOf(TransportRouteMainOrder[j].IDLocation) !== -1) {
+                        var button = $('#' + obj.id + '').parent().parent();
+                        var idx = $.map(DistinctAdditionalList, function (obj, index) {
+                            if (obj.LocationName === TransportRouteMainOrder[j].LocationName) {
+                                return index;
+                            }
+                        })
+                        if (button[0].className.indexOf('additionalRouteClass') !== -1 && idx < 0) {
+                            $('#' + obj.id + '').parent().parent().addClass('mainRouteClass');
+                            $('#' + obj.id + '').parent().parent().removeClass('additionalRouteClass');
+                        }
+                    }
+                });
+            }
+            //mencari apakah yang ada di list, semuanya sudah additional order. kalau ada yang main order, diubah jadi additional order
+            for (var k=0; k<TransportRouteAdditionalOrder.length; k++) {
+                $(".routeDetail--checkbox").each(function (i, obj) {
+                    if (obj.id.indexOf(TransportRouteAdditionalOrder[k].IDLocation) !== -1) {
+                        var button = $('#' + obj.id + '').parent().parent();
+                        var idx = $.map(DistinctMainList, function (obj, index) {
+                            if (obj.LocationName === TransportRouteAdditionalOrder[k].LocationName) {
+                                return index;
+                            }
+                        })
+                        if (button[0].className.indexOf('mainRouteClass') !== -1 && idx < 0) {
+                            $('#' + obj.id + '').parent().parent().addClass('additionalRouteClass');
+                            $('#' + obj.id + '').parent().parent().removeClass('mainRouteClass');
+                        }
+                    }
+                });
+            }
+
+            console.log(DisplayRouteMainList);
+            console.log(DisplayRouteAdditionalList);
+
+            $("#RouteMainSortable").html('');
+            for (var x = 0; x < DisplayRouteMainList.length; x++) {
+                $("#RouteMainSortable").append(stringHTMLRouteDetail(route, "mainRouteClass", DisplayRouteMainList[x].IDLocation, DisplayRouteMainList[x].LocationName), '');
+                route++;
+            }
+            //console.log(DisplayRouteAdditionalList);
+            $("#RouteAdditionalSortable").html('');
+            for (var y = 0; y < DisplayRouteAdditionalList.length; y++) {
+                $("#RouteAdditionalSortable").append(stringHTMLRouteDetail(route, "additionalRouteClass", DisplayRouteAdditionalList[y].IDLocation, DisplayRouteAdditionalList[y].LocationName), '');
+                route++;
+            }
+        }
+
+        function DrawRouteDetail() {
+            $("#RouteMainSortable").html('');
+            for (var x = 0; x < DisplayRouteMainList.length; x++) {
+                $("#RouteMainSortable").append(stringHTMLRouteDetail(route, "mainRouteClass", DisplayRouteMainList[x].IDLocation, DisplayRouteMainList[x].LocationName), '');
+                route++;
+            }
+            $("#RouteAdditionalSortable").html('');
+            for (var y = 0; y < DisplayRouteAdditionalList.length; y++) {
+                $("#RouteAdditionalSortable").append(stringHTMLRouteDetail(route, "additionalRouteClass", DisplayRouteAdditionalList[y].IDLocation, DisplayRouteAdditionalList[y].LocationName), '');
+                route++;
+            }
+            $("#RouteSortable").html('');
+            //console.log("routes - ", DisplayTransportRouteList);
+            for (var z = 0; z < DisplayTransportRouteList.length; z++) {
+                if (DisplayTransportRouteList[z].IsMain) {
+                    var classForRouteDetail;
+                    var checked = '';
+                    if (DisplayTransportRouteList[z].OrderCategory == "Main Order") {
+                        classForRouteDetail = "mainRouteClass";
+                    } else {
+                        classForRouteDetail = "additionalRouteClass";
+                    }
+                    if (DisplayTransportRouteList[z].IsNonKMBased)
+                        checked = "checked";
+                    $("#RouteSortable").append(stringHTMLRouteDetail(route, classForRouteDetail, DisplayTransportRouteList[z].IDLocation, DisplayTransportRouteList[z].LocationName, checked));
+                    route++;
+                }
+            }
+        }
+
+        function CheckObjectOnList(list, idloc, locname, ismain, isnonkmbased) {
+            var loc1 = new Object();
+            var result1 = $.grep(list, function (e) { return e.IDLocation == idloc; });
+            if (result1.length == 0) {
+                loc1.IDLocation = idloc;
+                loc1.LocationName = locname;
+                loc1.IsMain = ismain;
+                loc1.IsNonKMBased = isnonkmbased;
+                return loc1;
+            }
+            return 'undefined';
+        }
+
+        function RemoveObjectOnList(list, object) {
+            return $.grep(list, function (e) {
+                return e.IDLocation != object.IDLocation;
+            });
+        }
+
+        function RemoveDuplicateObjectOnList(unfilterList, filterList) {
+            return unfilterList.filter(function (el) {
+                var index = $.map(filterList,
+                    function (obj, index) {
+                        if (obj.IDLocation == el.IDLocation) {
+                            return index;
+                        }
+                    });
+                if (index.length == 0) {
+                    if (filterList.length > 0) {
+                        return filterList.indexOf(index);
+                    }
+                }
+            });
+        }
+
+        function FindDuplicateObjectOnList(unfilterList, filterList) {
+            //console.log('unfilter list');
+            //console.log(unfilterList);
+            //console.log('filter list');
+            //console.log(filterList);
+            return unfilterList.filter(function (el) {
+                var index = $.map(filterList, function (obj, index) {
+                    //console.log('unfilter');
+                    //console.log(el);
+                    //console.log('filter');
+                    //console.log(obj);
+                        if (obj.IDLocation == el.IDLocation) {
+                            return index;
+                        }
+                });
+                //console.log(index);
+                if (index.length != 0) {
+                        return filterList.indexOf(index);
+                }
+            });
+        }
+
+        function stringHTMLToDetail(i, idto) {
+            return '<div class="row-order-detail" id="TO' + i + '">' +
+                '<div class="col-md-12">' +
+                '<div class="dtl-order">' +
+                '<div class="form-group">' +
+                '<label>Order Number/STO</label>' +
+                '<input type="text" class="form-control disabled--textbox" idto=' + idto + ' style="cursor: pointer" onclick="PopUpModalOrderDetail(' + idto + ')" id="OrderNumberDetail' + i + '" readonly>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="dtl-order">' +
+                '<div class="form-group">' +
+                '<label>Sender</label>' +
+                '<input type="text" class="form-control" id="SenderDetail' + i + '" disabled>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="dtl-order">' +
+                '<div class="form-group">' +
+                '<label>Receiver</label>' +
+                '<input type="text" class="form-control" id="ReceiverDetail' + i + '" disabled>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="km-order">' +
+                '<div class="form-group">' +
+                '<label>KM</label>' +
+                '<input type="text" class="form-control" id="KMDetail' + i + '" disabled>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="category-order">' +
+                '<div class="form-group">' +
+                '<input type="hidden" id="hiddenOrderType' + i + '" class="orderedType hiddenOrderType">' +
+                '<input type="hidden" id="hiddenTotalBox' + i + '" class="hiddenTotalBox">' +
+                '<label>Order Category</label>' +
+                '<select class="form-control enable-detail orderCategoryDetail" id="OrderCategoryDetail' + i + '" onchange="changeOrderCategory(' + i + ',' + idto + ')">' +
+                stringOrderCategory +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="dtl-order">' +
+                '<div class="form-group">' +
+                '<label>Ordered Vehicle Type</label>' +
+                '<input type="text" class="form-control" id="VehicleTypeDetail' + i + '" disabled>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="dtl-order">' +
+                '<div class="form-group">' +
+                '<label>Ordered Cost Center</label>' +
+                '<input type="text" class="form-control" id="CostCenterDetail' + i + '" disabled>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="remove-order">' +
+                '<div class="form-group">' +
+                '<button type="button" class="orderDetail--elemen--close enable-detail" onclick="RemoveTO(' + i + ',' + idto + ')">&#215;</button>' +
+                '</div>' +
+                '</div>' +
+
+                '</div>' +
+                //'<div class="col-md-2 orderDetail">' +
+                //'<div class="form-group">' +
+                //'<label>Order Number/STO</label>' +
+                //'<input type="text" class="form-control disabled--textbox orderDetail--element orderDetail--element--normal OrderNumber" idto=' + idto + ' style="cursor: pointer" onclick="PopUpModalOrderDetail(' + idto + ')" id="OrderNumberDetail' + i + '" readonly>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-2 orderDetail">' +
+                //'<div class="form-group">' +
+                //'<label>Sender</label>' +
+                //'<input type="text" class="form-control orderDetail--element orderDetail--element--normal" id="SenderDetail' + i + '" disabled>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-2 orderDetail">' +
+                //'<div class="form-group">' +
+                //'<label>Receiver</label>' +
+                //'<input type="text" class="form-control orderDetail--element orderDetail--element--normal" id="ReceiverDetail' + i + '" disabled>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-1 orderDetail orderDetail--small">' +
+                //'<div class="form-group">' +
+                //'<label>KM</label>' +
+                //'<input type="text" class="form-control orderDetail--element orderDetail--element--small" id="KMDetail' + i + '" disabled>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-2 orderDetail">' +
+                //'<div class="form-group">' +
+                //'<input type="hidden" id="hiddenOrderType' + i + '" class="orderedType hiddenOrderType">' +
+                //'<input type="hidden" id="hiddenTotalBox' + i + '" class="hiddenTotalBox">' +
+                //'<label>Order Category</label>' +
+                //'<select class="form-control orderDetail--element orderDetail--element--normal enable-detail orderCategoryDetail" id="OrderCategoryDetail' + i + '" onchange="changeOrderCategory(' + i + ',' + idto + ')">' +
+                //stringOrderCategory +
+                //'</select>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-1 orderDetail">' +
+                //'<div class="form-group">' +
+                //'<label>Ordered Vehicle Type</label>' +
+                //'<input type="text" class="form-control orderDetail--element orderDetail--element--normal orderedVehicleType" id="VehicleTypeDetail' + i + '" disabled>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="col-md-2 orderDetail">' +
+                //'<div class="form-group orderDetail">' +
+                //'<label>Ordered Cost Center</label>' +
+                //'<input type="text" class="form-control orderDetail--element orderDetail--element--normal orderedCostCenter" id="CostCenterDetail' + i + '" disabled>' +
+                //'</div>' +
+                //'</div>' +
+                //'<div class="orderDetail orderDetail--small">' +
+                //'<div class="form-group orderDetail--last">' +
+                //'<label>&nbsp;</label>' +
+                //'<button type="button" class="orderDetail--elemen--close enable-detail" onclick="RemoveTO(' + i + ',' + idto + ')">&#215;</button>' +
+                //'</div>' +
+                //'</div>' +
+                '</div>';
+        }
+
+        function assignValueToDetail(i, addNew, to) {
+            $('#OrderNumberDetail' + i + '').val(to.STONo);
+
+            if (to.MasterLocation2 != null)
+                $('#SenderDetail' + i + '').val(to.MasterLocation2.LocationName);
+            else
+                $('#SenderDetail' + i + '').val("");
+
+            if (to.MasterLocation3 != null)
+                $('#ReceiverDetail' + i + '').val(to.MasterLocation3.LocationName);
+            else
+                $('#ReceiverDetail' + i + '').val("");
+
+            $('#KMDetail' + i + '').val(Math.round(to.KM));
+            $('#hiddenOrderType' + i + '').val(to.FGRMT);
+            $('#hiddenTotalBox' + i + '').val(Math.round(to.TotalBox));
+
+            if (addNew)
+                $('#OrderCategoryDetail' + i + '').val("Additional Order");
+            else
+                $('#OrderCategoryDetail' + i + '').val(to.OrderCategory);
+
+            $('#VehicleTypeDetail' + i + '').val(to.VehicleType);
+
+            if(to.MasterCostCenter != null)
+                $('#CostCenterDetail' + i + '').val(to.MasterCostCenter.CostCenter);
+
+            if (to.DisplayCostCenter != ""){
+                var option = new Option(to.DisplayCostCenter, to.IDCostCenter);
+                $(option).html(to.DisplayCostCenter);
+                $("#ActualCostCenter").append(option);
+            }
+        }
+
+        function stringHTMLPopUpToDetail(tod) {
+            return '<div class="row">' +
+                '<div class="col-md-2">' +
+                '<div class="form-group">' +
+                '<label>Material Type</label>' +
+                '<input type="text" class="form-control" id="MaterialDetail" value="' + tod.MaterialType + '" disabled>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-6">' +
+                '<div class="form-group">' +
+                '<label>Description</label>' +
+                '<input type="text" class="form-control" id="DescriptionDetail" value="' + tod.Description + '" disabled>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<div class="form-group">' +
+                '<label>Qty</label>' +
+                '<input type="text" class="form-control" id="QtyDetail" value="' + tod.Qty + '" disabled>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<div class="form-group">' +
+                '<label>UoM</label>' +
+                '<input type="text" class="form-control" id="UoMDetail"value="' + tod.UoM + '" disabled>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+
+        function stringHTMLRouteDetail(idroute, additionalClass, idlocation, text, checked) {
+            return '<li class="' + additionalClass + '"><div class="btn btn-primary routeDetail--button">' +
+                '<input type="checkbox" id="' + idroute + '-' + idlocation + '" class="routeDetail--checkbox" ' + checked + '>' + text +
+                '</div></li>';
+        }
+
+        function findObjectInList(arr, callback) {
+            for (var i = 0; i < arr.length; i++) {
+                var match = callback(arr[i]);
+                if (match) {
+                    return arr[i];
+                }
+            }
+        }
+
+        function GetURLParameter(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam) {
+                    return sParameterName[1];
+                }
+            }
+        }
+
+        function ToJavaScriptDate(value) {
+            var pattern = /Date\(([^)]+)\)/;
+            var results = pattern.exec(value);
+            var dt = new Date(parseFloat(results[1])).toISOString();
+            return dt;
+        }
+
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
+
+        function checkField(arrayField) {
+            var invalid = false;
+            for (var i = 0; i < arrayField.length; i++) {
+                var val = $('#' + arrayField[i] + '').val();
+                if (val == "" || val == "null" || val == null) {
+                    invalid = true;
+                    console.log(arrayField[i]);
+                    $('#' + arrayField[i] + '').addClass("txt-invalid");
+                }
+                else
+                    $('#' + arrayField[i] + '').removeClass("txt-invalid");
+            }
+            return invalid;
+        }
+
+        function removeRedMark() {
+            $(".txt-invalid").removeClass("txt-invalid");
+        }
+</script>

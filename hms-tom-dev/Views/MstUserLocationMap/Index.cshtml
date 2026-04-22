@@ -1,0 +1,609 @@
+﻿@{
+    ViewBag.Title = "Master Data > Master IMDL Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!--style agar dropdown select2 pada saat tidak ada item widthnya tetap normal-->
+<!--<style>
+    .select-modal{
+        width: 100% !important;
+    }
+</style>-->
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <!--<th width=5% nowrap class="text-center">Active</th>-->
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Role Name</th>
+            <th>Module</th>            
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <!--<th width=5% nowrap class="text-center">Filter</th>-->
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Role Name</th>
+            <th></th>                       
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Master User Location Mapping</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>IDUserLocationMapping</label>
+                                            <input type="text" id="IDUserLocationMapping" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>User ID</label>
+                                            <select class="select2" id="UserID"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label class="form-label col-lg-3">
+                                            Location
+                                        </label>
+                                    </div>
+                                </div>
+                                <ul id="locationtree" class="tree"></ul>
+                                <!--<div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select class="form-control" id="Status">
+                                                <option value="1">YES</option>
+                                                <option value="0">NO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>-->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL List Location-->
+<div class="modal fade" id="listLocationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Module List</h4>
+                </div>
+            <div class="box sameHeight">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong><u>MODULE</u></strong>
+                            <ul id="treeview2" class="list-group-item" style="height: 250px; overflow-y: scroll "></ul>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><u> AREA RESPONSIBILITY</u></strong>
+                            <ul id="treeview" class="list-group-item" style="height: 250px; overflow-y: scroll"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //javascript menutup dropdown pada saat modal di tutup(ada bug drop down tetap muncul pada saat modal ditutup)
+    $('#inputModal').on('hidden.bs.modal', function () {
+        $('#UserID').select2("close");
+    });
+</script>
+
+<script type="text/javascript">
+    var tempListChecked = [];
+    var tempListUnchecked = [];//array untuk menampung location yang teruncheked dan yang akan di save ke database
+    var tempArrayLocation = [];
+    var tempListALLLocation = [];
+    var defaultIsActive = true;
+
+    var generateUser = false;
+    var generateLocation = false;
+
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            generateUser = false;
+            generateLocation = false;
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            //generateTreeLocation(0);
+            generateDropDown();
+            generateTreeListLocation();
+            $("#UserID").prop("disabled", false);
+            $("#btnSaveNew").prop("disabled", true);
+            tempArrayLocation = [];
+            defaultIsActive = "";
+        });
+    });
+
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    generateTable();
+
+    function generateDropDown(iduser) {
+        var select = $('#UserID');
+        $.ajax({
+            url: 'MstUserLocationMap/GetMasterUser',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                $.each(data,
+                    function(key, val) {
+                        select.append('<option value="' + val.IDUser + '">' + val.IDUser + ' - ' + val.FullName + '</option>');
+                    });
+                $('#UserID').select2('val', iduser);
+                generateUser = true;
+                if(generateLocation)
+                    $("#btnSaveNew").prop("disabled", false);
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    //generate table
+    function generateTable() {
+        $("#Loading").modal('show');
+        $.ajax({
+            url: 'MstUserLocationMap/GetMasterUserLocationMapping',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $("#Loading").modal('hide');
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        //{
+                        //    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        //        if (data == true) {
+                        //            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        //        } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                        //    }
+                        //},
+                        { 'data': 'IDUser', 'searchable': true },
+                        { 'data': 'fullName', 'searchable': true },
+                        { 'data': 'MasterRole', 'searchable': true },
+                        //{
+                        //    'data': 'IDLocation', "render": function (data, type, row, meta) {
+                        //         var res = row["IDUser"].split("\\");
+                        //        return '<div id=""><a href="#" id="" onclick="generateListLocation(\''+ res[0] +'\\\\'+ res[1]+'\');" data-toggle="modal" data-target="#listLocationModal">List Location</a></div>';
+                        //    }
+                        //}
+                        {
+                            'data': 'IDLocation', "render": function (data, type, row, meta) {
+                                var res = row["IDUser"].split("\\");
+                                //var id = row["IDUser"].split("\\");
+                                return '<div id=""><a href="#" id="" onclick="generateListLocation(\'' + res[0] + '\\\\' + res[1] + '\');" data-toggle="modal" data-target="#listLocationModal">Module List</a></div>';
+                            }
+                        },
+                        //,
+                        {
+                            "data": "IDUser", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + "'" + data + "'" + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 0) && (index < 3)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });  
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    function generateTreeListLocation(roleId) {
+        $.ajax({
+            url: "MstUserLocationMap/GetTreeListLocation",
+            type: 'GET',
+            cache : false,
+            dataType: 'json',
+            success: function (data) {
+                tempListALLLocation = [];
+                var zone = "";
+                var region = "";
+                var warehouse = "";
+                $("#locationtree").empty();
+                for (var i = 0; i < data.length; i++) {
+                    //if (zone != data[i]["NameZone"]) {
+                    //    zone = data[i]["NameZone"];
+                    //    $("#locationtree").append("<li id='li-" + data[i]["IDZone"].split(' ').join('_') + "'></li>");
+                    //    $('#li-' + data[i]["IDZone"].split(' ').join('_')).append("<i class='fa fa-plus'></i> <label><input id='xnode-" + data[i]["IDZone"].split(' ').join('_') + "' data-id='custom-" + data[i]["IDZone"].split(' ').join('_') + "' name='disabledNode' type='checkbox'/>" + data[i]["NameZone"].split(' ').join('_') + "</label> <ul id='ul-" + data[i]["IDZone"].split(' ').join('_') + "' style='display: none;'></ul>");
+                    //    tempListALLLocation.push(data[i]["IDZone"]);
+                    //}
+                    if (region != data[i]["NameRegion"]) {
+                        region = data[i]["NameRegion"];
+                        //$('#ul-' + data[i]["IDZone"].split(' ').join('_')).append("<li id='li-" + data[i]["IDRegion"].split(' ').join('_') + "'></li>");
+                        $("#locationtree").append("<li id='li-" + data[i]["IDRegion"].split(' ').join('_') + "'></li>");
+                        $('#li-' + data[i]["IDRegion"].split(' ').join('_')).append("<i class='fa fa-plus'></i> <label><input id='xnode-" + data[i]["IDRegion"].split(' ').join('_') + "' data-id='custom-" + data[i]["IDRegion"].split(' ').join('_') + "' name='disabledNode' type='checkbox'/>" + data[i]["NameRegion"] + "</label> <ul id='ul-" + data[i]["IDRegion"].split(' ').join('_') + "' style='display: none;'></ul>");
+                        tempListALLLocation.push(data[i]["IDRegion"]);
+                    }
+                    if (warehouse != data[i]["NameWarehouse"]) {
+                        warehouse = data[i]["NameWarehouse"];
+                        $('#ul-' + data[i]["IDRegion"].split(' ').join('_')).append("<li id='li-" + data[i]["IDWarehouse"].split(' ').join('_') + "'></li>");
+                        $('#li-' + data[i]["IDWarehouse"].split(' ').join('_')).append("<label><input class='hummingbirdNoParent' id='xnode-" + data[i]["IDWarehouse"].split(' ').join('_') + "' data-id='custom-" + data[i]["IDRegion"].split(' ').join('_') + "-" + data[i]["IDWarehouse"].split(' ').join('_') + "' name='disabledNode' type='checkbox'/>" + data[i]["NameWarehouse"] + "</label>");
+                        tempListALLLocation.push(data[i]["IDWarehouse"]);
+                    }
+                }
+                $("#locationtree").hummingbird('collapseAll');
+                $("#locationtree").hummingbird();
+                treeListChecked(roleId);
+            }
+        });
+    }
+
+    function generateListLocation(id) {
+        var ul1 = $('#treeview');
+        $.ajax({
+            url: "MstUserLocationMap/GetWarehouseNameById",
+            type: 'GET',
+            cache: false,
+            dataType: 'json',
+            data: {"id": id},
+            success: function (data) { 
+                ul1.html('');
+                $.each(data, function (key, val) {
+                    var split = val.split(" - ");
+                    var active = "Active";
+                    if (split[1] == "False")
+                        active = "Inactive";
+                    ul1.append('<li value="' + split[0] + '">' + split[0] + ' - ' + active + '</li>');
+                });
+            }
+        });
+        generateListFunction(id);
+    }
+
+    function generateListFunction(id) {
+        var ul2 = $('#treeview2');
+        var tempRoleName = "";
+        $.ajax({
+            url: "MstUserLocationMap/GetMasterFunctionByIdUser",
+            type: 'GET',
+            cache: false,
+            dataType: 'json',
+            data: { "id": id },
+            success: function (data) {
+                ul2.html('');
+                $.each(data, function (key, val) {
+                    if (tempRoleName != val["roleName"]) {
+                        tempRoleName = val["roleName"];
+                        ul2.append(val["roleName"]);
+                    }
+                    ul2.append('<li value="' + val["functionName"] + '">' + val["functionName"] + '</li>');
+                });
+            }
+        });
+    }
+
+    function treeListChecked(id) {
+        if (id == undefined) {
+            generateLocation = true;
+            if (generateUser)
+                $("#btnSaveNew").prop("disabled", false);
+        }
+        $.ajax({
+            url: "MstUserLocationMap/GetIDLocationList?roleid=" + id,
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                tempListChecked = [];
+                for (var x = 0; x < data.length; x++) {
+                    tempListChecked.push(data[x]);
+                    $("#locationtree").hummingbird("checkNode", { attr: "id", name: "xnode-" + data[x].split(' ').join('_'), expandParents: false });
+                    var index = tempListALLLocation.indexOf(data[x]);
+                    if (index > -1) {
+                        tempListALLLocation.splice(index, 1);
+                    }
+                }
+                //console.log(tempListALLLocation);
+                //uncheck function baru yang diinsert langsung ke database
+                for (var y = 0; y < tempListALLLocation.length; y++) {
+                    $("#locationtree").hummingbird("uncheckNode", { attr: "id", name: "xnode-" + tempListALLLocation[y].split(' ').join('_'), expandParents: false });
+                }
+
+                $("#btnSaveNew").prop("disabled", false);
+                generateLocation = true;
+                if(generateUser)
+                    $("#btnSaveNew").prop("disabled", false);
+            }
+        });
+    }
+
+    //function checkTreeFunction(checkbox) {
+    //    var result = $.grep(tempArrayLocation, function (e) { return e == checkbox.value; });
+    //    if (result.length == 0)
+    //        tempArrayLocation.push(checkbox.value);
+    //    else {
+    //        tempArrayLocation = tempArrayLocation.filter(function (obj) {
+    //            return obj !== checkbox.value;
+    //        });
+    //    }
+    //};
+
+    //MENGECEK TREE LIST 2 SEBELUM SAVE START
+    function CheckTreeListBeforeSave() {
+        tempListUnchecked = [];
+        var ListChecked = [];
+        var ListUnchecked = [];
+        //console.log(tempListChecked);
+        $("#locationtree").hummingbird("getChecked", { attr: "id", list: ListChecked });//mengambil semua id yang tercheck
+        $("#locationtree").hummingbird("getUnchecked", { attr: "id", list: ListUnchecked });//mengambil semua id yang uncheck
+        for (var i = 0; i < ListChecked.length; i++) {
+            var id = ListChecked[i].split("-");
+            var result = $.grep(tempListChecked, function (e) { return e == id[1].split('_').join(' '); });//mencari apakah id function yang tercheck ada didatabase
+            if (result.length == 0) {
+                var result2 = $.grep(tempArrayLocation, function (e) { return e == id[1].split('_').join(' '); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2.length == 0)
+                    tempArrayLocation.push(id[1].split('_').join(' '));//kalau tidak ada id function di masukkan ke dalam array
+            }
+            else {
+                tempArrayLocation = tempArrayLocation.filter(function (obj) {//kalau dapat, maka id functionnya dikeluarkan
+                    return obj !== id[1].split('_').join(' ');
+                });
+            }
+        }
+        for (var j = 0; j < ListUnchecked.length; j++) {
+            var iduncheck = ListUnchecked[j].split("-");
+            var resultuncheck = $.grep(tempListChecked, function (e) { return e == iduncheck[1]; });//mencari apakah id function yang teruncheck ada didatabase
+            if (resultuncheck[0] != undefined) {
+                tempArrayLocation.push(resultuncheck[0].split('_').join(' '));//kalau dapat, artinya id function yang ada didatabase, di uncheck/mau dihilangkan dari mapping. id function di masukkan ke dalam array
+                tempListUnchecked.push(resultuncheck[0].split('_').join(' '));//kalau datanya disimpan, maka akan menghilangkan lokasi yang ada di array tempListUnchecked dan ada di array tempListChecked
+            } else {
+                var result2uncheck = $.grep(tempArrayLocation, function (e) { return e == iduncheck[1].split('_').join(' '); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2uncheck.length != 0) {
+                    tempArrayLocation = tempArrayLocation.filter(function (obj) {//kalau dapat, id functionnya di hilangkan dari array yang akan di simpan di database(defaultnya teruncheck, setelah itu di check, kemudian diuncheck lagi)
+                        return obj !== result2uncheck[0].split('_').join(' ');
+                    });
+                    tempListUnchecked = tempListUnchecked.filter(function (obj) {//fungsinya sama seperti diatas tapi digunakan di array tempListUnchecked
+                        return obj !== result2uncheck[0].split('_').join(' ');
+                    });
+                }
+            }
+        }
+    }
+    //MENGECEK TREE LIST 2 SEBELUM SAVE END
+
+    // BEGIN : Insert New Data
+    $('#btnSaveNew').click(function () {
+        $("#Loading").modal('show');
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            //var status = $('#Status :selected').val() == 1 ? true : false;
+            //if (defaultIsActive != status) {
+            //    var userid = $('#UserID :selected').val();
+            //    $.ajax({
+            //        type: 'POST',
+            //        url: 'MstUserLocationMap/UpdateIsActive?iduser=' + userid + '&status=' + status,
+            //        success: function () {
+            //            generateTable();
+            //            resetData();
+            //            //$('#inputModal').modal('hide');
+            //            generateTable();
+            //            $('#modalsuccess').modal('show');
+            //            $("#Loading").modal('hide');
+            //        }
+            //    });
+            //}
+            //else
+                edit();
+        } else {
+            save();
+        }
+    });
+
+    function save() {
+        CheckTreeListBeforeSave();
+        var id = $('#newData').find('input[id="IDUserLocationMapping"]').val();        
+        var userid = $('#UserID :selected').val();
+        var idlocation = tempArrayLocation;        
+        //var status = $('#Status :selected').val() == 1 ? true : false;
+        var data = {
+            "new": [{ "IDLocation": id, "IDUser": userid, "ListIDLocation": idlocation, "IsActive": true }],
+            "edit": [{}]
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'MstUserLocationMap/InsertUserLocationMapping',
+            data: data,
+            success: function (data) {
+                for (var i = 0; i < tempArrayLocation.length; i++) {
+                    tempListChecked.push(tempArrayLocation[i]);
+                }
+                generateTable();
+                removeLocationFromtempListChecked();
+                //$('#inputModal').modal('hide');
+                $("#locationtree").hummingbird('collapseAll');                
+                $('#modalsuccess').modal('show');
+                $("#Loading").modal('hide');
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+
+    function editTable(id) {
+        generateUser = false;
+        generateLocation = false;
+        $('#newData')[0].reset();
+        tempArrayLocation = [];
+        $('#InsertOrUpdate').val("UPDATE");
+        $("#UserID").prop("disabled", true);
+        $("#btnSaveNew").prop("disabled", true);
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function() {
+            var data = table.row(this).data();
+            $('#UserID').append('<option value=' + data['IDUser'] + '>' + data['IDUser'] + '</option>');
+            $('#UserID').select2("val", data["IDUser"]);
+            //$('#UserID').select2("val", data["IDUser"]);
+            //generateDropDown(data["IDUser"]);
+            generateTreeListLocation(data["IDUser"]);
+            //defaultIsActive = data["IsActive"];
+            //if (data["IsActive"])
+                $('#Status').val("1");
+            //else
+            //    $('#Status').val("0");
+        });
+        $('#inputModal').modal('show');
+    }
+
+    //update edited data
+    function edit() {
+        //console.log(tempArrayLocation);
+        CheckTreeListBeforeSave();
+        var id = $('#newData').find('input[id="IDUserLocationMapping"]').val();
+        var userid = $('#UserID').val();
+        var idlocation = tempArrayLocation;
+        //console.log(tempArrayLocation);
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var data = {
+            "new": [{}],
+            "edit": [{ "IDUserLocationMapping": id, "IDLocation": id, "IDUser": userid, "ListIDLocation": idlocation, "IsActive": status }]
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'MstUserLocationMap/InsertUserLocationMapping',
+            data: data,
+            success: function (data) {
+                for (var i = 0; i < tempArrayLocation.length; i++) {
+                    tempListChecked.push(tempArrayLocation[i]);
+                }
+                generateTable();
+                removeLocationFromtempListChecked();
+                $("#locationtree").hummingbird('collapseAll');
+                //close modal
+                //$('#inputModal').modal('hide');
+                $('#modalsuccess').modal('show');
+                $("#Loading").modal('hide');
+            }
+        });
+    }
+
+    function removeLocationFromtempListChecked() {
+        for (var i = 0; i < tempListUnchecked.length; i++) {
+            var result = $.grep(tempListChecked, function (e) { return e == tempListUnchecked[i]; });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+            if (result.length != 0) {
+                tempListChecked = tempListChecked.filter(function (obj) {//kalau dapat, id functionnya di hilangkan dari array yang akan di simpan di database(defaultnya teruncheck, setelah itu di check, kemudian diuncheck lagi)
+                    return obj !== tempListUnchecked[i];
+                });
+            }
+        }
+    }
+</script>
+
+
+

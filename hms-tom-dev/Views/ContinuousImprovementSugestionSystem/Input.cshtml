@@ -1,0 +1,1498 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "General > Continuous Improvement > Suggestion System Input";
+    Layout = "~/Views/Shared/_Layout.cshtml";    
+}
+
+<style>
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+    .tab-disabled {
+        pointer-events: none;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <input type="hidden" id="IsRoleCanEdit" value="@ViewBag.IsRoleCanEdit"/>
+                <input type="hidden" id="IDUser" value="@ViewBag.IDUser" />
+                <button class="btn btn-purple" onclick="window.location.href ='@Url.Action("Index", "ContinuousImprovementSugestionSystem")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnEdit">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnSaveNew">Save</button>
+                }
+                <button type="button" class="btn btn-primary" id="btnLocationList" data-toggle="modal" data-target="#modallocationlist">Copy This Idea</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <ul class="nav nav-pills title">
+            <li class="active"><a data-toggle="pill" href="#summary" onclick="SetTabActive('General')">General</a></li>
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.ScoreApproval)))
+            {
+                <li><a id="tab2" data-toggle="pill" href="#detail" onclick="SetTabActive('Score')">Score & Approval</a></li>
+            }
+            else
+            {
+                <li><a id="tab2" data-toggle="pill" href="#detail" onclick="SetTabActive('Score')" class="tab-disabled">Score & Approval</a></li>
+            } 
+        </ul>
+        <div id="form" class="tab-content">
+            <div id="summary" class="tab-pane fade in active">
+                <div id="generateField" class="row"></div>
+            </div>
+            <div id="detail" class="tab-pane fade">
+                <div id="generateField2" class="row"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span>Theres already data in database, overwite data?</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="window.location.href ='@Url.Action("Index", "ContinuousImprovementSugestionSystem")'">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists, your connection is lost, or data already accepted/rejected</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modallocationlist" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">List User Location</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnLocationListOk">Save</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+            <div class="modal-body">
+                <ul id="treeview" class="tree"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var statusInput = "NEW";
+    var tabActive = "General";
+    var filter = new Object();
+    var listDropDownId = new Array();//dipakai untuk generate drop down
+    var mandatoryTabGeneral = new Array();
+    var mandatoryTabScore = new Array();
+
+    var finalscore = 0;
+    var voucherValueFrom = 0;
+    var voucherValueTo = 0;
+    var secondLineAssessorScore = 0;
+    var abcdAwardScore = 0;
+    var costSaving = 0;
+    var listConversionPoint;
+
+    var listField = {};
+    var listCompare = {};
+
+    var IDContImprovSS = 0;
+    var createdBy = "";
+    var createdDate = "";
+    var attachment = "";
+    var attachment2 = "";
+    var attachment3 = "";
+    var attachment4 = "";
+
+    var isSuperAdmin = false;//dipakai untuk pengecekan mandatory
+    filter.TahunDetail = (new Date()).getFullYear();
+    filter.BulanDetail = ((new Date()).getMonth()) + 1;
+    $("#btnEdit").attr('disabled', true);
+    $("#btnSaveNew").attr('disabled', false);
+
+    $(document).ready(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        GetUserRole();
+        generateDynamicFieldGeneral(function() {
+             generateDynamicFieldScore(function() {
+                 generateDropDown(function () {
+                     loadFieldTabel(function () { loadData(); });
+                 });
+                 //HARDCODE EMPLOYEE ID
+                 $("#EmployeeID").on('select2-selecting', function (e) {
+                     var value = e.val;
+                     var split = value.split('-');
+                     $("#EmployeeName").val(split[1]);
+                 });
+                 //HARDCODE EMPLOYEE ID
+                 $("#Category2").select2('val', "None");
+                 $("#Department").select2('val', "Logistic & Distribution");
+                 $("#Usability").select2('val', "No");
+                 $("#ABCDAwards").select2('val', "No");
+                 $("#ModifiedFrom").select2('disable');
+                 $("#Status").select2('val', 1);
+                 $("#SecondLineAssessor").attr('disabled', true);
+                 $("#ABCDAwards").attr('disabled', true);
+                 $("#Usability").attr('disabled', true);
+
+                 $("#IdeaSource").on('select2-selecting', function (e) {
+                     var value = e.val;
+                     if (value == "Modified Idea")
+                         $("#ModifiedFrom").select2('enable');
+                     else {
+                         $("#ModifiedFrom").select2('val', "");
+                         $("#ModifiedFrom").select2('disable');
+                     }
+                 });
+                 inputFileStyle();
+
+                 var listConfiguration = ["Second Line Assessor", "ABCD Award", "Cost Saving"];
+                 GetMasterConfigurationByPageNameDescription(listConfiguration);
+
+                 dialog.modal('hide');
+             });
+        });
+
+        $(document).on('change', '#Sub-Department', function () {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            var select_spv = $('#Supervisor');
+            var select_fac = $('#Facilitator');
+
+            select_spv.select2('val', '');
+            select_fac.select2('val', '');
+
+            select_spv.html('');
+            select_fac.html('');
+
+            $.ajax({
+                url: 'GetDropDownEmployeeName',
+                method: 'get',
+                dataType: 'json',
+                data: { ParentLocation: $(this).val() },
+                async: false,
+                cache: false,
+                success: function (data) {
+                    var select = $('#EmployeeID');
+                    select.select2('val', '');
+                    //var len = document.getElementById(fieldName[z]).length;
+                    var options = '<option class="ddcenter" value="">----- Select an Item -----</option>';
+
+                    /*
+                    option = document.createElement('option');
+                    option.addClass = "ddcenter";
+                    option.value = "";
+                    option.text = "----- Select an Item -----";
+                    select.add(option);
+                    */
+                    for (var i = 0; i < data.length; i++) {
+                        options = options + '<option value="' + data[i]["IDUser"] + '-' + data[i]["FULL_NAME"] + '">' + data[i]["ID"] + ' - ' + data[i]["FULL_NAME"] + '</option>';
+                        //option.value = data[i]["IDUser"] + '-' + data[i]["FULL_NAME"];
+                        //option.text = data[i]["ID"] + ' - ' + data[i]["FULL_NAME"];
+                    }
+
+                    select.html(options);
+
+                    dialog.modal("hide");
+                }
+            });
+        });
+
+        $(document).on('change', '#EmployeeID', function () {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            var IDUser = $('#EmployeeID').val().split('-')[0];
+            $.ajax({
+                url: 'GetDropDownEmployeeName',
+                method: 'get',
+                dataType: 'json',
+                data: { IDUser: IDUser, ParentLocation: $('#Sub-Department').val() },
+                async: false,
+                cache: false,
+                success: function (data) {
+                    var select_spv = $('#Supervisor');
+                    var select_fac = $('#Facilitator');
+
+                    select_spv.select2('val', '');
+                    select_fac.select2('val', '');
+
+                    var options = '<option class="ddcenter" value="">----- Select an Item -----</option>';
+
+                    for (var i = 0; i < data.length; i++) {
+                        options = options + '<option value="' + data[i]["IDUser"] + '">' + data[i]["ID"] + ' - ' + data[i]["FULL_NAME"] + '</option>';
+                    }
+
+                    select_spv.html(options);
+                    select_fac.html(options);
+
+                    dialog.modal("hide");
+                }
+            });
+        });
+    });
+
+    $("#btnEdit").click(function() {
+        EnableInput();
+        $("#btnEdit").attr('disabled', true);
+        $("#btnSaveNew").attr('disabled', false);
+    });
+
+    function SetTabActive(tab) {
+        tabActive = tab;
+    }
+
+    function GetUserRole() {
+        $.ajax({
+            url: 'GetUserListRole',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    //if (data[i].RoleName == "SUPER ADMIN" || data[i].RoleName == "ADMINISTRATOR REGIONAL") {
+                        if (data[i].RoleName == "SUPER ADMIN"){
+                            isSuperAdmin = true;
+                        }
+                    //} else {
+                    //    $("#tab2").addClass("tab-disabled");
+                    //}
+                }
+            }
+        });
+    }
+
+    function GetMasterConfigurationByPageNameDescription(descrip) {
+        $.ajax({
+            url: 'GetMasterConfigurationByPageNameDescription',
+            method: 'post',
+            data: { description: descrip },
+            dataType: 'json',
+            cache: false,
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i]["Description"] == "Second Line Assessor"){
+                        secondLineAssessorScore = data[i]["Value"];
+                    }
+                    else if (data[i]["Description"] == "ABCD Award") {
+                        abcdAwardScore = data[i]["Value"];
+                    }
+                    else if (data[i]["Description"] == "Cost Saving"){
+                        costSaving = data[i]["Value"];
+                    }
+                }
+                GetMasterConversionPointSS();
+            }
+        });
+    }
+
+    function GetMasterConversionPointSS() {
+        $.ajax({
+            url: 'GetMasterConvertionPointSSByVal',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                listConversionPoint = data;
+            }
+        });
+    }
+
+    function loadData() {
+        if (gup('id') != "") {
+            DisableInput();
+            getDataByID(gup('id'));
+            statusInput = "EDIT";
+            $("#btnSaveNew").attr('disabled', true);
+        }
+    }
+
+    function getDataByID(param) {
+        $.ajax({
+            url: '@Url.Action("GetContinuousImprovementSSByID")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            async: false,
+            data: { id: param },
+            success: function (json) {
+                if (json != "") {
+                    $("#form input[type=text]").each(function() {
+                        var input = $(this);
+                        var split = input[0].id.split('/');//split ini digunakan untuk cost saving
+                        var field = listCompare[split[0]];
+                        if (field != undefined) {
+                            var pattern = /Date\(([^)]+)\)/;
+                            var results = pattern.exec(json[field]);
+                            if (results != null && results != 'undefined')
+                                input.val(moment(json[field]).format("DD/MM/YYYY"));
+                            else {
+                                input.val(json[field]);
+                            }
+                        }
+                    });
+
+                    $("select").each(function() {
+                        var input = $(this);
+                        var field = listCompare[input[0].id];
+                        if (field != undefined) {
+                            var str = json[field];
+                            if (str != null) {
+                                var array = str.toString().split(",");
+
+                                if (array.length > 1) {
+                                    input.select2('val', array);
+                                } else {
+                                    if (input.find('option').length > 0) {
+                                        input.select2('val', json[field]);
+                                        if (field == "EmployeeID") {
+                                            setTimeout(
+                                              function () {
+                                                  input.select2('val', json[field] + "-" + json["EmployeeName"]);
+                                              }, 2000);
+                                        }
+                                    } else {
+                                        var theText = json[field],
+                                            theValue = theText;
+                                        if (field == "EmployeeID") {
+                                            theText = json[field] + " - " + json["EmployeeName"];
+                                            theValue = json[field] + "-" + json["EmployeeName"];
+                                        }
+                                        var newOption = new Option(theText, theValue, true, true);
+                                        input.append(newOption).trigger('change');
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    $('#form input[type="number"]').each(function() {
+                        var input = $(this);
+                        var idInput = input[0].id;
+                        if (idInput == "CostSaving-IDR/Month" || idInput == "CostSaving-USD/Month") {
+                            var split = idInput.split("/");
+                            idInput = split[0];
+                        }
+                        var field = listCompare[idInput];
+                        if (field != undefined) {
+                            input.val(json[field]);
+                        }
+                    });
+
+                    $("#btnEdit").attr('disabled', true);
+                    var status = $("#status :selected").val();
+                    if (isSuperAdmin == false) {
+                        if (json["Status"] != 1) {
+                            if ($('#IsRoleCanEdit').val() == 1) {
+                                $("#btnEdit").attr('disabled', false);
+                            }
+                            else{
+                                $("#btnEdit").attr('disabled', true);
+                            }
+                        } else if (json["Status"] == 1) {
+                            if ($('#IsRoleCanEdit').val() == 1 || $('#IDUser').val() == json["CreatedBy"].toLowerCase()) {
+                                $("#btnEdit").attr('disabled', false);
+                            }
+                        }
+                    } else {
+                        $("#btnEdit").attr('disabled', false);
+                    }
+
+                    var l = window.location;
+                    var base_url = l.protocol + "//" + l.host + "/DFIS/";
+
+                    //START : BAGIAN ATTACHMENT
+                    //1
+                    if (json["Attachment"] != null)
+                    {
+                        $("#labelAttachment").html('');
+                        var splitNamaFileExt = json["Attachment"].split("/");
+                        var splitNamaFile = splitNamaFileExt[splitNamaFileExt.length - 1].split(".");
+                        var href = (parseInt(json["Attachment"].indexOf("~/")) > -1 && parseInt(json["Attachment"].indexOf("~/")) < 1) ? base_url + json["Attachment"].substr(2) : json["Attachment"];
+                        var displayAtta = '<a href="' + href + '" target="_blank">' + splitNamaFile[0] + '</a><br />';
+
+                        $("#labelAttachment").html(displayAtta);
+                        attachment = json["Attachment"];
+                    }
+                    //2
+                    if (json["Attachment2"] != null)
+                    {
+                        $("#labelAttachment2").html('');
+                        var splitNamaFileExt2 = json["Attachment2"].split("/");
+                        var splitNamaFile2 = splitNamaFileExt2[splitNamaFileExt2.length - 1].split(".");
+                        var href = (parseInt(json["Attachment2"].indexOf("~/")) > -1 && parseInt(json["Attachment2"].indexOf("~/")) < 1) ? base_url + json["Attachment2"].substr(2) : json["Attachment2"];
+                        var displayAtta2 = '<a href="' + href + '" target="_blank">' + splitNamaFile2[0] + '</a><br />';
+
+                        $("#labelAttachment2").html(displayAtta2);
+                        attachment2 = json["Attachment2"];
+                    }
+                    //3
+                    if (json["Attachment3"] != null)
+                    {
+                        $("#labelAttachment3").html('');
+                        var splitNamaFileExt3 = json["Attachment3"].split("/");
+                        var splitNamaFile3 = splitNamaFileExt3[splitNamaFileExt3.length - 1].split(".");
+                        var href = (parseInt(json["Attachment3"].indexOf("~/")) > -1 && parseInt(json["Attachment3"].indexOf("~/")) < 1) ? base_url + json["Attachment3"].substr(2) : json["Attachment3"];
+                        var displayAtta3 = '<a href="' + href + '" target="_blank">' + splitNamaFile3[0] + '</a><br />';
+
+                        $("#labelAttachment3").html(displayAtta3);
+                        attachment3 = json["Attachment3"];
+                    }
+                    //4
+                    if (json["Attachment4"] != null)
+                    {
+                        $("#labelAttachment4").html('');
+                        var splitNamaFileExt4 = json["Attachment4"].split("/");
+                        var splitNamaFile4 = splitNamaFileExt4[splitNamaFileExt4.length - 1].split(".");
+                        var href = (parseInt(json["Attachment4"].indexOf("~/")) > -1 && parseInt(json["Attachment4"].indexOf("~/")) < 1) ? base_url + json["Attachment4"].substr(2) : json["Attachment4"];
+                        var displayAtta4 = '<a href="' + href + '" target="_blank">' + splitNamaFile4[0] + '</a><br />';
+
+                        $("#labelAttachment4").html(displayAtta4);
+                        attachment4 = json["Attachment4"];
+                    }
+                    //END : BAGIAN ATTACHMENT
+
+                    IDContImprovSS = json["IDContImprovSS"];
+                    createdBy = json["CreatedBy"];
+                    createdDate = moment(json["createdDate"]).format("DD/MM/YYYY");
+                }
+            }
+        });
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (var i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function generateDynamicFieldGeneral(callback) {
+        listDropDownId = new Array();
+        mandatoryTabGeneral = new Array();
+        mandatoryTabScore = new Array();
+        $.ajax({
+            url: 'GetMasterDynamicFieldList',
+            method: 'get',
+            data: { group: '1' },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                generateHtmlString("generateField", data);
+                callback();
+            }
+        });
+    }
+
+    function generateDynamicFieldScore(callback) {
+        $.ajax({
+            url: 'GetMasterDynamicFieldList',
+            method: 'get',
+            data: { group: '2' },
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                generateHtmlString("generateField2", data);
+                callback();
+            }
+        });
+    }
+
+    function generateHtmlString(idgeneratefield, data) {
+        var htmlString = "";
+        var clearfix = 1; //tiap combo/date yang ada di paling kanan nanti akan ditambahin clearfix
+
+        for (var i = 0; i < data.length; i++) {
+            var dynamicField = data[i];
+            var fieldType = dynamicField.FieldType;
+            var label = dynamicField.FieldName;
+            var id = label.split(' ').join('');
+
+            if (fieldType == "TextInput") {
+                if (id == "CostSaving-USD/Month") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="text" id="' +
+                        id +
+                        '" class="form-control" disabled>' +
+                        '</div>' +
+                        '</div>';
+                }
+                else{
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="text" id="' +
+                        id +
+                        '" class="form-control">' +
+                        '</div>' +
+                        '</div>';
+                }
+                if (clearfix % 3 == 0) {
+                    htmlString = htmlString + '<div class="clearfix"></div>';
+                }
+            } else if (fieldType == "Number") {
+                if (id == "FinalScore") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="text" id="' +
+                        id +
+                        '" oninput=finalScoreChange() class="form-control" readonly />' +
+                        '</div>' +
+                        '</div>';
+                }
+                else if (id == "CostSaving-IDR/Month") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="text" id="' +
+                        id +
+                        '" oninput=calculateCostSaving() class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />' +
+                        '</div>' +
+                        '</div>';
+                }
+                else if (id == "Voucher-IDR") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="number" id="' +
+                        id +
+                        '" oninput=calculateFinalScore() class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" disabled/>' +
+                        '</div>' +
+                        '</div>';
+                }
+                else {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<input type="number" id="' +
+                        id +
+                        '" oninput=calculateFinalScore() class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />' +
+                        '</div>' +
+                        '</div>';
+                }
+                if (clearfix % 3 == 0) {
+                    htmlString = htmlString + '<div class="clearfix"></div>';
+                }
+            } else if (fieldType == "Date") {
+                htmlString = htmlString +
+                    '<div class="col-md-4">' +
+                    '<div class="form-group">' +
+                    '<label>' +
+                    label +
+                    '</label>' +
+                    '<input type="text" id="' +
+                    id +
+                    '" class="form-control datepicker">' +
+                    '</div>' +
+                    '</div>';
+                if (clearfix % 3 == 0) {
+                    htmlString = htmlString + '<div class="clearfix"></div>';
+                }
+            } else if (fieldType == "ComboMultiple") {
+                htmlString = htmlString +
+                    '<div class="col-md-4">' +
+                    '<div class="form-group">' +
+                    '<label>' +
+                    label +
+                    '</label>' +
+                    '<select class="combo-select" multiple="multiple" id = "' +
+                    id +
+                    '"></select>' +
+                    '</div>' +
+                    '</div>';
+                if (clearfix % 3 == 0) {
+                    htmlString = htmlString + '<div class="clearfix"></div>';
+                }
+                listDropDownId.push(id);
+            } else if (fieldType == "Combo") {
+                if (label == "Submit Month") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<select class="combo-select" id = "' +
+                        id +
+                        '">' +
+                        '<option value="1">January</option>' +
+                        '<option value="2">February</option>' +
+                        '<option value="3">March</option>' +
+                        '<option value="4">April</option>' +
+                        '<option value="5">May</option>' +
+                        '<option value="6">June</option>' +
+                        '<option value="7">July</option>' +
+                        '<option value="8">August</option>' +
+                        '<option value="9">September</option>' +
+                        '<option value="10">October</option>' +
+                        '<option value="11">November</option>' +
+                        '<option value="12">December</option>;' +
+                        '</select></div>' +
+                        '</div>';
+                } else if (label == "Submit Year") {
+                    var prevYear = 0;
+                    if (isSuperAdmin == false){
+                        prevYear = (new Date()).getFullYear();
+                    }
+                    else {
+                        prevYear = (new Date()).getFullYear() - 1;
+                    }
+                    var nextYear = (new Date()).getFullYear() + 2;
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<select class="combo-select" id = "' +
+                        id +
+                        '">';
+                    for (var l = prevYear; l <= nextYear; l++) {
+                        htmlString = htmlString +
+                            '<option value="' +
+                            l +
+                            '">' +
+                            l +
+                            '</option>';
+                    }
+                    htmlString = htmlString +
+                        '</select></div>' +
+                        '</div>';
+                } else if (label == "Status") {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<select class="combo-select" id = "' +
+                        id +
+                        '">' +
+                        '<option value="2">Approved</option>' +
+                        '<option value="1">Waiting</option>' +
+                        '<option value="0">Rejected</option>' +
+                        '</select></div>' +
+                        '</div>';
+                } else {
+                    htmlString = htmlString +
+                        '<div class="col-md-4">' +
+                        '<div class="form-group">' +
+                        '<label>' +
+                        label +
+                        '</label>' +
+                        '<select class="combo-select" id = "' +
+                        id +
+                        '"></select>' +
+                        '</div>' +
+                        '</div>';
+                    listDropDownId.push(id);
+                }
+
+                if (clearfix % 3 == 0) {
+                    htmlString = htmlString + '<div class="clearfix"></div>';
+                }
+            }
+            if (idgeneratefield == "generateField")
+                mandatoryTabGeneral.push(id);
+            else
+                mandatoryTabScore.push(id);
+            clearfix++;
+        }
+        if (idgeneratefield == "generateField"){
+            htmlString = htmlString + '<div class="col-md-4">' +
+                                            '<div class="form-group">' +
+                                                '<label>Attachment</label>' +
+                                                '<input type="file" class="filestyle" id="UploadA" onchange="uploadFileA(this)">' +
+                                                '<label id="labelAttachment">-</label>' +
+                                            '</div>' +
+                                      '</div>';
+            htmlString = htmlString + '<div class="col-md-4">' +
+                '<div class="form-group">' +
+                '<label>Attachment 2</label>' +
+                '<input type="file" class="filestyle" id="UploadB" onchange="uploadFileB(this)">' +
+                '<label id="labelAttachment2">-</label>' +
+                '</div>' +
+                '</div>';
+            htmlString = htmlString + '<div class="col-md-4">' +
+                '<div class="form-group">' +
+                '<label>Attachment 3</label>' +
+                '<input type="file" class="filestyle" id="UploadC" onchange="uploadFileC(this)">' +
+                '<label id="labelAttachment3">-</label>' +
+                '</div>' +
+                '</div>';
+            htmlString = htmlString + '<div class="col-md-4">' +
+                '<div class="form-group">' +
+                '<label>Attachment 4</label>' +
+                '<input type="file" class="filestyle" id="UploadD" onchange="uploadFileD(this)">' +
+                '<label id="labelAttachment4">-</label>' +
+                '</div>' +
+                '</div>';
+        }
+        $('#' + idgeneratefield + '').append(htmlString);
+    }
+
+    function generateDropDown(callback) { //callback pasang library/set default data
+        isiDropDown();
+        $('.combo-select').select2({ width: '100%' });
+        setDefaultDropDownSelect2();
+        defaultDate();
+        callback();
+    }
+
+    function isiDropDown() {
+        var listEmployee = ["EmployeeID", "Facilitator", "Supervisor", "FirstLineAssessor", "SecondLineAssessor"];
+        var listAssessor = ["FirstLineAssessor", "SecondLineAssessor"];
+        var listLocation = ["ModifiedFrom", "CopyBy"];
+        var listMasterList = [];
+        //getDropDownEmployeeName(listEmployee);
+        getDropDownFirstLineAssessor(listAssessor);
+        getDropDownLocation(listLocation);
+        for (var k = 0; k < listDropDownId.length; k++) {
+            var fieldName = listDropDownId[k];
+            if (fieldName != "EmployeeID" &&
+                fieldName != "Facilitator" &&
+                fieldName != "Supervisor" &&
+                fieldName != "FirstLineAssessor" &&
+                fieldName != "SecondLineAssessor" &&
+                fieldName != "ModifiedFrom" &&
+                fieldName != "CopyBy")
+            {
+                listMasterList.push("SuggestionSystem" + fieldName);
+            }
+        }
+        getDropDownMasterList(listMasterList);
+    };
+
+    function getDropDownFirstLineAssessor(fieldName) {
+        $.ajax({
+            url: 'GetDropDownFirstLine',
+            method: 'get',
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function (data) {
+                for (var z = 0; z < fieldName.length; z++) {
+                    var select = document.getElementById(fieldName[z]);
+                    var len = document.getElementById(fieldName[z]).length;
+                    var option;
+                    if (len > 0)
+                        select.empty().append('');
+                    option = document.createElement('option');
+                    option.addClass = "ddcenter";
+                    option.value = "";
+                    option.text = "----- Select an Item -----";
+                    select.add(option);
+                    for (var i = 0; i < data.length; i++) {
+                        option = document.createElement('option');
+                        option.value = data[i]["IDUser"];
+                        option.text = data[i]["ID"] + ' - ' + data[i]["FULL_NAME"];
+                        select.add(option);
+                    }
+                }
+            }
+        });
+    }
+
+    function getDropDownEmployeeName(fieldName) {
+        $.ajax({
+            url: 'GetDropDownEmployeeName',
+            method: 'get',
+            dataType: 'json',
+            data: { ParentLocation : $('#Sub-Department').val() },
+            async: false,
+            cache: false,
+            success: function (data) {
+                for (var z = 0; z < fieldName.length; z++) {
+                    var select = document.getElementById(fieldName[z]);
+                    var len = document.getElementById(fieldName[z]).length;
+                    var option;
+                    if (len > 0)
+                        select.empty().append('');
+                    option = document.createElement('option');
+                    option.addClass = "ddcenter";
+                    option.value = "";
+                    option.text = "----- Select an Item -----";
+                    select.add(option);
+                    for (var i = 0; i < data.length; i++) {
+                        option = document.createElement('option');
+                        if (fieldName[z] == "EmployeeID") {
+                            option.value = data[i]["ID"] + '-' + data[i]["NAME"];
+                            option.text = data[i]["ID"] + ' - ' + data[i]["FULL_NAME"];
+                        } else {
+                            option.value = data[i]["FULL_NAME"];
+                            option.text = data[i]["FULL_NAME"];
+                        }
+                        select.add(option);
+                    }
+                }
+            }
+        });
+    }
+
+    function getDropDownLocation(fieldName) {
+        $.ajax({
+            url: 'GetLocationList',
+            method: 'get',
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function (data) {
+                for (var z = 0; z < fieldName.length; z++) {
+                    var select = document.getElementById(fieldName[z]);
+                    var len = document.getElementById(fieldName[z]).length;
+                    var option;
+                    if (len > 0)
+                        select.empty().append('');
+                    for (var i = 0; i < data.length; i++) {
+                        option = document.createElement('option');
+                        option.value = data[i]["LocationName"];
+                        option.text = data[i]["LocationName"];
+                        select.add(option);
+                    }
+                }
+            }
+        });
+    }
+    //SuggestionSystem
+    function getDropDownMasterList(fieldName) {
+        $.ajax({
+            url: 'GetMasterList',
+            method: 'post',
+            dataType: 'json',
+            async: false,
+            cache: false,
+            data: { "fieldName": fieldName },
+            success: function (data) {
+                for (var j = 0; j < fieldName.length; j++) {
+                    var emptyIdSelect = fieldName[j].replace('SuggestionSystem', '');
+                    var emptySelect = document.getElementById(emptyIdSelect);
+                    var len = document.getElementById(emptyIdSelect).length;
+                    if (len > 0)
+                        emptySelect.empty().append('');
+                    var emptyOption = document.createElement('option');
+                    emptyOption.addClass = "ddcenter";
+                    emptyOption.value = "";
+                    emptyOption.text = "----- Select an Item -----";
+                    emptySelect.add(emptyOption);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var idSelect = data[i]["FieldName"].replace('SuggestionSystem', '');
+                    var select = document.getElementById(idSelect);
+                    var option = document.createElement('option');
+                    option.value = data[i]["FieldValue"];
+                    option.text = data[i]["FieldValue"];
+                    select.add(option);
+                }
+            }
+        });
+    }
+
+    function loadFieldTabel(callback) {
+        listField = {};
+        listCompare = {};
+        $.ajax({
+            url: 'GetFieldContinuousImprovementSS',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                for (var x = 0; x < data.length; x++) {
+                    var fieldDB = data[x].replace("-", "_");
+                    listField[fieldDB] = "";
+                    var trim = data[x].split(' ').join('');
+                    listCompare[trim] = fieldDB;
+                }
+                callback();
+            }
+        });
+    }
+
+    $("#btnSaveNew").click(function () {
+        var exceptionMandatoryTabGeneral =
+            ["Facilitator", "ModifiedFrom", "CopyBy", "CostSaving-IDR/Month", "CostSaving-USD/Month"]; //id field yang tidak mandatory di tab general
+        var exceptionMandatoryTabScore = ["VoucherNo"]; //id field yang tidak mandatory di tab score
+
+        if (finalscore < 157) {
+            exceptionMandatoryTabScore.push("SecondLineAssessor");
+            document.getElementById("SecondLineAssessor").classList.remove("txt-invalid");
+        } else {
+            var index = mandatoryTabScore.indexOf("SecondLineAssessor");
+            if (index == -1)
+                mandatoryTabScore.push("SecondLineAssessor");
+        }
+        if ($("#Status").val() == 1 || $("#Status").val() == 2) {
+            exceptionMandatoryTabScore.push("Remarks");
+            document.getElementById("Remarks").classList.remove("txt-invalid");
+        } else {
+            var index2 = mandatoryTabScore.indexOf("Remarks");
+            if(index2 == -1)
+                mandatoryTabScore.push("Remarks");
+        }
+        for (var i = 0; i < exceptionMandatoryTabGeneral.length; i++) {
+            var temp = exceptionMandatoryTabGeneral[i];
+            mandatoryTabGeneral = mandatoryTabGeneral.filter(function(a) { return a !== temp });
+        }
+        if (!checkField(mandatoryTabGeneral)) {
+            if (tabActive == "Score" && statusInput == "EDIT") { //nanti ditambahkan kalau dia manager region/ tab scorenya g disabled maka cek mandatorynya
+                for (var j = 0; j < exceptionMandatoryTabScore.length; j++) {
+                    var temp2 = exceptionMandatoryTabScore[j];
+                    mandatoryTabScore = mandatoryTabScore.filter(function(a) { return a !== temp2 });
+                }
+                if (!checkField(mandatoryTabScore)) {
+                    saveData();
+                } else {
+                    $("#textModalWarning").html("");
+                    $("#textModalWarning").append("Please fill field with red mark");
+                    $('#warningModal').modal('show');
+                }
+            } else {
+                saveData();
+            }
+        } else {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please fill field with red mark");
+            $('#warningModal').modal('show');
+        }
+    });
+
+    $("#btnLocationList").click(function() {
+        $.ajax({
+            url: "GetUserListLocation",
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                $("#treeview").empty();
+                var CopyBy = $('#CopyBy').val();
+                for (var i = 0; i < data.length; i++) {
+                    var IsChecked = false;
+                    if (CopyBy != null)
+                    {
+                        IsChecked = CopyBy.indexOf(data[i]["LocationName"]) >= 0;
+                    }
+                    $("#treeview").append("<li id='li-" + data[i]["IDLocation"].replace(/\s+/g, '') + "'></li>");
+                    $('#li-' + data[i]["IDLocation"].replace(/\s+/g, '')).append("<label><input " + (IsChecked ? 'checked' : '') + " id='" + data[i]["LocationName"] + "' data-id='custom-" + data[i]["LocationName"] + "' type='checkbox'/> " + data[i]["IDLocation"] + " - " + data[i]["LocationName"] + "</label> <ul id='ul-" + data[i]["IDLocation"] + "' style='display: none;'></ul>");
+                }
+                $("#treeview").hummingbird('collapseAll');
+                $("#treeview").hummingbird();
+            }
+        });
+    });
+
+    $("#btnLocationListOk").click(function () {
+        $('#CopyBy').select2('val', null);
+
+        var copyBy = $("#CopyBy").val();
+        var List = [];
+        var newLoc = new Array();
+        $("#treeview").hummingbird("getChecked", { attr: "id", list: newLoc });
+        if (copyBy != null) {
+            if (newLoc.length > 0) {
+                for (var i = 0; i < newLoc.length; i++) {
+                    var result = $.grep(copyBy, function (e) { return e == newLoc[i]; });
+                    if (result.length == 0) {
+                        copyBy.push(newLoc[i]);
+                    }
+                }
+                $("#CopyBy").select2("val", copyBy);
+            }
+        } else {
+            $("#CopyBy").select2("val", newLoc);
+        }
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("../ContinuousImprovementSugestionSystem/UpdateCopyBy")',
+            complete: function() { dialog.modal("hide"); }, 
+            data: { Id: gup('id'), CopyBy: $('#CopyBy').val() },
+            dataType: 'JSON',
+            cache: false,
+            success: function (result) {
+                var message = result.status == 'Failed' ? result.message : 'Data has been successfully saved to the database';
+                $("#textModalWarning").html(message);
+                $('#warningModal').modal('show');
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+
+    var fileA;
+    var fileB;
+    var fileC;
+    var fileD;
+
+    function uploadFileA(e) {
+        fileA = e.files;
+    }
+
+    function uploadFileB(e) {
+        fileB = e.files;
+    }
+
+    function uploadFileC(e) {
+        fileC = e.files;
+    }
+
+    function uploadFileD(e) {
+        fileD = e.files;
+    }
+
+    function saveData() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        var submitYear;
+        var submitMonth;
+        var subDepartment;
+        var namaEployee;
+        $("#form :input").each(function() {
+            var input = $(this);
+            var idInput = input[0].id;
+            if (idInput == "CostSaving-IDR/Month" || idInput == "CostSaving-USD/Month"
+            ) { //karena nama di tabel dynamic field dan tabelnya beda
+                var splitCostSaving = idInput.split("/");
+                idInput = splitCostSaving[0];
+            }
+            var field = listCompare[idInput];
+            if (field != undefined) {
+                if (field == "ProposedDate" || field == "ImplementationDate") {
+                    var split = input[0].value.split("/");
+                    var strDate = split[2] + "-" + split[1] + "-" + split[0];
+                    var d = moment(strDate.toString());
+                    listField[field] = d.toISOString();
+                } else if (field == "EmployeeID") {
+                    var splitNama = input[0].value.split("-");
+                    listField[field] = splitNama[0];
+                } else if (input[0].getAttribute("multiple") == "multiple") {
+                    var id = input[0].getAttribute("id");
+                    var array = $('#' + id + '').val();
+                    if (array != null) {
+                        var valueSelect = array[0];
+                        for (var j = 1; j < array.length; j++) {
+                            valueSelect = valueSelect + "," + array[j];
+                        }
+                        listField[field] = valueSelect;
+                    }
+                } else if (field == "CostSaving_IDR") {
+                    var inputIDR = input[0].value.replace(/,/g, "");
+                    listField[field] = parseFloat(inputIDR);
+                }
+                else {
+                    if (field == "SubmitMonth")
+                        submitMonth = input[0].value;
+                    if (field == "SubmitYear")
+                        submitYear = input[0].value;
+                    if (field == "Sub_Department")
+                        subDepartment = input[0].value;
+                    if (field == "EmployeeName")
+                        namaEployee = input[0].value;
+                    listField[field] = input[0].value;
+                }
+            }
+        });
+        listField["IDContImprovSS"] = IDContImprovSS;
+        listField["CreatedBy"] = createdBy;
+        var splitCD = createdDate.split("/");
+        var strCreatedDate = splitCD[2] + "-" + splitCD[1] + "-" + splitCD[0];
+        var cd = moment(strCreatedDate.toString());
+        listField["CreatedDate"] = cd.toISOString();
+        listField["Attachment"] = attachment;
+        listField["Attachment2"] = attachment2;
+        listField["Attachment3"] = attachment3;
+        listField["Attachment4"] = attachment4;
+
+        //START : BAGIAN UPLOAD ATTACHMENT
+        var uploadAtta = new FormData();
+        if (window.FormData !== undefined) {
+            if (fileA != undefined) {
+                if (fileA.length > 0) {
+                    for (var x = 0; x < fileA.length; x++) {
+                        uploadAtta.append("fileA", fileA[x]);
+                    }
+                }
+            }
+            if (fileB != undefined) {
+                if (fileB.length > 0) {
+                    for (var y = 0; y < fileB.length; y++) {
+                        uploadAtta.append("fileB", fileB[y]);
+                    }
+                }
+            }
+            if (fileC != undefined) {
+                if (fileC.length > 0) {
+                    for (var z = 0; z < fileC.length; z++) {
+                        uploadAtta.append("fileC", fileC[z]);
+                    }
+                }
+            }
+            if (fileD != undefined) {
+                if (fileD.length > 0) {
+                    for (var a = 0; a < fileD.length; a++) {
+                        uploadAtta.append("fileD", fileD[a]);
+                    }
+                }
+            }
+        }
+
+        $.when(UploadAttachment(uploadAtta, submitYear, submitMonth, subDepartment, namaEployee)).done(function (a1) { //END : BAGIAN UPLOAD ATTACHMENT
+            $.ajax({
+                type: 'POST',
+                url: 'InsertList',
+                cache: false,
+                data: listField,
+                async: false,
+                success: function (status) {
+                    dialog.modal("hide");
+                    if (status == "Success") {
+                        $('#modalsuccess').modal('show');
+                        KosongInput();
+                    } else if (status == "Overwrite") {
+                        $("#textModalWarning").html("");
+                        $("#textModalWarning").append("There is already data in database");
+                        $('#warningModal').modal('show');
+                    } else {
+                        $('#modalerror').modal('show');
+                    }
+                }
+            });
+        });
+    }
+
+    function UploadAttachment(uploadAtta, submitYear, submitMonth, subDepartment, namaEployee) {
+        return $.ajax({
+            type: "POST",
+            url: 'UploadAttachment?year=' + submitYear + '&month=' + submitMonth + '&dep=' + subDepartment + '&name=' + namaEployee,
+            contentType: false,
+            processData: false,
+            data: uploadAtta,
+            cache: false,
+            async: false,
+            success: function (result) {
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    }
+
+    function KosongInput() {
+        $("#form input[type=text]").each(function() {
+            var input = $(this);
+            input[0].value = "";
+        });
+        $(".combo-select").each(function() {
+            $(this).select2('val', "");
+        });
+        $('#form input[type="number"]').each(function() {
+            $(this).val(0);
+        });
+        defaultDate();
+    }
+
+    function DisableInput() {
+        $("#form input[type=text]").each(function() {
+            $(this).attr('disabled', true);
+        });
+        $(".combo-select").each(function() {
+            $(this).attr('disabled', true);
+        });
+        $('#form input[type="number"]').each(function() {
+            $(this).attr('disabled', true);
+        });
+        $("#UploadA").attr('disabled', true);
+        $("#UploadB").attr('disabled', true);
+        $("#UploadC").attr('disabled', true);
+        $("#UploadD").attr('disabled', true);
+    }
+
+    function EnableInput() {
+        $(".combo-select").each(function () {
+            $(this).attr('disabled', false);
+            if ($(this).attr('id') == "ModifiedFrom") {
+                if ($("#IdeaSource").val() != "Modified Idea")
+                    $(this).attr('disabled', true);
+            }
+            if ($(this).attr('id') == "ABCDAwards") {
+                    $(this).attr('disabled', true);
+            }
+            if ($(this).attr('id') == "Usability") {
+                    $(this).attr('disabled', true);
+            }
+        });
+        $("#form input[type=text]").each(function () {
+            if ($(this).attr('id') != "CostSaving-USD/Month")
+                $(this).attr('disabled', false);
+            if ($(this).attr('id') == "FinalScore") {
+                var finalscore = parseInt($(this).val());
+                finalscore = finalscore ? finalscore : 0;
+                if (finalscore <= 157) {
+                    $("#SecondLineAssessor").attr('disabled', true);
+                }
+            }
+        });
+        $('#form input[type="number"]').each(function () {
+            $(this).attr('disabled', false);
+            if ($(this).attr('id') == "Voucher-IDR") {
+                $(this).attr('disabled', true);
+            }
+        });
+
+        $("#UploadA").attr('disabled', false);
+        $("#UploadB").attr('disabled', false);
+        $("#UploadC").attr('disabled', false);
+        $("#UploadD").attr('disabled', false);
+    }
+
+    function setDefaultDropDownSelect2() {
+        $(".combo-select").each(function() {
+            $(this).select2('val', "");
+        });
+    }
+
+    function calculateCostSaving() {
+        var costSavingIDR = document.getElementById("CostSaving-IDR/Month");
+        var costSavingUSD = document.getElementById("CostSaving-USD/Month");
+        if (costSaving > 0) {
+            var calculateIDR = costSavingIDR.value.replace(/,/g, "");
+            costSavingUSD.value = parseFloat(parseFloat(calculateIDR) / parseFloat(costSaving)).toFixed(2);
+            Comma(costSavingUSD);
+        } else
+            costSavingUSD.value = 0;
+        Comma(costSavingIDR);
+    }
+
+    function calculateFinalScore() {
+        finalscore = 0;
+        $('#form input[type="number"]').each(function() {
+            var element = $(this);
+            var id = element[0].id;
+            if (id.indexOf("Score") !== -1 && id != "FinalScore") {
+                var value = element[0].value;
+                if (value == "" || value == undefined)
+                    value = 0;
+                finalscore = finalscore + parseInt(value);
+            }
+            if (id == "UsabilityScore") {
+                var value2 = element[0].value;
+                if (value2 == "" || value2 == undefined)
+                    value2 = 0;
+                if (parseInt(value2) > 0)
+                    $("#Usability").select2('val', "Yes");
+                else
+                    $("#Usability").select2('val', "No");
+            }
+        });
+        if (finalscore > 157) {
+            $("#SecondLineAssessor").attr('disabled', false);
+        } else if (finalscore <= 157) {
+            $("#SecondLineAssessor").select2("val", "");
+            $("#SecondLineAssessor").attr('disabled', true);
+        }
+        if (finalscore > abcdAwardScore) {
+            $("#ABCDAwards").select2('val', "Yes");
+        } else if (finalscore < abcdAwardScore) {
+            $("#ABCDAwards").select2('val', "No");
+        }
+        $.each(listConversionPoint, function (k, v) {
+            if (finalscore >= v.ValueFrom && finalscore <= v.ValueTo) {
+                $("#Voucher-IDR").val(v.Value);
+            }
+        });
+        $("#FinalScore").val(finalscore);
+    }
+
+    function defaultDate() {
+        var tgl = new Date().getDate();
+        var bln = (new Date()).getMonth() + 1;
+        var thn = (new Date()).getFullYear();
+        $("#SubmitMonth").select2('val', bln);
+        $("#SubmitYear").select2('val', thn);
+        $('#ProposedDate').val(tgl + "/" + bln + "/" + thn);
+        $('#ImplementationDate').val(tgl + "/" + bln + "/" + thn);
+    }
+
+    $('body').on('focus', ".datepicker", function() {
+            $(this).datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+    });
+
+    function inputFileStyle() {
+        $(".filestyle").jfilestyle({
+            buttonBefore: true,
+            buttonText: "Browse"
+        });
+    }
+
+    function checkField(arrayField) {
+        var invalid = false;
+        for (var i = 0; i < arrayField.length; i++) {
+            var elemen = document.getElementById(arrayField[i]);
+            if (arrayField[i] == "UploadA") {
+                if (elemen.value == "" || elemen.value == "null") {
+                    if (elemen.nextSibling.nextSibling.innerHTML != "-") {
+                        elemen.nextSibling.classList.remove("txt-invalid");
+                    } else {
+                        invalid = true;
+                        elemen.nextSibling.className += " txt-invalid";
+                    }
+                }
+                else
+                {
+                    elemen.nextSibling.classList.remove("txt-invalid");
+                }
+            }
+            else {
+                if (elemen.value == "" || elemen.value == "null") {
+                    invalid = true;
+                    elemen.className += " txt-invalid";
+                } else
+                    elemen.classList.remove("txt-invalid");
+            }
+        }
+        return invalid;
+    }
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+
+    function Comma(input) { //function to add commas to textboxes
+        var num = input["value"];
+        num += '';
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        num = num.replace(',', '');
+        var x = num.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1))
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        document.getElementById(input["id"]).value = x1 + x2;
+    }
+</script>

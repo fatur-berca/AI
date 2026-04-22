@@ -1,0 +1,661 @@
+
+@{
+    ViewBag.Title = "Master Data > Master Cost Center Account";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="text" name="" id="FilterFrom" class="form-control datepicker">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Sender</label>
+                        <select id="FilterSenderLocation" class="select2" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Material Type</th>
+            <th>Description</th>
+            <th>Cost Center</th>
+            <th>Account</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Material Type</th>
+            <th>Description</th>
+            <th>Cost Center</th>
+            <th>Account</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Cost Center &amp; Account</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>IDCCAccount</label>
+                                    <input type="text" id="IDCCAccount" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sender</label>
+                                    <select id="idSender" class="select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Receiver</label>
+                                    <select id="idReceiver" class="select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Material Type</label>
+                                    <select class="form-control" id="MaterialType"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea id="Description" class="form-control" maxlength="500"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Cost Center</label>
+                                    <select class="form-control" id="CostCenter"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Account</label>
+                                    <select class="form-control" id="Account"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input type="text" id="StartDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <label>&nbsp;</label>
+                                <div style="padding-top: 10px">TO</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <input type="text" id="EndDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-md-4" hidden>
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>CreatedDate</label>
+                                    <input type="text" id="CreatedDate" class="form-control datepicker">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>CreatedBy</label>
+                                    <input type="text" id="CreatedBy" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confdelete" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+                <input type="hidden" id="keyID" />
+            </div>
+            <div class="modal-body">
+                Are you sure want to Delete Data?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnDelYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="labelsuccess">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+
+    var ezctl = ez;
+    ezctl.FormSet.AddField(
+        "idSender:req>Sender",
+        "idReceiver:req>Receiver",
+        "CostCenter:req>Cost Center",
+        "MaterialType:req>Material Type",
+        "Account:req>Account",
+        "StartDate:date req>Effective Date (Start)",
+        "EndDate:date req>Effective Date (End)"
+    );
+
+    $(document).ready(function () {
+        generateDropDown();
+        getUserWarehouse();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            EnabledField();
+            $("#btnSaveNew").html("Save");
+        });
+        $("#btnDelYes").on("click", function () {
+            del();
+        });
+    });
+
+    function getUserWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetUserWarehouse")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (response) {
+                $('#idSender,#idReceiver,#FilterSenderLocation').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="ez:null"></option>';
+                $.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                });
+                $('#idSender,#idReceiver,#FilterSenderLocation').html(options).select2();
+
+                $('#FilterSenderLocation').select2('val', data[0].IDLocation);
+                generateTable();
+            },
+            error: function () {
+                $('#idSender,#idReceiver,#FilterSenderLocation').select2("destroy");
+                $('#idSender,#idReceiver,#FilterSenderLocation').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    $("#EndDate").on("change", function () {
+        if (($("#EndDate").val() || "") === "")
+        $("#EndDate").val("31/12/2999");
+    });
+    $("#StartDate").on("change", function () {
+        if (($("#StartDate").val() || "") === "")
+            $("#StartDate").val(moment(new Date()).format("DD/MM/YYYY"));
+    });
+    function resetData(){
+        $('#newData')[0].reset();
+        $("#StartDate").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#EndDate").val("31/12/2999");
+        ez.FormSet.Clear();
+
+        $("#idSender").val(null).trigger("change");
+        $("#idReceiver").val(null).trigger("change");
+        $('#idReceiver').select2('val', null);
+        $('#idSender').select2('val', null);
+    }
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //generateTable();
+
+    function generateTable() {
+        var filterdate = $('#filter').find('input[id="FilterFrom"]').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        $.ajax({
+            url: '@Url.Action("GetMasterCostCenterAccount")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "filterDate": filterdate,
+                "filterSenderLocation": $('#FilterSenderLocation').val()
+            },
+            success: function (json) {
+                parentIDList = json;
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc'], [7, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", 'sortable': false, "class": "text-center", "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            'data': 'MasterLocation.IDLocation', "render": function (data, type, row) {
+                                if (row['MasterLocation'] != null) {
+                                    return row['MasterLocation']['LocationName'];
+                                } else { return ''; }
+                            }
+                        },
+                        {
+                            'data': 'MasterLocation1.IDLocation', "render": function (data, type, row) {
+                                if (row['MasterLocation1'] != null) {
+                                    return row['MasterLocation1']['LocationName'];
+                                } else { return ''; }
+                            }
+                        },
+                        { 'data': 'MaterialType', 'searchable': true },
+                        { 'data': 'Description', 'searchable': true },
+                        { 'data': 'CostCenter', 'searchable': true },
+                        { 'data': 'Account', 'searchable': true },
+                        {
+                            'data': 'EffectiveStartDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveStartDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            'data': 'EffectiveEndDate', 'searchable': true, "render": function (data, type, row) {
+                                return moment(row['EffectiveEndDate']).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDCostCenter", 'sortable': false, "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i>' +
+                                    '<a href="#" style="margin-left: 5px;" id="deleteForm" onclick="deleteTable(' + data + ')"><i data-toggle="modal" class="fa fa-trash-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 10)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN
+    function generateDropDown(selectedValueMaterial, selectedValueCostCenter, selectedValueAccount) {
+        var selectMaterial = $('#MaterialType');
+        var selectCostCenter = $('#CostCenter');
+        var selectAccount = $('#Account');
+        selectMaterial.html('');
+        selectCostCenter.html('');
+        selectAccount.html('');
+        selectMaterial.append('<option value=""></option>');
+        selectCostCenter.append('<option value=""></option>');
+        selectAccount.append('<option value=""></option>');
+        $.ajax({
+            url: '@Url.Action("GetDropDown")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                $.each(data, function (key, val) {
+                    if (val["FieldName"] == "MaterialType") {
+                        selectMaterial.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    } else if (val["FieldName"] == "CostCenter") {
+                        selectCostCenter.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    } else {
+                        selectAccount.append('<option value="' + val["FieldValue"] + '">' + val["FieldValue"] + '</option>');
+                    }
+                });
+                $('#MaterialType').val(selectedValueMaterial);
+                $('#CostCenter').val(selectedValueCostCenter);
+                $('#Account').val(selectedValueAccount);
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save(false);
+        $('#setinactive').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        if (ezctl.FormSet.Validate()) {
+            if ($('#InsertOrUpdate').val() == "UPDATE") {
+                $('#setinactive').modal('show');
+            } else {
+                save(true);
+            }
+        }
+        else
+        {
+            $("#textModalError").html("");
+            $("#textModalError").append(ezctl.FormSet.error);
+            $('#modalerror').modal('show');
+        }
+    });
+
+    function deleteTable(id)
+    {
+        $('#confdelete').modal('show'); $('#keyID').val(id);
+    }
+
+    function del() {
+        jQuery.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete")',
+            data: { keyID: $('#keyID').val() },
+            success: function (result) {
+                if (result == false) {
+                    $("#textModalError").html("Sorry data is not found or your connection is lost");
+                    $('#confdelete').modal('hide');
+                    $('#modalerror').modal('show');
+                }
+                else
+                {
+                    $('#labelsuccess').html('Your data has been successfully deleted');
+                    $('#confdelete').modal('hide');
+                    $('#modalsuccess').modal('show');
+                }
+                generateTable();
+            }
+        });
+    }
+    function save(statusSave) {
+        var idccaccount = $('#IDCCAccount').val();
+        var idsender = $('#idSender').val();
+        var idreceiver = $('#idReceiver').val();
+        var material = $('#MaterialType').val();
+        var description = $('#Description').val();
+        var costcenter = $('#CostCenter').val();
+        var account = $('#Account :selected').val();
+
+        var splitstart = $("#StartDate").val().split("/");
+        var strDate = splitstart[2] + "-" + splitstart[1] + "-" + splitstart[0];
+        var d = moment(strDate.toString());
+        var startdate = d.toISOString();
+
+        var splitend = $("#EndDate").val().split("/");
+        var edDate = splitend[2] + "-" + splitend[1] + "-" + splitend[0];
+        var e = moment(edDate.toString());
+        var enddate = e.toISOString();
+
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var createddate = $('#CreatedDate').val();
+        var createdby = $('#CreatedBy').val();
+        var data;
+        if (statusSave) {
+            data = {
+                "new": [{ "Sender": idsender, "Receiver": idreceiver, "MaterialType": material, "Description": description, "CostCenter": costcenter, "Account": account, "EffectiveStartDate": startdate, "EffectiveEndDate": enddate, "IsActive": status }],
+                "edit": [{}]
+            };
+        } else {
+            data = {
+                "new": [{}],
+                "edit": [{ "IDCostCenter": idccaccount, "Sender": idsender, "Receiver": idreceiver, "MaterialType": material, "Description": description, "CostCenter": costcenter, "Account": account, "EffectiveStartDate": startdate, "EffectiveEndDate": enddate, "IsActive": status, "CreatedDate": createddate, "CreatedBy": createdby }]
+            };
+        }
+
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertCostCenterAccount")',
+            data: data,
+            success: function (result) {
+                if (result.IsSuccess) {
+                    generateTable();
+                    $('#labelsuccess').html('Data saved successfully');
+                    $('#modalsuccess').modal('show');
+                    $('#inputModal').modal('hide');
+                }
+                else {
+                    $("#textModalError").html('<strong style="font- size:larger">Failed to save data!</strong><br/>' + result.ErrorMessage);
+                    $('#modalerror').modal('show');
+                }
+                $('#addnew').modal('hide');
+            }
+        });
+    }
+    // END : Insert New Data
+
+    //BEGIN : Edit Data
+    function editTable() {
+        DisabledField();
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDCCAccount').val(data["IDCostCenter"]);
+            var selectedSender = data["Sender"];
+            $('#idSender').select2('val', selectedSender);
+            var selectedReceiver = data["Receiver"];
+            $('#idReceiver').select2('val', selectedReceiver);
+            //$('#idReceiver').val(data["SenderIDLocation"]);
+
+            console.log(data);
+            generateDropDown(data["MaterialType"], data["CostCenter"], data["Account"]);
+            $('#MaterialType').val(data["MaterialType"]);
+            $('#Description').val(data["Description"]);
+            $('#CostCenter').val(data["CostCenter"]);
+            $('#Account').val(data["Account"]);
+            $('#StartDate').val(moment(data["EffectiveStartDate"]).format("DD/MM/YYYY"));
+            $('#EndDate').val(moment(data["EffectiveEndDate"]).format("DD/MM/YYYY"));
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+        });
+        $('#inputModal').modal('show');
+        $('#btnSaveNew').html("Save Changes");
+    }
+    // END : Edit Data
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+    function DisabledField() {
+        $("#idSender").attr('disabled', true);
+        $("#idReceiver").attr('disabled', true);
+        $("#MaterialType").attr('disabled', true);
+        $("#Description").attr('disabled', true);
+        $("#CostCenter").attr('disabled', true);
+        // $("#Account").attr('disabled', true);
+    }
+    function EnabledField() {
+        $("#idSender").attr('disabled', false);
+        $("#idReceiver").attr('disabled', false);
+        $("#MaterialType").attr('disabled', false);
+        $("#Description").attr('disabled', false);
+        $("#CostCenter").attr('disabled', false);
+        // $("#Account").attr('disabled', false);
+        $("#btnSaveNew").html($('#InsertOrUpdate').val() == "INSERT" ? "Save" : "Save Changes");
+    }
+    $(".search-filter").on("click", function (e) {
+        generateTable();
+        e.preventDefault();
+    });
+    $(".reset-search-filter").on("click", function (e) {
+        //$("form#filter")[0].reset();
+        $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateTable();
+        e.preventDefault();
+    });
+</script>

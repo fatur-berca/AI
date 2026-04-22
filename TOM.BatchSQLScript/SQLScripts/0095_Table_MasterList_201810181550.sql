@@ -1,0 +1,91 @@
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'SIType',
+	'Weekly',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'SIType',
+	'H-1',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'SIType',
+	'H-2',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'SIType',
+	'Hari H',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);

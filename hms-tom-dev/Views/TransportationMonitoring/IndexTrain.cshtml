@@ -1,0 +1,948 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportMonitoringViewModel
+@{
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+    .dataTables_processing {
+        top: 64px !important;
+        z-index: 99000 !important;
+        height: 100%;
+    }
+</style>
+
+<div class="title-deck wmb" hidden>
+    <div class="col-panel">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>ON DELIVERY</label>
+                    <h4 class="sub-text" id="state1Tra"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label>ARRIVED AT DESTINATION AND WAITING FOR CONFIRMATION</label>
+                    <h4 class="sub-text" id="state2Tra"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>COMPLETE</label>
+                    <h4 class="sub-text" id="state3Tra"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="exportDefaultButtonTra">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModalTra" id="customReportButtonTra">Custom Report</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#uploadModalTra" id="uploadButtonTra">Upload</button>
+        }
+    </div>
+    <a href="#searchfilterTrain" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilterTrain" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Transportation Number</label>
+                    <input type="hidden" style="width:100%" id="FilterTransportationNumberTra" />
+                    @*@Html.DropDownListFor(model => Model.TransportNo, Model.transNumbers, new { @multiple = "multiple", @id = "FilterTransportationNumberTra", @placeholder = " ", @style = "width: 100%" })*@
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Transportation Date</label>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control datepicker" id="FilterDateFromTra" data-date-format="DD/MM/YYYY" value="@{var a = (DateTime.Now - new TimeSpan(0, 0, 0, 0)).ToString("dd/MM/yyyy"); @a}">
+                        </div>
+                        <div class="col-md-2 to-bi">
+                            <label>To</label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control datepicker" id="FilterDateToTra" data-date-format="DD/MM/YYYY" value="@DateTime.Now.ToString("dd/MM/yyyy")">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Transportation Status</label>
+                    @Html.DropDownListFor(model => Model.TransportStatus, Model.transStatus, new { @multiple = "multiple", @id = "FilterTransportationStatusTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Vendor</label>
+                    @Html.DropDownListFor(model => Model.VendorName, Model.vendorNames, new { @multiple = "multiple", @id = "FilterVendorTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Order Number</label>
+                    @*@Html.DropDownListFor(model => Model.STONo, Model.orderNumbers, new { @multiple = "multiple", @id = "FilterOrderNumberTra", @placeholder = " " })*@
+                    <input type="hidden" style="width:100%" id="FilterOrderNumberTra" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Sender</label>
+                    @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "FilterSenderTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Receiver</label>
+                    @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "FilterReceiverTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Start Location</label>
+                    @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "FilterStartLocationTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Finish Location</label>
+                    @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "FilterFinishLocationTra", @placeholder = " " })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <button class="btn btn-primary search-filter" id="btnSearchFilterTra">Search</button>
+                <button class="btn btn-purple reset-search-filter" id="btnResetFilterTra">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterTrain" class="display table dataTable">
+    <thead>
+        <tr>
+            <th>Active</th>
+            <th>Transportation Number</th>
+            <th>Transportation Date</th>
+            <th>Vehicle Type</th>
+            <th>Vendor Name</th>
+            <th>Transportation Status</th>
+            <th>Start Location</th>
+            <th>Finish Location</th>
+            <th>Container No.</th>
+            <th>Via</th>
+            <th>Police Registration Number</th>
+            <th>Driver 1</th>
+            <th>Driver 2</th>
+            <th>Co-Driver</th>
+            <th>Location</th>
+            <th>Date &amp; Time</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th>Filter</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div id="modalloadingTra" class="modal fade" role="dialog" tabindex="-1" style="z-index: 10000;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span>Please wait...</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReportModalTra" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelectTra" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooserTra" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFieldsTra" class="source">
+                        <div class="ui-draggable" data-field="TransportationNumber" index="1">Transportation Number</div>
+                        <div class="ui-draggable" data-field="TransportationDate" index="2">Transportation Date</div>
+                        <div class="ui-draggable" data-field="VehicleType" index="3">Vehicle Type</div>
+                        <div class="ui-draggable" data-field="VendorName" index="4">Vendor Name</div>
+                        <div class="ui-draggable" data-field="TransportationStatus" index="5">Transportation Status</div>
+                        <div class="ui-draggable" data-field="StartLocation" index="6">Start Location</div>
+                        <div class="ui-draggable" data-field="FinishLocation" index="7">Finish Location</div>
+                        <div class="ui-draggable" data-field="PoliceRegistrationNo" index="8">Police Registration No</div>
+                        <div class="ui-draggable" data-field="Driver1" index="9">Driver 1</div>
+                        <div class="ui-draggable" data-field="Driver2" index="10">Driver 2</div>
+                        <div class="ui-draggable" data-field="CoDriver" index="11">Co-Driver</div>
+                        <div class="ui-draggable" data-field="OrderNumber" index="12">Order Number</div>
+                        <div class="ui-draggable" data-field="OrderStatus" index="13">Order Status</div>
+                        <div class="ui-draggable" data-field="Sender" index="14">Sender</div>
+                        <div class="ui-draggable" data-field="Receiver" index="15">Receiver</div>
+                        <div class="ui-draggable" data-field="LeadTime" index="16">Lead Time</div>
+                        <div class="ui-draggable" data-field="EstimateArrival" index="17">Estimate Arrival</div>
+                        <div class="ui-draggable" data-field="DateTime" index="18">Date Time</div>
+                        <div class="ui-draggable" data-field="Location" index="19">Location</div>
+                        <div class="ui-draggable" data-field="MaterialReceived" index="20">Material Received</div>
+                        <div class="ui-draggable" data-field="ReceivedBy" index="21">GR By</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="22">Created By</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="23">GI</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="24">GR</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="25">Container No.</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="26">Via</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="leftTra" value="<">
+                            <input class="btn btn-info mini" type="button" id="rightTra" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFieldsTra" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightallTra" value=">>">
+                            <input class="btn btn-info" type="button" id="leftallTra" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayoutTra" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*
+                    @foreach (var x in listUserRole)
+                    {
+                        if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                        {
+                            <div class="form-group pull-left">
+                                <div class="checkbox-deck">
+                                    <input type="checkbox" id="chkGlobalCustomReport">
+                                    <label for="chkGlobalCustomReport"></label>
+                                </div>
+                                <span class="checkbox-deck-span">Global Custom Report</span>
+                            </div>
+                        }
+                    }
+                *@
+                <button class="btn btn-primary" id="btnExportCustomReportTra">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarningTra" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="labelCheck"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModalTra" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label style="text-transform: none;">Upload Template</label>
+                            <input id="uploadMonitoringListTra" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                            <br /><br />
+                            @if (string.IsNullOrEmpty(Model.UserRole))
+                            {
+                                <a href="~/Assets/Download/TemplateExcel/TransportMonitoringGITemplate.xlsx">Download Template GI</a>
+                                <br />
+                                <a href="~/Assets/Download/TemplateExcel/TransportMonitoringGRTemplate.xlsx">Download Template GR</a>
+                                <br />
+                            }
+                            <a href="~/Assets/Download/TemplateExcel/TransportMonitoringUpdatePositionTemplate.xlsx">Download Template Update Position</a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label>
+                        <br />
+                        <button type="button" id="btnUploadMonitoringListTra" class="btn btn-primary" disabled>Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerrorTra" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="labelErrorTra"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="okError" type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccessTra" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="delModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="modaltextTra"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+<script>
+    var filter = {};
+
+    $(function () {
+        $("#FilterTransportationStatusTra").select2({ width: '100%' });
+        $("#FilterVendorTra").select2({ width: '100%' });
+        $("#FilterSenderTra").select2({ width: '100%' });
+        $("#FilterReceiverTra").select2({ width: '100%' });
+        $("#FilterStartLocationTra").select2({ width: '100%' });
+        $("#FilterFinishLocationTra").select2({ width: '100%' });
+        generateTableTra();
+    });
+
+    $("#FilterTransportationNumberTra").select2({
+        ajax: {
+            url: '@Url.Action("GetTransportNoDtos", "TransportationMonitoring")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    TransportNo: params,
+                    TransportMode: 'Train'
+                };
+            },
+            results: function (data) {
+                var myResults1 = [];
+                $.each(data, function (index, item) {
+                    myResults1.push({
+                        'id': item.TransportNo,
+                        'text': item.TransportNo
+                    });
+                });
+                return {
+                    results: myResults1
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Transportation Number',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    $("#FilterOrderNumberTra").select2({
+        ajax: {
+            url: '@Url.Action("GetOrderNoDtos", "TransportationMonitoring")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    STONo: params
+                };
+            },
+            results: function (data) {
+                var myResults1 = [];
+                $.each(data, function (index, item) {
+                    myResults1.push({
+                        'id': item.STONo,
+                        'text': item.STONo
+                    });
+                });
+                return {
+                    results: myResults1
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Order Number',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    //$('.nav-pills a[href="#tabtrain"]').click(function () {
+    //    generateTableTra()
+    //    // alert('train');
+    //});
+
+    $(document).on('click', '#exportDefaultButtonTra', function () {
+        exportDataTra();
+    });
+
+    $(document).on('click', '#btnExportCustomReportTra', function () {
+        if ($('#destinationFieldsTra .fc-field').text().length == 0) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Please select of the existing fields");
+            $('#modalwarningTra').modal('show');
+        }
+        else {
+            customReportTra();
+        }
+    });
+
+    $(document).on('click', '#uploadButtonTra', function () {
+        $('#uploadMonitoringListTra').val("");
+        $("#uploadMonitoringListTra").jfilestyle('clear');
+        if ($("#tabtrain .focus-jfilestyle label span").text() != "Browse") {
+            $("#tabtrain .jfilestyle input").appendTo('#tabtrain .jfilestyle');
+            $(".focus-jfilestyle label span").text("Browse")
+        }
+        $("#btnUploadMonitoringListTra").prop("disabled", true);
+    });
+
+    $('#uploadMonitoringListTra').on('change', function (e) {
+        $("#btnUploadMonitoringListTra").prop("disabled", false);
+    });
+
+    $(document).on('click', '#btnSearchFilterTra', function () {
+        $("#checkdataTrain").prop('checked', false);
+        generateTableTra();
+    });
+
+    $(document).on('click', '#btnResetFilterTra', function () {
+        resetFilterTra();
+    });
+
+    $(document).on('click', '#btnUploadMonitoringListTra', function () {
+        importDataTra();
+    });
+
+    $(document).on('click', '#checkdataTrain', function () {
+        if ($("#dtFilterTrain > tbody > tr > td").length > 1) {
+            if ($("#checkdataTrain").prop('checked') == true) {
+                $('#dtFilterTrain > tbody > tr').each(function () {
+                    var id = $(this).find("td").eq(0).html();
+                    $("#checkrow" + id + "").prop('checked', true);
+                });
+            }
+            else {
+                $('#dtFilterTrain > tbody > tr').each(function () {
+                    var id = $(this).find("td").eq(0).html();
+                    $("#checkrow" + id + "").prop('checked', false);
+                });
+            }
+        }
+    });
+
+    $("#dtFilterTrain > tbody > tr > td").on('click', '.editdataTra', function () {
+        alert('Row index: ' + $(this).closest('tr').index());
+    });
+
+    $("#fieldChooserTra .ui-draggable").attr("draggable", "true");
+
+    $("#fieldChooserTra").fieldChooser($("#sourceFieldsTra"), $("#destinationFieldsTra"));
+
+    $(document).on('click', '#leftTra', function (e) {
+        moveItemsTra('#destinationFieldsTra', '#sourceFieldsTra');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightTra', function (e) {
+        moveItemsTra('#sourceFieldsTra', '#destinationFieldsTra');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#leftallTra', function (e) {
+        moveAllItemsTra('#destinationFieldsTra', '#sourceFieldsTra');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightallTra', function (e) {
+        moveAllItemsTra('#sourceFieldsTra', '#destinationFieldsTra');
+        e.preventDefault();
+    });
+
+    $("#fieldChooserTra .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+
+    $("#sourceFieldsTra,#destinationFieldsTra").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+
+    $("#sourceFieldsTra,#destinationFieldsTra").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooserTra .ui-draggable").removeClass("fc-selected");
+    });
+
+    function moveItemsTra(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItemsTra(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function selectRowTra(r) {
+        if ($("#checkrow" + r + "").prop('checked') == false) {
+            $("#checkdataTrain").prop('checked', false);
+        }
+    }
+
+    function resetFilterTra() {
+        $("#FilterTransportationNumberTra").select2("val", null);
+        $('#FilterDateFromTra').val(moment().subtract(7, "days").format("DD/MM/YYYY"));
+        $('#FilterDateToTra').val(moment().format("DD/MM/YYYY"));
+        $("#FilterTransportationStatusTra").select2("val", null);
+        $("#FilterOrderNumberTra").select2("val", null);
+        $("#FilterVendorTra").select2("val", null);
+        $("#FilterSenderTra").select2("val", null);
+        $("#FilterReceiverTra").select2("val", null);
+        $("#FilterStartLocationTra").select2("val", null);
+        $("#FilterFinishLocationTra").select2("val", null);
+    }
+
+    var explist = [];
+
+    function generateTableTra() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        if (moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").isAfter(moment($('#FilterDateToTra').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+        filter.transportNo = $("#FilterTransportationNumberTra").val().split(',');
+        filter.transportStatus = $("#FilterTransportationStatusTra").val();
+        filter.vendor = $("#FilterVendorTra").val();
+        filter.orderNo = $("#FilterOrderNumberTra").val().split(',');
+        filter.sender = $("#FilterSenderTra").val();
+        filter.receiver = $("#FilterReceiverTra").val();
+        filter.startLocation = $("#FilterStartLocationTra").val();
+        filter.finishLocation = $("#FilterFinishLocationTra").val();
+        filter.dateFrom = moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#FilterDateToTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Train";
+        var table = $('#dtFilterTrain').DataTable({
+            "paging": true,  
+            "ordering": false,  
+            "filter": true,  
+            "destroy": true,  
+            "orderMulti": false,  
+            "serverSide": true,  
+            "processing": true, 
+            "pageLength": 10,
+            //"language": {
+            //    processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i>'
+            //},
+            "ajax": {
+                dataType: 'JSON',
+                type: 'POST',
+                url: '@Url.Action("GetListViewTruckShipTrainServerSide", "TransportationMonitoring")',
+                data: function (data) {
+                    data.filter = filter;
+                    return data
+                },
+                "complete": function (res) {
+                    console.log("result", res);
+                    dialog.modal('hide');
+                },
+                "error": function (res) {
+                    console.log("error", res);
+                    dialog.modal('hide');
+                },
+            },
+            "columns": [
+                {
+                    'data': 'IsActive', 'class': 'text-center', 'render': function (data, disp, row) {
+                        var id = row.IDTransportExecution;
+                        if (data == true) {
+                            return '<div data-id="'+id+'"><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        }
+                        else {
+                            return '<div data-id="' + id + '"><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                        }
+                    }, 'sortable': false
+                },
+                {
+                    // Must find how to show modal spinner before move to another page
+                    'data': 'TransportNo', 'render': function (data, type, row, meta) {
+                        return '<a href="@Url.Action("DetailTruck")?id=' + row["IDTransportExecution"] + '">' + row["TransportNo"] + '</a>';
+                    }, 'searchable': true, 'sortable': true
+                },
+                {
+                    'data': 'TransportDate', 'render': function (data) {
+                        return moment(data).format("DD-MMM-YYYY");
+                    }, 'searchable': true, 'sortable': true
+                },
+                { 'data': 'ActualVehicleType', 'searchable': true, 'sortable': true },
+                { 'data': 'VendorName', 'searchable': true, 'sortable': true },
+                { 'data': 'TransportStatus', 'searchable': true, 'sortable': true },
+                { 'data': 'StartLocation', 'searchable': true, 'sortable': true },
+                { 'data': 'FinishLocation', 'searchable': true, 'sortable': true },
+                { 'data': 'ContainerNo', 'searchable': true, 'sortable': true },
+                { 'data': 'Via', 'searchable': true, 'sortable': true },
+                { 'data': 'PoliceRegistrationNumber', 'searchable': true, 'sortable': true },
+                { 'data': 'Driver1', 'searchable': true, 'sortable': true },
+                { 'data': 'Driver2', 'searchable': true, 'sortable': true },
+                { 'data': 'CoDriver', 'searchable': true, 'sortable': true },
+                { 'data': 'CurrentLocation', 'searchable': true, 'sortable': true },
+                {
+                    'data': 'CurrentLocationUpdateTime', 'render': function (data) {
+                        if (data != null && moment(data).format("DDMMYYYY") != "01010001") { return moment(data).format("DD-MMM-YYYY HH:mm:ss"); }
+                        else { return ""; }
+                    }, 'searchable': true, 'sortable': true
+                }
+            ],
+            //"dom": 'lf<"table-overflow"t>ip',
+        });
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        $('#dtFilterTrain thead.filters th').each(function (index) {
+            if (index > 0) {
+                var title = $('#dtFilterTrain thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        table.columns().every(function (index) {
+            if (index > 0) {
+                $('#dtFilterTrain thead.filters th:eq(' + index + ') input').on('input', function () {
+                    table.settings()[0].jqXHR.abort();
+                    table.column($(this).parent().index() + ':visible')
+                        .search(this.value)
+                        .draw();
+                });
+            }
+        });
+    }
+
+    function exportDataTra() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if (moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").isAfter(moment($('#FilterDateToTra').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+
+        filter.transportNo = $("#FilterTransportationNumberTra").val().split(',');
+        filter.transportStatus = $("#FilterTransportationStatusTra").val();
+        filter.vendor = $("#FilterVendorTra").val();
+        filter.orderNo = $("#FilterOrderNumberTra").val().split(',');
+        filter.sender = $("#FilterSenderTra").val();
+        filter.receiver = $("#FilterReceiverTra").val();
+        filter.startLocation = $("#FilterStartLocationTra").val();
+        filter.finishLocation = $("#FilterFinishLocationTra").val();
+        filter.dateFrom = moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#FilterDateToTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Train";
+
+        $.ajax({
+            url: 'TransportationMonitoring/ExportMonitoringXlsTruckTrain',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { filter : filter },
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function customReportTra() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if (moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").isAfter(moment($('#FilterDateToTra').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+
+        filter.transportNo = $("#FilterTransportationNumberTra").val().split(',');
+        filter.transportStatus = $("#FilterTransportationStatusTra").val();
+        filter.vendor = $("#FilterVendorTra").val();
+        filter.orderNo = $("#FilterOrderNumberTra").val().split(',');
+        filter.sender = $("#FilterSenderTra").val();
+        filter.receiver = $("#FilterReceiverTra").val();
+        filter.startLocation = $("#FilterStartLocationTra").val();
+        filter.finishLocation = $("#FilterFinishLocationTra").val();
+        filter.dateFrom = moment($('#FilterDateFromTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#FilterDateToTra').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Train";
+
+        var columns = [];
+        $('#destinationFieldsTra .fc-field').each(function () {
+            columns.push($(this).html());
+        });
+        
+        $.ajax({
+            url: 'TransportationMonitoring/CustomMonitoringXlsTruckTrain',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { filter : filter, cols: columns },
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function importDataTra() {
+        $('#modalloadingTra').modal('show');
+
+        var form = new FormData();
+        var field = document.getElementById('uploadMonitoringListTra');
+        var value = field.files[0].name;
+        form.append(value, field.files[0]);
+
+        $.ajax({
+            url: 'TransportationMonitoring/ImportMonitoringXlsTruckTrain',
+            method: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: form,
+            success: function (result) {
+                $('#modalloadingTra').modal('hide');
+                if (result.IsSuccess == true) {
+                    $('#uploadModalTra').modal('hide')
+                    $("#modaltextTra").html("");
+                    $("#modaltextTra").html("Upload data successfully!");
+                    $('#modalsuccessTra').modal('show');
+                    generateTableTra();
+                }
+                else {
+                    $("#labelErrorTra").html("");
+                    $("#labelErrorTra").html("Upload data is not success or nothing record");
+                    $('#modalerrorTra').modal('show');
+                }
+            }
+        });
+    }
+
+    function editdataTra(n) {
+        $('#modalloadingTra').modal('show');
+        window.location.href = '@Url.Action("DetailTrain", "TransportationMonitoring", new { index = "ID" })'.replace("ID", n);
+    }
+
+
+    /* CUSTOM REPORT STATES */
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    $("#layoutSelectTra").on("change", function () {
+        var sel = $("#layoutSelectTra").val();
+        if (sel) {
+            linq($dataLayout).do(function (d) {
+                if (d.LayoutName == sel) {
+                    $("#sourceFieldsTra").find(".fc-selected").removeClass("fc-selected");
+                    moveAllItems('#destinationFieldsTra', '#sourceFieldsTra');
+
+                    $("#sourceFieldsTra").find("div").each(function (idx, ele) {
+                        var fi = $(ele).attr("data-field");
+                        if (d.FieldName.includes(fi))
+                            $(ele).addClass("fc-selected");
+                    });
+
+                    moveItems('#sourceFieldsTra', '#destinationFieldsTra');
+                    $("#destinationFieldsTra").find(".fc-selected").removeClass("fc-selected");
+                }
+            });
+        }
+        else {
+            $("#sourceFieldsTra").find(".fc-selected").removeClass("fc-selected");
+            moveAllItems('#destinationFieldsTra', '#sourceFieldsTra');
+        }
+    });
+
+    function LoadCustomReportTra(loadDefault, notclear) {
+        // load custom
+        if (!notclear)
+            moveAllItems('#destinationFields', '#sourceFields');
+        $("#sourceFieldsTra").find(".fc-selected").removeClass("fc-selected");
+        var lastSelected = $("#layoutSelectTra").val();
+        $("#layoutSelectTra").html('<option value="" selected>Loading...</option>');
+        $.ajax({
+            url: "@Url.Action("LoadCustomReportTra")",
+            success: function (data) {
+                console.log(data);
+                if (data)
+                {
+                    $("#layoutSelectTra").html('');
+                    $("#layoutSelectTra").append('<option selected>&nbsp;</option>');
+                    linq(data).do(function (d) {
+                        $("#layoutSelectTra").append('<option>' + d.LayoutName + '</option>');
+                    });
+                    $dataLayout = data;
+                    if (loadDefault)
+                    {
+                        // load default
+                        linq($dataLayout).do(function (d) {
+                            if (d.IsActive)
+                            {
+                                $("#layoutSelectTra").val(d.LayoutName);
+                            }
+                        });
+                    }
+                    else
+                        $("#layoutSelectTra").val(lastSelected);
+                }
+            }
+    });
+    }
+
+    function CompileCustomReportHeadersTra() {
+        var hdr = [];
+        $("#destinationFieldsTra div").each(function (idx, ele) {
+            hdr.push($(ele).attr("data-field"));
+        });
+        return hdr;
+    }
+
+    $("#customReportButtonTra").on("click", function () {
+        LoadCustomReportTra(true);
+    });
+
+    $("#btnSaveLayoutTra").on("click", function () {
+        var lname = $("#layoutName").val();
+        if (lname == "" || lname == null)
+        {
+            ez.Modals.error("Please enter a name!");
+            return;
+        };
+        var hdr = CompileCustomReportHeadersTra();
+        if (hdr.length == 0) {
+            ez.Modals.error("Please select at least one field to export!");
+            return;
+        };
+        console.log(hdr);
+
+        $.ajax({
+            url: "@Url.Action("SaveCustomReportTra")",
+            method: "POST",
+        data: {
+            name: lname,
+            layout: hdr
+        },
+        success: function (data) {
+            if (data) {
+                console.log(data);
+                $("#modaltextTra").html("");
+                $("#modaltextTra").html("Custom report saved!");
+                $('#modalsuccessTra').modal('show');
+                LoadCustomReportTru(undefined, true);
+            }
+            else
+            {
+                $("#labelErrorTra").html("");
+                $("#labelErrorTra").html("Failed to save custom report!");
+                $('#modalerrorTra').modal('show');
+            }
+        }
+    });
+    });
+</script>

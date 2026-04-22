@@ -1,0 +1,106 @@
+﻿<div class="clearfix"></div>
+<p>Based On Vendor</p>
+<div class="table-overflow-outer" id="dtVendor1"></div>
+<div class="clearfix"></div>
+<p>Based On Start Location</p>
+<div class="table-overflow-outer" id="dtStartLocation"></div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        generateVendorTrip();
+        generateStartLocationTrip();
+        
+    });
+    function generateVendorTrip() {
+        $.ajax({
+            criteria: {
+                SortExpression: "Sorting",
+                SortOrder: "ASC",
+            },
+            url: '@Url.Action("GetDatasResult")',
+            data: {
+                "filterTab": "TRIP",
+                "filterRole": '@(ViewBag.FilterRole)', //$("#FilterVendor option:selected").val(),
+                "filterSort": "Vendor",
+                "filterYear": '@(ViewBag.FilterYear)'
+            },
+            method: 'GET',
+            dataType: 'json',
+            cache:false,
+            success: function (json) {
+                var result = JSON.parse(json);
+                var generatedData = {
+                    dataid: "An optional sourcetable identifier",
+                    columns: [
+                        { colvalue: "p2 ", coltext: "p2 ", header: "Transportation Mode ", sortbycol: "p1 ", dataid: "An optional id.", groupbyrank: 1, pivot: false, result: false },
+                        { colvalue: "p4 ", coltext: "p4 ", header: "Vendor Name ", sortbycol: "p4 ", groupbyrank: 2, pivot: false, result: false },
+                        { colvalue: "val ", coltext: "val ", header: "val ", sortbycol: "val ", groupbyrank: null, pivot: false, result: true },
+                        { colvalue: "res ", coltext: "res ", header: "res ", sortbycol: "res ", groupbyrank: null, pivot: true, result: false }
+                    ],
+                    rows: result, // json data
+                };
+                $('#dtVendor1').pivot({
+                    source: generatedData,
+                    formatFunc: function (n) {
+                        return jQuery.fn.pivot.formatUK(n, 0);
+                    },
+                    parseNumFunc: function (n) {
+                        return +((typeof n === "string") ? +n.replace('.', '').replace(',', '.') : n);
+                    },
+                    onResultCellClicked: function (data) {
+
+                    },
+                    sortPivotColumnHeaders: false, //we want months non sorted to get them in the right order.
+                    
+                });
+            }
+        });
+    }
+    
+    function generateStartLocationTrip() {
+        $.ajax({
+            criteria: {
+                SortExpression: "Sorting",
+                SortOrder: "ASC",
+            },
+            url: '@Url.Action("GetDatasResult")',
+            data: {
+                "filterTab": "TRIP",
+                "filterRole": '@(ViewBag.FilterRole)', //$("#FilterVendor option:selected").val(),
+                "filterSort": "StartLocation",
+                "filterYear": '@(ViewBag.FilterYear)'
+            },
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var result = JSON.parse(json);
+                var generatedData = {
+                    dataid: "An optional sourcetable identifier",
+                    columns: [
+                        { colvalue: "p2 ", coltext: "p2 ", header: "Transportation Mode ", sortbycol: "p1 ", dataid: "An optional id.", groupbyrank: 1, pivot: false, result: false },
+                        { colvalue: "p4 ", coltext: "p4 ", header: "Start Location ", sortbycol: "p4 ", groupbyrank: 2, pivot: false, result: false },
+                        { colvalue: "val ", coltext: "val ", header: "val ", sortbycol: "val ", groupbyrank: null, pivot: false, result: true },
+                        { colvalue: "res ", coltext: "res ", header: "res ", sortbycol: "res ", groupbyrank: null, pivot: true, result: false }
+                    ],
+                    rows: result, // json data
+                };
+                $('#dtStartLocation').pivot({
+                    source: generatedData,
+                    formatFunc: function (n) {
+                        return jQuery.fn.pivot.formatUK(n, 0);
+                    },
+                    parseNumFunc: function (n) {
+                        return +((typeof n === "string") ? +n.replace('.', '').replace(',', '.') : n);
+                    },
+                    onResultCellClicked: function (data) {
+
+                    },
+                    sortPivotColumnHeaders: false, //we want months non sorted to get them in the right order.
+
+                });
+            }
+        });
+    }
+</script>
+

@@ -1,0 +1,475 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<!-- Custom Report Modal Dialog -->
+<div class="modal fade" id="customReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="TicketNumber">Ticket Title</div>
+                        <div data-field="TicketCategory">Category</div>
+                        <div data-field="TicketQuantity">Ticket Quantity</div>
+                        <div data-field="Location">Location</div>
+                        <div data-field="VendorName">Vendor Name</div>
+                        <div data-field="PoliceRegNumber">Police Registration Number</div>
+                        <div data-field="OffenderName">Offender Name</div>
+                        <div data-field="OffenderRole">Offender Role</div>
+                        <div data-field="OffenderAge">Offender Age</div>
+                        <div data-field="RemarksTicket">Remarks Ticket</div>
+                        <div data-field="Attachment">Attachment</div>
+                        <div data-field="VehicleType">Vehicle Type</div>
+                        <div data-field="ManufacturingYear">Manufacturing Year</div>
+                        <div data-field="OffenderYearOfService">Offender Year Of Service</div>
+                        <div data-field="LocationCategory">Location Category</div>
+                        <div data-field="TypeOfLocation">Type Of Location</div>
+                        <div data-field="RoadCondition">Road Condition</div>
+                        <div data-field="Preventablility">Preventablility</div>
+                        <div data-field="WeatherCondition">Weather Condition</div>
+                        <div data-field="AccidentCategory">Accident Category</div>
+                        <div data-field="ValueOfLoss">Value Of Loss</div>
+                        <div data-field="CorrectiveAction">Corrective Action</div>
+                        <div data-field="CorrectiveActionDate">Incident Date & Time</div>
+                        <div data-field="TicketStatus">Ticket Status</div>
+                        <div data-field="SIRSNumber">SIRS Number</div>
+                        <div data-field="NCRNumber">NCR Number</div>
+                        <div data-field="AttachmentNRC">NRC Attachment</div>
+                        <div data-field="ProblemIssue1">Problem Issue 1</div>
+                        <div data-field="ProblemIssue2">Problem Issue 2</div>
+                        <div data-field="ProblemIssue3">Problem Issue 3</div>
+                        <div data-field="MainFactor">Main Factor</div>
+                        <div data-field="IsActive">Is Active</div>
+                        <div data-field="CreatedBy">Created By</div>
+                        <div data-field="CreatedDate">Created Date</div>
+                        <div data-field="UpdatedBy">Updated By</div>
+                        <div data-field="UpdatedDate">Updated Date</div>
+                        <div data-field="Remarks">Remarks</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="saveLayoutButton" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+                {
+                    <button class="btn btn-primary" id="exportCustomReport">Export</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Close)))
+                {
+                    <button class="btn btn-purple" data-dismiss="modal">Close</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+        $(document).on('click', '#saveLayoutButton', function (e) {
+            saveLayout();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#left', function (e) {
+            moveItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#right', function (e) {
+            moveItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftall', function (e) {
+            moveAllItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightall', function (e) {
+            moveAllItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#customReportButton', function (e) {
+            $("#layoutName").val('');
+            $('#chkGlobalCustomReport').prop('checked', false);
+            generateLayoutSelect();
+            e.preventDefault();
+        });
+
+        $('#layoutSelect').on('change', function () {
+            for (var j = 1; j < layoutIsGlobal.length; j++) {
+                if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                    $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                }
+            }
+            var sourceFieldNames = [
+                    { 'field': 'TicketNumber', 'label': 'Ticket Title' },
+                    { 'field': 'TicketCategory', 'label': 'Category' },
+                    { 'field': 'TicketQuantity', 'label': 'Ticket Quantity' },
+                    { 'field': 'Location', 'label': 'Location' },
+                    { 'field': 'VendorName', 'label': 'Vendor Name' },
+                    { 'field': 'PoliceRegNumber', 'label': 'Police Registration Number' },
+                    { 'field': 'OffenderName', 'label': 'Offender Name' },
+                    { 'field': 'OffenderRole', 'label': 'Offender Role' },
+                    { 'field': 'OffenderAge', 'label': 'Offender Age' },
+                    { 'field': 'RemarksTicket', 'label': 'Remarks Ticket' },
+                    { 'field': 'Attachment', 'label': 'Attachment' },
+                    { 'field': 'VehicleType', 'label': 'Vehicle Type' },
+                    { 'field': 'ManufacturingYear', 'label': 'Manufacturing Year' },
+                    { 'field': 'OffenderYearOfService', 'label': 'Offender Year Of Service' },
+                    { 'field': 'LocationCategory', 'label': 'Location Category' },
+                    { 'field': 'TypeOfLocation', 'label': 'Type Of Location' },
+                    { 'field': 'RoadCondition', 'label': 'Road Condition' },
+                    { 'field': 'Preventablility', 'label': 'Preventablility' },
+                    { 'field': 'WeatherCondition', 'label': 'Weather Condition' },
+                    { 'field': 'AccidentCategory', 'label': 'Accident Category' },
+                    { 'field': 'ValueOfLoss', 'label': 'Value Of Loss' },
+                    { 'field': 'CorrectiveAction', 'label': 'Corrective Action' },
+                    { 'field': 'CorrectiveActionDate', 'label': 'Incident Date & Time' },
+                    { 'field': 'TicketStatus', 'label': 'Ticket Status' },
+                    { 'field': 'SIRSNumber', 'label': 'SIRS Number' },
+                    { 'field': 'NCRNumber', 'label': 'NCR Number' },
+                    { 'field': 'AttachmentNRC', 'label': 'NRC Attachment' },
+                    { 'field': 'ProblemIssue1', 'label': 'Problem Issue 1' },
+                    { 'field': 'ProblemIssue2', 'label': 'Problem Issue 2' },
+                    { 'field': 'ProblemIssue3', 'label': 'Problem Issue 3' },
+                    { 'field': 'MainFactor', 'label': 'Main Factor' },
+                    { 'field': 'IsActive', 'label': 'Is Active' },
+                    { 'field': 'CreatedBy', 'label': 'Created By' },
+                    { 'field': 'CreatedDate', 'label': 'Created Date' },
+                    { 'field': 'UpdatedBy', 'label': 'Updated By' },
+                    { 'field': 'UpdatedDate', 'label': 'Updated Date' },
+                    { 'field': 'Remarks', 'label': 'Remarks' }
+                ],
+                sourceFields = '',
+                destinationFieldNames = this.value.split(','),
+                destinationFields = '',
+                destinationfieldLabels = [];
+
+            for (i = 0; i < sourceFieldNames.length; ++i) {
+                if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                    // the element is not in the array
+                    sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                }
+            }
+            $("#fieldChooser #sourceFields").html(sourceFields);
+
+            for (i = 0; i < destinationFieldNames.length; ++i) {
+                destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+            }
+            $("#fieldChooser #destinationFields").html(destinationFields);
+        });
+
+        $(document).on('click', '#exportCustomReport', function (e) {
+            exportCustomToExcel();
+            e.preventDefault();
+        });
+    });
+
+    var layoutIsGlobal = [];
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function generateLayoutSelect() {
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TicketNcr" },
+            success: function (response) {
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = '';
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            if (firstLayout == "") {
+                                firstLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            if (firstLayout != response[i].LayoutName) {
+                                thenLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    jQuery("#layoutSelect").html(options.slice(11)).ready(function () {
+                        // Load selected layout
+                        jQuery.ajax({
+                            url: '@Url.Action("GetSelectedLayout", "CustomReportState")',
+                            method: 'post',
+                            dataType: 'json',
+                            data: { "PageName": "TicketNcr" },
+                            success: function (json) {
+                                $('#layoutSelect').val(json[0].FieldName);
+                                for (var j = 1; j < layoutIsGlobal.length; j++) {
+                                    if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                                        $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                                    }
+                                }
+                                var sourceFieldNames = [
+                                    { 'field': 'TicketNumber', 'label': 'Ticket Title' },
+                                    { 'field': 'TicketCategory', 'label': 'Category' },
+                                    { 'field': 'TicketQuantity', 'label': 'Ticket Quantity' },
+                                    { 'field': 'Location', 'label': 'Location' },
+                                    { 'field': 'VendorName', 'label': 'Vendor Name' },
+                                    { 'field': 'PoliceRegNumber', 'label': 'Police Registration Number' },
+                                    { 'field': 'OffenderName', 'label': 'Offender Name' },
+                                    { 'field': 'OffenderRole', 'label': 'Offender Role' },
+                                    { 'field': 'OffenderAge', 'label': 'Offender Age' },
+                                    { 'field': 'RemarksTicket', 'label': 'Remarks Ticket' },
+                                    { 'field': 'Attachment', 'label': 'Attachment' },
+                                    { 'field': 'VehicleType', 'label': 'Vehicle Type' },
+                                    { 'field': 'ManufacturingYear', 'label': 'Manufacturing Year' },
+                                    { 'field': 'OffenderYearOfService', 'label': 'Offender Year Of Service' },
+                                    { 'field': 'LocationCategory', 'label': 'Location Category' },
+                                    { 'field': 'TypeOfLocation', 'label': 'Type Of Location' },
+                                    { 'field': 'RoadCondition', 'label': 'Road Condition' },
+                                    { 'field': 'Preventablility', 'label': 'Preventablility' },
+                                    { 'field': 'WeatherCondition', 'label': 'Weather Condition' },
+                                    { 'field': 'AccidentCategory', 'label': 'Accident Category' },
+                                    { 'field': 'ValueOfLoss', 'label': 'Value Of Loss' },
+                                    { 'field': 'CorrectiveAction', 'label': 'Corrective Action' },
+                                    { 'field': 'CorrectiveActionDate', 'label': 'Incident Date & Time' },
+                                    { 'field': 'TicketStatus', 'label': 'Ticket Status' },
+                                    { 'field': 'SIRSNumber', 'label': 'SIRS Number' },
+                                    { 'field': 'NCRNumber', 'label': 'NCR Number' },
+                                    { 'field': 'AttachmentNRC', 'label': 'NRC Attachment' },
+                                    { 'field': 'ProblemIssue1', 'label': 'Problem Issue 1' },
+                                    { 'field': 'ProblemIssue2', 'label': 'Problem Issue 2' },
+                                    { 'field': 'ProblemIssue3', 'label': 'Problem Issue 3' },
+                                    { 'field': 'MainFactor', 'label': 'Main Factor' },
+                                    { 'field': 'IsActive', 'label': 'Is Active' },
+                                    { 'field': 'CreatedBy', 'label': 'Created By' },
+                                    { 'field': 'CreatedDate', 'label': 'Created Date' },
+                                    { 'field': 'UpdatedBy', 'label': 'Updated By' },
+                                    { 'field': 'UpdatedDate', 'label': 'Updated Date' },
+                                    { 'field': 'Remarks', 'label': 'Remarks' }
+                                ],
+                                sourceFields = '',
+                                destinationFieldNames = json[0].FieldName.split(','),
+                                destinationFields = '',
+                                destinationfieldLabels = [];
+
+                                for (i = 0; i < sourceFieldNames.length; ++i) {
+                                    if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                                        // the element is not in the array
+                                        sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                                    } else {
+                                        destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                                    }
+                                }
+                                $("#fieldChooser #sourceFields").html(sourceFields);
+
+                                for (i = 0; i < destinationFieldNames.length; ++i) {
+                                    destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+                                }
+
+                                $("#fieldChooser #destinationFields").html(destinationFields);
+                            }
+                        });
+                    });
+                } else {
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    function saveLayout() {
+        var nonvalid = false;
+
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutName").val(),
+                isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+            $('#destinationFields .fc-field').each(function () {
+                fieldNames = fieldNames + $(this).data('field') + ',';
+            });
+            fieldNames = fieldNames.slice(0, -1);
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            jQuery.ajax({
+                url: '@Url.Action("InsertRecords", "CustomReportState")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TicketNcr", "isGlobal": isGlobal },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobal) {
+                            SaveChangesButton(dialog);
+                        } else {
+                            alertCrSaveSuccess();
+                            dialog.modal('hide');
+                            $("#chkGlobalCustomReport").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        alertCrPleaseFill();
+                    }
+
+                    if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                        $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '',
+            isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TicketNcr", "isGlobal": isGlobal },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    function exportCustomToExcel() {
+        var columns = "",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+        
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "Columns": columns,
+                "IDVendor": $('#VendorName :selected').val(),
+                "TicketStatus": $('#TicketStatus :selected').val(),
+                "AccidentCategory": $('#AccidentCategory :selected').val(),
+                "TicketCategory": $('#TicketCategory :selected').val(),
+                "DateTo": document.getElementById('DateTo').value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "DateFrom": document.getElementById('DateFrom').value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "NCRNumber": document.getElementById('NCRNumber').value,
+                "IncludeDeleted": $("#chkInactive").prop('checked')
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+</script>

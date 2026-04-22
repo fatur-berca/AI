@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DF3235EF-6173-4A3D-81BD-D364A48291A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DFIS.Universal.Domain</RootNamespace>
+    <AssemblyName>DFIS.Universal.Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DTOs\CustomReportStateDTO.cs" />
+    <Compile Include="DTOs\HRD_EMP_V2_DTO.cs" />
+    <Compile Include="DTOs\MasterApprovalNewsDTO.cs" />
+    <Compile Include="DTOs\MasterConfigurationDTO.cs" />
+    <Compile Include="DTOs\MasterConfigurationEmailDTO.cs" />
+    <Compile Include="DTOs\MasterDynamicFieldDTO.cs" />
+    <Compile Include="DTOs\MasterFABrandDTO.cs" />
+    <Compile Include="DTOs\MasterFGStackingDTO.cs" />
+    <Compile Include="DTOs\MasterFunctionDTO.cs" />
+    <Compile Include="DTOs\MasterGenWeekDTO.cs" />
+    <Compile Include="DTOs\MasterGuidelineDTO.cs" />
+    <Compile Include="DTOs\MasterIMDLRoleDTO.cs" />
+    <Compile Include="DTOs\MasterIMDLRoleLocationDTO.cs" />
+    <Compile Include="DTOs\MasterListDTO.cs" />
+    <Compile Include="DTOs\GeneralBuildingFacilityDTO.cs" />
+    <Compile Include="DTOs\MasterLocationDTO.cs" />
+    <Compile Include="DTOs\MasterMappingDTO.cs" />
+    <Compile Include="DTOs\MasterRoleDTO.cs" />
+    <Compile Include="DTOs\MasterRoleFunctionDTO.cs" />
+    <Compile Include="DTOs\MasterUserDTO.cs" />
+    <Compile Include="DTOs\MasterUserLocationMappingDTO.cs" />
+    <Compile Include="DTOs\MasterUserRoleDelegationDTO.cs" />
+    <Compile Include="DTOs\MasterUserRoleDelegationViewDTO.cs" />
+    <Compile Include="DTOs\MasterUserRoleMappingDTO.cs" />
+    <Compile Include="DTOs\NewsHighlightDTO.cs" />
+    <Compile Include="DTOs\NotificationDTO.cs" />
+    <Compile Include="DTOs\TransactionLogDTO.cs" />
+    <Compile Include="DTOs\UserLocationDelegationDTO.cs" />
+    <Compile Include="Inputs\BaseInput.cs" />
+    <Compile Include="Inputs\CustomReportStateInput.cs" />
+    <Compile Include="Inputs\MasterApprovalNewsInput.cs" />
+    <Compile Include="Inputs\MasterConfigurationEmailInput.cs" />
+    <Compile Include="Inputs\MasterConfigurationInput.cs" />
+    <Compile Include="Inputs\MasterDynamicFieldInput.cs" />
+    <Compile Include="Inputs\MasterFABrandInput.cs" />
+    <Compile Include="Inputs\MasterFGStackingInput.cs" />
+    <Compile Include="Inputs\MasterFunctionInput.cs" />
+    <Compile Include="Inputs\MasterGuidelineInput.cs" />
+    <Compile Include="Inputs\MasterIMDLRoleInput.cs" />
+    <Compile Include="Inputs\MasterIMDLRoleLocationInput.cs" />
+    <Compile Include="Inputs\MasterListInput.cs" />
+    <Compile Include="Inputs\MasterLocationInput.cs" />
+    <Compile Include="Inputs\MasterMappingInput.cs" />
+    <Compile Include="Inputs\MasterRoleFunctionInput.cs" />
+    <Compile Include="Inputs\MasterUserInput.cs" />
+    <Compile Include="Inputs\MasterUserLocationMappingInput.cs" />
+    <Compile Include="Inputs\MasterUserRoleDelegationInput.cs" />
+    <Compile Include="Inputs\MasterUserRoleDelegationViewInput.cs" />
+    <Compile Include="Inputs\SortBaseInput.cs" />
+    <Compile Include="Inputs\TransactionLogInput.cs" />
+    <Compile Include="MappingHelper.cs" />
+    <Compile Include="Outputs\UserSession.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFIS.Contracts\DFIS.Contracts.csproj">
+      <Project>{139b1b79-3500-4750-97cb-012e6c24ff19}</Project>
+      <Name>DFIS.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DFIS.Utils\DFIS.Utils.csproj">
+      <Project>{cd65d670-560a-46bc-b974-7d2fe0add040}</Project>
+      <Name>DFIS.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TOM.EntitiesDAL\TOM.EntitiesDAL.csproj">
+      <Project>{6D91578B-A117-4CD7-9886-D3163E926CFF}</Project>
+      <Name>TOM.EntitiesDAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

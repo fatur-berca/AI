@@ -1,0 +1,111 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="EdituploadPositionOnTruck1" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Position On Truck</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <canvas id="canvasEditPositionOnTruck1" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputPositionOnTruck1" type="file" class="filestyle" name="" accept="image/*">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarkerEditPositionOnTruck1">Add</button>
+                            <button class="btn btn-purple" id="clearMarkerEditPositionOnTruck1">Clear</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="2" id="descEditUploadPositionOnTruck1">@Model.RemarkUploadPositionTruck1</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadPositionOnTruckEdit1">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var canvasEditPositionOnTruck1 = new fabric.Canvas('canvasEditPositionOnTruck1');
+    @if (!String.IsNullOrEmpty(Model.JsonCanvasPositionTruck1))
+    {
+        <text>
+    canvasEditPositionOnTruck1.loadFromDatalessJSON('@Html.Raw(Model.JsonCanvasPositionTruck1)');
+        </text>
+    }else{
+        <text>
+    if ($("#fileInputPositionOnTruck1").val() == '') {
+        $("#btnUploadPositionOnTruckEdit1").prop("disabled", true);
+                $("#addMarkerEditPositionOnTruck1").prop("disabled", true);
+                $("#clearMarkerEditPositionOnTruck1").prop("disabled", true);
+                $("#descEditUploadPositionOnTruck1").prop("disabled", true);
+            } else {
+                $("#btnUploadPositionOnTruckEdit1").prop("disabled", false);
+                $("#addMarkerEditPositionOnTruck1").prop("disabled", false);
+                $("#clearMarkerEditPositionOnTruck1").prop("disabled", false);
+                $("#descEditUploadPositionOnTruck1").prop("disabled", false);
+            }
+        </text>
+    }
+
+    $('#addMarkerEditPositionOnTruck1').click(function (e) {
+        var posX = canvasEditPositionOnTruck1.width / 2;
+        var posY = canvasEditPositionOnTruck1.height / 2;
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvasEditPositionOnTruck1.add(oImg).setActiveObject(oImg);
+            canvasEditPositionOnTruck1.renderAll();
+        });
+    });
+
+    $('#clearMarkerEditPositionOnTruck1').click(function (e) {
+        var canvasObjects = canvasEditPositionOnTruck1.getObjects();
+        while (canvasObjects.length != 0) {
+            canvasEditPositionOnTruck1.remove(canvasObjects[0]);
+            canvasEditPositionOnTruck1.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputPositionOnTruck1").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvasEditPositionOnTruck1.setBackgroundImage(img, canvasEditPositionOnTruck1.renderAll.bind(canvasEditPositionOnTruck1), {
+                    width: canvasEditPositionOnTruck1.getWidth(),
+                    height: canvasEditPositionOnTruck1.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadPositionOnTruckEdit1").prop("disabled", false);
+        $("#addMarkerEditPositionOnTruck1").prop("disabled", false);
+        $("#clearMarkerEditPositionOnTruck1").prop("disabled", false);
+        $("#descEditUploadPositionOnTruck1").prop("disabled", false);
+    });
+
+    $('#btnUploadPositionOnTruckEdit1').click(function (e) {
+        var canvas = document.getElementById("canvasEditPositionOnTruck1");
+        $("#frontImgBoxOnTruckEdit1").css("background-image", "url('" + canvasEditPositionOnTruck1.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+

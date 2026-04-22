@@ -1,0 +1,194 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport Lost & Damage Claim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wborder">
+    <h4 class="title-page pull-left">Lost & Damage Cigarettes Claim List</h4>
+</div>
+
+<div class="filter-deck">
+    <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#searchfilter" aria-expanded="false" aria-controls="searchfilter">
+        Advanced Search
+        <i class="fa fa-angle-up pull-right"></i>
+    </a>
+
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <form>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Date Receipt</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" name="" class="form-control datepicker">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" name="" class="form-control datepicker">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Origin Warehouse</label>
+                        <select class="select2" multiple="multiple">
+                            <option value="ZD7A-DC">ZD7A-DC Surabaya Berbek</option>
+                            <option value="ZD4D-ADW">ZD4D-ADW Jakarta Barat</option>
+                            <option value="ZD4H-ADW">ZD4H-ADW Jakarta Timur A</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Destination Warehouse</label>
+                        <select class="select2" multiple="multiple">
+                            <option value="ZD7A-DC">ZD7A-DC Surabaya Berbek</option>
+                            <option value="ZD4D-ADW">ZD4D-ADW Jakarta Barat</option>
+                            <option value="ZD4H-ADW">ZD4H-ADW Jakarta Timur A</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>STO Number</label>
+                        <select class="select2" multiple="multiple">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Delivery Note Number</label>
+                        <select class="select2" multiple="multiple">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Police Reg. Number</label>
+                        <select class="select2" multiple="multiple">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        <select class="form-control">
+                            <option value="owned">PT Serasi Logistics</option>
+                            <option value="rent">PT JNE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary">Filter</button>
+                    <button class="btn btn-purple">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" onclick="window.location.href='transport-lost-n-damage-detail.html'">Add New</button>
+        <button class="btn btn-primary">Delete</button>
+        <button class="btn btn-primary">Export</button>
+        <button class="btn btn-primary">Custom Report</button>
+    </div>
+</div>
+
+<table id="dtFilter" class="dataTable display table">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>Date of Receipt</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>STO Number</th>
+            <th>DN Number</th>
+            <th>Police Reg. Number</th>
+            <th>Vendor</th>
+        </tr>
+
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Date of Receipt</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>STO Number</th>
+            <th>DN Number</th>
+            <th>Police Reg. Number</th>
+            <th>Vendor</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check1">
+                    <label for="check1"></label>
+                </div>
+            </td>
+            <td><a href="transport-lost-n-damage-detail.html">16/06/2017 - 11:50:00</a></td>
+            <td>DC Sekorejo</td>
+            <td>DC Karawang Lot</td>
+            <td>32676969</td>
+            <td>44636849</td>
+            <td>D-2349-AD</td>
+            <td>PT. Serasi Logistics</td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check2">
+                    <label for="check2"></label>
+                </div>
+            </td>
+            <td><a href="transport-lost-n-damage-detail.html">16/06/2017 - 11:50:00</a></td>
+            <td>DPC Demokrat</td>
+            <td>DC Karawang Lot</td>
+            <td>32676969</td>
+            <td>44636849</td>
+            <td>B-2349-AD</td>
+            <td>PT. Serasi Logistics</td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="check3">
+                    <label for="check3"></label>
+                </div>
+            </td>
+            <td><a href="transport-lost-n-damage-detail.html">16/06/2017 - 11:50:00</a></td>
+            <td>ADW Dong ah</td>
+            <td>DC Karawang Lot</td>
+            <td>32676969</td>
+            <td>44636849</td>
+            <td>W-2349-AD</td>
+            <td>PT. Serasi Logistics</td>
+        </tr>
+    </tbody>
+</table>

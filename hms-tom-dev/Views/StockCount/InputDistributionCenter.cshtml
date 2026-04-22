@@ -1,0 +1,2880 @@
+﻿@using System.Web.Mvc.Html
+@using DFIS.Warehouse.BusinessLogics.StockCountBLL;
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    ViewBag.Title = "Warehouse > Stock Count > InputDistributionCenter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string transDate = Model.IDStockCount == 0 ? DateTime.Now.ToString("dd-MM-yyyy") : Model.TransDate.ToString("dd-MM-yyyy");
+    string location = Model.IDStockCount == 0 ? "" : Model.IDLocation;
+    string shift = Model.IDStockCount == 0 ? "" : Model.Shift.ToString();
+    //string remarks = Model.IDStockCount == 0 ? "" : Model.Remarks;
+    string info_last_sync = Model.IDStockCount != 0 && !String.IsNullOrEmpty(Model.SyncedTime.ToString()) ? "*SAP data were taken from SAP on " + Convert.ToDateTime(Model.SyncedTime).ToString("dd-MMM-yy HH:mm") + " WIB" : "";
+    string AttachmentUrlName = Model.IDStockCount != 0 ? "AttachmentWarehouseStockCount_" + Model.TransDate.ToString("dd-MMM-yyyy") + "_" + Model.IDLocation.ToString() + "_"+ Model.Shift.ToString() : "";
+    string def_style = "display:block";
+    string disabled_button = Model.IDStockCount != 0 ? "disabled" : "";
+    string def_button = "btn-success";
+    string SyncedTime = Model.IDStockCount != 0 ? Convert.ToDateTime(Model.SyncedTime).ToString("dd-MM-yyyy HH:mm") : "";
+
+    string TotalSAPBox = Model.IDStockCount == 0 ? "N/A" : Model.addSeparator(Model.TotalSAP1000Box + Model.TotalSAP1042Box + Model.TotalSAP1040Box + Model.TotalSAP1041Box + Model.TotalSAP1043Box + Model.TotalSAP1046Box);
+    string TotalSAPPack = Model.IDStockCount == 0 ? "N/A" : Model.addSeparator(Model.TotalSAP1000Pack + Model.TotalSAP1042Pack + Model.TotalSAP1040Pack + Model.TotalSAP1041Pack + Model.TotalSAP1043Pack + Model.TotalSAP1046Pack);
+    string TotalManBox = Model.IDStockCount == 0 ? "N/A" : Model.addSeparator(Model.TotalMan1000Box + Model.TotalMan1042Box + Model.TotalMan1040Box + Model.TotalMan1041Box + Model.TotalMan1043Box + Model.TotalMan1046Box);
+    string TotalManPack = Model.IDStockCount == 0 ? "N/A" : Model.addSeparator(Model.TotalMan1000Pack + Model.TotalMan1042Pack + Model.TotalMan1040Pack + Model.TotalMan1041Pack + Model.TotalMan1043Pack + Model.TotalMan1046Pack);
+
+    string TotalInvAcc = Model.IDStockCount == 0 ? "N/A" : Model.InvAcc.ToString().Replace(",", ".") + '%';
+    string TotalWarehouseUtil = Model.IDStockCount == 0 ? "N/A" : Model.InvUtil.ToString().Replace(",", ".") + '%';
+
+    bool isCanEdit = ViewBag.IsSuperUser ? true : DateTime.Now.Subtract(Model.CreatedDate).TotalDays <= 1;
+    bool? isWeekly = Model.isWeekly();
+}
+
+<script src="@Url.Content("~/scripts/stockcount.js")"></script>
+<style>
+    table.tableinfo tr td {
+        font-size: 15px;
+        font-weight: bold;
+        padding-top: 0px;
+    }
+   
+    table, thead, tr, th {
+        text-align: center;
+    }
+
+    tbody#tableBody tr td input {
+        font-size: 11px;
+    }
+
+    input.form-control.sap1000pack, .sap1040pack, .sap1041pack, .sap1042pack, .sap1043pack, .sap1046pack, .inputqty, .sapqtybox, .sapqtypack, .diffqtybox, .diffqtypack {
+        text-align: right;
+    }
+
+    .btn-weekly-non-selected {
+        color: #fff;
+        background-color: #9cec9c;
+        border-color: #255625;
+    }
+
+    .btn-weekly-non-selected:hover {
+        color: #fff;
+        background-color: #81e081;
+        border-color: #255625;
+    }
+
+    .column_space {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+
+    .column_fa_code {
+        padding-left: 42px !important;
+        padding-right: 42px !important;
+    }
+
+    .column_brand {
+        padding-left: 45px !important;
+        padding-right: 45px !important;
+    }
+
+    .column_batch {
+        padding-left: 38px !important;
+        padding-right: 38px !important;
+    }
+
+    .column_qty_input_small {
+        padding-left: 28px !important;
+        padding-right: 28px !important;
+    }
+
+    .info_total_qty
+    {
+        width:175px;
+        text-align:right;
+    }
+
+    .info_total_qty_box_pack
+    {
+        width:200px;
+        text-align:right;
+    }
+
+    .table_info_qty tr 
+    {
+        font-size: 16px;
+    }
+
+    .table_info_qty_second_column
+    {
+        text-align:left; 
+        padding-left:25px;
+    }
+</style>
+
+<div class="col-md-12">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "StockCount")'">Back</button>
+            @if (Model.IDStockCount != 0)
+            {
+                <!--<button type="button" class="btn btn-primary btnImportSAP" id="btnImportSAP"> Import SAP</button>
+                <button type="button" class="btn btn-primary" id="btnSync">Sync</button>-->
+            }
+            <button type="button" class="btn btn-primary" id="btnManualForm">Print Manual Form</button>
+            @if (Model.IDStockCount != 0)
+            {
+                <button type="button" class="btn btn-primary" id="btnReconcile" onclick="$('#customReport').modal('show')">Print Reconcile</button>
+            }
+            @if (Model.IDStockCount != 0)
+            {
+                <button type="button" class="btn btn-primary" id="btnPrintBeritaModal" onclick="$('#PrintBeritaModal').modal('show')">Print Official Report</button>
+            }
+            
+            <!--<button type="button" class="btn btn-primary" id="btnExport" onclick="$('#customReport').modal('show')">Export</button>-->
+            @if (Model.IDStockCount != 0)
+            {
+                if (isCanEdit)
+                {
+                    <button type="button" class="btn btn-primary btnEdit isHeader" id="">Edit Header</button>                    
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary" id="btnEditAttachment" onclick="$('#btnViewOrUploadAttachment').removeAttr('disabled')">Edit Attachment</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveAttachment">Save Attachment</button>
+                }
+            }
+
+            @if (Model.IDStockCount == 0 || isCanEdit)
+            {
+                <button type="button" class="btn btn-primary btnSaveNew isHeader" id="">Save</button>
+            }
+        </div>
+    </div>
+</div>
+
+<!--Modal print berita acara-->
+<div class="modal fade" id="PrintBeritaModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Print Official Report</h4>
+            </div>
+            <div class="modal-body" id="dataNamaJabatan">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>INVENTORY OWNER</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label>STOCK TAKING TEAM</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaOwnerVal" id="namaOwner1"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanOwnerVal" id="jabatanOwner1"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaStockVal" id="namaStock1"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanStockVal" id="jabatanStock1"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaOwnerVal" id="namaOwner2"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanOwnerVal" id="jabatanOwner2"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaStockVal" id="namaStock2"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanStockVal" id="jabatanStock2"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaOwnerVal" id="namaOwner3"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanOwnerVal" id="jabatanOwner3"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name :</label>
+                            <select class="select2 namaStockVal" id="namaStock3"><option value="">-- select name --</option></select>
+                            <label>Title :</label>
+                            <select class="select2 jabatanStockVal" id="jabatanStock3"><option value="">-- select title --</option></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnPrintBerita">Print</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="downloadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titleDownloadModal">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <span id="contentDownloadModal">
+
+                </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body">
+                <!--
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Date From</label>
+                            <input type="text" class="form-control datepicker" id="DateFrom" value="@DateTime.Now.ToString("dd-MM-yyyy")">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Date To</label>
+                            <input type="text" class="form-control datepicker" id="DateTo" value="@DateTime.Now.ToString("dd-MM-yyyy")">
+                        </div>
+                    </div>
+                </div>
+                -->
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label class="radio-inline" style="padding-left: 0px;">
+                            <input name="" id="cUnresnQiField" class="" value="1" type="checkbox"> Show Unrestricted & QI Field
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnExportCustomReport">Export</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="sortDialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Sort SAP Data</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="form-group">
+                            <label>By</label>
+                            <select id="SortBy" class="form-control">
+                                <option value="facode">FA Code</option>
+                                <option value="brand">Brand</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="form-group">
+                            <label>Method</label>
+                            <select id="SortMethod" class="form-control">
+                                <option value="asc">ASC</option>
+                                <option value="desc">DESC</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSortSAPData">Submit</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="box">
+        <form id="frm-input">
+            <div class="row" hidden>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>InsertOrUpdate</label>
+                        <input type="hidden" id="transID" class="form-control" value="@Model.IDStockCount">
+                        <input type="hidden" id="SyncedTime" class="form-control" value="@SyncedTime">
+                        <input type="text" id="InsertOrUpdate" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" class="form-control datepicker form-editable" id="transDate" value="@transDate">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Warehouse</label>
+                        <select class="select2 warehouse form-editable" id="warehouse"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Shift</label>
+                        <select id="shift" class="select2 form-editable">
+                            @foreach (var obj in Model.GetListStockCountShift)
+                            {
+                                <option value="@obj.Key" @(Model.Shift.ToString().Equals(obj.Key) ? "selected" : "")>@obj.Value</option>
+                            }
+                            @*@for (int i = 1; i <= 3; i++)
+                            {
+                                <option value="@i" @(Model.Shift == i ? "selected" : "")>@i</option>
+                            }*@
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Warehouse Staff-1</label>
+                        <select class="select2 form-editable" id="warehouseStaff1">
+                            @if (Model.IDStockCount != 0)
+                            {
+                                <option value="-"></option>
+                                foreach (var obj in Model.listStaff)
+                                {
+                                    <option value="@obj.IDUser" @(obj.IDUser == Model.WarehouseStaff1 ? "selected" : "")>@obj.MasterUser.FullName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Warehouse Staff-2</label>
+                        <select class="select2 form-editable" id="warehouseStaff2">
+                            @if (Model.IDStockCount != 0)
+                            {
+                                <option value="-"></option>
+                                foreach (var obj in Model.listStaff)
+                                {
+                                    <option value="@obj.IDUser" @(obj.IDUser == Model.WarehouseStaff2 ? "selected" : "")>@obj.MasterUser.FullName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Warehouse Staff On Next Shift</label>
+                        <select class="select2 form-editable" id="nextShift">
+                            @if (Model.IDStockCount != 0)
+                            {
+                                <option value="-"></option>
+                                foreach (var obj in Model.listStaff)
+                                {
+                                    <option value="@obj.IDUser" @(obj.IDUser == Model.NextShift ? "selected" : "")>@obj.MasterUser.FullName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <ul class="nav nav-pills title" id="">
+                            <li class="nav_remarks active" tabid="" SLoc="1000"><a data-toggle="pill" href="#remarks">1000</a></li>
+                            @if (Model.IDStockCount == 0 || Model.isWeekly() == true)
+                            {
+                            <li class="nav_remarks" tabid="" SLoc="1040"><a data-toggle="pill" href="#remarks1040">1040</a></li>                            
+                            <li class="nav_remarks" tabid="" SLoc="1041"><a data-toggle="pill" href="#remarks1041">1041</a></li>
+                            }
+                            <li class="nav_remarks" tabid="" SLoc="1042"><a data-toggle="pill" href="#remarks1042">1042</a></li>
+                            @if (Model.IDStockCount == 0 || Model.isWeekly() == true)
+                            {
+                            <li class="nav_remarks" tabid="" SLoc="1043"><a data-toggle="pill" href="#remarks1043">1043</a></li>
+                            <li class="nav_remarks" tabid="" SLoc="1046"><a data-toggle="pill" href="#remarks1046">1046</a></li>
+                            }
+                        </ul>
+
+                        <div class="tab-content">
+                            <textarea id="remarks" class="form-control form-editable remarks_header fade in active" style="height:133px">@Model.Remarks</textarea>
+                            <textarea id="remarks1040" class="form-control form-editable remarks_header fade in" style="height:133px;display:none;">@Model.Remarks1040</textarea>
+                            <textarea id="remarks1041" class="form-control form-editable remarks_header fade in" style="height:133px;display:none;">@Model.Remarks1041</textarea>
+                            <textarea id="remarks1042" class="form-control form-editable remarks_header fade in" style="height:133px;display:none;">@Model.Remarks1042</textarea>
+                            <textarea id="remarks1043" class="form-control form-editable remarks_header fade in" style="height:133px;display:none;">@Model.Remarks1043</textarea>
+                            <textarea id="remarks1046" class="form-control form-editable remarks_header fade in" style="height:133px;display:none;">@Model.Remarks1046</textarea>
+                        </div>
+                        <!--
+                        <textarea id="remarks" class="form-control form-editable" style="height:133px">@Model.Remarks</textarea>
+                        -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="select2 form-editable" id="status">
+                            <option value="-"></option>
+                            <option value="Balance"  @(Model.Status == "Balance" ? "selected" : "")>Balance</option>
+                            @foreach (var value in Model.ListStockCountStatus())
+                            {
+                                <option value="@value" @(value == Model.Status ? "selected" : "")>@value</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <!--<label>Upload</label>-->
+                        <button id="btnViewOrUploadAttachment" type="button" class="btn btn-success form-editable" onclick="$('#modalAttachment').modal('show');">View/Upload Attachments</button>
+                    </div>
+                    <!--
+                    <div class="form-group">
+                        <label>Upload Attachment</label>
+                        <div id="removeAttachment"><a style="float:left" href="#!" class="remove-link">remove</a></div>
+                        @if (!String.IsNullOrEmpty(Model.Attachment))
+                        {
+                            <a href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"] + Model.Attachment)" download="@AttachmentUrlName" style="float:right; margin-right:10px;">
+                                <i class="fa fa-download"> Download</i>
+                            </a>
+                        }
+                        <input id="uploadFile" type="file" class="filestyle input_file form-editable" data-buttonname="btn-primary" data-icon="false" data-buttontext="Browse" accept="">
+                    </div>
+                    -->
+                </div>
+            </div>
+            @if (Model.IDStockCount != 0)
+            {
+                <div class="row">
+                    <div class="form-group" style="float:right; text-align:right; font-style: italic;;">
+                        <label style="font-size:10px">
+                            Created By @Model.CreatedBy on @Model.CreatedDate.ToString("dd-MM-yyyy HH:mm")
+                            <br />
+                            Last Updated By @Model.UpdatedBy on @Model.UpdatedDate.ToString("dd-MM-yyyy HH:mm")
+                        </label>
+                    </div>
+                </div>
+            }
+        </form>
+    </div>
+    <div class="box" style="background-color:#F1F4F7;padding-top:0px;padding-bottom:0px;margin-bottom:0px;">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:0px; text-align:center;">
+                    <label style="font-size:14px;"><b> Inventory Accuracy (%) </b></label>
+                </div>
+                <div class="form-group" style="text-align:center;">
+                    <label><b style="font-size:20px;" id="inv_acc">@TotalInvAcc</b></label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:0px; text-align:center;">
+                    <label style="font-size:14px;"><b> Warehouse Utilization (%) </b></label>
+                </div>
+                <div class="form-group" style="text-align:center;">
+                    <label><b style="font-size:20px;" id="inv_util">@TotalWarehouseUtil</b></label>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <!--
+            <div class="col-md-6">
+                <table class="table tableinfo">
+                    <tr>
+                        <td>Total Qty SAP</td>
+                        <td style="text-align:right; width:100px;" id="totalqtysapbox">@TotalSAPBox</td>
+                        <td>Boxes</td>
+                        <td style="text-align:right; width:100px;" id="totalqtysappack">@TotalSAPPack</td>
+                        <td>Packs</td>
+                    </tr>
+                    <tr>
+                        <td>Total Qty Manual</td>
+                        <td style="text-align:right; width:100px;" id="totalqtymanbox">@TotalManBox</td>
+                        <td>Boxes</td>
+                        <td style="text-align:right; width:100px;" id="totalqtymanpack">@TotalManPack</td>
+                        <td>Packs</td>
+                    </tr>
+                </table>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-pills title" id="nav_title">
+    <li class="navtype active" tabid="dailyfg" SLoc="1000"><a data-toggle="pill" href="#dailyfg">Daily FG (1000)</a></li>
+    <li class="navtype" tabid="dailybs" SLoc="1042"><a data-toggle="pill" href="#dailybs">Daily BS (1042)</a></li>
+    <li class="navtype" tabid="weekly" SLoc="weekly"><a data-toggle="pill" href="#weekly">Weekly (All SLoc)</a></li>
+    <li class="" tabid="" sloc="weekly" style="float:right; font-style:italic">
+        <div id="info_sync_time">@info_last_sync</div>
+        <div id="info_next_sync_time"></div>
+    </li>
+</ul>
+
+<div class="tab-content dataTables_wrapper">
+    <div id="dailyfg" class="tab-pane fade in active div_parent_table table-overflow">
+        <div style="padding-bottom:10px;">
+            <!--
+            <div style="font-size:16px;"><span style="padding-right:10px">Total Qty SAP </span><span style="text-align:right; width:100px;" id="1000_total_qty_sap"></span></div>
+            <div style="font-size:16px;"><span style="padding-right:10px">Total Qty Man </span><span style="text-align:right; width:100px;" id="1000_total_qty_man"></span></div>
+            -->
+            <table class="table_info_qty">
+                <tr style="">
+                    <td style="text-align:left">Total Qty SAP</td>
+                    <td id="1000_total_qty_sap" class="info_total_qty"></td>
+                    <td id="1000_total_qty_sap_box_pack" class="info_total_qty_box_pack"></td>
+
+                    <td class="table_info_qty_second_column">Total Qty Loading Not Yet Int./GI</td>
+                    <td id="1000_total_qty_loading" class="info_total_qty"></td>
+                    <td id="1000_total_qty_loading_box_pack" class="info_total_qty"></td>
+                </tr>
+                <tr style="">
+                    <td style="text-align:left">Total Qty MAN</td>
+                    <td id="1000_total_qty_man" class="info_total_qty"></td>
+                    <td id="1000_total_qty_man_box_pack" class="info_total_qty_box_pack"></td>
+
+                    <td class="table_info_qty_second_column">Total Qty Receiving Not Yet Int./GR</td>
+                    <td id="1000_total_qty_receiving" class="info_total_qty"></td>
+                    <td id="1000_total_qty_receiving_box_pack" class="info_total_qty"></td>
+                </tr>
+            </table>
+        </div>
+        <div style="padding-bottom:10px;">
+
+            @if (Model.IDStockCount == 0)
+            {
+                
+            }
+            <button type="button" class="btn btn-primary btnAction btnImportSAP" @disabled_button id="">Sync with SAP</button>
+            <button type="button" class="btn btn-primary btnAction btnSync"  @disabled_button>Compare Data</button>
+
+            @if (Model.IDStockCount != 0 && isCanEdit)
+            {
+                <button type="button" class="btn btn-primary btnEdit" id="btnEdit">Edit Detail</button>
+                <button type="button" class="btn btn-primary btnAction btnSaveNew" id="">Save Detail</button>
+            }
+            
+        </div>
+        <table id="dataTable" class="dataTable display table-bordered">
+            <thead>
+                <tr>
+                    <th class="column_fa_code">FA Code</th>
+                    <th class="column_brand">Brand</th>
+                    <th class="column_batch">Batch</th>
+                    <th class="column_qty_input_small">SAP Qty (Box)</th>
+                    <th class="column_qty_input_small">Man Qty (Box)</th>
+                    <th>Loading Not Yet Interface/GI (Box)</th>
+                    <th>Receiving Not Yet Interface/GR (Box)</th>
+                    <th class="column_qty_input_small">Selisih (Box)</th>
+                    <th class="column_qty_input_small">SAP Qty (Pack)</th>
+                    <th class="column_qty_input_small">Man Qty (Pack)</th>
+                    <th>Loading Not Yet Interface/GI (Pack)</th>
+                    <th>Receiving Not Yet Interface/GR (Pack)</th>
+                    <th class="column_qty_input_small">Selisih (Pack)</th>
+                    <th style="padding-left:45px;padding-right:45px;">Remarks <br />*Please use double click for detail</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody" class="body_daily" tabname="Daily FG (1000)" tabid="dailyfg" SLoc="1000">
+                @if (Model.IDStockCount != 0 && isWeekly == false)
+                {
+                    foreach (var obj in Model.WarehouseStockCountDetails.Where(f => f.SLoc == "1000").OrderBy(f => f.IDStockCountDetail))
+                    {
+                        decimal diffqtybox = obj.SAPQtyBox - (obj.ManQtyBox + obj.InterfaceQtyBox - obj.ReceivingQtyBox);
+                        decimal diffqtypack = obj.SAPQtyPack - (obj.ManQtyPack + obj.InterfaceQtyPack - obj.ReceivingQtyPack);
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control facode" disabled="disabled" value="@obj.FACode"/>
+                                <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="@obj.Unrestr.ToString().Replace(',', '.')" />
+                                <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="@obj.QualityInsp.ToString().Replace(',', '.')" />
+                            </td>
+                            <td><input type="text" class="form-control brand" disabled="disabled" value="@obj.BrandDescription"/></td>
+                            <td><input type="text" class="form-control batch" disabled="disabled" value="@obj.Batch"/></td>
+                            <td><input type="text" class="form-control sapqtybox" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyBox)"/></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal manqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyBox)"/></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal interfaceqtybox" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyBox)" /></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal receivingqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyBox)" /></td>
+                            <td><input type="text" class="form-control IsDecimal diffqtybox" disabled="disabled" value="@Model.addSeparator(diffqtybox)" /></td>
+                            <td><input type="text" class="form-control sapqtypack" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyPack)" /></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal manqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyPack)"/></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal interfaceqtypack" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyPack)" /></td>
+                            <td><input type="text" class="form-control inputqty IsDecimal receivingqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyPack)" /></td>
+                            <td><input type="text" class="form-control IsDecimal diffqtypack" disabled="disabled" value="@Model.addSeparator(diffqtypack)" /></td>
+                            <td><input type="text" class="form-control remarks inputeditable" disabled="disabled" value="@obj.Remarks" /></td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="row" style="padding-top:10px">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group pull-left">
+                            <button class="btn btn-primary btnAddRow" id="" style="display:none">Add Row</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="dailybs" class="tab-pane fade in div_parent_table table-overflow">
+            <div style="padding-bottom:10px;">
+                <table class="table_info_qty">
+                    <tr style="font-size:16px;">
+                        <td style="text-align:left">Total Qty SAP</td>
+                        <td id="1042_total_qty_sap" class="info_total_qty"></td>
+                        <td id="1042_total_qty_sap_box_pack" class="info_total_qty_box_pack"></td>
+
+                        <td class="table_info_qty_second_column">Total Qty Loading Not Yet Int./GI</td>
+                        <td id="1042_total_qty_loading" class="info_total_qty"></td>
+                        <td id="1042_total_qty_loading_box_pack" class="info_total_qty"></td>
+                    </tr>
+                    <tr style="font-size:16px;">
+                        <td style="text-align:left">Total Qty MAN</td>
+                        <td id="1042_total_qty_man" class="info_total_qty"></td>
+                        <td id="1042_total_qty_man_box_pack" class="info_total_qty_box_pack"></td>
+
+                        <td class="table_info_qty_second_column">Total Qty Receiving Not Yet Int./GR</td>
+                        <td id="1042_total_qty_receiving" class="info_total_qty"></td>
+                        <td id="1042_total_qty_receiving_box_pack" class="info_total_qty"></td>
+                    </tr>
+                </table>
+            </div>
+            <div style="padding-bottom:10px;">
+                @if (Model.IDStockCount == 0)
+                {
+
+                }
+                <button type="button" class="btn btn-primary btnAction btnImportSAP" id=""  @disabled_button>Sync with SAP</button>
+                <button type="button" class="btn btn-primary btnAction btnSync"  @disabled_button>Compare Data</button>
+
+                @if (Model.IDStockCount != 0 && isCanEdit)
+                {
+                    <button type="button" class="btn btn-primary btnEdit" id="">Edit Detail</button>
+                    <button type="button" class="btn btn-primary btnAction btnSaveNew" id="">Save Detail</button>
+                }
+                <!--<button type="button" class="btn btn-primary btnSaveNew" id="">Save</button>-->
+            </div>
+            <table id="dataTable" class="dataTable display table-bordered">
+                <thead>
+                    <tr>
+                        <th class="column_fa_code">FA Code</th>
+                        <th class="column_brand">Brand</th>
+                        <th class="column_batch">Batch</th>
+                        <th class="column_qty_input_small">SAP Qty (Box)</th>
+                        <th class="column_qty_input_small">Man Qty (Box)</th>
+                        <th>Loading Not Yet Interface/GI (Box)</th>
+                        <th>Receiving Not Yet Interface/GR (Box)</th>
+                        <th class="column_qty_input_small">Selisih (Box)</th>
+                        <th class="column_qty_input_small">SAP Qty (Pack)</th>
+                        <th class="column_qty_input_small">Man Qty (Pack)</th>
+                        <th>Loading Not Yet Interface/GI (Pack)</th>
+                        <th>Receiving Not Yet Interface/GR (Pack)</th>
+                        <th class="column_qty_input_small">Selisih (Pack)</th>
+                        <th style="padding-left:45px;padding-right:45px;">Remarks <br />*Please use double click for detail</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="body_daily" tabname="Daily FG (1042)" tabid="dailybs" SLoc="1042">
+                    @if (Model.IDStockCount != 0 && isWeekly == false)
+                    {
+                        foreach (var obj in Model.WarehouseStockCountDetails.Where(f => f.SLoc == "1042").OrderBy(f => f.IDStockCountDetail))
+                        {
+                            decimal diffqtybox = obj.SAPQtyBox - (obj.ManQtyBox + obj.InterfaceQtyBox - obj.ReceivingQtyBox);
+                            decimal diffqtypack = obj.SAPQtyPack - (obj.ManQtyPack + obj.InterfaceQtyPack - obj.ReceivingQtyPack);
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-control facode" disabled="disabled" value="@obj.FACode" />
+                                    <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="@obj.Unrestr.ToString().Replace(',', '.')" />
+                                    <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="@obj.QualityInsp.ToString().Replace(',', '.')" />
+                                </td>
+                                <td><input type="text" class="form-control brand" disabled="disabled" value="@obj.BrandDescription" /></td>
+                                <td><input type="text" class="form-control batch" disabled="disabled" value="@obj.Batch" /></td>
+                                <td><input type="text" class="form-control sapqtybox" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyBox)" /></td>
+                                <td><input type="text" class="form-control IsDecimal inputqty manqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyBox)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal interfaceqtybox" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyBox)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal receivingqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyBox)" /></td>
+                                <td><input type="text" class="form-control IsDecimal diffqtybox" disabled="disabled" value="@Model.addSeparator(diffqtybox)" /></td>
+                                <td><input type="text" class="form-control sapqtypack" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyPack)" /></td>
+                                <td><input type="text" class="form-control IsDecimal inputqty manqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyPack)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal interfaceqtypack" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyPack)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal receivingqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyPack)" /></td>
+                                <td><input type="text" class="form-control IsDecimal diffqtypack" disabled="disabled" value="@Model.addSeparator(diffqtypack)" /></td>
+                                <td><input type="text" class="form-control remarks inputeditable" disabled="disabled" value="@obj.Remarks" /></td>
+                                <td></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div class="row" style="padding-top:10px">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group pull-left">
+                                <button class="btn btn-primary btnAddRow" id="" style="display:none">Add Row</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="weekly" class="tab-pane fade in div_parent_table table-overflow">
+        <div style="padding-bottom:10px;">
+            <table class="table_info_qty">
+                <tr style="font-size:16px;">
+                    <td style="text-align:left">Total Qty SAP</td>
+                    <td id="weekly_total_qty_sap" class="summary_weekly info_total_qty"></td>
+                    <td id="weekly_total_qty_sap_box_pack" class="summary_weekly info_total_qty_box_pack"></td>
+
+                    <td class="table_info_qty_second_column">Total Qty Loading Not Yet Int./GI</td>
+                    <td id="weekly_total_qty_loading" class="summary_weekly info_total_qty"></td>
+                    <td id="weekly_total_qty_loading_box_pack" class="summary_weekly info_total_qty"></td>
+                </tr>
+                <tr style="font-size:16px;">
+                    <td style="text-align:left">Total Qty MAN</td>
+                    <td id="weekly_total_qty_man" class="summary_weekly info_total_qty"></td>
+                    <td id="weekly_total_qty_man_box_pack" class="summary_weekly info_total_qty_box_pack"></td>
+
+                    <td class="table_info_qty_second_column">Total Qty Receiving Not Yet Int./GR</td>
+                    <td id="weekly_total_qty_receiving" class="summary_weekly info_total_qty"></td>
+                    <td id="weekly_total_qty_receiving_box_pack" class="summary_weekly info_total_qty"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="row" id="weekly_error" style="display:none; margin-left: 0px;">
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1000"></div>
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1040"></div>
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1041"></div>
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1042"></div>
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1043"></div>
+            <div style="width:81px; float:left; color:red; font-weight:bold;" id="error_weekly_1046"></div>
+        </div>
+        <div style="padding-bottom:10px;">
+            @foreach (string SLoc in Model.WEEKLY_STORE_LOCATION)
+            {
+                <button type="button" class="btn @def_button btnWeekly" tag="div_weekly_@SLoc">@SLoc</button>
+                def_button = "btn-weekly-non-selected";
+            }
+            @if (Model.IDStockCount == 0)
+            {
+                
+            }
+                <button type="button" class="btn btn-primary btnAction btnImportSAP" id="" @disabled_button>Sync with SAP</button>
+                <button type="button" class="btn btn-primary btnAction btnSync" @disabled_button>Compare Data</button>
+
+            @if (Model.IDStockCount != 0 && isCanEdit)
+            {
+                <button type="button" class="btn btn-primary btnEdit" id="">Edit Detail</button>
+                <button type="button" class="btn btn-primary btnAction btnSaveNew" id="">Save Detail</button>
+            }
+            <!--<button type="button" class="btn btn-primary btnSaveNew" id="">Save</button>-->
+        </div>
+
+        @foreach (string SLoc in Model.WEEKLY_STORE_LOCATION)
+        {
+            <div id="div_weekly_@SLoc" style="@def_style" class="div_weekly">
+                <table id="table_weekly_@SLoc" class="dataTable display table-bordered table_weekly" >
+                    <thead>
+                        <tr>
+                            <th class="column_fa_code">FA Code</th>
+                            <th class="column_brand">Brand</th>
+                            <th class="column_batch">Batch</th>
+                            <th class="column_qty_input_small">SAP Qty (Box)</th>
+                            <th class="column_qty_input_small">Man Qty (Box)</th>
+                            <th>Loading Not Yet Interface/GI (Box)</th>
+                            <th>Receiving Not Yet Interface/GR (Box)</th>
+                            <th class="column_qty_input_small">Selisih (Box)</th>
+                            <th class="column_qty_input_small">SAP Qty (Pack)</th>
+                            <th class="column_qty_input_small">Man Qty (Pack)</th>
+                            <th>Loading Not Yet Interface/GI (Pack)</th>
+                            <th>Receiving Not Yet Interface/GR (Pack)</th>
+                            <th class="column_qty_input_small">Selisih (Pack)</th>
+                            <th style="padding-left:45px;padding-right:45px;">Remarks <br />*Please use double click for detail</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" sloc="@SLoc">
+                    @if (Model.IDStockCount != 0 && isWeekly == true)
+                    {
+                        foreach (var obj in Model.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).ToList())
+                        {
+                            decimal diffqtybox = obj.SAPQtyBox - (obj.ManQtyBox + obj.InterfaceQtyBox - obj.ReceivingQtyBox);
+                            decimal diffqtypack = obj.SAPQtyPack - (obj.ManQtyPack + obj.InterfaceQtyPack - obj.ReceivingQtyPack);
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-control facode" disabled="disabled" value="@obj.FACode" />
+                                    <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="@obj.Unrestr.ToString().Replace(',', '.')" />
+                                    <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="@obj.QualityInsp.ToString().Replace(',', '.')" />
+                                </td>
+                                <td><input type="text" class="form-control brand" disabled="disabled" value="@obj.BrandDescription" /></td>
+                                <td><input type="text" class="form-control batch" disabled="disabled" value="@obj.Batch" /></td>
+                                <td><input type="text" class="form-control sapqtybox" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyBox)" /></td>
+                                <td><input type="text" class="form-control IsDecimal inputqty manqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyBox)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal interfaceqtybox" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyBox)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal receivingqtybox" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyBox)" /></td>
+                                <td><input type="text" class="form-control IsDecimal diffqtybox" disabled="disabled" value="@Model.addSeparator(diffqtybox)" /></td>
+                                <td><input type="text" class="form-control sapqtypack" disabled="disabled" value="@Model.addSeparator(obj.SAPQtyPack)" /></td>
+                                <td><input type="text" class="form-control IsDecimal inputqty manqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ManQtyPack)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal interfaceqtypack" disabled="disabled" value="@Convert.ToInt32(obj.InterfaceQtyPack)" /></td>
+                                <td><input type="text" class="form-control inputqty IsDecimal receivingqtypack" disabled="disabled" value="@Convert.ToInt32(obj.ReceivingQtyPack)" /></td>
+                                <td><input type="text" class="form-control IsDecimal diffqtypack" disabled="disabled" value="@Model.addSeparator(diffqtypack)" /></td>
+                                <td><input type="text" class="form-control remarks inputeditable" disabled="disabled" value="@obj.Remarks" /></td>
+                                <td></td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+
+                <div class="row" style="padding-top:10px">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group pull-left">
+                                    <button class="btn btn-primary btnAddRow" id="" style="display:none">Add Row</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            def_style = "display:none";
+        }
+    </div>
+</div>
+<div>
+    <table>
+        <tr>
+            <td style="">Legend : </td>
+            <td style="text-align:left">(-) Selisih Kurang</td>
+        </tr>
+        <tr>
+            <td style=""></td>
+            <td style="text-align:left">(+) Selisih Lebih</td>
+        </tr>
+    </table>
+</div>
+<table style="display:none">
+    <tbody id="templateRow">
+        <tr>
+            <td>
+                <input type="text" class="form-control facode" />
+                <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="" />
+                <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="" />
+            </td>
+            <td><input type="text" class="form-control brand" /></td>
+            <td><input type="text" class="form-control batch" /></td>
+            <td><input type="text" class="form-control sapqtybox" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty interfaceqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty receivingqtybox" /></td>
+            <td><input type="text" class="form-control diffqtybox" disabled="disabled" value="0" /></td>
+            <td><input type="text" class="form-control sapqtypack" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtypack" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty interfaceqtypack" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty receivingqtypack" /></td>
+            <td><input type="text" class="form-control diffqtypack" disabled="disabled" value="0" /></td>
+            <td><input type="text" class="form-control remarks" /></td>
+            <td><button type="button" class="btn btn-danger btnRemoveRow"><i class="fa fa-minus" aria-hidden="true"></i></button></td>
+        </tr>
+    </tbody>
+
+    <tbody id="templateRowSAP">
+        <tr>
+            <td>
+                <input type="text" class="form-control facode" disabled="disabled" />
+                <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="" />
+                <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="" />
+            </td>
+            <td><input type="text" class="form-control brand" disabled="disabled" /></td>
+            <!--<td><input type="text" class="form-control brand" disabled="disabled" /></td>-->
+            <td><input type="text" class="form-control batch" disabled="disabled" /></td>
+            <td><input type="text" class="form-control sapqtybox" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty interfaceqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty receivingqtybox" /></td>
+            <td><input type="text" class="form-control diffqtybox" disabled="disabled" value="0" /></td>
+            <td><input type="text" class="form-control sapqtypack" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtypack" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty interfaceqtypack" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty receivingqtypack" /></td>
+            <td><input type="text" class="form-control diffqtypack" disabled="disabled" value="0" /></td>
+            <td><input type="text" class="form-control remarks" /></td>
+            <td></td>
+        </tr>
+    </tbody>
+    <tbody id="templateRowSAPWeekly">
+        <tr>
+            <td>
+                <input type="text" class="form-control facode" disabled="disabled" />
+                <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="" />
+                <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="" />
+            </td>
+            <td><input type="text" class="form-control brand" disabled="disabled" /></td>
+            <!--<td><input type="text" class="form-control brand" disabled="disabled" /></td>-->
+            <td><input type="text" class="form-control batch" disabled="disabled" /></td>
+            <td><input type="text" class="form-control sapqtybox" disabled="disabled" /></td>
+            <td><input type="text" class="form-control sapqtypack" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtypack" /></td>
+            <td><input type="text" class="form-control remarks" /></td>
+            <td></td>
+        </tr>
+    </tbody>
+
+    <tbody id="templateRowWeekly">
+        <tr>
+            <td>
+                <input type="text" class="form-control facode" />
+                <input type="text" class="form-control unrestr" disabled="disabled" style="display:none" value="" />
+                <input type="text" class="form-control qualityinsp" disabled="disabled" style="display:none" value="" />
+            </td>
+            <td><input type="text" class="form-control brand" /></td>
+            <!--<td><input type="text" class="form-control brand" /></td>-->
+            <td><input type="text" class="form-control batch" /></td>
+            <td><input type="text" class="form-control sapqtybox" disabled="disabled" /></td>
+            <td><input type="text" class="form-control sapqtypack" disabled="disabled" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtybox" /></td>
+            <td><input type="text" class="form-control IsDecimal inputqty manqtypack" /></td>
+            <td><input type="text" class="form-control remarks" /></td>
+            <td><button type="button" class="btn btn-danger btnRemoveRow"><i class="fa fa-minus" aria-hidden="true"></i></button></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="modal fade" id="modalAttachment" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Attachment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label></label>
+                            <input id="uploadFile" type="file" class="filestyle input_file form-editable" data-buttonname="btn-primary" data-icon="false" data-buttontext="Browse" accept="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label>&nbsp</label>
+                            <button type="button" class="btn btn-primary" id="btnAddAttachment">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 table" style="padding-left:0px;">
+                        <table>
+                            <tbody id="listUpload">
+                                @if (Model.ListAttachment != null)
+                                {
+                                    int fileidx = 1;
+                                    foreach (var filename in Model.ListAttachment)
+                                    {
+                                    <tr class="prevData" filename="@filename">
+                                        <td class=""> 
+                                            <a href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"] + filename)" style="float:right; margin-right:10px; text-decoration: none;">
+                                                <i class="fa fa-download"></i>
+                                                <span class="row_attachment">Attachment - @(fileidx++)</span>
+                                            </a>                                            
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-danger btnRemoveAttachment" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button>
+                                        </td>
+                                    </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" class="btn btn-success" id="btnUpload">Upload</button>-->
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="downloadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titleDownloadModal">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <span id="contentDownloadModal">
+
+                </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loadingModal" class="modal fade" role="dialog" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="../assets/images/loading.gif" alt=""><span id="textModalLoading"></span></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var baseUrl = '/DFIS';
+    var slocweekly = [1000, 1040, 1041, 1042, 1043, 1046];
+    var tempProNumber = [];//array untuk menyimpan productivity number ketika checkbox bagian kiri di klik(dipakai untuk query)
+    var filter = new Object();//object filter input
+    var totalqty = [];
+    var sapdata = [];
+    var dtSAPQty = [];
+    var isFromCompareData = false;
+    var TotalInvAcc = '@(Model.IDStockCount == 0 ? 0 : Math.Floor(Model.InvAcc))';
+    var IsUserEditQty = false;
+    var InputClasses = ['manqtybox', 'interfaceqtybox', 'receivingqtybox', 'manqtypack', 'interfaceqtypack', 'receivingqtypack'];
+    var FileAttach = [];
+    //var DeletedAttach = [];
+    var NamaOwner = [];
+    var JabatanOwner = [];
+    var NamaStock = [];
+    var JabatanStock = [];
+    var LenOwner = 0;
+    var LenStock = 0;
+
+    sapdata['dailyfg'] = [];
+    sapdata['dailybs'] = [];
+    sapdata['weekly'] = [];
+
+    totalqty['dailyfg'] = { sap_box: 'N/A', sap_pack: 'N/A', man_box: 'N/A', man_pack: 'N/A' };
+    totalqty['dailybs'] = { sap_box: 'N/A', sap_pack: 'N/A', man_box: 'N/A', man_pack: 'N/A' };
+    totalqty['weekly'] = { sap_box: 'N/A', sap_pack: 'N/A', man_box: 'N/A', man_pack: 'N/A' };
+    totalinv = {inv_acc: 'N/A', inv_util: 'N/A'};
+
+    function showDialog(message)
+    {
+        if (message == '' || message === undefined) message = 'Please Wait...'
+        return bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> ' + message + '</div>',
+            closeButton: false
+        });
+    }
+
+    function fillOptionWarehouse(options) {
+        var select = $('.warehouse');
+        select.select2('destroy');
+        $.each(select, function (e) {
+            $(this).append(options);
+        });
+
+        $('.warehouse').select2({
+            dropdownAutoWidth: true,
+            width: '100%'
+        })
+    }
+
+    function generateWareHouseName() {
+        var id = $('#transID').val();
+        var dialog = showDialog();
+        $.ajax({
+            url: '@Url.Action("../StockCount/GetLocationData")',
+            complete : function() { dialog.modal('hide'); },
+            type: 'POST',
+            dataType: 'JSON',
+            data: { Type: false },
+            cache: false,
+            success: function (data) {
+                var options = '<option></option>';
+                options = id != 0 ? options : '';
+
+                $.each(data,
+                    function (key, val) {
+                        options += '<option value="' + val.IDLocation + '">' + val.LocationName + '</option>';
+                    });
+                fillOptionWarehouse(options);
+
+                if ($('#transID').val() == 0) {
+                    loadDataStaff();
+                }
+            },
+            error: function () {
+                fillOptionWarehouse('<option>none available</option>');
+            }
+        });
+    }
+
+    function getCurrentShift() {
+        var id = $('#transID').val();
+
+        if (id == 0) {
+            $.ajax({
+                url: '@Url.Action("../StockCount/GetCurrentShift")',
+                dataType: 'JSON',
+                cache: false,
+                success: function (res) {
+                    $('#shift').val(res);
+                },
+                error: function () {
+                    fillOptionWarehouse('<option>none available</option>');
+                }
+            });
+        }
+    }
+
+    function getCurrentActiveTable() {
+        return $('.tab-pane').filter('.active').find('#dataTable #tableBody');
+    }
+
+    function uploadFile(fileData) {
+        $.ajax({
+            url: '@Url.Action("../StockCount/UploadFile")',
+            type: 'POST',
+            dataType: 'JSON',
+            data: fileData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                var message = res.status != 'Success' ? (res.status + '<br>' + res.message) : 'Data has been successfully saved to the database';
+                //$('#textModalWarning').html(message);
+                //$('#warningModal').modal('show');
+
+                if ($('#btnSaveAttachment').length == 1) {
+                    message = 'Data has been successfully saved to the database';
+                }
+
+                $('#textModalWarning').html(message);
+                $('#warningModal').modal('show');
+
+                if ($('#btnSaveAttachment').length == 1) {
+                    setTimeout(function () { location.reload() }, 1500);
+                }
+            },
+            error: function () {
+            }
+        });
+    }
+
+    function calculateTotal() {
+        var tbody = getCurrentActiveTable();
+        var SLoc = tbody.attr('SLoc');
+        var objtotal = totalqty[$('.tab-pane').filter('.active').attr('id')];
+        objtotal.man_pack = 0;
+
+        tbody.find('tr .inputqty').each(function () {
+            objtotal.man_pack += parseFloat($(this).val()) || 0;
+        });
+
+        $('#totalqtysappack').html(objtotal.sap_pack);
+        $('#totalqtymanpack').html(objtotal.man_pack);
+    }
+
+    function loadDataStaff()
+    {
+        //$("#warehouseStaff1").empty();
+        var obj = $('#warehouse');
+        var selectStaff1 = $('#warehouseStaff1');
+        var selectStaff2 = $('#warehouseStaff2');
+        var nextShift = $('#nextShift');
+
+        selectStaff1.empty();
+        selectStaff2.empty();
+        nextShift.empty();
+
+        $('#warehouseStaff1').select2('val', '');
+        $('#warehouseStaff2').select2('val', '');
+        $('#nextShift').select2('val', '');
+
+        selectStaff1.append($('<option>', { value: '-', text: '' }));
+        selectStaff2.append($('<option>', { value: '-', text: '' }));
+        nextShift.append($('<option>', { value: '-', text: '' }));
+
+        var dialog = showDialog();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../StockCount/GetUserByLocations")',
+            cache: false,
+            complete : function() { dialog.modal('hide'); },
+            dataType: 'JSON',
+            data: { IDLocations: [obj.val()] },
+            //complete: function() { dialog.modal('hide') },
+            success: function (res) {
+                for (idx in res) {
+                    //r.MasterUser.FullName;
+                    var r = res[idx];
+                    selectStaff1.append($('<option>', { value: r.IDUser, text: r.MasterUser.FullName }));
+                    selectStaff2.append($('<option>', { value: r.IDUser, text: r.MasterUser.FullName }));
+                    nextShift.append($('<option>', { value: r.IDUser, text: r.MasterUser.FullName }));
+                }
+                $('#warehouseStaff1').val('');
+                $('#warehouseStaff2').val('');
+                $('#nextShift').val('');
+            }
+        });
+    }
+
+    function replaceAll(str, find, replace) {
+        return str.replace(new RegExp(find, 'g'), replace);
+    }
+
+    function CompareData() {
+        var tabId = $('.tab-pane').filter('.active').attr('id');
+        var tbody = getCurrentActiveTable();
+        var SLoc = $('.navtype.active').attr('SLoc');//tbody.attr('SLoc');
+
+        sapdata[tabId].forEach(function (e) {
+            if (e !== undefined) {
+                var tr = $(e.input).closest('tr');
+                e.input.val(numberWithCommas(e.value));
+                //trigger event keyup
+                //tr.find('.inputqty')[0].trigger('keyup');
+                tr.find('.manqtybox').trigger('keyup');
+            }
+        });
+
+        $('.navtype').css('background-color', '');
+
+        var classNameSAPBox = '.sapqtybox';
+        var classNameSAPPack= '.sapqtypack';
+        var classNameManBox = '.manqtybox';
+        var classNameManPack = '.manqtypack';
+        var classNameInterfaceBox = '.interfaceqtybox';
+        var classNameInterfacePack = '.interfaceqtypack';
+        var classNameReceivingBox = '.receivingqtybox';
+        var classNameReceivingPack = '.receivingqtypack';
+        var isNotBalance = false;
+
+        CalculateTotalQty();
+        if (SLoc != 'weekly')
+        {
+            //tbody = getCurrentActiveTable();
+            var CounterDailyHasRow = 0;
+            $('.body_daily').each(function () {
+                //console.log($(this).attr('sapdata'));
+                if ($(this).find('tr').length > 0) {
+                    CounterDailyHasRow++;
+                    /*
+                    if (sapdata[$(this).attr('tabid')].length > 0 && tabname == '') {
+                        tabname = $(this).attr('tabname');
+                    }
+                    */
+                }
+            });
+
+            if (CounterDailyHasRow == 2) {
+                tbody = $('.body_daily');
+            }
+
+            var slocs = [];
+            tbody.find('tr').each(function(e){
+                var inputsapbox = $(this).find(classNameSAPBox);
+                var inputmanbox = $(this).find(classNameManBox);
+                var inputsappack = $(this).find(classNameSAPPack);
+                var inputmanpack = $(this).find(classNameManPack);
+                var inputinterfacebox = $(this).find(classNameInterfaceBox);
+                var inputinterfacepack = $(this).find(classNameInterfacePack);
+                var inputreceivingbox = $(this).find(classNameReceivingBox);
+                var inputreceivingpack = $(this).find(classNameReceivingPack);
+
+                $(inputsapbox).parent().css('background-color', '');
+                $(inputmanbox).parent().css('background-color', '');
+                $(inputsappack).parent().css('background-color', '');
+                $(inputmanpack).parent().css('background-color', '');
+                $(inputinterfacebox).parent().css('background-color', '');
+                $(inputinterfacepack).parent().css('background-color', '');
+                $(inputreceivingbox).parent().css('background-color', '');
+                $(inputreceivingpack).parent().css('background-color', '');
+
+                var totalqtybox = (parseFloat(inputmanbox.val()) || 0) + (parseFloat(inputinterfacebox.val()) || 0) - (parseFloat(inputreceivingbox.val()) || 0);
+                //console.log(totalqtybox + ' ' + replaceAll(inputsapbox.val(), ",", ""));
+                if (replaceAll(inputsapbox.val(), ",", "") != totalqtybox)
+                {
+                    $(inputsapbox).parent().css('background-color', 'red');
+                    $(inputmanbox).parent().css('background-color', 'red');
+                    $(inputinterfacebox).parent().css('background-color', 'red');
+                    $(inputreceivingbox).parent().css('background-color', 'red');
+                    isNotBalance = true;
+                    slocs['sloc_' + $(this).parent().attr('sloc')] = $(this).parent().attr('sloc');
+                }
+                var totalqtypack = (parseFloat(inputmanpack.val()) || 0) + (parseFloat(inputinterfacepack.val()) || 0) - (parseFloat(inputreceivingpack.val()) || 0);
+                //console.log(totalqtypack + ' ' + replaceAll(inputsappack.val(), ",", ""));
+                if (replaceAll(inputsappack.val(), ",", "") != totalqtypack)
+                {
+                    $(inputsappack).parent().css('background-color', 'red');
+                    $(inputmanpack).parent().css('background-color', 'red');
+                    $(inputinterfacepack).parent().css('background-color', 'red');
+                    $(inputreceivingpack).parent().css('background-color', 'red');
+                    isNotBalance = true;
+                    slocs['sloc_' + $(this).parent().attr('sloc')] = $(this).parent().attr('sloc');
+                }
+
+                if (isNotBalance)
+                {
+                    //slocs['sloc_' + $(this).parent().attr('sloc')] = $(this).parent().attr('sloc');
+                    //slocs.push($(this).parent().attr('sloc'));
+                }
+            });
+            //console.log(slocs);
+            if (isNotBalance)
+            {
+                if (CounterDailyHasRow == 2)
+                {
+                    for (var skey in slocs)
+                    {
+                        $(".navtype[sloc='" + slocs[skey] + "']").css('background-color', '#ed5a61');
+                    }
+                }
+                else
+                {
+
+                    $('.navtype.active').css('background-color', '#ed5a61');
+                }
+            }
+        }
+        else
+        {
+            $('#weekly_error').hide();
+            $('.table_weekly tbody').each(function(e){
+                isNotBalance = false;
+                var CurrentSLoc = $(this).attr('sloc');
+                var error_div = $('#error_weekly_' + CurrentSLoc);
+                error_div.html('&nbsp');
+                $(this).find('tr').each(function(e){
+                    //$(this).css('background-color', '');
+
+                    var inputsapbox = $(this).find(classNameSAPBox);
+                    var inputmanbox = $(this).find(classNameManBox);
+                    var inputsappack = $(this).find(classNameSAPPack);
+                    var inputmanpack = $(this).find(classNameManPack);
+                    var inputinterfacebox = $(this).find(classNameInterfaceBox);
+                    var inputinterfacepack = $(this).find(classNameInterfacePack);
+                    var inputreceivingbox = $(this).find(classNameReceivingBox);
+                    var inputreceivingpack = $(this).find(classNameReceivingPack);
+
+                    $(inputsapbox).parent().css('background-color', '');
+                    $(inputmanbox).parent().css('background-color', '');
+                    $(inputsappack).parent().css('background-color', '');
+                    $(inputmanpack).parent().css('background-color', '');
+                    $(inputinterfacebox).parent().css('background-color', '');
+                    $(inputinterfacepack).parent().css('background-color', '');
+                    $(inputreceivingbox).parent().css('background-color', '');
+                    $(inputreceivingpack).parent().css('background-color', '');
+
+                    var totalqtybox = (parseFloat(inputmanbox.val()) || 0) + (parseFloat(inputinterfacebox.val()) || 0) - (parseFloat(inputreceivingbox.val()) || 0);
+                    if (replaceAll(inputsapbox.val(), ",", "") != totalqtybox)
+                    {
+                        //$(this).css('background-color', 'red');
+                        $(inputsapbox).parent().css('background-color', 'red');
+                        $(inputmanbox).parent().css('background-color', 'red');
+                        $(inputinterfacebox).parent().css('background-color', 'red');
+                        $(inputreceivingbox).parent().css('background-color', 'red');
+                        isNotBalance = true;
+                    }
+
+                    var totalqtypack = (parseFloat(inputmanpack.val()) || 0) + (parseFloat(inputinterfacepack.val()) || 0) - (parseFloat(inputreceivingpack.val()) || 0);
+                    if (replaceAll(inputsappack.val(), ",", "") != totalqtypack)
+                    {
+                        $(inputsappack).parent().css('background-color', 'red');
+                        $(inputmanpack).parent().css('background-color', 'red');
+                        $(inputinterfacepack).parent().css('background-color', 'red');
+                        $(inputreceivingpack).parent().css('background-color', 'red');
+                        isNotBalance = true;
+                    }
+                });
+
+                if (isNotBalance) {
+                    $('#weekly_error').show();
+                    error_div.html('Not Balance');
+                    $('.navtype.active').css('background-color', 'red');
+                }
+            });
+        }
+
+        IsUserEditQty = false;
+    }
+
+    function GetDetail(row)
+    {
+        var detailData = {
+            'FACode': row.find('.facode').val(),
+            'Brand': row.find('.brand').val(),
+            'BrandDescription': row.find('.brand').val(),
+            'Batch': row.find('.batch').val(),
+            'SLoc': $(this).parent('tbody').attr('SLoc'),
+            'IDLocation': $('#warehouse').val(),
+            'Unrestr': row.find('.unrestr').val().replace(".", ","),
+            'QualityInsp': row.find('.qualityinsp').val().replace(".", ","),
+            'SAPQtyBox': replaceAll(row.find('.sapqtybox').val(), ",", "").replace(".", ","),
+            'SAPQtyPack': replaceAll(row.find('.sapqtypack').val(), ",", "").replace(".", ","),
+            'ManQtyBox': row.find('.manqtybox').val().replace(".", ","),
+            'ManQtyPack': row.find('.manqtypack').val().replace(".", ","),
+            'InterfaceQtyBox': row.find('.interfaceqtybox').val().replace(".", ","),
+            'InterfaceQtyPack': row.find('.interfaceqtypack').val().replace(".", ","),
+            'ReceivingQtyBox': row.find('.receivingqtybox').val().replace(".", ","),
+            'ReceivingQtyPack': row.find('.receivingqtypack').val().replace(".", ","),
+            'Remarks': row.find('.remarks').val(),
+            };
+
+        return detailData;
+    }
+
+    function SaveData(objBtnSave, isCompareData)
+    {
+        isFromCompareData = false;
+        var tbody = getCurrentActiveTable();
+        var SLoc = $('.navtype.active').attr('SLoc'); //tbody.attr('SLoc');
+        var tabId = $('.tab-pane').filter('.active').attr('id');
+        var transID = $('#transID').val();
+
+        var postData = {
+            'new':
+                [{
+                    TransDate: moment($('#transDate').val(), 'DD-MM-YYYY').format('YYYY-MM-DD'), IDLocation: $('#warehouse').val(), Shift: $('#shift').val(),
+                    WarehouseStaff1: $('#warehouseStaff1').val() == '-' ? '' : $('#warehouseStaff1').val(), WarehouseStaff2: $('#warehouseStaff2').val() == '-' ? '' : $('#warehouseStaff2').val(),
+                    NextShift: $('#nextShift').val() == '-' ? '' : $('#nextShift').val(), Status: $('#status').val(), SyncedTime: moment($('#SyncedTime').val(), 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm'),
+                    Remarks: $('#remarks').val(), Remarks1040: $('#remarks1040').val(), Remarks1041: $('#remarks1041').val(), Remarks1042: $('#remarks1042').val(),
+                    Remarks1043: $('#remarks1043').val(), Remarks1046: $('#remarks1046').val(),
+                    SLoc: SLoc, Type: false, IDStockCount: $('#transID').val(), IsCompareData: isCompareData,
+                    WarehouseStockCountDetails: []
+                }],
+        };
+
+        var isFACodeEmpty = false;
+
+        if (SLoc != 'weekly') {
+            tbody = tbody;
+            var CounterDailyHasRow = 0;
+            var tabname = '';
+
+            //if (transID == 0)
+            //{
+            $('.body_daily').each(function () {
+                //console.log($(this).attr('sapdata'));
+                if ($(this).find('tr').length > 0) {
+                    CounterDailyHasRow++;
+                    if (sapdata[$(this).attr('tabid')].length > 0 && tabname == '') {
+                        tabname = $(this).attr('tabname');
+                    }
+                }
+            });
+
+            if (CounterDailyHasRow == 2) {
+                if (tabname != '') {
+                    $('#textModalWarning').html('Please compare data to continue (' + tabname + ')');
+                    $('#warningModal').modal('show');
+                    return;
+                }
+                else {
+                    tbody = $('.body_daily');
+                }
+            }
+            //}
+
+            tbody.find('tr').each(function () {
+                var row = $(this);
+                var facode = row.find('.facode').val();
+                if ($.trim(facode) == '' && !isFACodeEmpty) {
+                    isFACodeEmpty = true;;
+                }
+                var detailData = GetDetail(row);
+                detailData.SLoc = $(this).parent('tbody').attr('SLoc');
+
+                /*
+                var detailData = {
+                    'FACode': facode,
+                    'Brand': row.find('.brand').val(),
+                    'BrandDescription': row.find('.brand').val(),
+                    'Batch': row.find('.batch').val(),
+                    'SLoc': $(this).parent('tbody').attr('SLoc'),
+                    'IDLocation': $('#warehouse').val(),
+                    'Unrestr': row.find('.unrestr').val().replace(".", ","),
+                    'QualityInsp': row.find('.qualityinsp').val().replace(".", ","),
+                    'SAPQtyBox': replaceAll(row.find('.sapqtybox').val(), ",", "").replace(".", ","),
+                    'SAPQtyPack': replaceAll(row.find('.sapqtypack').val(), ",", "").replace(".", ","),
+                    'ManQtyBox': row.find('.manqtybox').val().replace(".", ","),
+                    'ManQtyPack': row.find('.manqtypack').val().replace(".", ","),
+                    'InterfaceQtyBox': row.find('.interfaceqtybox').val().replace(".", ","),
+                    'InterfaceQtyPack': row.find('.interfaceqtypack').val().replace(".", ","),
+                    'ReceivingQtyBox': row.find('.receivingqtybox').val().replace(".", ","),
+                    'ReceivingQtyPack': row.find('.receivingqtypack').val().replace(".", ","),
+                    'Remarks': row.find('.remarks').val(),
+                };
+                */
+                postData.new[0].WarehouseStockCountDetails.push(detailData);
+            });
+        } else {
+            for (var i = 0; i < slocweekly.length; i++) {
+                $('#table_weekly_' + slocweekly[i] + ' tbody tr').each(function(){
+                    var row = $(this);
+                    var facode = row.find('.facode').val();
+                    if ($.trim(facode) == '' && !isFACodeEmpty) {
+                        isFACodeEmpty = true;;
+                    }
+                    var detailData = GetDetail(row);
+                    detailData.SLoc = slocweekly[i];
+                    /*
+                    var detailData = {
+                        'FACode': facode,
+                        'Brand': row.find('.brand').val(),
+                        'BrandDescription': row.find('.brand').val(),
+                        'IDLocation': $('#warehouse').val(),
+                        'Batch': row.find('.batch').val(),
+                        'SLoc': slocweekly[i],
+                        'Unrestr': row.find('.unrestr').val().replace(".", ","),
+                        'QualityInsp': row.find('.qualityinsp').val().replace(".", ","),
+                        'SAPQtyBox': replaceAll(row.find('.sapqtybox').val(), ",", ""),
+                        'SAPQtyPack': replaceAll(row.find('.sapqtypack').val(), ",", ""),
+                        'ManQtyBox': row.find('.manqtybox').val().replace(".", ","),
+                        'ManQtyPack': row.find('.manqtypack').val().replace(".", ","),
+                        'Remarks': row.find('.remarks').val(),
+                    };
+                    */
+                    postData.new[0].WarehouseStockCountDetails.push(detailData);
+                });
+            };
+        }
+        //console.log(postData.new[0].WarehouseStockCountDetails);
+        if (isFACodeEmpty) {
+            $('#textModalWarning').html('FACode can`t be empty');
+            $('#warningModal').modal('show');
+            return;
+        }
+
+        if (sapdata[tabId].length > 0 || IsUserEditQty)
+        {
+            $('#textModalWarning').html('Please compare data to continue');
+            $('#warningModal').modal('show');
+            return;
+        }
+
+        if (($('#warehouseStaff1').val() == '-' || $('#warehouseStaff1').val() == null) && !isCompareData) {
+            $('#textModalWarning').html('Warehouse Staff-1 must be selected');
+            $('#warningModal').modal('show');
+            return;
+        }
+
+        if ($('#status').val() == '-' && !isCompareData) {
+            $('#textModalWarning').html('Status must be selected');
+            $('#warningModal').modal('show');
+            return;
+        }
+
+        //call func compare data
+        if (!isCompareData) CompareData();
+
+        if ((($('.navtype.active').css('background-color') == 'rgb(255, 0, 0)' || IsUserEditQty || TotalInvAcc < 100) && $('#status').val() == 'Balance') && !isCompareData)
+        {
+            $('#textModalWarning').html('Status can`t be balance (Accuracy below 100%)');
+            $('#warningModal').modal('show');
+            return;
+        }
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.ajax({
+            url: '@Url.Action("../StockCount/AddNew")',
+            //beforeSend : function() { $("#textModalLoading").html(" Please Wait"); $("#loadingModal").modal('show'); },
+            complete : function() { dialog.modal('hide'); },
+            type: 'POST',
+            dataType: 'JSON',
+            data: postData,
+            cache: false,
+            success: function (res) {
+                var message = res.status != 'Success' ? (res.status + '<br>' + res.message) : 'Data has been successfully saved to the database';
+                if (!isCompareData)
+                {
+                    if (res.status == 'Success') {
+                        $('.navtype').not('.active').css('display', 'none');
+                        if (res.id != 0) {
+                            var fileData = CollectFile(res.id);
+                            uploadFile(fileData);
+                            /*
+                            var fileData = new FormData();
+
+                            //get data dari file sebelumnya
+                            $('#listUpload tr.prevData').each(function () {
+                                fileData.append(res.id, '-');
+                            });
+
+                            //get data dari file yang baru
+                            for (var idxfile = 1; idxfile < FileAttach.length; idxfile++)
+                            {
+                                if (FileAttach[idxfile] === undefined) continue;
+                                fileData.append(res.id, FileAttach[idxfile].file);
+                            }
+                            console.log(fileData);
+                            if (fileData.length > 0) {
+                                uploadFile(fileData)
+                            } else {
+                                $('#textModalWarning').html(message);
+                                $('#warningModal').modal('show');
+                            }
+                            */
+                        } else {
+                            $('#textModalWarning').html(message);
+                            $('#warningModal').modal('show');
+                        }
+                        //disabled input and current table
+                        //if (SLoc != 'weekly')
+                        //{
+                        $("#frm-input :input").attr('disabled', 'disabled');
+
+                        if (SLoc == 'weekly')
+                        {
+                            $('.table_weekly tbody tr .inputqty, .inputeditable').attr('disabled', 'disabled');
+                        }
+                        $('.tab-pane').filter('.active').find('.btnAddRow').hide();
+                        var tbody = getCurrentActiveTable();
+                        tbody.find(':input').attr('disabled', 'disabled');
+                        //if ($('#transID').val() != 0)
+                        if (objBtnSave !== undefined)
+                        {
+                            //$('#btnSaveNew').attr('disabled', 'disabled');
+                            //$('#btnEdit').removeAttr('disabled');
+                            objBtnSave.attr('disabled', 'disabled');
+                            objBtnSave.siblings('.btnEdit').removeAttr('disabled');
+
+                            if ($('#transID').val() == 0)
+                            {
+                                $('.btnSaveNew').attr('disabled', 'disabled');
+                            }
+                        }
+
+                        //jika addnew, maka redirect ke view
+                        var reloadtime = 2000;
+                        if ($('#transID').val() == 0)
+                        {
+                            reloadtime = 3000;
+                        }
+                        setTimeout(function () { window.location.href = "@Url.Action("ViewDetail", "StockCount")?id=" + res.id; }, reloadtime);
+                    } else {
+                        $('#textModalWarning').html(message);
+                        $('#warningModal').modal('show');
+                    }
+                }
+                else
+                {
+                    if (res.status != 'Success')
+                    {
+                        $('#textModalWarning').html(message);
+                        $('#warningModal').modal('show');
+                        return;
+                    }
+                    TotalInvAcc = res.CalculationResult.InvAcc;
+
+                    if (TotalInvAcc < 100) {
+                        $('#status').select2('val', '-');
+                    } else if (TotalInvAcc >= 100) {
+                        $('#status').select2('val', 'Balance');
+                    }
+
+                    $('#inv_acc').html(res.CalculationResult.InvAcc);
+                    $('#inv_util').html(res.CalculationResult.InvUtil);
+
+                    var totalsapbox = res.CalculationResult.TotalSAP1000Box + res.CalculationResult.TotalSAP1040Box + res.CalculationResult.TotalSAP1041Box + res.CalculationResult.TotalSAP1042Box + res.CalculationResult.TotalSAP1043Box + res.CalculationResult.TotalSAP1046Box;
+                    var totalsappack = res.CalculationResult.TotalSAP1000Pack + res.CalculationResult.TotalSAP1040Pack + res.CalculationResult.TotalSAP1041Pack + res.CalculationResult.TotalSAP1042Pack + res.CalculationResult.TotalSAP1043Pack + res.CalculationResult.TotalSAP1046Pack;
+
+                    var totalmanpbox = res.CalculationResult.TotalMan1000Box + res.CalculationResult.TotalMan1040Box + res.CalculationResult.TotalMan1041Box + res.CalculationResult.TotalMan1042Box + res.CalculationResult.TotalMan1043Box + res.CalculationResult.TotalMan1046Box;
+                    var totalmanpack = res.CalculationResult.TotalMan1000Pack + res.CalculationResult.TotalMan1040Pack + res.CalculationResult.TotalMan1041Pack + res.CalculationResult.TotalMan1042Pack + res.CalculationResult.TotalMan1043Pack + res.CalculationResult.TotalMan1046Pack;
+
+                    $('#totalqtysapbox').html(numberWithCommas(totalsapbox));
+                    $('#totalqtysappack').html(numberWithCommas(totalsappack));
+
+                    $('#totalqtymanbox').html(numberWithCommas(totalmanpbox));
+                    $('#totalqtymanpack').html(numberWithCommas(totalmanpack));
+
+                    isFromCompareData = false;
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+
+
+    function CalculateTotalQty()
+    {
+        isFromCompareData = false;
+        var tbody = getCurrentActiveTable();
+        var SLoc = $('.navtype.active').attr('SLoc');
+        var tabId = $('.tab-pane').filter('.active').attr('id');
+
+        var postData = [];
+
+        var isFACodeEmpty = false;
+
+        var TotalSAPQtyBox = 0, TotalSAPQtyPack = 0;
+        var TotalManQtyBox = 0, TotalManQtyPack = 0;
+        var TotalLoadingQtyBox = 0, TotalLoadingQtyPack = 0;
+        var TotalReceivingQtyBox = 0, TotalReceivingQtyPack = 0;
+
+        var selected_button_weekly = null;
+
+        if (SLoc != 'weekly') {
+            tbody.find('tr').each(function () {
+                var row = $(this);
+                var detailData = GetDetail(row);
+                /*
+                var detailData = {
+                    'FACode': row.find('.facode').val(),
+                    'Brand': row.find('.brand').val(),
+                    'BrandDescription': row.find('.brand').val(),
+                    'Batch': row.find('.batch').val(),
+                    'SLoc': SLoc,
+                    'IDLocation': $('#warehouse').val(),
+                    'Unrestr': row.find('.unrestr').val().replace(".", ","),
+                    'QualityInsp': row.find('.qualityinsp').val().replace(".", ","),
+                    'SAPQtyBox': replaceAll(row.find('.sapqtybox').val(), ",", ""),
+                    'SAPQtyPack': replaceAll(row.find('.sapqtypack').val(), ",", ""),
+                    'ManQtyBox': row.find('.manqtybox').val().replace(".", ","),
+                    'ManQtyPack': row.find('.manqtypack').val().replace(".", ","),
+                    'InterfaceQtyBox': row.find('.interfaceqtybox').val().replace(".", ","),
+                    'InterfaceQtyPack': row.find('.interfaceqtypack').val().replace(".", ","),
+                    'ReceivingQtyBox': row.find('.receivingqtybox').val().replace(".", ","),
+                    'ReceivingQtyPack': row.find('.receivingqtypack').val().replace(".", ","),
+                    'Remarks': row.find('.remarks').val(),
+                };
+                */
+                postData.push(detailData);
+
+                TotalSAPQtyBox += (parseFloat(detailData.SAPQtyBox) || 0);
+                TotalSAPQtyPack += (parseFloat(detailData.SAPQtyPack) || 0);
+                TotalManQtyBox += (parseFloat(detailData.ManQtyBox) || 0);
+                TotalManQtyPack += (parseFloat(detailData.ManQtyPack) || 0);
+                TotalLoadingQtyBox += (parseFloat(detailData.InterfaceQtyBox) || 0);
+                TotalLoadingQtyPack += (parseFloat(detailData.InterfaceQtyPack) || 0);
+                TotalReceivingQtyBox += (parseFloat(detailData.ReceivingQtyBox) || 0);
+                TotalReceivingQtyPack += (parseFloat(detailData.ReceivingQtyPack) || 0);
+            });
+        } else {
+            //for (var i = 0; i < slocweekly.length; i++) {
+            selected_button_weekly = $('.btnWeekly.btn-success');
+            $('#table_weekly_' + selected_button_weekly.html() + ' tbody tr').each(function () {
+                var row = $(this);
+                var detailData = GetDetail(row);
+                postData.push(detailData);
+
+                TotalSAPQtyBox += (parseFloat(detailData.SAPQtyBox) || 0)
+                TotalSAPQtyPack += (parseFloat(detailData.SAPQtyPack) || 0);
+                TotalManQtyBox += (parseFloat(detailData.ManQtyBox) || 0);
+                TotalManQtyPack += (parseFloat(detailData.ManQtyPack) || 0);
+                TotalLoadingQtyBox += (parseFloat(detailData.InterfaceQtyBox) || 0);
+                TotalLoadingQtyPack += (parseFloat(detailData.InterfaceQtyPack) || 0);
+                TotalReceivingQtyBox += (parseFloat(detailData.ReceivingQtyBox) || 0);
+                TotalReceivingQtyPack += (parseFloat(detailData.ReceivingQtyPack) || 0);
+            });
+            //};
+        }
+        //console.log(SLoc);
+
+        var dialog = showDialog();
+        $.ajax({
+            url: '@Url.Action("../StockCount/GetTotalQty")',
+            complete: function () { dialog.modal('hide'); },
+            cache: false,
+            method: 'POST',
+            dataType: 'JSON',
+            data: { input: postData },
+            success: function (res) {
+                //console.log(res);
+                $('#' + SLoc + '_total_qty_sap').html(res.Total.SAP + " Box");
+                $('#' + SLoc + '_total_qty_man').html(res.Total.MAN + " Box");
+
+                $('#' + SLoc + '_total_qty_loading').html(res.Total.LOADING + " Box");
+                $('#' + SLoc + '_total_qty_receiving').html(res.Total.RECEIVING + " Box");
+
+                $('#' + SLoc + '_total_qty_sap_box_pack').html("(" + numberWithCommas(TotalSAPQtyBox) + " Box " + numberWithCommas(TotalSAPQtyPack) + " Pack)");
+                $('#' + SLoc + '_total_qty_man_box_pack').html("(" + numberWithCommas(TotalManQtyBox) + " Box " + numberWithCommas(TotalManQtyPack) + " Pack)");
+                $('#' + SLoc + '_total_qty_loading_box_pack').html("(" + numberWithCommas(TotalLoadingQtyBox) + " Box " + numberWithCommas(TotalLoadingQtyPack) + " Pack)");
+                $('#' + SLoc + '_total_qty_receiving_box_pack').html("(" + numberWithCommas(TotalReceivingQtyBox) + " Box " + numberWithCommas(TotalReceivingQtyPack) + " Pack)");
+
+                if (selected_button_weekly !== null)
+                {
+                    selected_button_weekly.attr('total_qty_sap', $('#' + SLoc + '_total_qty_sap').html());
+                    selected_button_weekly.attr('total_qty_man', $('#' + SLoc + '_total_qty_man').html());
+
+                    selected_button_weekly.attr('total_qty_loading', $('#' + SLoc + '_total_qty_loading').html());
+                    selected_button_weekly.attr('total_qty_receiving', $('#' + SLoc + '_total_qty_receiving').html());
+
+                    selected_button_weekly.attr('total_qty_sap_box_pack', $('#' + SLoc + '_total_qty_sap_box_pack').html());
+                    selected_button_weekly.attr('total_qty_man_box_pack', $('#' + SLoc + '_total_qty_man_box_pack').html());
+                    selected_button_weekly.attr('total_qty_loading_box_pack', $('#' + SLoc + '_total_qty_loading_box_pack').html());
+                    selected_button_weekly.attr('total_qty_receiving_box_pack', $('#' + SLoc + '_total_qty_receiving_box_pack').html());
+                }
+            }
+        });
+    }
+
+    function CollectFile(id)
+    {
+        var fileData = FormData();
+        //var tmpData = FormData();
+        var TotalFilePrevData = $('#listUpload tr.prevData').length;
+        fileData.append('id', id);
+        var idx = 0;
+        $('#listUpload tr.prevData').each(function() {
+            fileData.append('attachment' + idx, $(this).attr('filename'));
+            idx++;
+        });
+
+        fileData.append('lastindex', TotalFilePrevData);
+
+        for (var idxfile = 1; idxfile < FileAttach.length; idxfile++) {
+            if (FileAttach[idxfile] === undefined) continue;
+            fileData.append(id + '|' + idxfile, FileAttach[idxfile].file); //param 1 : idstockcount | counter, data di back end di split
+        }
+
+        return fileData;
+    }
+
+    var isLoadStaff = false;
+    var FileIndex = 1;
+    jQuery(function ($) {
+        $('.nav_remarks').on('click', function () {
+            setTimeout(function () {
+                $('.remarks_header.active').css('display', 'inline');
+                $('.remarks_header').not('.active').css('display', 'none');
+            }, 250);
+        });
+
+        $('#btnAddAttachment').on('click', function (e) {
+            var LastIndex = $('#listUpload tr').length;
+            if (LastIndex >= 5) $('#btnAddAttachment').attr('disabled', 'disabled');
+            var fileUpload = $('#uploadFile');
+            if (fileUpload.get(0).files.length == 0)
+            {
+                $('#textModalWarning').html('Please choose file to be uploaded.');
+                $('#warningModal').modal('show');
+                return;
+            }
+            FileAttach[FileIndex] = { 'file': fileUpload.get(0).files[0] };
+            //fileData.append(res.id, fileUpload[0]);
+            var newRow = '<tr fileindex="' + FileIndex + '"><td class="row_attachment"> Attachment - ' + (LastIndex + 1) + '</td><td><button class="btn btn-danger btnRemoveAttachment" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button></td></tr>';
+            $('#listUpload').append(newRow);
+            FileIndex++;
+            $('#uploadFile').val('');
+        });
+
+        $(document).on('click', '.btnRemoveAttachment', function () {
+            var fileindex = $(this).closest('tr');
+
+            if (fileindex.attr('fileindex') !== undefined)
+            {
+                delete FileAttach[fileindex];
+            }
+            /*
+            else
+            {
+                DeletedAttach.push({ 'filename': fileindex.attr('filename') });
+            }
+            */
+
+            $(this).closest('tr').remove();
+            var TotalAttachment = $('#listUpload tr').length;
+            if (TotalAttachment <= 5) $('#btnAddAttachment').removeAttr('disabled');
+
+            //re-number attachment
+            var idx = 1;
+            $('.row_attachment').each(function (e) {
+                $(this).html(' Attachment - ' + (idx++));
+            });
+        });
+
+        $('#shift').on('change', function (e) {
+            var transID = $('#transID').val();
+
+            if (transID == 0) {
+                var datevalue = moment().format("DD/MM/YYYY")
+                var subtract = 0;
+                if ($(this).val() == 2)
+                {
+                    if (parseInt(moment().format("HH")) >= 0 && parseInt(moment().format("HH")) <= 2)
+                    {
+                        subtract = 1;
+                    }
+                }
+                else if ($(this).val() == 3) {
+                    subtract = 1;
+                }
+
+                datevalue = moment().subtract(subtract, 'day').format("DD/MM/YYYY");
+                $('#transDate').val(datevalue);
+            }
+        });
+
+        if ($('#transID').val() != 0)
+        {
+            //disable all input
+            $('#frm-input :input').attr('disabled', 'disabled');
+            //disable button save
+            $('.btnSaveNew').attr('disabled', 'disabled');
+            var active_parent_id = '';
+            //hidden all tab doesn't have row
+            $('.div_parent_table').each(function (e) {
+                var id = $(this).attr('id');
+                var navtype = $(".navtype[tabid='" + id + "']");
+                $(this).addClass('active in');
+                navtype.addClass('active');
+
+                if ($(this).find('table:not(.table_info_qty) tbody tr ').length == 0) {
+                    navtype.css('display', 'none');
+                    navtype.removeClass('active');
+                    $(this).removeClass('active in');
+                }
+                else
+                {
+                    active_parent_id = id;
+                }
+            });
+            //console.log(active_parent_id);
+            if (active_parent_id == 'dailyfg' || active_parent_id == 'dailybs')
+            {
+                $(".navtype[tabid='dailyfg']").css('display', '');
+                $(".navtype[tabid='dailybs']").css('display', '');
+                $(".navtype[tabid='dailyfg']").addClass('active');
+                $(".navtype[tabid='dailybs']").removeClass('active');
+
+                $('#dailyfg').addClass('active in');
+                $('#dailybs').removeClass('active in');
+            }
+
+            CalculateTotalQty();
+            CompareData();
+        }
+
+        $('#btnSaveAttachment').on('click', function () {
+            var fileData = CollectFile($('#transID').val());
+            uploadFile(fileData);
+            /*
+            var fileData = new FormData();
+            var fileUpload = $('#uploadFile').get(0).files;
+            if (fileUpload.length > 0) {
+                fileData.append($('#transID').val(), fileUpload[0]);
+                uploadFile(fileData)
+            }
+            */
+        });
+
+        $(document).on('click focusin', '.inputqty', function () {
+            $(this).select();
+        });
+        //getCurrentShift();
+        generateWareHouseName();
+
+        $('.btnWeekly').on('click', function(){
+            var obj = $(this);
+            $('.btnWeekly').removeClass('btn-success');
+            $('.btnWeekly').addClass('btn-weekly-non-selected');
+            obj.removeClass('btn-weekly-non-selected');
+            obj.addClass('btn-success');
+            $('.div_weekly').hide();
+            $('#' + obj.attr('tag')).css('display', 'block');
+
+            $('.summary_weekly').html('');
+            if ($(this).attr('total_qty_sap') !== undefined)
+            {
+                $('#weekly_total_qty_sap').html($(this).attr('total_qty_sap'));
+                $('#weekly_total_qty_man').html($(this).attr('total_qty_man'));
+
+                $('#weekly_total_qty_loading').html($(this).attr('total_qty_loading'));
+                $('#weekly_total_qty_receiving').html($(this).attr('total_qty_receiving'));
+
+                $('#weekly_total_qty_sap_box_pack').html($(this).attr('total_qty_sap_box_pack'));
+                $('#weekly_total_qty_man_box_pack').html($(this).attr('total_qty_man_box_pack'));
+                $('#weekly_total_qty_loading_box_pack').html($(this).attr('total_qty_loading_box_pack'));
+                $('#weekly_total_qty_receiving_box_pack').html($(this).attr('total_qty_receiving_box_pack'));
+            }
+            else
+            {
+                CompareData();
+            }
+        });
+
+        $('.btnEdit').on('click', function(){
+            var obj = $(this);
+            var parent_div = $(this).parents('.div_parent_table');
+            //console.log(obj.hasClass('isHeader'));
+            $('.btnSaveNew.isHeader').removeAttr('disabled');
+            $('.form-editable').removeAttr('disabled');
+            $(this).attr('disabled', 'disabled');
+
+            if (obj.hasClass('isHeader'))
+            {
+                //$('#btnSaveNew').removeAttr('disabled');
+            }
+            else
+            {
+                //$(this).parent('.btnAction').removeAttr('disabled');
+                //disabled click di tab yang tidak aktif
+                //$('.navtype:not(.active)').css('pointer-events', 'none');
+                var SLoc = $('.navtype.active').attr('SLoc')
+                //obj.siblings('.btnSaveNew').removeAttr('disabled');
+                obj.siblings('.btnAction').removeAttr('disabled');
+                if (SLoc != 'weekly')
+                {
+                    var tbody = getCurrentActiveTable();
+                    tbody.find('tr .inputqty, .inputeditable').removeAttr('disabled');
+                    parent_div.find('.btnAddRow').show();
+                }
+                else
+                {
+                    $('.table_weekly tbody tr .inputqty, .inputeditable').removeAttr('disabled');
+                    parent_div.find('.btnAddRow').show();
+                }
+            }
+        });
+
+        $('#btnManualForm').on('click', function () {
+            var SLoc = $('.navtype.active').attr('SLoc');
+            var warehouseName = '';
+            if ($('#warehouse').val() !== ""){
+                warehouseName = ($('#warehouse').val() + ' - ' + $('#warehouse').select2('data').text);
+            }
+
+            var postData = {
+                'Type': false, 'TransDate': moment($('#transDate').val(), 'DD-MM-YYYY').format('YYYY-MM-DD'),
+                'WarehouseName': warehouseName, 'Shift': $('#shift').val(), 'IsReportWeekly': false, 'CreatedDate': moment().format('YYYY-MM-DD HH:mm:ss'),
+                'SLoc' : SLoc,
+                'WarehouseStockCountDetails' : []
+            };
+            var tbody = getCurrentActiveTable();
+            var IsDetailEmpty = false;
+
+            if (tbody.length == 1)
+            {
+                if (tbody.find('tr').length == 0) {
+                    IsDetailEmpty = true;
+                }
+                else
+                {
+                    tbody.find('tr').each(function () {
+                        var row = $(this);
+                        var facode = row.find('.facode').val();
+                        if ($.trim(facode) == '' && !isFACodeEmpty) {
+                            isFACodeEmpty = true;
+                        }
+                        var detailData = {
+                            'Brand': row.find('.brand').val(),
+                            'Batch': row.find('.batch').val(),
+                        };
+                        postData.WarehouseStockCountDetails.push(detailData);
+                    });
+                }
+            }
+            else
+            {
+                postData.IsReportWeekly = true;
+                for (var i = 0; i < slocweekly.length; i++) {
+                    $('#table_weekly_' + slocweekly[i] + ' tbody tr').each(function () {
+                        var row = $(this);
+                        var detailData = {
+                            'Brand': row.find('.brand').val(),
+                            'Batch': row.find('.batch').val(),
+                            'SLoc': slocweekly[i]
+                        };
+                        postData.WarehouseStockCountDetails.push(detailData);
+                    });
+
+                    if (postData.WarehouseStockCountDetails.length == 0) IsDetailEmpty = true;
+
+                    for (var j = 0; j <= 4; j++) {
+                        var detailData = { 'Brand': '', 'Batch': '', 'SLoc': slocweekly[i] };
+                        postData.WarehouseStockCountDetails.push(detailData);
+                    }
+                }
+            }
+
+            if (IsDetailEmpty)
+            {
+                $('#textModalWarning').html('Detail can`t be empty. Press Sync with SAP');
+                $('#warningModal').modal('show');
+                return;
+            }
+
+            if (postData.IsReportWeekly) {
+                $('#textModalWarning').html('Manual form will split into 6 files (1 file pdf for 1 store location)');
+                $('#warningModal').modal('show');
+            }
+
+            var dialog = showDialog();
+
+            $.ajax({
+                url: '@Url.Action("../StockCount/GenerateLinkManualForm")',
+                complete: function () { dialog.modal('hide'); $('#warningModal').modal('hide'); },
+                cache: false,
+                method: 'POST',
+                dataType: 'JSON',
+                data: { data : postData },
+                success: function (res) {
+                    if (res.FileName == undefined)
+                    {
+                        $('#textModalWarning').html('Failed to create Manual Form. Please try again.');
+                        $('#warningModal').modal('show');
+                    }
+                    //var downloadUrl = baseUrl + "/StockCount/DownloadFile?FileName=" + res.FileName + "&UId=" + res.Uid;
+                    //window.location.assign(downloadUrl);
+                    var filenames = res.FileName.split('###');
+
+                    var content = "<h3>Print Manual Report</h3>";
+                    content += "<ul style='margin-left:-20px;'>";
+                    for (i = 0; i < filenames.length; i++) {
+                        //console.log(filenames[i]);
+                        var downloadUrl = '@Url.Action("DownloadFile")' + "?FileName=" + filenames[i] + "&UId=" + res.Uid;
+                        //window.open(downloadUrl, '_blank');
+
+                        var extractUrl = downloadUrl.split('-');
+                        content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                    }
+
+                    content += "</ul>";
+                    $('#contentDownloadModal').html(content);
+                    $('#downloadModal').modal('show');
+                }
+            });
+        });
+
+        $('#btnExportCustomReport').on('click', function () {
+            //var downloadUrl = "/StockCount/PrintStockCountReconcile?filterStartDate=" + $('#DateFrom').val() + "&filterEndDate=" + $('#DateTo').val() + "&Type=0" + "&ShowUnresnQiField=" + ($('#cUnresnQiField').prop('checked') ? 1 : 0);
+            //window.location.assign(downloadUrl);
+            if ($('#warehouse').val() == '')
+            {
+                $('#textModalWarning').html('Warehouse must be selected');
+                $('#warningModal').modal('show');
+                return;
+            }
+
+            if (getCurrentActiveTable().length == 0) {
+                $('#textModalWarning').html('Reconcile will split into 6 files (1 file pdf for 1 store location)');
+                $('#warningModal').modal('show');
+            }
+
+            var dialog = showDialog();
+
+            $.ajax({
+                url: '@Url.Action("../StockCount/PrintStockCountReconcile")',
+                complete: function () { dialog.modal('hide'); $('#warningModal').modal('hide'); },
+                cache: false,
+                method: 'GET',
+                dataType: 'JSON',
+                data: { IsWeeklyReport: 1, IDStockCount: $('#transID').val(), IDLocation: $('#warehouse').val(), Type: 0, ShowUnresnQiField: ($('#cUnresnQiField').prop('checked') ? 1 : 0), PrintedDate: moment().format('YYYY-MM-DD HH:mm:ss') },
+                success: function (res) {
+                    if (res.FileName == undefined)
+                    {
+                        $('#textModalWarning').html('Failed to create reconcile. Please try again.');
+                        $('#warningModal').modal('show');
+                    }
+                    var filenames = res.FileName.split('###');
+
+                    var content = "<h3>Print Reconcile Report</h3>";
+                    content += "<ul style='margin-left:-20px;'>";
+                    for (i = 0; i < filenames.length; i++)
+                    {
+                        //console.log(filenames[i]);
+                        var downloadUrl = '@Url.Action("DownloadFile")' + "?FileName=" + filenames[i] + "&UId=" + res.Uid;
+                        //window.open(downloadUrl, '_blank');
+                        var extractUrl = downloadUrl.split('-');
+                        content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                    }
+                    content += "</ul>";
+                    $('#contentDownloadModal').html(content);
+                    $('#downloadModal').modal('show');
+                }
+            });
+        });
+
+        $(document).ajaxStop(function () {
+            var id = $('#transID').val();
+            //console.log(id);
+            if (id != 0 && !isFromCompareData) {
+                @*totalqty['dailyfg'].sap_box = @Model.TotalSAP1000Box;
+                totalqty['dailyfg'].sap_pack = @Model.TotalSAP1000Pack;
+                totalqty['dailyfg'].man_box = @Model.TotalMan1000Box;
+                totalqty['dailyfg'].man_pack = @Model.TotalMan1000Pack;
+
+                totalqty['dailybs'].sap_box = @Model.TotalSAP1042Box;
+                totalqty['dailybs'].sap_pack = @Model.TotalSAP1042Pack;
+                totalqty['dailybs'].man_box = @Model.TotalMan1042Box;
+                totalqty['dailybs'].man_pack = @Model.TotalMan1042Pack;
+
+                totalqty['weekly'].sap_box = @(Model.TotalSAP1000Box + Model.TotalSAP1042Box + Model.TotalSAP1040Box + Model.TotalSAP1041Box + Model.TotalSAP1043Box + Model.TotalSAP1046Box);
+                totalqty['weekly'].sap_pack = @(Model.TotalSAP1000Pack + Model.TotalSAP1042Pack + Model.TotalSAP1040Pack + Model.TotalSAP1041Pack + Model.TotalSAP1043Pack + Model.TotalSAP1046Pack);
+                totalqty['weekly'].man_box = @(Model.TotalMan1000Box + Model.TotalMan1042Box + Model.TotalMan1040Box + Model.TotalMan1041Box + Model.TotalMan1043Box + Model.TotalMan1046Box);
+                totalqty['weekly'].man_pack = @(Model.TotalMan1000Pack + Model.TotalMan1042Pack + Model.TotalMan1040Pack + Model.TotalMan1041Pack + Model.TotalMan1043Pack + Model.TotalMan1046Pack);
+
+                $('#totalqtysapbox').html(numberWithCommas(totalqty['dailyfg'].sap_box));
+                $('#totalqtysappack').html(numberWithCommas(totalqty['dailyfg'].sap_pack));
+                $('#totalqtymanbox').html(numberWithCommas(totalqty['dailyfg'].man_box));
+                $('#totalqtymanpack').html(numberWithCommas(totalqty['dailyfg'].man_pack));
+
+                totalinv.inv_acc = @Model.InvAcc.ToString().Replace(",", ".") + '%';
+                totalinv.inv_util = @Model.InvUtil.ToString().Replace(",", ".") + '%';
+
+                $('#inv_acc').html(totalinv.inv_acc);
+                $('#inv_util').html(totalinv.inv_util);*@
+
+                //$('#totalqtymanbox').html(totalqty['dailyfg'].man_box);
+                //$('#totalqtymanpack').html(totalqty['dailyfg'].man_pack);
+                //console.log(totalqty);
+                if ($('#warehouse').val() == '') $('#warehouse').select2('val', '@Model.IDLocation');
+            }
+        })
+
+        $(document).on('keyup blur', '.inputqty', function () {
+            IsUserEditQty = true;
+            var obj = $(this).closest('tr');
+            var totalqtybox = 0, totalqtypack = 0;
+            obj.find('.manqtybox, .interfaceqtybox').each(function () {
+                totalqtybox += parseFloat($(this).val()) || 0;
+            });
+
+            var input_receiving = obj.find('.receivingqtybox');
+
+            if (input_receiving.length > 0) {
+                totalqtybox -= input_receiving.val() || 0;
+            }
+
+            obj.find('.manqtypack, .interfaceqtypack').each(function () {
+                totalqtypack += parseFloat($(this).val()) || 0;
+            });
+
+            var input_receiving = obj.find('.receivingqtypack');
+
+            if (input_receiving.length > 0) {
+                totalqtypack -= input_receiving.val() || 0;
+            }
+            //totalqtybox -= obj.find('.receivingqtypack').val() || 0;
+
+            var sapqtybox = parseFloat(replaceAll(obj.find('.sapqtybox').val(), ',', '')) || 0;
+            obj.find('.diffqtybox').val(numberWithCommas(sapqtybox - totalqtybox));
+            //console.log(obj.find('.diffqtybox'));
+            //console.log(numberWithCommas(sapqtybox - totalqtybox));
+            var sapqtypack = parseFloat(replaceAll(obj.find('.sapqtypack').val(), ',', '')) || 0;
+            obj.find('.diffqtypack').val(numberWithCommas(sapqtypack - totalqtypack));
+            //console.log(numberWithCommas(sapqtypack - totalqtypack));
+            //obj.find('.selisih').val(numberWithCommas(sapqtypack - totalqtypack));
+            //obj.find('.totalqtypack').val(numberWithCommas(totalqtypack));
+        });
+
+        $('.btnSaveNew').on('click', function () {
+            var objBtnSave = $(this);
+            SaveData(objBtnSave, false);
+        });
+
+        $(document).on('blur', '.facode', function () {
+            var obj = $(this);
+            if (obj.val() == '') return;
+            //console.log(obj.val());
+            //var findEl = $('#tableBody .facode').filter(function () { return this.value == obj.val() });
+            //var findEl = $('.tab-pane').filter('.active').find('#dataTable #tableBody .facode').filter(function () { return this.value == obj.val() });
+
+            //console.log(findEl[0] != obj[0]);
+            /* FA Code boleh kembar (jika batch beda)
+            if (findEl.length > 0 && findEl[0] != obj[0]) {
+                $('#textModalWarning').html('FACode "' + obj.val() + '" already exists');
+                obj.val('');
+                $('#warningModal').modal('show');
+            }
+            */
+        });
+
+        $('#removeAttachment a').click(function () {
+            var fileInput = $(this).parent().nextAll('input[type="file"]');
+            fileInput.val("");
+            fileInput.jfilestyle('clear');
+            //setButtonUploadStatus();
+        });
+        /*
+        var table = $('#dataTable').DataTable({
+            'destroy': true,
+            'empty': true,
+            'bPaginate': false,
+            'searching': false,
+            'autoWidth': false,
+            "iDisplayLength": 25,
+            "info":     false,
+            // columns: [
+            //],
+            "dom": 'lf<"table-overflow"t>ip',
+            //orderCellsTop: true
+        });
+        */
+
+        $(document).on('click', '.btnRemoveRow', function () {
+            $(this).closest('tr').remove();
+            //calculateTotal();
+            //$('#dataTable').DataTable().draw();
+            //table.row( $(this).closest('tr') ).remove().draw();
+        });
+
+        /*
+        $('#btnAddRow').on('click', function () {
+            $('#tableBody').append($('#templateRow').html());
+            //table.row.add( $( $('#templateRow').html() ) ).draw();
+        });
+        */
+        $('.btnAddRow').on('click', function () {
+            var div = $(this).parents('.div_parent_table');
+            //var newRow = div.attr('id') != 'weekly' ? $($('#templateRow').html()) : $($('#templateRowWeekly').html());
+            var newRow = $($('#templateRow').html());
+            newRow.find('.sapqtybox').val(0);
+            newRow.find('.sapqtypack').val(0);
+
+            if (div.attr('id') == 'weekly') {
+                //newRow = $($('#templateRow').html());
+                newRow.find('.sapqtybox').val(0);
+                newRow.find('.sapqtypack').val(0);
+                div = $(this).parents('.div_weekly');
+                //console.log(tab);
+                //console.log(tab.find('.table_weekly #tableBody'));
+                div.find('.table_weekly #tableBody').append(newRow);
+                return;
+            }
+
+            var inputtotalqtypack = newRow.find('.totalqtypack')
+            if (inputtotalqtypack !== undefined) {
+                inputtotalqtypack.val(0);
+            }
+            div.find('.dataTable tbody').append(newRow);
+            //$('#tableBody').append($('#templateRow').html());
+            //table.row.add( $( $('#templateRow').html() ) ).draw();
+        });
+
+        $('.btnSync').on('click', function() {
+            var tabId = $('.tab-pane').filter('.active').attr('id');
+            CompareData();
+            sapdata[tabId] = [];
+            SaveData(undefined, true);
+        });
+
+        $('.btnImportSAP').on('click', function () {
+            $('#sortDialog').modal('show');
+        });
+
+        $('#btnSortSAPData').on('click', function () {
+            var tbody = getCurrentActiveTable();//$('.tab-pane').filter('.active').find('#dataTable #tableBody');
+            var SLoc = $('.navtype.active').attr('SLoc');
+            var tabId = $('.tab-pane').filter('.active').attr('id');
+            var objtotal = totalqty[tabId];
+            var transId = $('#transID').val();
+
+            if ($('#warehouse').val() == '')
+            {
+                $('#textModalWarning').html('Warehouse must be selected');
+                $('#warningModal').modal('show');
+                return;
+            }
+
+            if (transId != 0)
+            {
+                if (tbody.length == 1) {
+                    tbody.find('tr').each(function (e) {
+                        var facode = $(this).find('.facode').val();
+                        var brand = $(this).find('.brand').val();
+                        var batch = $(this).find('.batch').val();
+                        var box = $(this).find('.manqtybox').val();
+                        var interface_box = $(this).find('.interfaceqtybox').val();
+                        var receiving_box = $(this).find('.receivingqtybox').val();
+                        var pack = $(this).find('.manqtypack').val();
+                        var interface_pack = $(this).find('.interfaceqtypack').val();
+                        var receiving_pack = $(this).find('.receivingqtypack').val();
+                        dtSAPQty[facode + brand + batch] = {
+                            'box': box,
+                            'pack': pack,
+                            'interface_box': interface_box,
+                            'interface_pack': interface_pack,
+                            'receiving_box': receiving_box,
+                            'receiving_pack': receiving_pack
+                        };
+                    });
+                }
+                else //weekly
+                {
+                    for (var i = 0; i < slocweekly.length; i++) {
+                        $('#table_weekly_' + slocweekly[i] + ' tbody tr').each(function () {
+                            var row = $(this);
+                            var facode = row.find('.facode').val();
+                            var brand = $(this).find('.brand').val();
+                            var batch = $(this).find('.batch').val();
+                            var box = $(this).find('.manqtybox').val();
+                            var interface_box = $(this).find('.interfaceqtybox').val();
+                            var receiving_box = $(this).find('.receivingqtybox').val();
+                            var pack = $(this).find('.manqtypack').val();
+                            var interface_pack = $(this).find('.interfaceqtypack').val();
+                            var receiving_pack = $(this).find('.receivingqtypack').val();
+                            dtSAPQty[slocweekly[i] + facode + brand + batch] = {
+                                'box': box,
+                                'pack': pack,
+                                'interface_box': interface_box,
+                                'interface_pack': interface_pack,
+                                'receiving_box': receiving_box,
+                                'receiving_pack': receiving_pack
+                            };
+                        });
+                    }
+                }
+            }
+            //console.log(dtSAPQty);
+            if (SLoc != 'weekly')
+            {
+                tbody.html('');
+            }else
+            {
+                $('.table_weekly tbody').html('');
+            }
+
+            sapdata[tabId] = [];
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            $.ajax({
+                //beforeSend : function() { $("#textModalLoading").html(" Please Wait"); $("#loadingModal").modal('show'); },
+                complete : function() { dialog.modal('hide'); },
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("../StockCount/GetSAPData")',
+                dataType: 'JSON',
+                data: { SLoc: SLoc, IDLocation: $('#warehouse').val(), SortBy: $('#SortBy').val(), SortMethod: ($('#SortMethod').val() == 'asc' ? true : false) },
+                success: function (ret) {
+                    if (ret.status != "Success")
+                    {
+                        $('#textModalWarning').html(ret.message);
+                        $('#warningModal').modal('show');
+                        return;
+                    }
+
+                    var res = ret.data;
+                    //console.log(res);
+                    //console.log(res[0]);
+                    if (res[0] !== undefined) {
+                        $('#SyncedTime').val( moment(res[0].CreatedDate).format("DD-MM-YYYY HH:mm:ss") );
+                        $('#info_sync_time').html('*SAP data were taken from SAP on ' + moment(res[0].CreatedDate).format("DD-MMM-YYYY HH:mm") + ' WIB');
+
+                        var multiple = 15;
+                        var minutes = (parseInt(moment(res[0].CreatedDate).format("mm")) % multiple);
+                        minutes = minutes == 0 ? multiple : (multiple - minutes) + multiple;
+                        $('#info_next_sync_time').html('*next DFIS sync job runs on ' + moment(res[0].CreatedDate).add(minutes, 'minutes').format("DD-MMM-YYYY HH:mm") + 'WIB');
+                    }
+
+                    for (idx in res) {
+                        var r = res[idx];
+                        var newRow = [];
+                        if (SLoc == "weekly") {
+                            for (i = 0; i <= slocweekly.length; i++)
+                            {
+                                newRow[i] = $($('#templateRowSAP').html());
+                                newRow[i].find('.facode').val(r.Material);
+                                //newRow[i].find('.speakingcode').val(r.SpeakingCode);
+                                newRow[i].find('.brand').val(r.Description);
+                                newRow[i].find('.batch').val(r.Batch);
+                                newRow[i].find('.manqtybox').val(0);
+                                newRow[i].find('.manqtypack').val(0);
+
+                                if (transId != 0)
+                                {
+                                    var rowqty = dtSAPQty[slocweekly[i] + r.Material + r.Description + r.Batch];
+                                    if (rowqty !== undefined)
+                                    {
+                                        newRow[i].find('.manqtybox').val(rowqty.box);
+                                        newRow[i].find('.manqtypack').val(rowqty.pack);
+                                        newRow[i].find('.interfaceqtybox').val(rowqty.interface_box);
+                                        newRow[i].find('.interfaceqtypack').val(rowqty.interface_pack);
+                                        newRow[i].find('.receivingqtybox').val(rowqty.receiving_box);
+                                        newRow[i].find('.receivingqtypack').val(rowqty.receiving_pack);
+                                    }
+                                }
+                            }
+
+                            //1000
+                            sapdata[tabId].push( {input: newRow[0].find('.sapqtybox'), value: r.SAP1000Box} );
+                            sapdata[tabId].push( {input: newRow[0].find('.sapqtypack'), value: r.SAP1000Pack} );
+                            newRow[0].find('.unrestr').val(r.Unrestr1000);
+                            newRow[0].find('.qualityinsp').val(r.QualityInsp1000);
+                            $('#table_weekly_1000 tbody').append(newRow[0]);
+
+                            //1040
+                            sapdata[tabId].push( {input: newRow[1].find('.sapqtybox'), value: r.SAP1040Box} );
+                            sapdata[tabId].push( {input: newRow[1].find('.sapqtypack'), value: r.SAP1040Pack} );
+                            newRow[1].find('.unrestr').val(r.Unrestr1040);
+                            newRow[1].find('.qualityinsp').val(r.QualityInsp1040);
+                            $('#table_weekly_1040 tbody').append(newRow[1]);
+
+                            //1041
+                            sapdata[tabId].push( {input: newRow[2].find('.sapqtybox'), value: r.SAP1041Box} );
+                            sapdata[tabId].push( {input: newRow[2].find('.sapqtypack'), value: r.SAP1041Pack} );
+                            newRow[2].find('.unrestr').val(r.Unrestr1041);
+                            newRow[2].find('.qualityinsp').val(r.QualityInsp1041);
+                            $('#table_weekly_1041 tbody').append(newRow[2]);
+
+                            //1042
+                            sapdata[tabId].push( {input: newRow[3].find('.sapqtybox'), value: r.SAP1042Box} );
+                            sapdata[tabId].push( {input: newRow[3].find('.sapqtypack'), value: r.SAP1042Pack} );
+                            newRow[3].find('.unrestr').val(r.Unrestr1042);
+                            newRow[3].find('.qualityinsp').val(r.QualityInsp1042);
+                            $('#table_weekly_1042 tbody').append(newRow[3]);
+
+                            //1043
+                            sapdata[tabId].push( {input: newRow[4].find('.sapqtybox'), value: r.SAP1043Box} );
+                            sapdata[tabId].push( {input: newRow[4].find('.sapqtypack'), value: r.SAP1043Pack} );
+                            newRow[4].find('.unrestr').val(r.Unrestr1043);
+                            newRow[4].find('.qualityinsp').val(r.QualityInsp1043);
+                            $('#table_weekly_1043 tbody').append(newRow[4]);
+
+                            //1046
+                            sapdata[tabId].push( {input: newRow[5].find('.sapqtybox'), value: r.SAP1046Box} );
+                            sapdata[tabId].push( {input: newRow[5].find('.sapqtypack'), value: r.SAP1046Pack} );
+                            newRow[5].find('.unrestr').val(r.Unrestr1046);
+                            newRow[5].find('.qualityinsp').val(r.QualityInsp1046);
+                            $('#table_weekly_1046 tbody').append(newRow[5]);
+                            continue;
+                        } else {
+                            newRow = $($('#templateRowSAP').html());
+                            newRow.find('.facode').val(r.Material);
+                            //newRow.find('.speakingcode').val(r.SpeakingCode);
+                            newRow.find('.brand').val(r.Description);
+                            newRow.find('.batch').val(r.Batch);
+                            newRow.find('.inputqty').val(0);
+
+                            if (transId != 0)
+                            {
+                                var rowqty = dtSAPQty[r.Material + r.Description + r.Batch];
+                                //console.log(qtyrow);
+                                if (rowqty !== undefined) {
+                                    //console.log(qtyrow);
+                                    //console.log(newRow.find('.manqtybox'));
+                                    newRow.find('.manqtybox').val(rowqty.box);
+                                    newRow.find('.manqtypack').val(rowqty.pack);
+                                    newRow.find('.interfaceqtybox').val(rowqty.interface_box);
+                                    newRow.find('.interfaceqtypack').val(rowqty.interface_pack);
+                                    newRow.find('.receivingqtybox').val(rowqty.receiving_box);
+                                    newRow.find('.receivingqtypack').val(rowqty.receiving_pack);
+                                }
+
+                            }
+                        }
+
+                        if (SLoc == '1000') {
+                            newRow.find('.unrestr').val(r.Unrestr1000);
+                            newRow.find('.qualityinsp').val(r.QualityInsp1000);
+                            sapdata[tabId].push( {input: newRow.find('.sapqtybox'), value: r.SAP1000Box} );
+                            sapdata[tabId].push({ input: newRow.find('.sapqtypack'), value: r.SAP1000Pack });
+                            objtotal.sap_box += r.SAP1000Box;
+                            objtotal.sap_pack += r.SAP1000Pack;
+                        }
+                        else if (SLoc == '1042') {
+                            newRow.find('.unrestr').val(r.Unrestr1042);
+                            newRow.find('.qualityinsp').val(r.QualityInsp1042);
+                            sapdata[tabId].push( {input: newRow.find('.sapqtybox'), value: r.SAP1042Box} );
+                            sapdata[tabId].push( {input: newRow.find('.sapqtypack'), value: r.SAP1042Pack} );
+                            objtotal.sap_box += r.SAP1042Box;
+                            objtotal.sap_pack += r.SAP1042Pack;
+                        }
+                        tbody.append(newRow);
+                    }
+                    //display button add row
+                    $('.tab-pane').filter('.active').find('.btnAddRow').show();
+                    dtSAPQty = [];
+                }
+            });
+        });
+
+        $('.navtype').on('click', function () {
+            var id = $('#transID').val();
+
+            if (id != 0)
+            {
+                setTimeout(function () {
+                    var SLoc = $('.navtype.active').attr('SLoc');
+                    var IsInfoQtyBlank = $('#' + SLoc + '_total_qty_sap').html() == '';
+                    //console.log($('#' + SLoc + '_total_qty_sap').html());
+                    if (IsInfoQtyBlank) {
+                        CalculateTotalQty();
+                    }
+                }, 250);
+            }
+        });
+
+        $('#warehouse').on('change', function () {
+            loadDataStaff();
+        });
+    })
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    $('#btnPrintBeritaModal').on('click', function () {
+        var IDLocation = $('#warehouse').val();
+        var IDStockCount = $('#transID').val();
+
+        GetDataNamaBeritaAcara(IDLocation);
+
+    });
+
+    function GetDataNamaBeritaAcara(IDLocation) {
+        var dialog = showDialog();
+
+        $.ajax({
+            url: '@Url.Action("../StockCount/GetDataNamaBeritaAcara")',
+            complete: function () { dialog.modal('hide'); },
+            dataType: 'JSON',
+            method: 'GET',
+            cache: false,
+            data: {"IDLocation" : IDLocation},
+            success: function (res) {
+                $('.namaOwnerVal').select2("destroy");
+                $('.namaStockVal').select2("destroy");
+
+                var optionsNama = '<option value="">-- select name --</option>';
+
+                $.each(res, function (key, val) {
+                    optionsNama += '<option value="' + val.FullName + '">' + val.IdUser + " - " + val.FullName + '</option>';
+                });
+                $('.namaOwnerVal').html(optionsNama).select2();
+                $('.namaStockVal').html(optionsNama).select2();
+                //debugger;
+                GetDataJabatanBeritaAcara();
+            },
+        });
+    }
+
+    function GetDataJabatanBeritaAcara() {
+        var dialog = showDialog();
+        var IDStockCount = $('#transID').val();
+        $.ajax({
+            url: '@Url.Action("GetDataJabatanBeritaAcara","StockCount")',
+            complete: function () { dialog.modal('hide'); },
+            dataType: 'JSON',
+            method: 'GET',
+            cache: false,
+            success: function (res) {
+                $('.jabatanOwnerVal').select2("destroy");
+                $('.jabatanStockVal').select2("destroy");
+
+                var optionsJabatan = '<option value="-">-- select title --</option>';
+
+                $.each(res, function (key, val) {
+                    optionsJabatan += '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+
+                $('.jabatanOwnerVal').html(optionsJabatan).select2();
+                $('.jabatanStockVal').html(optionsJabatan).select2();
+                //debugger;
+                CheckDataOR(IDStockCount);
+            }
+        });
+    }
+
+    function CheckDataOR(IDStockCount) {
+        var dialog = showDialog();
+
+        $.ajax({
+            url: '@Url.Action("CheckDataOR","StockCount")',
+            complete: function () { dialog.modal('hide'); },
+            cache: false,
+            method: 'GET',
+            dataType: 'JSON',
+            data: {
+                "IDStockCount" : IDStockCount
+            },
+            success: function (res) {
+                console.log(res);
+                if (res != null) {
+                    var no = 1;
+                    var jo = 1;
+                    var ns = 1;
+                    var js = 1;
+                    for (var i = 0; i < res.length;i++){
+                        if (res[i].Type == 0) {
+                            $('#namaOwner' + (no) + '').select2('val', res[i].Name);
+                            $('#jabatanOwner' + (jo) + '').select2('val', res[i].Title);
+                            no++;
+                            jo++;
+                        }
+                        else if (res[i].Type == 1) {
+                            $('#namaStock' + (ns) + '').select2('val', res[i].Name);
+                            $('#jabatanStock' + (js) + '').select2('val', res[i].Title);
+                            ns++;
+                            js++;
+                        }
+                    }
+                }
+                //debugger;
+            }
+        });
+    }
+
+    $('#btnPrintBerita').on('click', function () {
+        var nonvalid = false;
+        if ($('#namaOwner1').val() == "") nonvalid = true;
+        if ($('#namaStock1').val() == "") nonvalid = true;
+
+        if(nonvalid == true){
+            bootbox.alert({
+                title: "DFIS Notification Center",
+                message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''> Please select at least 1 name from both Inventory Owner and Stock Taking Team!</div>",
+                size: "medium",
+                closeButton: false
+            });
+            return false;
+        } else {
+            var dialog = showDialog();
+
+            GetNamaJabatanFromForm();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("PrintBeritaAcara","StockCount")',
+                complete: function () { dialog.modal('hide'); /*$('#warningModal').modal('hide');*/ },
+                data: {
+                    "IDStockCount": $('#transID').val(),
+                    "IDLocation": $('#warehouse').val(),
+                    "PrintedDate": moment().format('YYYY-MM-DD HH:mm:ss'),
+                    "Status": $('#status').val(),
+                    "NamaOwner": NamaOwner,
+                    "JabatanOwner": JabatanOwner,
+                    "NamaStock": NamaStock,
+                    "JabatanStock": JabatanStock,
+                    "LenOwner": LenOwner,
+                    "LenStock": LenStock
+                },
+                success: function (res) {
+                    console.log(res);
+                    //debugger;
+                    if (res.FileName == undefined) {
+                        //$('#textModalWarning').html('Failed to create reconcile. Please try again.');
+                        //$('#warningModal').modal('show');
+                    }
+                    //var filenames = res.FileName.split('###');
+
+                    var filenames = res.FileName;
+
+                    //var content = "<h3>Download Berita Acara</h3>";
+                    var content = "<h2>Official Report</h2>";
+                    content += "<ul style='margin-left:-20px;'>";
+                    var downloadUrl = '@Url.Action("DownloadFile")' + "?FileName=" + res.FileName + "&UId=" + res.Uid;
+                    var extractUrl = downloadUrl.split('-');
+                    //content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                    //content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                    content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()"> Download official report <i class="fa fa-download"></i></a></li>';
+                    content += "</ul>";
+
+                    $('#contentDownloadModal').html(content);
+                    $('#downloadModal').modal('show');
+                    //debugger;
+                }
+            });
+        }
+    });
+
+    function GetNamaJabatanFromForm() {
+        LenOwner = 0;
+        LenStock = 0;
+        var b = false;
+        var c = false;
+        $(".select2.namaOwnerVal.select2-offscreen").each(function () {
+            if ($(this).val() != "") {
+                NamaOwner.push($(this).val());
+                LenOwner++;
+                b = true;
+            }
+        });
+        $(".select2.jabatanOwnerVal.select2-offscreen").each(function () {
+            if (b) {
+                JabatanOwner.push($(this).val());
+            }
+        });
+        $(".select2.namaStockVal.select2-offscreen").each(function () {
+            if ($(this).val() != "") {
+                NamaStock.push($(this).val());
+                LenStock++;
+                c = true;
+            }
+        });
+        $(".select2.jabatanStockVal.select2-offscreen").each(function () {
+            if (c) {
+                JabatanStock.push($(this).val());
+            }
+        });
+    }
+</script>

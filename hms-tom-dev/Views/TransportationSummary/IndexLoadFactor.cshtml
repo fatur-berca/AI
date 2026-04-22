@@ -1,0 +1,462 @@
+﻿<table id="dtFilter2" class="display table dataTable ">
+    <thead>
+        <tr>
+            <th rowspan="2" hidden>RowNumber</th>
+            <th rowspan="2">Category</th>
+            <th colspan="2">January</th>
+            <th colspan="2">February</th>
+            <th colspan="2">March</th>
+            <th colspan="2">April</th>
+            <th colspan="2">May</th>
+            <th colspan="2">June</th>
+            <th colspan="2">July</th>
+            <th colspan="2">August</th>
+            <th colspan="2">September</th>
+            <th colspan="2">October</th>
+            <th colspan="2">November</th>
+            <th colspan="2">December</th>
+        </tr>
+        <tr>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+            <th>Trip</th>
+            <th>%</th>
+        </tr>
+
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+        <tr>
+            <th hidden><b>Total</b></th>
+            <th><b>Total</b></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+            <th colspan="2" style="text-align:center"></th>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+<script>
+    
+    jQuery(function ($) {
+        generateLoadFactor();
+    });
+
+    function generateLoadFactor() {
+        $.ajax({
+            url: '@Url.Action("GetDataAvg")',
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            data: { "filterYear": '@(ViewBag.FilterYear)' },
+            success: function (json) {
+                //if (json.length == 0)
+                //    alertSearchNoResult();
+                var rowsSelected = [];
+                var table = $('#dtFilter2').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[0, 'DESC']],
+                    'searching': true,
+                    columns: [
+                        { "data": "RowNumber", "class": "text-center", "visible": false },
+                        { "data": "RowLabels", "class": "text-center" },
+                        {
+                            'data': 'TripJanuary', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'January', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripFebruary', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'February', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripMarch', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'March', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripApril', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'April', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripMay', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'May', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripJune', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'June', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripJuly', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'July', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripAugust', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'August', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripSeptember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'September', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripOctober', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'October', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripNovember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'November', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'TripDecember', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0</td>';
+                                } else {
+                                    return '<td>' + data + '</td>';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'December', 'searchable': true, "render": function (data) {
+                                if (data == null) {
+                                    return '<td>0%</td>';
+                                } else {
+                                    return '<td>' + data + '%</td>';
+                                }
+                            }
+                        }
+                    ],
+                    "footerCallback": function (row, data, start, end, display) {
+                        var api = this.api(), data;
+                        var intval = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '') * 1 :
+                                typeof i === 'number' ?
+                                i : 0;
+                        };
+                        //january
+                        total = api
+                            .column(3)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(3).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //february
+                        total = api
+                            .column(5)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(5).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //maret
+                        total = api
+                            .column(7)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(7).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //april
+                        total = api
+                            .column(9)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(9).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //mei
+                        total = api
+                            .column(11)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(11).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //juni
+                        total = api
+                            .column(13)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(13).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //juli
+                        total = api
+                            .column(15)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(15).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //agustus
+                        total = api
+                            .column(17)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(17).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //september
+                        total = api
+                            .column(19)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(19).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //oktober
+                        total = api
+                            .column(21)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(21).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //november
+                        total = api
+                            .column(23)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(23).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                        //desember
+                        total = api
+                            .column(25)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intval(a) + intval(b);
+                            }, 0);
+                        $(api.column(25).footer()).html(
+                            '<b> ' + Math.round(Math.round(total * 100) / 100) + '%</b>'
+                        );
+                    },
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    //'rowCallback': function (row, data, dataIndex) {
+                    //    // Get row ID
+                    //    var rowId = data.IDCardNumber;
+                    //    //console.log(data.IDCardNumber);
+                    //    // If row ID is in the list of selected row IDs
+                    //    if ($.inArray(rowId, rowsSelected) !== -1) {
+                    //        $(row).find('input[type="checkbox"]').prop('checked', true);
+                    //        $(row).addClass('selected');
+                    //    }
+                    //},
+
+                });
+                // end : handle column search
+            }
+        });
+    }
+</script>

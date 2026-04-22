@@ -1,0 +1,1146 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+
+@{
+    ViewBag.Title = "Transport > Loading & Unloading History > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="col-panel" style="padding-bottom: 0">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Transportation Number</label>
+                <input id="transportationNumber" type="text" class="form-control" autofocus />
+                <input id="IDTransportExecution" type="hidden"/>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" id="divSelect">
+                <label>Location</label>
+                <select id="userLocation" class="select2"></select>
+                <input id="userLocationValue" type="hidden" />
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="input-type"></label>
+                <div id="input-type" class="row" style="padding-top:8px">
+                    <div class="col-sm-2">
+                        <label class="radio-inline">
+                            <input name="loadstatus" id="rbload" value="1" type="radio" />Load
+                        </label>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="radio-inline">
+                            <input name="loadstatus" id="rbunload" value="0" type="radio" /> Unload
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Date and Time</label>
+                <input id="dateandtime" type="text" class="form-control" />
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+        
+        <div class="col-md-12">
+            <div class="form-group">
+                <div id="tableList"></div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+    @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+    {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#exportFile" id="exportButton">Export</button>
+    }
+    @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+    {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+    }
+    @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+    {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadfile" id="uploadButton">Upload</button>
+    }
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="btnAdvancedSearch"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="scTransportNo">Transportation Number</label>
+                        <input type="hidden" id="scTransportNo" style="width:250px" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="scSenderLocation">Sender</label>
+                        <select id="scSenderLocation" class="select2 select2-selection--multiple" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="scReceiverLocation">Receiver</label>
+                        <select class="select2 select2-selection--multiple"  multiple="multiple" id="scReceiverLocation" ></select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2" style="width: 20.8%">
+                    <div class="form-group">
+                        <label>Transportation Date</label>
+                        <input class="form-control datepicker" type="text" data-date-format="DD/MM/YYYY" id="scStartDate" />
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <label class="text-center">TO</label>
+                    </div>
+                </div>
+                <div class="col-md-2" style="width: 20.8%">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <input class="form-control datepicker" type="text" data-date-format="DD/MM/YYYY" id="scEndDate" />
+                    </div>
+                </div>
+            </div>
+            @*@if (isSuperUser)
+            {*@
+            @*<div class="clearfix"></div>
+            <div class="col-sm-4">
+                <div class="form-group">
+
+                    <label for="input-type">Status</label>
+                    <div id="input-type" class="row">
+                        <div class="col-sm-2">
+                            <label class="radio-inline">
+                                <input name="isIncludeActive" id="all" value="1" type="radio" />All
+                            </label>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="radio-inline">
+                                <input name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+            @* } *@
+            <div class="col-md-12">
+                <button class="btn btn-primary " onclick="GenerateSearch()">Search</button>
+                <button class="btn btn-purple" onclick="resetSearch()">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtTable" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                @*<div class="checkbox-deck">
+                    <input type="checkbox" name="select_all" id="checkall">
+                    <label for="checkall"></label>
+                </div>*@
+            </th>
+            <th>Transportation Number</th>
+            <th>Transportation Date</th>
+            <th>Order Number/STO</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Load box/working time</th>
+            <th>Unload box/working time</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Transportation number</th>
+            <th>Transportation Date</th>
+            <th>Order Number/STO</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Load box/working time</th>
+            <th>Unload box/working time</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="uploadfile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload Template</label>
+                                <input id="UploadTemplate" type="file" class="filestyle" data-buttonname="btn-primary" data-icon="false" data-buttontext="Browse" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/TransportationLoadingTemplate.xlsx" id="downloadTemplate">Download Template Loading</a>
+                                <br />
+                                <a href="Assets/Download/TemplateExcel/TransportationUnloadingTemplate.xlsx" id="downloadTemplate">Download Template Unloading</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" id="btnCloseUpload" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("PartialViewCustomReport")
+<!--===========================  IMPORT MODAL END  ===========================-->
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+
+<style>
+    
+    h2 {
+        font-family: arial;
+        color: black;
+    }
+
+    p {
+        font-family: arial;
+        color: black;
+    }
+
+    .scan {
+        background: #99F;
+        border: 1px solid #77F;
+        font-family: arial;
+        font-size: 14px;
+        padding: 1%;
+        width: 98%;
+        color: black;
+        margin-top: 1px;
+        border-radius: 4px;
+    }
+</style>
+
+
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+
+<script type="text/javascript">
+    var myParam = "firstload";
+    var excelParam;
+    $("#scTransportNo").val("");
+    $(document).ready(function () {
+        
+        $("#all").prop('checked', true);
+        $("#scTransportNo").val("");
+        $("#scSenderLocation").val("");
+        $("#scReceiverLocation").val("");
+        $("#scTransportDate").val("");
+        $("#all").prop("checked", true);
+        resetDataTn();
+        GetSender();
+        GetReceiver();
+        GetTransportDate();
+
+
+        $('#uploadButton').on('click', function (e) {
+            $('#UploadTemplate').val('');
+            $('#btnUpload').attr('disabled', 'disabled');
+        });
+
+        $('#UploadTemplate').on('change', function (e) {
+            $('#btnUpload').removeAttr('disabled');
+        });
+
+        $('#btnUpload').on('click', function (e) {
+            var fileUpload = $('#uploadFile');
+            var fileData = new FormData();
+            fileData.append('file', $('#UploadTemplate').get(0).files[0]);
+
+            $.ajax({
+                url: '@Url.Action("../LoadingUnloadingHistory/UploadTemplate")',
+                type: 'POST',
+                dataType: 'JSON',
+                data: fileData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (res.status == "Success") {
+                        $('#UploadTemplate').val('');
+                        $('.jfilestyle').find('input').val('');
+                        $('#btnUpload').attr('disabled', 'disabled');
+                        $("#btnCloseUpload").click();
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: '<div><img src="assets/images/checked.png" alt=""> Data has been succesfully saved to database. </div>',
+                            closeButton: false
+                        });
+                        // testpoint
+                        //generateTable1();
+
+                        ReloadTopTable(false);
+                    }
+                    else {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: '<div><img src="assets/images/cancel.png" alt=""> ' + res.message + '  </div>',
+                            closeButton: false
+                        });
+                    }
+                },
+                error: function () {
+                }
+            });
+        });
+        generateTable(myParam);
+    });
+
+    $(document).on('click', '#exportButton', function (e) {
+        exportToExcelDefault();
+        e.preventDefault();
+    });
+
+    var resetDataTn = function () {
+        $('#transportationNumber').val("");
+        $('#IDTransportExecution').val("");
+        $('#userLocation').val("").trigger("change");
+        $('#dateandtime').val("");
+        //document.getElementById("dateandtime").focus();
+        $('#rbload').prop("checked", false);
+        $('#rbunload').prop("checked", false);
+    };
+
+    function ReloadTopTable(showNotif)
+    {
+        showNotif = showNotif == undefined ? true : false;
+        $('#dateandtime').prop("disabled", false);
+        // Do something here when enter was hit
+        var tNnumber = $("#transportationNumber").val();
+        if (tNnumber === "") {
+            $("#transportationNumber").css('border-color', 'orange');
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please scan or input Transaction Number</div>",
+                size: "small",
+                closeButton: false
+            });
+        } else {
+            $('#rbload').prop("checked", false);
+            $('#rbunload').prop("checked", false);
+            $('#rbload').prop("disabled", true);
+            $('#rbunload').prop("disabled", true);
+            generateUserLocation(undefined, showNotif);
+            //$('#dateandtime').val(moment().format('DD-MMM-YYYY HH:mm'));
+        }
+    }
+
+    var dialogloading;
+    $('#transportationNumber').on({
+        keypress: function (e) {
+            $("#transportationNumber").css('border-color', '#ccc');
+            if (e.which === 13) {
+                e.preventDefault();
+                ReloadTopTable();
+            }
+        }
+    });
+
+    $("#btnAdvancedSearch").click(function() {
+        $("#scTransportNo").select2("val", "");
+    });
+
+    $('#rbload').on({
+        click: function (e) {
+            for (var i = 0; i < totalInputData; i++) {
+                if ($('#dateandtime').val() !== "") {
+                    if (generatedtable1data[i].UnloadStartTime == "") {
+                        document.getElementById("unloadStartTime[" + i + "]").innerHTML = "";
+                    }
+                    document.getElementById("loadStartTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                }
+            }
+        }
+    });
+
+    $('#rbunload').on({
+        click: function(e) {
+            for (var i = 0; i < totalInputData; i++) {
+                if ($('#dateandtime').val() !== "") {
+                    if (generatedtable1data[i].LoadStartTime == "") {
+                        document.getElementById("loadStartTime[" + i + "]").innerHTML = "";
+                    }
+                    document.getElementById("unloadStartTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                }
+            }
+        }
+    });
+
+    $('#dateandtime').on({
+        keypress: function (e) {
+            $("#transportationNumber").css('border-color', '#ccc');
+            if (e.which === 13) {
+                if ($('#transportationNumber').val() !== "") {
+                    Save();
+                } else {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please Input Transaction Number </div>",
+                        size: "small",
+                        closeButton: false
+                    });
+                    $('#dateandtime').val("");
+                }
+            }
+        }
+    });
+
+    var totalLocation = 0;
+    var generateUserLocation = function (param1, showNotif, callback) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetWarehouseLocation", "LoadingUnloadingHistory")',
+            data: { "TransportNo": $("#transportationNumber").val() },
+            success: function (result) {
+                //if (result.length > 0) {
+                var options = '<option value="-"></option>';
+                totalLocation = result.length;
+                //if (result.length > 1) {
+                /*
+                $('#userLocation').html('');
+                removeElement("userLocation");
+                createElement();
+                for (var i = 0; i < result.length; i++) {
+                    options = options + '<option value="' + result[i].IdLocation + '">' + result[i].LocationName + '</option>';
+                }
+                $('#userLocation selected').val("-");
+                $('#userLocation').html(options);
+                */
+
+
+                $("#userLocation").html('');
+                $("#userLocation").append('<option value="">&nbsp;</option>');
+                for (var i = 0; i < result.length; i++)
+                {
+                    $("#userLocation").append('<option value="' + result[i].IdLocation + '">' + result[i].LocationName + '</option>');
+                }
+                $("#userLocation").select2();
+
+                if (callback !== undefined)
+                    callback();
+
+                //} else {
+                //    $('#userLocation').val(result[0].LocationName);
+                //    $('#userLocationValue').val(result[0].IDLocation);
+                //    $('#userLocation').prop('disabled', true);
+
+                //}
+                total = 0;
+                if (param1 !== "save") {
+                    generateTable1(param1, showNotif);
+                }
+                totalInputData = 0;
+                //} else {
+                //    bootbox.alert({
+                //        title: "TOM Notification Center",
+                //        message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Data not exist</div>",
+                //        size: "small",
+                //        closeButton: false,
+                //        callback: function () {
+                //            $('#dateandtime').focus();
+                //        }
+                //    });
+                //}
+            }
+        });
+    };
+
+    var firstLoadUL = false;
+    $('#userLocation').on({
+        change: function() {
+            //generateInputData();
+            generateTable1(undefined, firstLoadUL);
+            firstLoadUL = true;
+        }
+    });
+
+    function Save() {
+        var selectedLocation = $('#userLocation').select2("val");
+        var inpTN = $('#dateandtime').val();
+        var bseTN = $('#transportationNumber').val();
+        var radioBtn = $('input[name=loadstatus]:checked').val();
+        var nonvalid = false;
+
+        if (selectedLocation == "-" || selectedLocation == "" || selectedLocation == null) {//nama
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please select location </div>",
+                size: "small",
+                closeButton: false,
+                callback: function () {
+                    $('#dateandtime').val("");
+                    $('#dateandtime').focus();
+                }
+            });
+            nonvalid = true;
+            return false;
+        }
+        
+        if (inpTN != bseTN) {//nama
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='assets/images/cancel.png' alt=''> Input failed </div>",
+                size: "small",
+                closeButton: false,
+                callback: function () {
+                    $('#dateandtime').val("");
+                    $('#dateandtime').focus();
+                }
+            });
+            nonvalid = true;
+            return false;
+        }
+        
+        if (radioBtn === undefined) {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please select loading or unloading </div>",
+                size: "small",
+                closeButton: false,
+                callback: function () {
+                    $('#dateandtime').val("");
+                    $('#dateandtime').focus();
+                }
+            });
+            nonvalid = true;
+            return false;
+        } 
+
+        $('#dateandtime').val(moment().format('DD-MMM-YYYY HH:mm'));
+
+        var rbload = $('#rbload').prop("checked");
+        var rbunload = $('#rbunload').prop("checked");
+        var selectedLocation = $('#userLocation').select2("val");
+
+        if (rbload) {
+            for (var i = 0; i < totalInputData; i++) {
+                if (selectedLocation === generatedtable1data[i].SenderIDLocation) {
+                    if (generatedtable1data[i].LoadStartTime == null) {
+                        document.getElementById("loadStartTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                    } else {
+                        document.getElementById("loadFinishTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                    }
+                }
+            }
+        }
+        if (rbunload) {
+            for (var j = 0; j < totalInputData; j++) {
+                if (selectedLocation === generatedtable1data[j].ReceiverIDLocation) {
+                    if (generatedtable1data[j].UnloadStartTime == null) {
+                        document.getElementById("unloadStartTime[" + j + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                    } else {
+                        document.getElementById("unloadFinishTime[" + j + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+                    }
+                }
+            }
+        }
+
+        if (nonvalid == true) {
+            return false;
+        } else {
+            var dialogloading = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            var listarr = [];
+            for (var i = 0; i < totalInputData; i++) {
+                listarr.push({
+                    IDTransportOrder: document.getElementById("idTransportOrder[" + i + "]").innerHTML,
+                    LoadStartTime: document.getElementById("loadStartTime[" + i + "]").innerHTML.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                    LoadFinishTime: document.getElementById("loadFinishTime[" + i + "]").innerHTML.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                    UnloadStartTime: document.getElementById("unloadStartTime[" + i + "]").innerHTML.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                    UnloadFinishTime: document.getElementById("unloadFinishTime[" + i + "]").innerHTML.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                    IsActive: true
+                });
+            }
+
+            var data = {
+                "New": [{}],
+                "Edit": listarr
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("EditList", "LoadingUnloadingHistory")',
+                data: data,
+                success: function (result) {
+                    dialogloading.modal("hide");
+                    if ((result.Edit[0].ResponseType === "Invalid") || (result.Edit[0].ResponseType === "Error")) {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> " + result.Edit[0].Message + "</div>",
+                            size: "small",
+                            closeButton: false,
+                            callback: function () {
+                                $('#dateandtime').focus();
+                            }
+                        });
+                    } else if (result.Edit[0].ResponseType === "Success") {
+                        var arrvalidate = new Array();
+                        var arrvalidate2 = new Array();
+                        var count = 0;
+                    
+                        //arrLocation = array lokasi
+                        //hitung jumlah lokasi yg sama dengan yang terpilih
+                        // cek untuk lokasi yg terpilih 
+                        for (var y = 0; y < result.Edit.length; y++) {
+                            if (selectedLocation === result.Edit[y].SenderIDLocation) {
+                                count = count + 1;
+                            }
+                            if (selectedLocation === result.Edit[y].ReceiverIDLocation) {
+                                count = count + 1;
+                            }
+                        
+
+
+                            if (result.Edit[y].LoadStartTime != null && result.Edit[y].LoadFinishTime != null && result.Edit[y].UnloadStartTime != null && result.Edit[y].UnloadFinishTime != null) {
+                                arrvalidate.push(true);
+                            } else {
+                                arrvalidate.push(false);
+                            }
+                            if($('#rbload').prop("checked")) {
+                                if (result.Edit[y].LoadStartTime != null && result.Edit[y].LoadFinishTime != null) {
+                                    arrvalidate2.push(true);
+                                } else {
+                                    arrvalidate2.push(false);
+                                }
+                            }
+                            if ($('#rbunload').prop("checked")) {
+                                if (result.Edit[y].UnloadStartTime != null && result.Edit[y].UnloadFinishTime != null) {
+                                    arrvalidate2.push(true);
+                                } else {
+                                    arrvalidate2.push(false);
+                                }
+                            }
+                        
+                        
+                        }
+                    
+                        var message;
+                        if (arrvalidate.includes(false)) {
+                            message = result.Edit[0].Message;
+                        } else {
+                            message = result.Edit[0].Message + " And in " + $('#transportationNumber').val() + " already completed";
+                        }
+                        console.log(arrvalidate2);
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: "<div class='text-left'><img src='assets/images/checked.png' alt=''> " + message + "</div>",
+                            size: "small",
+                            closeButton: false,
+                            callback: function () {
+                                $('#dateandtime').focus();
+                                //generateTable();
+                                //console.log(arrvalidate2);
+                                //if (!arrvalidate2.includes(false)) {
+                                var lastLoc = selectedLocation;
+                                generateUserLocation('save', undefined, function () {
+                                    $('#userLocation').select2("val", lastLoc);
+                                });
+                                //}
+                                //if ($('#rbload').val()) {
+                                //    if()
+                                //}
+                                generateTable1('save');
+                            }
+                        });
+                    }
+                    $('#dateandtime').val("");
+                    $('#dateandtime').focus();
+                }
+            });
+        }
+    }
+
+    //TN/0618/00001
+    var counter;
+    var counterSender;
+    var counterReceiver;
+    var total = 0;
+    var totalInputData = 0;
+    var generatedtable1data;
+    //var arrLocation = new Array();
+    var generateTable1 = function (param1, showNotif) {
+        showNotif = showNotif === undefined ? true : showNotif;
+        var input = {
+            "TransportNo": $("#transportationNumber").val(),"State":"new"
+        };
+        var selectedLocation = $('#userLocation').select2("val");
+        $.ajax({
+            url: '@Url.Action("GetTransportOrderByNo", "LoadingUnloadingHistory")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: input,
+            success: function (json) {
+                console.log(json);
+                counterSender = 0;
+                counterReceiver = 0;
+                generatedtable1data = json;
+                totalInputData = json.length;
+                var datalist = "<table class='display table dataTable' style='width: 100%' id='tbHeader'><thead><tr><th>Order Number</th><th>Sender</th><th hidden>Senderid</th><th>Load Start</th><th>Load Finish</th><th>Receiver</th><th hidden>Receiverid</th><th>Unload Start</th><th>Unload Finish</th></tr></thead><tbody id='datalist'>";
+                if (totalInputData > 0) {
+                    if (json[0].ExistingState === 1) {
+                        for (var i = 0; i < totalInputData; i++) {
+                            //arrLocation.push(json[i].SenderIDLocation);
+                            //arrLocation.push(json[i].ReceiverIDLocation);
+                            if (selectedLocation === json[i].SenderIDLocation) {
+                                if (json[i].LoadStartTime == null || json[i].LoadFinishTime == null)
+                                    counterSender = counterSender + 1;
+                            }
+
+                            if (selectedLocation === json[i].ReceiverIDLocation) {
+                                if (json[i].UnloadStartTime == null || json[i].UnloadFinishTime == null)
+                                    counterReceiver = counterReceiver + 1;
+                            }
+
+                            datalist += "<tr>";
+                            datalist += "<td hidden><div id='idTransportOrder[" + i + "]'>" + json[i].IDTransportOrder + "</div></td>";
+                            datalist += "<td><div id='OrderNumber[" + i + "]'>" + json[i].STONo + "</div></td>";
+                            datalist += "<td hidden><div id='senderIDLocation[" + i + "]' >" + json[i].SenderIDLocation + "</div></td>";
+                            datalist += "<td><div id='senderLocationName[" + i + "]' >" + json[i].SenderLocationName + "</div></td>";
+                            if (json[i].LoadStartTime == null) {
+                                datalist += "<td><div id='loadStartTime[" + i + "]'></div></td>";
+                            } else {
+                                datalist += "<td><div id='loadStartTime[" + i + "]'>" + moment(json[i].LoadStartTime).format("DD-MMM-YYYY HH:mm") + "</div></td>";
+                            }
+                            if (json[i].LoadFinishTime == null) {
+                                datalist += "<td><div id='loadFinishTime[" + i + "]'></div></td>";
+                            } else {
+                                datalist += "<td><div id='loadFinishTime[" + i + "]'>" + moment(json[i].LoadFinishTime).format("DD-MMM-YYYY HH:mm") + "</div></td>";
+                            }
+                            datalist += "<td hidden><div id='receiverIDlocation[" + i + "]'>" + json[i].ReceiverIDLocation + "</div></td>";
+                            datalist += "<td><div id='receiverLocationName[" + i + "]'>" + json[i].ReceiverLocationName + "</div></td>";
+                            if (json[i].UnloadStartTime == null) {
+                                datalist += "<td><div id='unloadStartTime[" + i + "]'></div></td>";
+                            } else {
+                                datalist += "<td><div id='unloadStartTime[" + i + "]'>" + moment(json[i].UnloadStartTime).format("DD-MMM-YYYY HH:mm") + "</div></td>";
+                            }
+                            if (json[i].UnloadFinishTime == null) {
+                                datalist += "<td><div id='unloadFinishTime[" + i + "]'></div></td>";
+                            } else {
+                                datalist += "<td><div id='unloadFinishTime[" + i + "]'>" + moment(json[i].UnloadFinishTime).format("DD-MMM-YYYY HH:mm") + "</div></td>";
+                            }
+                            datalist += "</tr>";
+                        }
+                        datalist += '</tbody></table>';
+                        $('#tableList').html(datalist);
+                        total = 0;
+                        $('#IDTransportExecution').val(json[0].IDTransportExecution);
+
+                        if (counterSender > 0 && counterReceiver == 0) {
+                            $('#rbload').prop("checked", true);
+                            $('#rbunload').prop("disabled", true);
+                            $('#rbload').prop("disabled", true);
+                        }
+                        else if (counterReceiver > 0 && counterSender == 0) {
+                            $('#rbunload').prop("checked", true);
+                            $('#rbunload').prop("disabled", true);
+                            $('#rbload').prop("disabled", true);
+                        }
+                        else if (counterReceiver > 0 && counterSender > 0) {
+                            $('#rbload').prop("checked", false);
+                            $('#rbunload').prop("checked", false);
+                            $('#rbload').prop("disabled", false);
+                            $('#rbunload').prop("disabled", false);
+                        }
+                        else if (counterReceiver == 0 && counterSender == 0) {
+                            $('#rbload').prop("checked", false);
+                            $('#rbunload').prop("checked", false);
+                            $('#rbload').prop("disabled", true);
+                            $('#rbunload').prop("disabled", true);
+                        }
+                        
+                        $('#dateandtime').focus();
+                    } else if (json[0].ExistingState === 2) {
+                        $('#dateandtime').prop("disabled",true);
+                        $('#tableList').html('');
+                        if (param1 !== "save") {
+                            if (showNotif) {
+                                bootbox.alert({
+                                    title: "TOM Notification Center",
+                                    message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Data in " + $('#transportationNumber').val() + " Already complete</div>",
+                                    size: "small",
+                                    closeButton: false
+                                });
+                            }
+                        }
+                    }
+                    else if (json[0].ExistingState === 3) {
+                        $('#dateandtime').prop("disabled", true);
+                        if (showNotif) {
+                            bootbox.alert({
+                                title: "TOM Notification Center",
+                                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Transportation number not found</div>",
+                                size: "small",
+                                closeButton: false
+                            });
+                        }
+                    }
+                }
+                $('#dateandtime').focus();
+                $('#IDTransportExecution').val("0");
+            }
+        });
+
+    };
+
+    function removeElement(elementId) {
+        // Removes an element from the document
+        var element1 = document.getElementById("s2id_" + elementId);
+        if (element1 != null) {
+            element1.parentNode.removeChild(element1);
+        }
+
+        var element = document.getElementById(elementId);
+        element.parentNode.removeChild(element);
+    }
+
+    function createElement() {
+        /*
+        var newElement = document.createElement("select");
+        newElement.setAttribute('id', "userLocation");
+        newElement.setAttribute('class', "select2");
+        newElement.setAttribute('OnChange', "generateTable1()");
+        var element = document.getElementById("divSelect");
+        element.appendChild(newElement);
+        */
+        $('.select2').select2();
+    }
+    
+    $('body').on('focus', ".datepicker", function () {
+        $(this).datetimepicker({
+            format: 'DD-MMM-YYYY HH:mm:ss'
+        });
+    });
+
+    function generateTable(param) {
+        ez.Modals.BeginLoading();
+        $.ajax({
+            url: '@Url.Action("GetData", "LoadingUnloadingHistory")',
+            method: 'POST',
+            data: {
+                transportNo: param == "advSearch" ? $('#scTransportNo').val():null,
+                senderLocation: param == "advSearch" ? $('#scSenderLocation').val(): null,
+                receiverLocation: param == "advSearch" ? $('#scReceiverLocation').val():null,
+                transportStartDate: param == "advSearch" ? $('#scStartDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null,
+                transportEndDate: param == "advSearch" ? $('#scEndDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") : null,
+                state: param
+            },
+            cache: false,
+            error: function () {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to load data!");
+            },
+            success: function (json) {
+                ez.Modals.EndLoading();
+                var table = $('#dtTable').DataTable({
+                    "destroy": true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    'searching': true,
+                    "columnDefs": [{
+                        "targets": [0, 1],
+                        "orderable": false
+                    }],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data === true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            'data': 'TransportNo', 'searchable': true, "render": function (data, type, row, meta) {
+                                return '<a href="@Url.Action("EditIndex")?sn=' + data + '">' + data + '</a>';
+                            }
+                        },
+                        {
+                            'data': 'TransportDate', 'searchable': true, "render": function (data) {
+                                return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                            }
+                        },
+                        { 'data': 'STONo', 'searchable': true },
+                        { 'data': 'SenderLocationName', 'searchable': true },
+                        { 'data': 'ReceiverLocationName', 'searchable': true },
+                        { 'data': 'LoadBoxperWorkingTime', 'searchable': true },
+                        { 'data': 'UnloadBoxperWorkingTime', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtTable thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index <= 7)) {
+                        var title = $('#dtTable thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtTable thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function exportToExcelDefault() {
+        ez.Modals.BeginLoading();
+        var tn = $('#scTransportNo').val();
+        var sender = $('#scSenderLocation').val();
+        var receiver = $('#scReceiverLocation').val();
+        var date = $('#scStartDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        var datee = $('#scEndDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "param1": tn,
+                "param2": sender,
+                "param3": receiver,
+                "param4": date,
+                "param5": datee
+            },
+            error: function () {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to Export data!");
+            },
+            success: function (response) {
+                ez.Modals.EndLoading();
+                window.location.assign('@Url.Content("~/Assets/Download/")' + response);
+            }
+        });
+    }
+
+    function resetSearch() {
+        $("#scTransportNo").select2("val", "");
+        $("#scSenderLocation").val("");
+        $("#scReceiverLocation").val("");
+        $("#scTransportDate").val("");
+        //$("#all").prop("checked", true);
+        //generateTable("firstload");
+        excelParam = "firstload";
+    }
+
+    function GenerateSearch() {
+        myParam = "advSearch";
+        generateTable("advSearch");
+        excelParam = "Search";
+    }
+
+    function IsAngka(evt) {
+        var charCode = (evt.which);
+        //if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        //    return false;
+        //}
+        if (charCode > 0) {
+            return false;
+        }
+        return true;
+    }
+
+    $("#scTransportNo").select2({
+        ajax: {
+            url: '@Url.Action("GetTransportationNumberFilter", "LoadingUnloadingHistory")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    term: params
+                };
+            },
+            results: function (data) {
+                var myResults = [];
+                $.each(data, function (index, item) {
+                    myResults.push({
+                        'id': item.TransportNo,
+                        'text': item.TransportNo
+                    });
+                });
+                return {
+                    results: myResults
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Transportation Number',
+        delay: 250,
+        multiple: false,
+        minimumInputLength: 1
+    });
+
+    function GetSender() {
+        jQuery(function ($) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetSenderResult")',
+                cache: false,
+                //data: { transportNo: $("#scTransportNo").val() },
+                success: function (response) {
+                    var options = '<option value=""></option>';
+                    if (response.length) {
+                        for (i = 0; i < response.length; i++) {
+                            options = options + '<option value="' + response[i].IdLocation + '">' + response[i].LocationName + '</option>';
+                        }
+                    }
+                    $('#scSenderLocation').html(options);
+                }
+            });
+        });
+    }
+    
+    function GetReceiver() {
+        jQuery(function ($) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetReceiverResult")',
+                cache: false,
+                //data: { transportNo: $("#scTransportNo").val() },
+                success: function (response) {
+                    var options = '<option value=""></option>';
+                    if (response.length) {
+                        for (i = 0; i < response.length; i++) {
+                            options = options + '<option value="' + response[i].IdLocation + '">' + response[i].LocationName + '</option>';
+                        }
+                    }
+                    $('#scReceiverLocation').html(options);
+                }
+            });
+        });
+    }
+    
+    function GetTransportDate() {
+        jQuery(function ($) {
+            $.ajax({
+                url: '@Url.Action("GetTransportDateResult")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    var options = '<option value=""></option>';
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(moment(data[i]).format('DD-MMM-YYYY'));
+                        options += '<option value="' + moment(data[i]).format('YYYY-MM-DD') + '">' + (moment(data[i]).format('DD-MMM-YYYY')) + '</option>';
+                    }
+                    $('#scTransportDate').append(options);
+                }
+            });
+            @*jQuery.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetTransportDateResult")',
+                cache: false,
+                success: function (response) {
+                    var options = '<option value=""></option>';
+                    if (response.length) {
+                        for (i = 0; i < response.length; i++) {
+                            console.log(moment(response[i].TransportExecution.TransportDate).format('DD-MMM-YYYY'));
+                            options = options + '<option value="' + response[i].TransportExecution.TransportDate + '">' + response[i].TransportExecution.TransportDate + '</option>';
+                        }
+                    }
+                    $('#scTransportDate').html(options);
+                }
+            });*@
+        });
+    }
+    //onkeypress="return IsAngka(event);"
+    //var generateInputData = function () {
+    //    var useridloc = totalLocation > 1
+    //        ? $('#userLocation option:selected').val()
+    //        : $('#userLocationValue').val();
+    //    if (useridloc === "-") {
+
+    //    } else {
+    //        var stateload = false;
+    //        var stateunload = false;
+    //        for (var i = 0; i < totalInputData; i++) {
+
+    //            //var idTransportOrder = document.getElementById("IDTransportOrder[" + i + "]").innerHTML;
+    //            var senderidlocation = document.getElementById("senderIDLocation[" + i + "]").innerHTML;
+    //            var receiveridlocation = document.getElementById("receiverIDlocation[" + i + "]").innerHTML;
+    //            var loadstarttime = document.getElementById("loadStartTime[" + i + "]").innerHTML;
+    //            var loadfinishtime = document.getElementById("loadFinishTime[" + i + "]").innerHTML;
+    //            var unloadstarttime = document.getElementById("unloadStartTime[" + i + "]").innerHTML;
+    //            var unloadfinishtime = document.getElementById("unloadFinishTime[" + i + "]").innerHTML;
+
+    //            // jika sender loc == userloc  && receiver loc != user loc => rb load true
+    //            // jika receiver loc == user loc && receiver loc == user loc => rb unload true
+
+    //            if ((senderidlocation === useridloc) && (receiveridlocation !== useridloc)) {
+    //                stateload = true;
+    //            } else if ((senderidlocation !== useridloc) && (receiveridlocation === useridloc)) {
+    //                stateunload = true;
+    //            }
+    //            $('#rbload').prop("checked", stateload);
+    //            $('#rbunload').prop("checked", stateunload);
+
+    //            //jika loadstart null => isi load start
+    //            //jika loadstart != null => isi load finish
+
+    //            //if (stateload) {
+    //            //    if ((loadstarttime === "null") && (loadfinishtime === "null")) {
+    //            //        document.getElementById("loadStartTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+    //            //    } else if ((loadstarttime !== "null") && (loadfinishtime === "null")) {
+    //            //        document.getElementById("loadFinishTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+    //            //    }
+    //            //}
+
+    //            // jika unload start null && unload finish null => isi unloadstart
+    //            // jika unload start != null && unload finish null => isi unload finish
+
+    //            //if (stateunload) {
+    //            //    if ((unloadstarttime === "null") && (unloadfinishtime === "null")) {
+    //            //        document.getElementById("unloadStartTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+    //            //    } else if ((unloadstarttime !== "null") && (unloadfinishtime === "null")) {
+    //            //        document.getElementById("unloadFinishTime[" + i + "]").innerHTML = moment().format('DD-MMM-YYYY HH:mm');
+    //            //    }
+    //            //}
+    //        }
+    //        //Save();
+    //    }
+
+    //};
+</script>

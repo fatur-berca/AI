@@ -1,0 +1,1833 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Warehouse > Stock Monitoring > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #dtWarehouseStockSummary td.cellRed {
+        background-color: rgb(178, 27, 27);
+        color: white;
+    }
+    #dtWarehouseStockSummary td.cellYellow {
+        background-color: rgb(247, 236, 64);
+    }
+    #dtWarehouseStockSummary td.cellGreen {
+        background-color: rgb(59, 187, 37);
+        color: white;
+    }
+    #dtWarehouseStockSummary td.cellBlack {
+        background-color: rgb(0, 0, 0);
+        color: white;
+    }
+    #dtWarehouseStockSales td.cellRed {
+        background-color: rgb(178, 27, 27);
+        color: white;
+    }
+    #dtWarehouseStockSales td.cellYellow {
+        background-color: rgb(247, 236, 64);
+    }
+    #dtWarehouseStockSales td.cellGreen {
+        background-color: rgb(59, 187, 37);
+        color: white;
+    }
+    #dtWarehouseStockSales td.cellBlack {
+        background-color: rgb(0, 0, 0);
+        color: white;
+    }
+    .dataTables_wrapper .table-overflow .table thead tr th {
+        min-width: 30px !Important;
+    }
+</style>
+
+<ul class="nav nav-pills title">
+    <li class="active"><a data-toggle="pill" href="#summary" id="TabSummary">Stock Ratio (Based on Sales Forecast)</a></li>
+    <li><a data-toggle="pill" href="#sales" id="TabSales">Stock Ratio (Based on Sales Plan)</a></li>
+    <li><a data-toggle="pill" href="#detail" id="TabDetail">Detail Stock</a></li>
+    <li><a data-toggle="pill" href="#forecast" id="TabForecast">Sales Forecast</a></li>
+</ul>
+				
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.UploadSaleForecast)))
+            {
+                <button id="btnPopUpUploadForecast" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadForecastModal">Upload Sales Forecast</button>
+            }
+            <button id="btnExportForecastSummary" class="btn btn-primary" type="button">Export</button>
+        </div>
+        <a href="#searchfilter" id="AdvSearchForecast" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <label id="lblWeekForecast"></label>
+    <div class="filter-deck nmb">
+        <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel wmb wbt">
+                <form>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Week</label>
+                            <select class="form-control" id="FilterWeekForecast"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Region</label>
+                            <select class="select2" multiple="multiple" id="FilterRegionForecast"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button id="btnSearchForecast" class="btn btn-primary">Search</button>
+                        <button id="btnResetForecast" class="btn btn-purple">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table id="dtWarehouseStockSummary" class="display table dataTable table-condensed"></table>
+
+    <div id="legend">
+        <legend>LEGEND</legend>
+        R = Recalculate&emsp;
+        <!--F0 = Stockforecast 0 or negative number&emsp;-->
+        FN = No Stockforecast&emsp;
+        <!--S0 = Opening Stock 0 or negative number&emsp;-->
+        <!--N = No Stock-->
+    </div>
+</div>
+    <div id="sales" class="tab-pane fade">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button id="btnPopUpUploadSalesPlan" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadSalesPlanModal">Upload Sales Plan</button>
+                <button id="btnExportSalesSummary" class="btn btn-primary" type="button">Export</button>
+            </div>
+            <a href="#searchfiltersales" id="AdvSearchSales" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+        </div>
+        <div class="filter-deck nmb">
+            <div id="searchfiltersales" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+                <div class="col-panel wmb wbt">
+                    <form>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Week</label>
+                                <select class="form-control" id="FilterWeekSales"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Region</label>
+                                <select class="select2" multiple="multiple" id="FilterRegionSales"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button id="btnSearchSales" class="btn btn-primary">Search</button>
+                            <button id="btnResetSales" class="btn btn-purple">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <label id="lblWeekSalesPlan"></label>
+        <table id="dtWarehouseStockSales" class="display table dataTable table-condensed"></table>
+        <div id="legend">
+            <legend>LEGEND</legend>
+            R = Recalculate&emsp;
+            <!--F0 = Stockforecast 0 or negative number&emsp;-->
+            FN = No Stockforecast&emsp;
+            <!--S0 = Opening Stock 0 or negative number&emsp;-->
+            <!--N = No Stock-->
+        </div>
+    </div>
+    <div id="detail" class="tab-pane fade">
+        <div class="title-deck wmb">
+            <h5><b><label id="lblDetail"></label></b></h5>
+            <button id="btnExportDetail" class="btn btn-primary" type="button">Export</button>
+            <button id="btnChangeDetail" class="btn btn-primary" type="button"></button>
+            <a href="#searchfilter2" id="AdvSearchDetail" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter2"><b>Advanced Search</b><i class="fa fa-angle-down"></i></a>
+        </div>
+        <div class="filter-deck nmb">
+            <div id="searchfilter2" class="collapse" role="tabpanel" aria-labelledby="searchfilter2">
+                <div class="col-panel wmb wbt">
+                    <form>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Week</label>
+                                <select class="select2" multiple="multiple" id="FilterWeekDetail"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Region</label>
+                                <select class="form-control" id="FilterLocationDetail"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                <select class="form-control" id="FilterWarehouseDetail">
+                                    <option value="ALL">ALL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Brand</label>
+                                <select class="form-control" id="FilterBrandDetail"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Satuan</label>
+                                <select class="form-control" id="FilterSatuan">
+                                    <option value="TH">Thousand Stick</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="box">Box</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button id="btnSearchDetail" class="btn btn-primary">Search</button>
+                            <button id="btnResetDetail" class="btn btn-purple">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <table id="dtWarehouseTockDetail" class="dataTable display table table-condensed">
+            <thead>
+            <tr>
+                <th>Location</th>
+                <th>Brand</th>
+                <th>Week</th>
+                <th>Opening</th>
+                <th>ETA Senin</th>
+                <th>ETA Selasa</th>
+                <th>ETA Rabu</th>
+                <th>ETA Kamis</th>
+                <th>ETA Jumat</th>
+                <th>ETA Sabtu</th>
+                <th>ETA Minggu</th>
+                <th>Total Stock</th>
+                <th>Ratio</th>
+                <th>Percentage Sales</th>
+            </tr>
+            </thead>
+        </table>
+        <div id="legend">
+            <legend>LEGEND</legend>
+            R = Recalculate&emsp;
+            <!--F0 = Stockforecast 0 or negative number&emsp;-->
+            FN = No Stockforecast&emsp;
+            <!--S0 = Opening Stock 0 or negative number&emsp;-->
+            <!--N = No Stock-->
+        </div>
+    </div>
+    <div id="forecast" class="tab-pane fade">
+        <div class="title-deck wmb">
+            <button id="btnExportSalesForecast" class="btn btn-primary" type="button">Export</button>
+            <a href="#searchfiltersalesforecast" id="AdvSearchSalesForecast" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+        </div>
+        <div class="filter-deck nmb">
+            <div id="searchfiltersalesforecast" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+                <div class="col-panel wmb wbt">
+                    <form>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Region</label>
+                                <select class="form-control" id="FilterRegionSalesForecast"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                                <select class="form-control" id="FilterWarehouseSalesForecast">
+                                    <option value="ALL">ALL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Brand</label>
+                                <select class="form-control" id="FilterBrandSalesForecast"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button id="btnSearchSalesForecast" class="btn btn-primary">Search</button>
+                            <button id="btnResetSalesForecast" class="btn btn-purple">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <label id="lblSatuanSalesForecast">In Thousand Stick</label>
+        <table id="dtWarehouseStockSalesForecast" class="display table dataTable table-condensed"></table>
+        <div id="legend">
+            <legend>LEGEND</legend>
+            FN = No Stockforecast&emsp;
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadForecastModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadZone">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Starting Week</label>
+                                <select class="form-control" id="StartingWeek"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Ending Week</label>
+                                <select class="form-control" id="EndingWeek"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadForecast" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/StockForecasting.xlsx">Download Contoh Template</a>
+                            </div>
+                        </div>
+                    </div>
+                    <label id="lblLatestForecast" class="pull-left"><h6><i>*loading...</i></h6></label>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadForecast" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadSalesPlanModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadSalesPlanLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadSalesPlan">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Week</label>
+                                <select class="form-control" id="WeekUploadSalesPlan"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadSalesPlan" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/StockSalesPlan.xlsx">Download Contoh Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadSalesPlan" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="textModalSucess"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loadingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="../assets/images/loading.gif" alt=""><span id="textModalLoading"></span></div>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+    #summary .dataTables_wrapper .table-overflow .table thead tr th,
+    #summary .dataTables_wrapper .table-overflow .table tbody tr td,
+    #sales .dataTables_wrapper .table-overflow .table thead tr th,
+    #sales .dataTables_wrapper .table-overflow .table tbody tr td,
+    #detail .dataTables_wrapper .table-overflow .table thead tr th,
+    #detail .dataTables_wrapper .table-overflow .table tbody tr td {
+        font-size: 11px;
+    }
+    #summary .dataTables_wrapper .table-overflow .table thead tr th:first-child,
+    #summary .dataTables_wrapper .table-overflow .table thead tr th,
+    #sales .dataTables_wrapper .table-overflow .table thead tr th:first-child,
+    #sales .dataTables_wrapper .table-overflow .table thead tr th {
+        min-width: 30px;
+    }
+    #detail .dataTables_wrapper .table-overflow .table thead tr th:first-child,
+    #detail .dataTables_wrapper .table-overflow .table thead tr th {
+        min-width: 45px;
+    }
+</style>
+
+<script type="text/javascript">
+    var filestockforecast;
+    var urlWarehouseDetail = 'StockOnHand/GetWarehouseStockDetail';
+    var detail = "forecast";//digunakan untuk mengganti detail forecast/salesplan
+    var today = new Date();
+    var yearNow = today.getFullYear();
+    var weekNow = moment(today).isoWeek();
+    //var weekDisplay = weekNow;
+    //START : FILTER SUMMARY
+    var filterWeekSummaryForecast;
+    var filterYearSummaryForecast;
+    var filterWeekSummarySales;
+    var filterYearSummarySales;
+    //START : FILTER SUMMARY
+    var filter = new Object();
+    filter.IsFilter = false;
+    var filterSummaryFore = new Object();
+    var filterSummarySales = new Object();
+
+    var ListWeekFilter;//digunakan untuk menampung list week di bagian filter yang sudah diload
+    //var ListWeekUpload;//digunakan untuk menampung list week di bagian upload
+    var ListRegionFilter;//digunakan untuk menampung list region di bagian filter yang sudah diload
+    var loadTabSales = false;//pertama kali load tab sales
+    var loadFilterDetail = false;
+    var dialog;//untuk popup loading
+    var jumlahFilterDetail = 0;//parameter, filter di detail minimal harus ada 2 filter yang dipilih
+    var checkFilterWeek = false;
+    var checkFilterLocation = false;
+    var checkFilterWarehouse = false;
+    var checkFilterBrand = false;
+    //generateTabelWarehouseStockDetail();
+
+    //$("#lblDetail").text("Based on Sales Forecast Week " + (weekDisplay));
+    //$("#btnChangeDetail").text("Switch to Sales Plan Week "(weekDisplay));
+
+    $("#lblDetail").text("Based on Sales Forecast");
+    $("#btnChangeDetail").text("Switch to Sales Plan");
+
+    //START : BAGIAN SET FILTER
+    //GetGenWeekFilter();
+    
+    //FILTER DETAIL
+    //GetLocationList();
+    //GetWarehouseList();
+    //GetBrandList();
+    //END : BAGIAN SET FILTER
+
+    //START : DEFAULT TAMPILAN DETAIL
+    //filter.filterWeek = weekNow + '-' + yearNow;
+    //filter.IDLocation = "ALL";
+    //filter.filterWarehouse = "ALL";
+    //filter.BrandCode = "ALL";
+    //filter.IsFilter = true;
+    //generateTabelWarehouseStockDetail();
+    //END : DEFAULT TAMPILAN DETAIL
+
+    var dialog = bootbox.dialog({
+        message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+        closeButton: false
+    });
+
+    //START : BAGIAN UPLOAD FORECAST
+    $("#btnPopUpUploadForecast").click(function () {
+        $("#btnUploadForecast").prop("disabled", true);
+        $("#uploadForecast").val("");
+        $("#uploadForecast").jfilestyle('clear');
+        //if (ListWeekUpload == undefined)
+            GetGenWeek(weekNow, yearNow);
+        $("#StartingWeek").val(weekNow + '-' + yearNow);
+        $("#EndingWeek").val(weekNow + '-' + yearNow);
+        filestockforecast = "";
+        getInfoLastestStockForecast();
+        $("#btnUploadForecast").removeAttr('disabled');
+        $("#btnUploadForecast").html("Execute");
+    });
+
+    $('#uploadForecast').on('change', function (e) {
+        $("#btnUploadForecast").prop("disabled", false);
+        filestockforecast = e.target.files;
+    });
+
+    $("#btnUploadForecast").click(function () {
+        var weekUpload = $('#StartingWeek').val();
+        var weekUploadEnd = $('#EndingWeek').val();
+        //var weekUpload = "4-2018";
+        //var weekUploadEnd = "4-2018";
+        var splitStart = weekUpload.split('-');
+        var splitEnd = weekUploadEnd.split('-');
+        var statusError = false;
+        if (parseInt(splitEnd[1]) <= parseInt(splitStart[1])) {
+            if (parseInt(splitEnd[1]) == parseInt(splitStart[1])) {
+                if (parseInt(splitEnd[0]) < parseInt(splitStart[0])) {
+                    $("#textModalError").html("");
+                    $("#textModalError").append("Ending week must be greater than starting week");
+                    $('#modalerror').modal('show');
+                    statusError = true;
+                }
+            } else {
+                $("#textModalError").html("");
+                $("#textModalError").append("Ending week must be greater than starting week");
+                $('#modalerror').modal('show');
+                statusError = true;
+            }
+        }
+        if (!statusError){
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+                closeButton: false
+            });
+            var data = new FormData();
+            data.append("Startingweek", weekUpload);
+            data.append("Endingweek", weekUploadEnd);
+            for (var x = 0; x < filestockforecast.length; x++) {
+                data.append("filestockforecast", filestockforecast[x]);
+            }
+            $("#btnUploadForecast").attr('disabled', 'disabled');
+            $("#btnUploadForecast").html("Uploading");
+            $.ajax({
+                type: "POST",
+                url: 'StockOnHand/UploadFileStockForecast',
+                contentType: false,
+                processData: false,
+                cache: false,
+                async: false,
+                data: data,
+                success: function (data) {
+                    dialog.modal('hide');
+                    if (data.length == 0) {
+                        $("#loadingModal").modal('hide');
+                        $("#textModalSucess").html("");
+                        $("#textModalSucess").html("Your data has been successfully saved, Please wait 30 minutes recalculate is running");
+                        $('#modalsuccess').modal('show');
+                        calculateForecast();
+                    }
+                    else {
+                        $("#loadingModal").modal('hide');
+                        var txtError = "";
+                        for (var i = 0; i < data.length; i++) {
+                            var split = data[i].toString().split("-");
+                            if (split[0] == "LOCATION") {
+                                txtError = txtError + "There is no Location " + split[1] + " row " + split[2] + " in table master location<br/>";
+                            }
+                            if (split[0] == "BRAND") {
+                                txtError = txtError + "There is no Brand " + split[1] + " in table master brand<br/>";
+                            }
+                            if (split[0] == "WEEK") {
+                                txtError = txtError + "Expected week " + split[1] + " in column " + split[2] + "<br/>";
+                            }
+                            if (split[0] == "WEEKNF") {
+                                txtError = txtError + "Starting week not found in excel<br/>";
+                            }
+                        }
+                        $("#textModalError").html("");
+                        $("#textModalError").append(txtError);
+                        $('#modalerror').modal('show');
+                    }
+                    $("#btnUploadForecast").removeAttr('disabled');
+                    $("#btnUploadForecast").html("Execute");
+                    $("#lblLatestForecast").html("<h6><i>*loading...</i></h6>");
+                    getInfoLastestStockForecast();
+                },
+                error: function (xhr, status, p3, p4) {
+                    dialog.modal('hide');
+                    var err = "Error " + " " + status + " " + p3 + " " + p4;
+                    if (xhr.responseText && xhr.responseText[0] == "{")
+                        err = JSON.parse(xhr.responseText).Message;
+                }
+            });
+        }
+    });
+
+    $("#AdvSearchForecast").click(function () {
+        if (ListWeekFilter == undefined) {
+            GetGenWeekFilter(weekNow, yearNow);
+        }
+        if (ListRegionFilter == undefined) {
+            GetLocationList();
+        }
+        $("#FilterWeekForecast").val(weekNow + '-' + yearNow);
+    });
+
+    $("#AdvSearchSales").click(function () {
+        if (ListWeekFilter == undefined) {
+            GetGenWeekFilter(weekNow, yearNow);
+        }
+        if (ListRegionFilter == undefined) {
+            GetLocationList();
+        }
+        $("#FilterWeekSales").val(weekNow + '-' + yearNow);
+    });
+
+    $("#AdvSearchDetail").click(function () {
+        if (ListWeekFilter == undefined) {
+            GetGenWeekFilter(weekNow, yearNow);
+        }
+        if (ListRegionFilter == undefined) {
+            GetLocationList();
+        }
+        if (loadFilterDetail == false) {
+            loadFilterDetail = true;
+            GetLocationList();
+            GetBrandList();
+        }
+        //GetWarehouseList();
+    });
+
+    $("#AdvSearchSalesForecast").click(function () {
+        if (ListRegionFilter == undefined) {
+            GetLocationList();
+        }
+        if (loadFilterDetail == false) {
+            loadFilterDetail = true;
+            GetBrandList();
+        }
+    });
+
+    $("#TabSales").click(function () {
+        if (loadTabSales == false) {
+            loadTabSales = true;
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            generateTableSalesPlan(weekNow, yearNow, "ALL");
+        }
+    });
+
+    function calculateForecast() {
+        var weekUpload = $('#StartingWeek').val();
+        var weekUploadEnding = $('#EndingWeek').val();
+        var data = new FormData();
+        data.append("week", weekUpload);
+        $.ajax({
+            type: "POST",
+            url: 'StockOnHand/RunSPCalculateSalesForecast',
+            contentType: false,
+            processData: false,
+            cache: false,
+            async: false,
+            data: data,
+            ajaxSend: function(){
+            },
+            success: function (data) {
+                dialog.modal('hide');
+                $("#loadingModal").modal('hide');
+                $("#textModalSucess").html("");
+                $("#textModalSucess").html("Your data has been successfully calculate");
+                $('#modalsuccess').modal('show');
+            }
+        });
+    }
+    //END : BAGIAN UPLOAD FORECAST
+
+    //START : BAGIAN UPLOAD SALES PLAN
+    var filestocksalesplan;
+
+    $("#btnPopUpUploadSalesPlan").click(function () {
+        $("#btnUploadSalesPlan").prop("disabled", true);
+        $("#uploadSalesPlan").val("");
+        $("#uploadSalesPlan").jfilestyle('clear');
+        //if (ListWeekUpload == undefined)
+            GetGenWeekSalesPlan(weekNow, yearNow);
+        $("#WeekUploadSalesPlan").val(weekNow + '-' + yearNow);
+        filestocksalesplan = "";
+    });
+
+    $('#uploadSalesPlan').on('change', function (e) {
+        $("#btnUploadSalesPlan").prop("disabled", false);
+        filestocksalesplan = e.target.files;
+    });
+
+    $("#btnUploadSalesPlan").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        var weekUpload = $('#WeekUploadSalesPlan').val();
+        //var weekUpload = "46-2017";
+        var data = new FormData();
+        data.append("week", weekUpload);
+        for (var x = 0; x < filestocksalesplan.length; x++) {
+            data.append("filestocksalesplan", filestocksalesplan[x]);
+        }
+        $("#btnUploadSalesPlan").attr('disabled', 'disabled');
+        $("#btnUploadSalesPlan").html("Uploading");
+        $.ajax({
+            type: "POST",
+            url: 'StockOnHand/UploadFileStockSalesPlan',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            ajaxSend: function () {
+                $("#textModalLoading").html("");
+                $("#textModalLoading").html("Please wait, upload in progress.");
+                $("#loadingModal").modal('show');
+            },
+            success: function (data) {
+                dialog.modal('hide');
+                if (data.length == 0) {
+                    $("#loadingModal").modal('hide');
+                    $("#textModalSucess").html("");
+                    $("#textModalSucess").html("Your data has been successfully saved, Please wait 30 minutes recalculate is running");
+                    $('#modalsuccess').modal('show');
+                    calculateSalesPlan();
+                }
+                else {
+                    var txtError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "LOCATION") {
+                            txtError = txtError + "There is no Location " + split[1] + " in table master location<br/>";
+                        }
+                        if (split[0] == "BRAND") {
+                            txtError = txtError + "There is no Brand " + split[1] + " in table master brand<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtError);
+                    $('#modalerror').modal('show');
+                }
+                $("#btnUploadSalesPlan").removeAttr('disabled');
+                $("#btnUploadSalesPlan").html("Execute");
+            },
+            error: function (xhr, status, p3, p4) {
+                dialog.modal('hide');
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+
+    function calculateSalesPlan() {
+        var weekUpload = $('#StartingWeek').val();
+        var data = new FormData();
+        data.append("week", weekUpload);
+        $.ajax({
+            type: "POST",
+            url: 'StockOnHand/RunSPCalculateSalesPlan',
+            contentType: false,
+            processData: false,
+            cache: false,
+            async: false,
+            data: data,
+            ajaxSend: function () {
+            },
+            success: function (data) {
+                dialog.modal('hide');
+                $("#loadingModal").modal('hide');
+                $("#textModalSucess").html("");
+                $("#textModalSucess").html("Your data has been successfully calculate");
+                $('#modalsuccess').modal('show');
+            }
+        });
+    }
+    //END : BAGIAN UPLOAD SALES PLAN
+    //dipanggil pada saat tekan tabnya
+    //START : BAGIAN WAHOUSE STOCK DETAIL
+    function generateTabelWarehouseStockDetail() {
+        $.ajax({
+            url: urlWarehouseDetail,
+            method: 'post',
+            data: filter,
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                dialog.modal('hide');
+                var table2 = $('#dtWarehouseTockDetail').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'sort': true,
+                    'paging': false,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[2, 'desc']],
+                    columns: [
+                        {
+                            'data': 'IDLocation', "render": function (data, type, row) {
+                                if (row['LocationType'] == "Warehouse")
+                                    return row['IDLocation'] + ' - ' + row['LocationName'];
+                                else
+                                    return row['IDLocation'];
+                            }
+                        },
+                        { 'data': 'BrandCode', 'searchable': true },
+                        {
+                            'data': 'IDLocation', "render": function (data, type, row) {
+                                return row['Week'] + ' - ' + row['Year'];
+                            }
+                        },
+                        { 'data': 'Opening', 'searchable': true },
+                        { 'data': 'ETASenin', 'searchable': true },
+                        { 'data': 'ETASelasa', 'searchable': true },
+                        { 'data': 'ETARabu', 'searchable': true },
+                        { 'data': 'ETAKamis', 'searchable': true },
+                        { 'data': 'ETAJumat', 'searchable': true },
+                        { 'data': 'ETASabtu', 'searchable': true },
+                        { 'data': 'ETAMinggu', 'searchable': true },
+                        { 'data': 'TotalStock', 'searchable': true },
+                        {
+                            'data': 'Rate', "render": function (data, type, row) {
+                                if (row['Rate'] >= 0)
+                                    return row['Rate'];
+                                else if (row['Rate'] == -1)
+                                    return 'R';
+                                else if (row['Rate'] == -2)
+                                    return 'FN';
+                                else if (row['Rate'] == -3)
+                                    return 'FN';
+                                else if (row['Rate'] == -4)
+                                    return 'FN';
+                            }
+                        },
+                        { 'data': 'PercentageSales', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true ,
+                    "initComplete": function (settings, json) {
+                        dialog.modal('hide');
+                    }
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtWarehouseTockDetail thead.filters th').each(function (index) {
+                    if (index >= 0) {
+                        var title = $('#dtWarehouseTockDetail thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table2.columns().every(function (index) {
+                    $('#dtWarehouseTockDetail thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table2.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+    //END : BAGIAN WAHOUSE STOCK DETAIL
+    //bisa nanti di generate/dipanggil?pada saat tekan upload
+    //dibackend di batasin hasil searchnya?
+    //kalau sudah ada listnya tidak usah di load lagi
+    function GetGenWeek(week, year) {
+        var select = $('#StartingWeek');
+        var selectEnding = $('#EndingWeek');
+        //var selectSales = $("#WeekUploadSalesPlan");
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetGenWeek',
+            cache: false,
+            success: function (data) {
+                //ListWeekUpload = data;
+                select.html('');
+                selectEnding.html('');
+                //selectSales.html('');
+                $.each(data, function(key, val) {
+                    select.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                    selectEnding.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                    //selectSales.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                });
+                $('#StartingWeek').val(week + '-' + year);
+                $('#EndingWeek').val(week + '-' + year);
+                //$('#WeekUploadSalesPlan').val(week + '-' + year);
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    function GetGenWeekSalesPlan(week, year) {
+        var select = $('#WeekUploadSalesPlan');
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetGenWeekSalesPlan',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                $.each(data, function (key, val) {
+                    select.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                });
+                $('#WeekUploadSalesPlan').val(week + '-' + year);
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    function GetGenWeekFilter(week,year) {
+        var select = $('#FilterWeekDetail');
+        var selectFore = $('#FilterWeekForecast');
+        var selectSales = $('#FilterWeekSales');
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetGenWeekFilter',
+            cache: false,
+            success: function (data) {
+                ListWeekFilter = data;
+                select.html('');
+                selectFore.html('');
+                selectSales.html('');
+                $.each(data, function (key, val) {
+                    select.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                    selectFore.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                    selectSales.append('<option value="' + val.Week + '-' + val.Year + '">' + val.Week + ' - ' + val.Year + '</option>');
+                });
+                $('#FilterWeekForecast').val(week + '-' + year);
+                $('#FilterWeekSales').val(week + '-' + year);
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+                selectFore.html('<option value="NULL">none available</option>');
+                selectSales.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    //dipanggil pada saat tekan advanced search
+    function GetLocationList() {
+        var select = $('#FilterLocationDetail');
+        var selectfore = $('#FilterRegionForecast');
+        var selectsales = $('#FilterRegionSales');
+        var selectsalesfore = $('#FilterRegionSalesForecast');
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetLocationList',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                selectfore.html('');
+                selectsales.html('');
+                selectsalesfore.html('');
+                select.append('<option value="ALL">ALL</option>');
+                selectsalesfore.append('<option value="ALL">ALL</option>');
+                $.each(data, function (key, val) {
+                    select.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    selectfore.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    selectsales.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    selectsalesfore.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+                selectfore.html('<option value="NULL">none available</option>');
+                selectsales.html('<option value="NULL">none available</option>');
+                selectsalesfore.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    //dipanggil pada saat tekan advanced search
+    function GetWarehouseList(parLoc,status) {
+        var select = $('#FilterWarehouseDetail');
+        var selectsalesfore = $('#FilterWarehouseSalesForecast');
+        //var parLoc = $("#FilterLocationDetail").val();
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetWarehouseList',
+            data: {parLoc : parLoc},
+            cache: false,
+            success: function (data) {
+                if(status == 'detail'){
+                    select.html('');
+                    select.append('<option value="ALL">ALL</option>');
+                }
+                else if (status == 'salesfore') {
+                    selectsalesfore.html('');
+                    selectsalesfore.append('<option value="ALL">ALL</option>');
+                }
+                $.each(data, function (key, val) {
+                    if(status == 'detail'){
+                        select.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    }
+                    else if (status == 'salesfore') {
+                        selectsalesfore.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    }
+                });
+            },
+            error: function () {
+                if(status == 'detail'){
+                    select.html('<option value="NULL">none available</option>');
+                }
+                else if (status == 'salesfore') {
+                    selectsalesfore.html('<option value="NULL">none available</option>');
+                }
+            }
+        });
+    }
+    //dipanggil pada saat tekan advanced search
+    function GetBrandList() {
+        var select = $('#FilterBrandDetail');
+        var selectsalesfore = $('#FilterBrandSalesForecast');
+        var weekUpload = weekNow+'-'+yearNow;
+        $.ajax({
+            type: "GET",
+            url: 'StockOnHand/GetBrandList',
+            cache: false,
+            data: { week: weekUpload, type: 'other'},
+            success: function (data) {
+                select.html('');
+                selectsalesfore.html('');
+                select.append('<option value="ALL">ALL</option>');
+                selectsalesfore.append('<option value="ALL">ALL</option>');
+                $.each(data, function (key, val) {
+                    select.append('<option value="' + val + '">' + val + '</option>');
+                    selectsalesfore.append('<option value="' + val + '">' + val + '</option>');
+                });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+                selectsalesfore.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    $("#btnChangeDetail").click(function () {
+        //console.log($("#lblDetail").text());
+        if (detail == "forecast") {
+            //$("#lblDetail").text("Based on Sales Plan Week " + (weekDisplay));
+            $("#lblDetail").text("Based on Sales Plan");
+            $("#btnChangeDetail").text("Switch to Sales Forecast");
+            detail = "salesplan";
+            urlWarehouseDetail = 'StockOnHand/GetWarehouseStockSalesPlanDetail';
+            generateTabelWarehouseStockDetail();
+        } else {
+            //$("#lblDetail").text("Based on Sales Forecast Week " + (weekDisplay));
+            $("#lblDetail").text("Based on Sales Forecast");
+            $("#btnChangeDetail").text("Switch to Sales Plan");
+            detail = "forecast";
+            urlWarehouseDetail = 'StockOnHand/GetWarehouseStockDetail';
+            generateTabelWarehouseStockDetail();
+        }
+    });
+
+    $("#FilterLocationDetail").change(function() {
+        GetWarehouseList($("#FilterLocationDetail").val(),'detail');
+    });
+
+    $("#FilterRegionSalesForecast").change(function () {
+        GetWarehouseList($("#FilterRegionSalesForecast").val(), 'salesfore');
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearchDetail', function (e) {
+            if (jumlahFilterDetail < 2) {
+                dialog = bootbox.dialog({
+                    message: '<div class="text-center">because the data is too much, Choose 2 filter or more beside filter satuan</div>'
+                });
+            }
+            else{
+                dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                    closeButton: false
+                });
+                filter.filterWeek = $("#FilterWeekDetail").val();
+                filter.IDLocation = $("#FilterLocationDetail").val();
+                filter.filterWarehouse = $("#FilterWarehouseDetail").val();
+                filter.BrandCode = $("#FilterBrandDetail").val();
+                filter.satuan = $("#FilterSatuan").val();
+                //console.log($("#FilterWeekDetail").val());
+                //var split = $("#FilterWeekDetail").val().split('-');
+                //console.log(split);
+                //filter.Week = split[0];
+                //filter.Year = split[1];
+                filter.IsFilter = true;
+                generateTabelWarehouseStockDetail();
+                //if (detail == "forecast") {
+                //    $("#lblDetail").text("Based on Sales Plan Week");
+                //} else {
+                //    $("#lblDetail").text("Based on Sales Forecast Week");
+                    //}
+            }
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnResetDetail', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            $("#FilterWeekDetail").select2("val","");
+            $("#FilterLocationDetail").val("ALL");
+            $("#FilterWarehouseDetail").val("ALL");
+            $("#FilterBrandDetail").val("ALL");
+            $("#FilterSatuan").val("TH");
+            filter.IsFilter = false;
+            jumlahFilterDetail = 0;
+            checkFilterWeek = false;
+            checkFilterLocation = false;
+            checkFilterWarehouse = false;
+            checkFilterBrand = false;
+            generateTabelWarehouseStockDetail();
+            e.preventDefault();
+        });
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearchForecast', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            var split = $("#FilterWeekForecast").val().split('-');
+            filterWeekSummaryForecast = split[0];
+            filterYearSummaryForecast = split[1];
+            generateTable(split[0], split[1], $("#FilterRegionForecast").val());
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnResetForecast', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            $("#FilterWeekForecast").val(weekNow + '-' + yearNow);
+            $("#FilterRegionForecast").select2("val", "");
+            generateTable(weekNow, yearNow,"ALL");
+            e.preventDefault();
+        });
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearchSales', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            var split2 = $("#FilterWeekSales").val().split('-');
+            filterWeekSummarySales = split2[0];
+            filterYearSummarySales = split2[1];
+            generateTableSalesPlan(split2[0], split2[1], $("#FilterRegionSales").val());
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnResetSales', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            $("#FilterWeekSales").val(weekNow + '-' + yearNow);
+            $("#FilterRegionSales").select2("val", "");
+            generateTableSalesPlan(weekNow, yearNow,"ALL");
+            e.preventDefault();
+        });
+    });
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearchSalesForecast', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            var idloc = $('#FilterWarehouseSalesForecast').val();
+            var parentloc = $('#FilterRegionSalesForecast').val();
+            var brand = $('#FilterBrandSalesForecast').val();
+            generateTabelSalesForecast(idloc, parentloc, brand);
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnResetSalesForecast', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            $('#FilterRegionSalesForecast').val("ALL").change();
+            $('#FilterBrandSalesForecast').val("ALL");
+            generateTabelSalesForecast();
+            e.preventDefault();
+        });
+    });
+    //value2 di panggil 1x, dan dimasukkan dalam list?
+    //START : BAGIAN AMBIL RANGE VALUE
+    var upperValueJavaForecast;
+    var bottomValueJavaForecast;
+    var upperValueOuterJavaForecast;
+    var bottomValueOuterJavaForecast;
+    $.ajax({
+        url: 'StockOnHand/GetValueColor',
+        method: 'get',
+        dataType: 'json',
+        cache: false,
+        async: false,
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i]["Description"] == "Java Upper")
+                    upperValueJavaForecast = data[i]["Value"];
+                else if (data[i]["Description"] == "Java Bottom")
+                    bottomValueJavaForecast = data[i]["Value"];
+                else if (data[i]["Description"] == "Java Outer Upper")
+                    upperValueOuterJavaForecast = data[i]["Value"];
+                else if (data[i]["Description"] == "Java Outer Bottom")
+                    bottomValueOuterJavaForecast = data[i]["Value"];
+            }
+        }
+    });
+    //END : BAGIAN AMBIL RANGE VALUE
+
+    //START : BAGIAN SUMMARY STOCK
+    var kolom = new Array();
+    var listBrand = new Array();
+    var firstData = true;
+    generateTable(weekNow, yearNow ,"ALL");
+    function generateTable(week, year, listRegion) {
+        $('#dtWarehouseStockSummary').treetable('destroy');
+        //var split = $("#FilterWeekForecast").val().split('-');
+        //var paramWeekSummary = split[0];
+        //var paramYearSummary = split[1];
+        //filterWeekSummaryForecast = split[0];
+        //filterYearSummaryForecast = split[1];
+        $("#lblWeekForecast").html('');
+        $("#lblWeekForecast").html('Week ' + week + ' - ' + year);
+        $.ajax({
+            url: 'StockOnHand/GetBrandList',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: { week: week + '-' + year, type: 'forecast' },
+            success: function (data) {
+                //if (kolom.length == 0) {
+                if (firstData == false) {
+                    kolom = new Array();
+                    listBrand = new Array();
+                    $('#dtWarehouseStockSummary').DataTable().destroy();
+                    $("#dtWarehouseStockSummary").html('');
+                }
+                var htmlStringHeader = "<thead><tr>";
+                //var htmlStringFilter = "<thead class='filters'><tr class='filter-row'>";
+                kolom.push({ data: "LocationName" });
+                htmlStringHeader = htmlStringHeader + "<th style='padding-right: 40px;'>Location</th>";
+                //htmlStringFilter = htmlStringFilter + "<th></th>";
+
+                for (var i = 0; i < data.length; i++) {
+                    htmlStringHeader = htmlStringHeader + "<th>" + data[i] + "</th>";
+                    //htmlStringFilter = htmlStringFilter + "<th>" + data[i] + "</th>";
+                    kolom.push({ data: data[i] });
+                    listBrand.push(data[i]);
+                }
+                htmlStringHeader = htmlStringHeader + "</tr></thead>";
+                //htmlStringFilter = htmlStringFilter + "</tr></thead>";
+                $("#dtWarehouseStockSummary").append(htmlStringHeader);
+                //}
+            },
+            complete: function () {
+                $.ajax({
+                    url: 'StockOnHand/GetWarehouseSummary',
+                    method: 'POST',
+                    data: { week: week, year: year, listRegion: listRegion },
+                    cache: false,
+                    success: function (json) {
+                        firstData = false;
+                        var summaryObjectList = [];
+                        json.forEach(function (summary, index) {
+                            var summaryObject = new Object();
+                            summary.forEach(function (value, index) {
+                                summaryObject[value.Key] = value.Value;
+                            });
+                                summaryObjectList.push(summaryObject);
+                        });
+                        var table = $('#dtWarehouseStockSummary').on('draw.dt', function () {
+                            $(this).treetable({ expandable: true });
+                        }).DataTable({
+                            'destroy': true,
+                            data: summaryObjectList,
+                            'paging': false,
+                            'info': false,
+                            'sort': false,
+                            'searching': true,
+                            'autoWidth': false,
+                            columns: kolom.map(function (a) {
+                                return a;
+                            }),
+                            "dom": 'lf<"table-overflow"t>ip',
+                            orderCellsTop: true,
+                            "createdRow": function (row, data, index) {
+                                $(row).attr('data-tt-id', data["IDLocation"]);
+                                if (data["ParentLocation"] != "NULL" && data["ParentLocation"] != "East" && data["ParentLocation"] != "West") {
+                                    $(row).attr('data-tt-parent-id', data["ParentLocation"]);
+                                }
+                                if (data["Java"] == "Java") {
+                                    for (var i = 0; i < listBrand.length; i++) {
+                                        if(data[listBrand[i]] > upperValueJavaForecast)
+                                            $('td', row).eq(i+1).addClass('cellGreen');
+                                        else if (data[listBrand[i]] < bottomValueJavaForecast && data[listBrand[i]] != null && data[listBrand[i]] >= 0)
+                                            $('td', row).eq(i+1).addClass('cellRed');
+                                        else if (data[listBrand[i]] <= upperValueJavaForecast && data[listBrand[i]] >= bottomValueJavaForecast) {
+                                            if(data[listBrand[i]] != null)
+                                                $('td', row).eq(i+1).addClass('cellYellow');
+                                        }
+                                        else if (data[listBrand[i]] == -1) {
+                                            $('td', row).eq(i + 1).html('R');
+                                        }
+                                        else if (data[listBrand[i]] == -2) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        }
+                                        else if (data[listBrand[i]] == -3) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        }
+                                        else if (data[listBrand[i]] == -4) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        } else {
+                                            $('td', row).eq(i + 1).html('FN');
+                                            //$('td', row).eq(i + 1).addClass('cellRed');
+                                        }
+                                    }
+                                } else {
+                                    for (var j = 0; j < listBrand.length; j++) {
+                                        if (data[listBrand[j]] > upperValueOuterJavaForecast)
+                                            $('td', row).eq(j + 1).addClass('cellGreen');
+                                        else if (data[listBrand[j]] < bottomValueOuterJavaForecast && data[listBrand[j]] != null && data[listBrand[j]] >= 0)
+                                            $('td', row).eq(j + 1).addClass('cellRed');
+                                        else if (data[listBrand[j]] <= upperValueOuterJavaForecast && data[listBrand[j]] >= bottomValueOuterJavaForecast) {
+                                            if (data[listBrand[j]] != null)
+                                                $('td', row).eq(j + 1).addClass('cellYellow');
+                                        }
+                                        else if (data[listBrand[j]] == -1) {
+                                            $('td', row).eq(j + 1).html('R');
+                                        }
+                                        else if (data[listBrand[j]] == -2) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        }
+                                        else if (data[listBrand[j]] == -3) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        }
+                                        else if (data[listBrand[j]] == -4) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        } else {
+                                            $('td', row).eq(j + 1).html('FN');
+                                            //$('td', row).eq(i + 1).addClass('cellRed');
+                                        }
+                                    }
+                                }
+                            },
+                            "rowCallback": function(row, data, index) {
+                                for (var temp in data) {
+                                    var index = $.map(kolom,
+                                        function (obj, index) {
+                                            if (obj.data === temp) {
+                                                return index;
+                                            }
+                                        });
+                                    if (temp == "LocationName") {
+                                        if (data["ParentLocation"] == "East" || data["ParentLocation"] == "West") {
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">'+data[temp]+'</span>');
+                                        }
+                                        if(data[temp] == "Indonesia Timur")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Ind Timur</span>');
+                                        else if (data[temp] == "Bali Nusra")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">BaNus</span>');
+                                        else if(data[temp] == "Jakarta Inner")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Jkt Inner</span>');
+                                        else if(data[temp] == "Jakarta Outer")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Jkt Outer</span>');
+                                    }
+                                }
+                            },
+                            "initComplete": function (settings, json) {
+                                dialog.modal('hide');
+                            }
+                        });
+                        $('.dataTables_filter input').attr("placeholder", "Search Here");
+                        $('#dtWarehouseStockSummary thead.filters th').each(function (index) {
+                            var title = $('#dtWarehouseStockSummary thead.filters th').eq($(this).index()).text();
+                            $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                        });
+                        table.columns().every(function (index) {
+                            $('#dtWarehouseStockSummary thead.filters th:eq(' + index + ') input').on('input', function () {
+                                table.column($(this).parent().index() + ':visible')
+                                    .search(this.value)
+                                    .draw();
+                            });
+                        });
+                    }
+                });  
+            }
+        });
+    }
+
+    function getInfoLastestStockForecast() {
+        $.ajax({
+            url: 'StockOnHand/GetLatestInsertDateForecast',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var time = moment(data.CreatedDate).format("DD-MMM-YYYY HH:mm");
+                $("#lblLatestForecast").html('');
+                $("#lblLatestForecast").html('<h6><i>*latest data forecast week ' + data.Week + ' - ' + data.Year + ' uploaded on '+ time+'</i></h6>');
+            }
+        });
+    }
+    //END : BAGIAN SUMMARY STOCK
+    //dipanggil pada saat tekan tabnya
+    //START : BAGIAN SUMMARY STOCK SALES PLAN
+    var kolomSales = new Array();
+    var listBrandSales = new Array();
+    //generateTableSalesPlan();
+    function generateTableSalesPlan(week, year, listRegion) {
+        $('#dtWarehouseStockSales').treetable('destroy');
+        //var split2 = $("#FilterWeekSales").val().split('-');
+        //var paramWeekSummarySales = split2[0];
+        //var paramYearSummarySales = split2[1];
+        //filterWeekSummarySales = split2[0];
+        //filterYearSummarySales = split2[1];
+        $("#lblWeekSalesPlan").html('');
+        $("#lblWeekSalesPlan").html('Week ' + week + ' - ' + year);
+        $.ajax({
+            url: 'StockOnHand/GetBrandList',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: { week: week + '-' + year, type: 'other'},
+            success: function (data) {
+                if (kolomSales.length == 0) {
+                    $("#dtWarehouseStockSales").html('');
+                    var htmlStringHeader = "<thead><tr>";
+                    //var htmlStringFilter = "<thead class='filters'><tr class='filter-row'>";
+                    kolomSales.push({ data: "LocationName" });
+                    htmlStringHeader = htmlStringHeader + "<th>Location</th>";
+                    //htmlStringFilter = htmlStringFilter + "<th></th>";
+                    for (var i = 0; i < data.length; i++) {
+                        htmlStringHeader = htmlStringHeader + "<th class='monitoring-width'>" + data[i] + "</th>";
+                        //htmlStringFilter = htmlStringFilter + "<th class='monitoring-width'>" + data[i] + "</th>";
+                        kolomSales.push({ data: data[i] });
+                        listBrandSales.push(data[i]);
+                    }
+                    htmlStringHeader = htmlStringHeader + "</tr></thead>";
+                    //htmlStringFilter = htmlStringFilter + "</tr></thead>";
+                    $("#dtWarehouseStockSales").append(htmlStringHeader);
+                }
+            },
+            complete: function () {
+                $.ajax({
+                    url: 'StockOnHand/GetWarehouseStockSalesPlanSummary',
+                    method: 'POST',
+                    data: { week: week, year: year, listRegion: listRegion },
+                    cache: false,
+                    success: function (json) {
+                        var summaryObjectList = [];
+                        json.forEach(function (summary, index) {
+                            var summaryObject = new Object();
+                            summary.forEach(function (value, index) {
+                                summaryObject[value.Key] = value.Value;
+                            });
+                            summaryObjectList.push(summaryObject);
+                        });
+                        var table = $('#dtWarehouseStockSales').on('draw.dt', function () {
+                            $(this).treetable({ expandable: true });
+                        }).DataTable({
+                            'destroy': true,
+                            data: summaryObjectList,
+                            'paging': false,
+                            'info': false,
+                            'sort': false,
+                            'searching': true,
+                            'autoWidth': false,
+                            columns: kolomSales.map(function (a) {
+                                return a;
+                            }),
+                            "dom": 'lf<"table-overflow"t>ip',
+                            orderCellsTop: true,
+                            "createdRow": function (row, data, index) {
+                                $(row).attr('data-tt-id', data["IDLocation"]);
+                                if (data["ParentLocation"] != "NULL" && data["ParentLocation"] != "East" && data["ParentLocation"] != "West") {
+                                    $(row).attr('data-tt-parent-id', data["ParentLocation"]);
+                                }
+                                if (data["Java"] == "Java") {
+                                    for (var i = 0; i < listBrandSales.length; i++) {
+                                        if (data[listBrandSales[i]] > upperValueJavaForecast)
+                                            $('td', row).eq(i + 1).addClass('cellGreen');
+                                        else if (data[listBrandSales[i]] < bottomValueJavaForecast && data[listBrandSales[i]] != null && data[listBrandSales[i]] >= 0)
+                                            $('td', row).eq(i + 1).addClass('cellRed');
+                                        else if (data[listBrandSales[i]] <= upperValueJavaForecast && data[listBrandSales[i]] >= bottomValueJavaForecast) {
+                                            if (data[listBrandSales[i]] != null) 
+                                                $('td', row).eq(i + 1).addClass('cellYellow');
+                                        } else if (data[listBrandSales[i]] == -1) {
+                                            $('td', row).eq(i + 1).html('R');
+                                        } else if (data[listBrandSales[i]] == -2) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        } else if (data[listBrandSales[i]] == -3) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        } else if (data[listBrandSales[i]] == -4) {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        } else {
+                                            $('td', row).eq(i + 1).html('FN');
+                                        }
+                                    }
+                                } else {
+                                    for (var j = 0; j < listBrandSales.length; j++) {
+                                        if (data[listBrandSales[j]] > upperValueOuterJavaForecast)
+                                            $('td', row).eq(j + 1).addClass('cellGreen');
+                                        else if (data[listBrandSales[j]] < bottomValueOuterJavaForecast && data[listBrandSales[j]] != null && data[listBrandSales[j]] >= 0)
+                                            $('td', row).eq(j + 1).addClass('cellRed');
+                                        else if (data[listBrandSales[j]] <= upperValueOuterJavaForecast && data[listBrandSales[j]] >= bottomValueOuterJavaForecast) {
+                                            if (data[listBrandSales[j]] != null)
+                                                $('td', row).eq(j + 1).addClass('cellYellow');
+                                        } else if (data[listBrandSales[j]] == -1) {
+                                            $('td', row).eq(j + 1).html('R');
+                                        } else if (data[listBrandSales[j]] == -2) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        } else if (data[listBrandSales[j]] == -3) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        } else if (data[listBrandSales[j]] == -4) {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        } else {
+                                            $('td', row).eq(j + 1).html('FN');
+                                        }
+                                    }
+                                }
+                            },
+                            "rowCallback": function (row, data, index) {
+                                for (var temp in data) {
+                                    var index = $.map(kolom,
+                                        function (obj, index) {
+                                            if (obj.data === temp) {
+                                                return index;
+                                            }
+                                        });
+                                    if (temp == "LocationName") {
+                                        if (data["ParentLocation"] == "East" || data["ParentLocation"] == "West") {
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">' + data[temp] + '</span>');
+                                        }
+                                        if (data[temp] == "Indonesia Timur")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Ind Timur</span>');
+                                        else if (data[temp] == "Bali Nusra")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">BaNus</span>');
+                                        else if (data[temp] == "Jakarta Inner")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Jkt Inner</span>');
+                                        else if (data[temp] == "Jakarta Outer")
+                                            $('td:eq(' + index[0] + ')', row).html('<span style="margin-left: 10px;">Jkt Outer</span>');
+                                    }
+                                }
+                            },
+                            "initComplete": function (settings, json) {
+                                dialog.modal('hide');
+                            }
+                        });
+                        $('.dataTables_filter input').attr("placeholder", "Search Here");
+                        $('#dtWarehouseStockSales thead.filters th').each(function (index) {
+                            var title = $('#dtWarehouseStockSales thead.filters th').eq($(this).index()).text();
+                            $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                        });
+                        table.columns().every(function (index) {
+                            $('#dtWarehouseStockSales thead.filters th:eq(' + index + ') input').on('input', function () {
+                                table.column($(this).parent().index() + ':visible')
+                                    .search(this.value)
+                                    .draw();
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+    //END : BAGIAN SUMMARY STOCK SALES PLAN
+
+    //START : BAGIAN SALES FORECAST
+    var kolomWeekSalesForecast = new Array();
+    var listWeekSalesForecast = new Array();
+    function generateTabelSalesForecast(idloc, parentloc, brand) {
+        $('#dtWarehouseStockSalesForecast').treetable('destroy');
+        $.ajax({
+            url: 'StockOnHand/GetSalesForecastWeek',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (kolomWeekSalesForecast.length == 0) {
+                    $("#dtWarehouseStockSalesForecast").html('');
+                    var htmlStringHeader = "<thead><tr>";
+                    var htmlStringFilter = "<thead class='filters'><tr class='filter-row'>";
+                    kolomWeekSalesForecast.push({ data: "LocationName" });
+                    kolomWeekSalesForecast.push({ data: "BrandCode" });
+                    htmlStringHeader = htmlStringHeader + "<th>Location</th>";
+                    htmlStringHeader = htmlStringHeader + "<th>Brand</th>";
+                    htmlStringFilter = htmlStringFilter + "<th></th>";
+                    htmlStringFilter = htmlStringFilter + "<th></th>";
+                    for (var i = 0; i < data.length; i++) {
+                        htmlStringHeader = htmlStringHeader + "<th>" + data[i] + "</th>";
+                        htmlStringFilter = htmlStringFilter + "<th>" + data[i] + "</th>";
+                        kolomWeekSalesForecast.push({ data: data[i] });
+                        listWeekSalesForecast.push(data[i]);
+                    }
+                    htmlStringHeader = htmlStringHeader + "</tr></thead>";
+                    htmlStringFilter = htmlStringFilter + "</tr></thead>";
+                    $("#dtWarehouseStockSalesForecast").append(htmlStringHeader + htmlStringFilter);
+                }
+            },
+            complete: function() {
+                $.ajax({
+                    url: 'StockOnHand/GetSalesForecast',
+                    method: 'POST',
+                    data: { idLoc: idloc, parentLoc: parentloc, brand: brand },
+                    cache: false,
+                    success: function (json) {
+                        var summaryObjectList = [];
+                        json.forEach(function (summary, index) {
+                            var summaryObject = new Object();
+                            summary.forEach(function (value, index) {
+                                summaryObject[value.Key] = value.Value;
+                            });
+                            summaryObjectList.push(summaryObject);
+                        });
+                        var table = $('#dtWarehouseStockSalesForecast').on('draw.dt', function () {
+                            $(this).treetable({ expandable: true });
+                        }).DataTable({
+                            'destroy': true,
+                            data: summaryObjectList,
+                            'paging': false,
+                            'info': false,
+                            'sort': false,
+                            'searching': true,
+                            'autoWidth': false,
+                            columns: kolomWeekSalesForecast.map(function (a) {
+                                return a;
+                            }),
+                            "dom": 'lf<"table-overflow"t>ip',
+                            orderCellsTop: true,
+                            "createdRow": function (row, data, index) {
+                                for (var i = 0; i < listWeekSalesForecast.length; i++) {
+                                    if (data[listWeekSalesForecast[i]] == null) {
+                                        $('td', row).eq(i + 2).html('FN');
+                                    }
+                                }
+                            },
+                            "initComplete": function (settings, json) {
+                                dialog.modal('hide');
+                            }
+                        });
+                        $('.dataTables_filter input').attr("placeholder", "Search Here");
+                        $('#dtWarehouseStockSalesForecast thead.filters th').each(function (index) {
+                            if (index <= 1) {
+                                var title = $('#dtWarehouseStockSalesForecast thead.filters th').eq($(this).index()).text();
+                                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                            }
+                        });
+                        table.columns().every(function (index) {
+                            $('#dtWarehouseStockSalesForecast thead.filters th:eq(' + index + ') input').on('input', function () {
+                                table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+    //END : BAGIAN SALES FORECAST
+
+    //START : BAGIAN EXPORT
+    $("#btnExportForecastSummary").click(function () {
+        var filterRegion = $("#FilterRegionForecast").val();
+        if (filterWeekSummaryForecast == undefined)
+            filterWeekSummaryForecast = weekNow;
+        if (filterYearSummaryForecast == undefined)
+            filterYearSummaryForecast = yearNow;
+        if (filterRegion == null)
+            filterRegion = "ALL";
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "StockOnHand/ExportSummary");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "week");
+        hiddenField.setAttribute("value", filterWeekSummaryForecast);
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "year");
+        hiddenField2.setAttribute("value", filterYearSummaryForecast);
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "isForecast");
+        hiddenField3.setAttribute("value", true);
+        form.appendChild(hiddenField3);
+        var hiddenField4 = document.createElement("input");
+        hiddenField4.setAttribute("type", "hidden");
+        hiddenField4.setAttribute("name", "listRegion");
+        hiddenField4.setAttribute("value", filterRegion);
+        form.appendChild(hiddenField4);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    $("#btnExportSalesSummary").click(function () {
+        var filterRegion = $("#FilterRegionSales").val();
+        if (filterWeekSummarySales == undefined)
+            filterWeekSummarySales = weekNow;
+        if (filterYearSummarySales == undefined)
+            filterYearSummarySales = yearNow;
+        if (filterRegion == null)
+            filterRegion = "ALL";
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "StockOnHand/ExportSummary");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "week");
+        hiddenField.setAttribute("value", filterWeekSummarySales);
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "year");
+        hiddenField2.setAttribute("value", filterYearSummarySales);
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "isForecast");
+        hiddenField3.setAttribute("value", false);
+        form.appendChild(hiddenField3);
+        var hiddenField4 = document.createElement("input");
+        hiddenField4.setAttribute("type", "hidden");
+        hiddenField4.setAttribute("name", "listRegion");
+        hiddenField4.setAttribute("value", filterRegion);
+        form.appendChild(hiddenField4);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    $("#btnExportDetail").click(function () {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "StockOnHand/ExportDetail");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "week");
+        hiddenField.setAttribute("value", filter.filterWeek);
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "region");
+        hiddenField2.setAttribute("value", filter.IDLocation);
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "warehouse");
+        hiddenField3.setAttribute("value", filter.filterWarehouse);
+        form.appendChild(hiddenField3);
+        var hiddenField4 = document.createElement("input");
+        hiddenField4.setAttribute("type", "hidden");
+        hiddenField4.setAttribute("name", "brand");
+        hiddenField4.setAttribute("value", filter.BrandCode);
+        form.appendChild(hiddenField4);
+        var hiddenField5 = document.createElement("input");
+        hiddenField5.setAttribute("type", "hidden");
+        hiddenField5.setAttribute("name", "detailType");
+        hiddenField5.setAttribute("value", detail);
+        form.appendChild(hiddenField5);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    $("#btnExportSalesForecast").click(function () {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "StockOnHand/ExportSalesForecast");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "location");
+        hiddenField.setAttribute("value", $('#FilterWarehouseSalesForecast').val());
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "region");
+        hiddenField2.setAttribute("value", $('#FilterRegionSalesForecast').val());
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "brand");
+        hiddenField3.setAttribute("value", $('#FilterBrandSalesForecast').val());
+        form.appendChild(hiddenField3);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    $("#FilterWeekDetail").change(function () {
+        if (checkFilterWeek == false) {
+            jumlahFilterDetail++;
+            checkFilterWeek = true;
+        }
+    });
+
+    $("#FilterLocationDetail").change(function () {
+        if (checkFilterLocation == false) {
+            jumlahFilterDetail++;
+            checkFilterLocation = true;
+        }
+    });
+
+    $("#FilterWarehouseDetail").change(function () {
+        if (checkFilterWarehouse == false) {
+            jumlahFilterDetail++;
+            checkFilterWarehouse = true;
+        }
+    });
+
+    $("#FilterBrandDetail").change(function () {
+        if (checkFilterBrand == false) { 
+            jumlahFilterDetail++;
+            checkFilterBrand = true;
+        }
+    });
+</script>

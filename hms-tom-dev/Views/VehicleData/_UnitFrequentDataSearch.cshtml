@@ -1,0 +1,260 @@
+﻿<div id="unit" class="tab-pane fade">
+    <hr class="lmtop" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Total Unit Used</label>
+                <h4 class="sub-text" id="TotalUnitUsed"><i class="fa fa-spin fa-spinner"></i></h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Maximal Frequent/Unit</label>
+                <h4 class="sub-text" id="MaxFreqUnit"><i class="fa fa-spin fa-spinner"></i></h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Minimal Frequent/Unit</label>
+                <h4 class="sub-text" id="MinFreqUnit"><i class="fa fa-spin fa-spinner"></i></h4>
+            </div>
+        </div>
+    </div>
+    <hr class="lmtop" />
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            <button class="btn btn-primary" id="ExportUnitFreq">Export</button>
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModalUF" id="customReportButtonUF">Custom Report</button>
+        </div>
+        <a href="#searchfilter2" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter2"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <div class="filter-deck">
+        <div id="searchfilter2" class="collapse" role="tabpanel" aria-labelledby="searchfilter2">
+            <div class="col-panel">
+                    <form id="formFilter">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Transaction Date</label>
+                                <input type="text" class="datepicker form-control" id="TransactionDate">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Vendor</label>
+                                @Html.DropDownList("Vendor", (SelectList)ViewBag.ListVendor, string.Empty, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Vehicle Type</label>
+                                @Html.DropDownList("VehicleType", (SelectList)ViewBag.ListVehcileType, string.Empty, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </form>
+                <div class="col-md-12">
+                    <button class="btn btn-primary" id="btnSearchUnitFreq">Search</button>
+                    <button class="btn btn-purple" id="btnresetSearch">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="dtFilter2" class="dataTable display table">
+        <thead>
+            <tr>
+                <th>Police Number</th>
+                <th>Vehicle Type</th>
+                <th>Vendor</th>
+                <th id="C1"></th>
+                <th id="C2"></th>
+                <th id="C3"></th>
+                <th id="C4"></th>
+                <th id="C5"></th>
+                <th id="C6"></th>
+                <th id="C7"></th>
+            </tr>
+        </thead>
+        <thead class="filters">
+            <tr class="filter-row">
+                <th>Police Number</th>
+                <th>Vehicle Type</th>
+                <th>Vendor</th>
+                <th>23-May-17</th>
+                <th>24-May-17</th>
+                <th>25-May-17</th>
+                <th>26-May-17</th>
+                <th>27-May-17</th>
+                <th>28-May-17</th>
+                <th>29-May-17</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        var unitfreqstatus = "New";
+
+        $('#btnSearchUnitFreq').click(function () {
+            GenerateColumn();
+        });
+
+        $('#btnresetSearch').click(function () {
+            $('#Vendor').val("");
+            $('#VehicleType').val("");
+            $('#TransactionDate').val("");
+            GenerateColumn();
+        });
+
+        $('#pageunitfreq').click(function () {
+            if (unitfreqstatus == "New") {
+                GenerateColumn();
+                unitfreqstatus = "Oke";
+            }
+        });
+
+        $('#btnresetSearch').click(function () {
+            $('#formFilter')[0].reset();
+            GenerateColumn();
+        });
+
+        $("#ExportUnitFreq").click(function () {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            $.ajax({
+                url: '@Url.Action("ExportUnitFreq")',
+                method: 'post',
+                data: {
+                    "Vendor": $('#Vendor').val(),
+                    "VehicleType": $('#VehicleType').val(),
+                    "TransactionDate": $('#TransactionDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                },
+
+                dataType: 'json',
+                cache: false,
+                success: function (data) {
+                    window.location.assign("Assets/Download/" + data);
+                    dialog.modal('hide');
+                }
+            });
+        });
+    });
+
+    function GenerateColumn() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.ajax({
+            url: '@Url.Action("GenerateColumn")',
+            method: 'get',
+            dataType: 'json',
+            data: {
+                "trdate": $('#TransactionDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") ,
+            },
+            success: function (json) {
+                dialog.modal('hide');
+                $('#C1').text(moment(moment(json[0])).format("DD-MMM-YYYY"));
+                $('#C2').text(moment(moment(json[1])).format("DD-MMM-YYYY"));
+                $('#C3').text(moment(moment(json[2])).format("DD-MMM-YYYY"));
+                $('#C4').text(moment(moment(json[3])).format("DD-MMM-YYYY"));
+                $('#C5').text(moment(moment(json[4])).format("DD-MMM-YYYY"));
+                $('#C6').text(moment(moment(json[5])).format("DD-MMM-YYYY"));
+                $('#C7').text(moment(moment(json[6])).format("DD-MMM-YYYY"));
+                GenerateTableUnitFreq(dialog);
+            }
+        });
+    }
+
+    function GenerateTableUnitFreq(dialog) {
+        $.ajax({
+            url: '@Url.Action("GetUnitFrequent")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "Vendor": $('#Vendor').val(),
+                "VehicleType": $('#VehicleType').val(),
+                "TransactionDate": $('#TransactionDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1") ,
+            },
+            success: function (json) {
+                dialog.modal('hide');
+                var table = $('#dtFilter2').DataTable({
+                    data: json,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "policenumber", "class": "text-center", "render": function (datum, type, row, meta) {
+                                return (row.IDPoliceRegNumber) ? '<a href="@Url.Action("AddNewVehicleData")?IDPoliceRegNumber=' + datum + '"  target="_blank">' + datum + '</a>' : datum;
+                            }
+                        },
+                        { 'data': 'VehicleType', 'searchable': true },
+                        { 'data': 'Vendor', 'searchable': true },
+                        { 'data': 'C1', 'searchable': true },
+                        { 'data': 'C2', 'searchable': true },
+                        { 'data': 'C3', 'searchable': true },
+                        { 'data': 'C4', 'searchable': true },
+                        { 'data': 'C5', 'searchable': true },
+                        { 'data': 'C6', 'searchable': true },
+                        { 'data': 'C7', 'searchable': true },
+
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter2 thead.filters th').each(function (index) {
+                    var title = $('#dtFilter2 thead.filters th').eq($(this).index()).text();
+                    $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter2 thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+                SummaryFreqUnit();
+            },
+            error: function () {
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function SummaryFreqUnit() {
+        var TotalUnitUsed = $('#TotalUnitUsed'),
+            MinFreqUnit = $('#MinFreqUnit'),
+            MaxFreqUnit = $('#MaxFreqUnit');
+
+        $.ajax({
+            url: '@Url.Action("GetTotalUnitUsed")',
+            dataType: 'JSON',
+            cache: false,
+            data: {
+                "Vendor": $('#Vendor').val(),
+                "VehicleType": $('#VehicleType').val(),
+                "TransactionDate": $('#TransactionDate').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            },
+            success: function (data) {
+                TotalUnitUsed.html(data.TotalFreq);
+                MinFreqUnit.html(data.MinFreq);
+                MaxFreqUnit.html(data.MaxFreq);
+            },
+            error: function () {
+                TotalUnitUsedhtml('No data');
+                MinFreqUnit.html('No data');
+                MaxFreqUnit.html('No data');
+            }
+        });
+    }
+</script>

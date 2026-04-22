@@ -1,0 +1,845 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+
+@{
+    ViewBag.Title = "Warehouse > Seal Management > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("AddNew")' ">Add New</button>
+        }
+        <button class="btn btn-primary" data-toggle="modal" data-target="#UnlockModal">Unlock</button>
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+        {
+            <button class="btn btn-primary" id="btnSetInactive" type="button" onclick="SetIsActive('Delete')">Delete</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="ExportBtn" onclick="exportToExcelDefault()">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)) && isSuperUser)
+        {
+            <button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('Recovery')">Recovery</button>
+        }
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" id="DDStatus"></select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Date Range</label>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control datepicker" id="DateFrom">
+                        </div>
+                        <div class="col-md-2 to-bi">
+                            <label>to</label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control datepicker" id="DateTo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Warehouse Name</label>
+                    <select class="select2" multiple="multiple" id="DDWarehouse"></select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Warehouse Staff</label>
+                    <select class="select2" multiple="multiple" id="DDStaff"></select>
+                </div>
+            </div>
+         
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Location/Area</label>
+                    <select class="select2" multiple="multiple" id="DDLocation"></select>
+                </div>
+            </div>
+            @if (isSuperUser)
+            {
+                <div class="clearfix"></div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label for="input-type">Status</label>
+                        <div id="input-type" class="row">
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="all" value="1" type="radio" />Active
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <button class="btn btn-primary" id="BtnSearch" onclick="GenerateTable('search')">Search</button>
+                <button class="btn btn-purple" onclick="ResetData()">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="display table dataTable">
+    <thead>
+        <tr>
+            @*<th data-orderable="false" class="text-center">
+        <div class="checkbox-deck">
+            <input type="checkbox" name="" id="checkall">
+            <label for="checkall"></label>
+        </div>
+    </th>*@
+            <th></th>
+            <th>Active</th>
+            <th>Attachment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Warehouse Name</th>
+            <th>Warehouse Staff-1</th>
+            <th>Warehouse Staff-2</th>
+            <th>Warehouse Staff Other</th>
+            <!--th>Seal Location</th>
+            <th>Seal Number</th>
+            <th>Warehouse Staff-1</th>
+            <th>Warehouse Staff-2</th>
+            <th>Warehouse Staff Other</th-->
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>     
+            <th></th> 
+            <th></th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Warehouse Name</th>
+            <th>Warehouse Staff-1</th>
+            <th>Warehouse Staff-2</th>
+            <th>Warehouse Staff Other</th>
+            <!--th>Seal Location</th>
+            <th>Seal Number</th>
+            <th>Warehouse Staff-1</th>
+            <th>Warehouse Staff-2</th>
+            <th>Warehouse Staff Other</th-->
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<input type="hidden" name="param" value="firstload">
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+                @*<button class="btn btn-primary" id="exportCustomReport" onclick="exportToExcel()">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div class="modal fade" id="UnlockModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Unlock Seal</h4>
+            </div>
+            <div class="modal-body">
+                <form id="newData">
+                    <div class="row">
+                                        
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Warehouse</label>
+                               
+                                @Html.DropDownList("Warehouse", (SelectList)ViewBag.ListWarehouseUpload, string.Empty, new { @class = "select2" })
+                                <label>Seal Number</label>
+                                <input type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57' name="" id="UnlockSealNumber" class="form-control">
+                            </div>
+                        </div>
+                    </div><br />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="./assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave" >OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#all").prop("checked", true);
+
+        $("#DateFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#DateTo").val(moment(new Date()).format("DD/MM/YYYY"));
+
+        GenerateTable("firstload");
+        
+        GenerateDropDownWarehouse();
+
+        //ResetData();
+    });
+    
+    //==========================================================================================================
+    // PART A: BEGIN
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    
+    var paramExcel = "";
+
+    //==========================================================================================================
+    // PART A: END
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART B: BEGIN
+    // This part is to validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+
+    function IsAngka(evt) {
+        var charCode = (evt.which); //? evt.which : event.keyCode
+        //alert(evt.which);
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function ResetData() {
+        $("#all").prop("checked", true);
+        $("#DDStatus").val('');
+        $("#DateFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#DateTo").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#DDWarehouse").select2("val", "");
+        $("#DDStaff").select2("val", "");
+        $("#DDSealNumber").select2("val", "");
+        $("#DDLocation").select2("val", "");
+        GenerateTable("firstload");
+    }
+    
+    var GenerateDropDownWarehouse = function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../SealManagement/GetUserWarehouse")',
+            success: function (listLocation) {
+                var options = '<option value="-"></option>';
+                if (listLocation.length) {
+                    for (i = 0; i < listLocation.length; i++) {
+                        options = options + '<option value="' + listLocation[i].IDLocation + '">' + listLocation[i].IDLocation + ' - ' + listLocation[i].LocationName + '</option>';
+                    }
+                }
+                $('#DDWarehouse').html(options);
+                GenerateDropDownStatus();
+            }
+        });
+    };
+
+    var GenerateDropDownStatus = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "SealStatus"
+            },
+            url: '@Url.Action("../SealManagement/GetMasterList")',
+            success: function (response) {
+                var options = '<option value="-"></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#DDStatus').html(options);
+                GenerateDropDownStaff();
+            }
+        });
+    };
+
+    var GenerateDropDownStaff = function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../SealManagement/GetDataStaffView")',
+            data: {
+                "id": (gup('id') == "") ? ($("#DDWarehouse").val() == '-' ? null : $("#DDWarehouse").val()) : gup('id')
+            },
+            success: function (response) {
+                var options = '<option value="-"></option>';
+                if (response.length) {
+                    var fullName = "";
+                    for (i = 0; i < response.length; i++) {
+                        if (fullName !== response[i].FULL_NAME) {
+                            fullName = response[i].FULL_NAME;
+                            options = options + '<option value="' + response[i].FULL_NAME + '">' + response[i].NAME + '</option>';
+                        }
+                    }
+                }
+                $('#DDStaff').html(options);
+                GenerateDropDownSealNumb();
+            }
+        });
+    };
+
+    var GenerateDropDownSealNumb = function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../SealManagement/GetSealNumber")',
+            success: function (response) {
+                var options = '<option value="-"></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].SealNumber + '">' + response[i].SealNumber + '</option>';
+                    }
+                }
+                $('#DDSealNumber').html(options);
+                GenerateDropDownLocationArea();
+            }
+        });
+    };
+    
+    var GenerateDropDownLocationArea = function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../SealManagement/GetMasterEquipmentTypeListByIdLocType")',
+            data: {
+                idloc : '',
+                type : 'seal'
+            },
+            success: function (respond) {
+                var options = '<option value="-"></option>';
+                if (respond.length) {
+                    for (i = 0; i < respond.length; i++) {
+                        options = options + '<option value="' + respond[i].IDEquipmentType + '">' + respond[i].MasterLocation.LocationName + ' - ' + respond[i].Name + '</option>';
+                    }
+                }
+                $('#DDLocation').html(options);
+            }
+        });
+    };
+    //==========================================================================================================
+    // PART B: END
+    // Validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART C: BEGIN
+    // This part is to handle additional function in form
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    var tempid = [];
+    var tempdate = [];
+    var tempstatus = [];
+    var filter = new Object();
+    var stat = false;
+    function SetIsActive(param) {
+        if (tempid.length > 0) {
+            bootbox.confirm({
+                title: "DFIS Notification Center",
+                message: "Are you sure to " + param + " this data?",
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn btn-primary'
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        className: 'btn btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        if (AllowDelete() == true) {
+                            
+                        }
+                    }
+                }
+            });
+            stat = (param == "Delete") ? false : true;
+        } else if (tempid.length == 0) {
+            alertPleaseSelect();
+        }
+    }
+
+    function AllowDelete() {
+        filter = new Object();
+        filter.ListIsActiveIdString = tempid;
+        filter.ListDate = tempdate;
+        filter.ListStatus = tempstatus;
+        filter.Isactive = stat;
+        filter.Page = "SealManagement";
+        $.ajax({
+            url: "SealManagement/CheckAllowDeleted",
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (response) {
+                if (response == "Success") {
+                    ChangeIsActive();
+                    return true;
+                } else if (response == "UnlockedIsAvailable") {
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='assets/images/cancel.png' alt=''>Locked Data cannot be delete, because Unlocked Data is exists.",
+                        callback: function () {
+                            $('.bootbox.modal').modal('hide');
+                        }
+                    }); 
+                    return false;
+                } else if (response == "PartialLocked") {
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='assets/images/cancel.png' alt=''>Your data is partial and cannot be Deleted, Delete the locked data first!",
+                        callback: function () {
+                            $('.bootbox.modal').modal('hide');
+                        }
+                    });
+                    return false;
+                }
+            }
+        });
+    }
+
+    function ChangeIsActive() {
+        $.ajax({
+            url: "SealManagement/SetStatusResult",
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (response) {
+                var param = jQuery("input[name='param']").val(),
+                    msg = stat ? "Recovered" : "Deleted";
+                if (response == "Success") {
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='assets/images/checked.png' alt=''> Data has been successfully " + msg + " from the database.",
+                        callback: function () {
+                            GenerateTable(param);
+                            filter.ListIsActiveIdString = null;
+                            filter.ListDate = null;
+                            filter.ListStatus = null;
+                            tempid = [];
+                            tempdate = [];
+                        }
+                    });
+                } else {
+                    bootbox.alert({
+                        title: "DFIS Notification Center",
+                        message: "<img src='assets/images/cancel.png' alt=''>Error your data cannot be " + msg + " !",
+                        callback: function () {
+                            GenerateTable(param);
+                            filter.ListIsActiveIdString = null;
+                            filter.ListDate = null;
+                            filter.ListStatus = null;
+                            tempid = [];
+                            tempdate = [];
+                        }
+                    });
+                }
+            },
+            error: function (data, textStatus, jqXHR) {
+                var param = jQuery("input[name='param']").val();
+                GenerateTable(param);
+                filter.ListIsActiveIdString = null;
+                filter.ListDate = null;
+                filter.ListStatus = null;
+                tempid = [];
+                tempdate = [];
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray(e) {        
+        tempid = [];
+        tempdate = [];
+        tempstatus = [];
+        //if ($(e).prop('checked')) {
+        //    $(e).prop('checked', false);
+        //    return;
+        //}
+        var table = $('#dtFilter').DataTable();
+        $('#dtFilter tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var id = data["IDLocation"]  ;
+            var datestatus = data["strStatusDateTime"];
+            var statuslock = data["Status"];
+            var result = $.grep(tempid, function (e) { return e == id; });
+            if (result.length == 0) {
+                tempid.push(id);
+                tempdate.push(datestatus);
+                tempstatus.push(statuslock);
+            } else if (result.length == 1) {
+                tempid = tempid.filter(function (obj) {
+                    return obj !== id;
+                });
+
+                tempdate = tempdate.filter(function (obj) {
+                    return obj !== id;
+                });
+
+                tempstatus = tempstatus.filter(function (obj) {
+                    return obj !== id;
+                });
+            }
+        });
+    }
+
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#dtFilter').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempid.push(table.cell(i, 1).data());
+            });
+            tempid = tempid.filter(onlyUnique);
+        } else {
+            tempid = [];
+        }
+    });
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+    //==========================================================================================================
+    // PART C: END
+    // aaditional function in form
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART D: BEGIN
+    // This part is to control data while vew, edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    
+    var fileInput = new Object();
+    function GenerateTable(param) {
+        jQuery("input[name='param']").val(param);
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        paramExcel = param;
+        var dateFrom = $("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            dateTo = $("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            status = (param == "firstload") ? $("#DDStatus").val() : ($("#DDStatus").val() == null ? $("#DDStatus").val() : $("#DDStatus").val().toString()),
+            warehouse = (param == "firstload") ? $("#DDWarehouse").val() : ($("#DDWarehouse").val() == null ? $("#DDWarehouse").val() : $("#DDWarehouse").val().toString()),
+            staff = (param == "firstload") ? $("#DDStaff").val() : ($("#DDStaff").val() == null ? $("#DDStaff").val() : $("#DDStaff").val().toString()),
+            //sealNumber = (param == "firstload") ? $("#DDSealNumber").val() : ($("#DDSealNumber").val() == null ? $("#DDSealNumber").val() : $("#DDSealNumber").val().toString()),
+            location = (param == "firstload") ? $("#DDLocation").val() : ($("#DDLocation").val() == null ? $("#DDLocation").val() : $("#DDLocation").val().toString()),
+            //includeDeleted = $("#chkInactive").prop('checked');
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        fileInput.status = status;
+        fileInput.StatusDateTimeFrom = dateFrom;
+        fileInput.StatusDateTimeTo = dateTo;
+        fileInput.IDLocation = warehouse;
+        fileInput.WarehouseStaff1 = staff;
+        //fileInput.WarehouseStaff2 = staff;
+        //fileInput.SealNumber = sealNumber;
+        fileInput.IDEquipmentTypeArray = location;
+        fileInput.Type = param == "firstload"? "index":param;
+        //fileInput.IncludeDeleted = includeDeleted;
+        fileInput.IncludeInActive = includeInActive;
+
+        $.ajax({
+            @*url: '@Url.Action("GetDataWarehouseResult")',*@
+            url: '@Url.Action("GetData")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: fileInput,
+            success: function (json) {
+                dialog.modal('hide');
+                if (json.length == 0 && param != "firstload") {
+                    alertSearchNoResult();
+                }
+                    
+                var rowsSelected = [];
+                var table = $('#dtFilter').DataTable({
+                    data: json,
+                    "destroy": true,
+                    "columnDefs": [{
+                        "orderable": false,
+                        "targets": [0, 1, 2]
+                    }],
+                    "order": [],
+                    'paging': true,
+                    //'sort': true,
+                    "iDisplayLength": 25,
+                    //"order": [[4, "desc"]],
+                    //aaSorting: [[4, 'desc']],
+                    'searching': true,
+                    columns: [
+                    {
+                        "data": "IDLocation", "class": "text-center", "render": function (data, type, row, meta) {
+                            return '<td><div class="radio-deck"><input name="seal_deleted" type="radio" id="check[' + row["IDLocation"] + '-' + row["strStatusDateTime"] + '-' + row["Status"] + ']" class="chkList" onchange="InsertTempArray(this)"><label for="check[' + row["IDLocation"] + '-' + row["strStatusDateTime"] + '-' + row["Status"] + ']"></label></div></td>';
+                        }
+                    },
+                    {
+                        "data": "IsActive", "class": "text-center", "render": function (data) {
+                            if (data) {
+                                return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                            } else {
+                                return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        }
+                    },
+                      {
+                          "data": "Attachment", "class": "text-center", "render": function (data) {
+                              if (data != null) {
+                                  return '<a href="assets/Uploads/SealManagement/' + data + '"><i class="fa fa-download"></i></a>';
+                              }
+                              return '<a></a>';
+                          }
+                      },
+                    {
+                        'data': 'Status', 'searchable': true,
+                        "render": function (data, type, row, meta) {
+                            //return '<a href="SealManagement/AddNew?id=' + row.IDLocation + '&p2='+row.Status+'&p3='+ row.StatusDateTime +'">' + data + '</a>';
+                            return '<a href="SealManagement/Detail?id=' + row.IDLocation + '&p3=' + row.strStatusDateTime + '&p2=' + row.Status + '">' + data + '</a>';
+                        }
+                    },
+
+                    //{
+                    //    'data': 'StatusDateTime',
+                    //    'searchable': true,
+                    //    "render": function (data, type, row, meta) {
+                    //        if (type == "display") {
+                    //            data = moment(data).format("DD/MMM/YYYY HH:mm");
+                    //        }
+                    //        return '<label style="font-weight: 200;">' + data + '</label>';
+                    //    }
+                    //},
+                    { 'data': 'strStatusDateTime', 'searchable': true },
+                    { 'data': 'LocationName', 'searchable': true },
+                    { 'data': 'WarehouseStaff1', 'searchable': true },
+                    { 'data': 'WarehouseStaff2', 'searchable': true },
+                    { 'data': 'WarehouseStaff3', 'searchable': true }
+                    //{
+                    //    'data': 'LocationName', 'searchable': true, "render": function (data, type, row, meta) {
+                    //        return '<label style="font-weight: 200;">' + row.MasterLocation.LocationName + '</label>';
+                    //    }
+                    //},
+                    //{
+                    //    'data': 'IDEquipmentType', 'searchable': true, "render": function (data, type, row, meta) {
+                    //        return '<label style="font-weight: 200;">' + row.MasterEquipmentType.Name + '</label>';
+                    //    }
+                    //},
+                    //{ 'data': 'SealNumber', 'searchable': true },
+                    //{ 'data': 'WarehouseStaff1', 'searchable': true },
+                    //{ 'data': 'WarehouseStaff2', 'searchable': true },
+                    //{ 'data': 'WarehouseStaff3', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    'rowCallback': function (row, data, dataIndex) {
+                        // Get row ID
+                        var rowId = data.IDCardNumber;
+
+                        // If row ID is in the list of selected row IDs
+                        if ($.inArray(rowId, rowsSelected) !== -1) {
+                            $(row).find('input[type="checkbox"]').prop('checked', true);
+                            $(row).addClass('selected');
+                        }
+                    }
+                    
+                });
+                
+                //start : handle column search
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if (index < 3 && index > 0) {
+                        jQuery(this).empty();
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+                // end : handle column search
+            }
+        });
+    }
+
+    function exportToExcelDefault() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var param = jQuery("input[name='param']").val();
+
+        var dateFrom = $("#DateFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            dateTo = $("#DateTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            status = (param == "firstload") ? $("#DDStatus").val() : ($("#DDStatus").val() == null ? $("#DDStatus").val() : $("#DDStatus").val().toString()),
+            warehouse = (param == "firstload") ? $("#DDWarehouse").val() : ($("#DDWarehouse").val() == null ? $("#DDWarehouse").val() : $("#DDWarehouse").val().toString()),
+            staff = (param == "firstload") ? $("#DDStaff").val() : ($("#DDStaff").val() == null ? $("#DDStaff").val() : $("#DDStaff").val().toString()),
+            location = (param == "firstload") ? $("#DDLocation").val() : ($("#DDLocation").val() == null ? $("#DDLocation").val() : $("#DDLocation").val().toString()),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        var fileInput = new Object();
+
+        fileInput.status = status;
+        fileInput.StatusDateTimeFrom = dateFrom;
+        fileInput.StatusDateTimeTo = dateTo;
+        fileInput.IDLocation = warehouse;
+        fileInput.WarehouseStaff1 = staff;
+        fileInput.IDEquipmentTypeArray = location;
+        fileInput.Type = param == "firstload" ? "index" : param;
+        fileInput.IncludeInActive = includeInActive;
+        fileInput.Columns = "Status,Date,Warehouse ID,Warehouse Name,Seal Number,Warehouse Staff-1,Warehouse Staff-2,Warehouse Staff Other";
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: fileInput,
+            success: function (response) {
+                dialog.modal('hide');
+                window.location.assign("Assets/Download/" + response);
+            }
+        });
+    }
+
+    
+    $("#UnlockSealNumber").on('keyup', function (e) {
+        if (e.keyCode == 13) {
+            // Do something
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+            $.ajax({
+                url: '@Url.Action("checkSealNumber")',
+                method: 'post',
+                dataType: 'json',
+                data: { "id": $("#UnlockSealNumber").val(), location: $("#Warehouse").val() },
+                success: function (response) {
+                    dialog.modal('hide');
+               
+                    if (response >= 1) {
+                       
+                        document.location = "@Url.Action("SetOpen")" + "?id=" + $("#UnlockSealNumber").val() + "&location=" + $("#Warehouse").val();
+                        //$("#textModalWarningYesNo").html("Data already unlocked");
+                        //$('#warningModalYesNo').modal('show');
+                 
+                    } else {
+                        $("#textModalWarningYesNo").html("Data not found or already unlocked");
+                        $('#warningModalYesNo').modal('show');
+                    }
+                    //window.location.assign("/dfis/Assets/Download/" + response);
+                },
+                error: function () {
+                    //if there is an error append a 'none available' option
+                    dialog.modal('hide');
+                    $("#textModalWarningYesNo").html("Data not found or already unlocked");
+                    $('#warningModalYesNo').modal('show');
+                }
+            });
+        }
+    });
+    
+
+    //==========================================================================================================
+    // PART D: END
+    // This part is to control data while edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART E: BEGIN
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+
+    //==========================================================================================================
+    // PART E: END
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+</script>

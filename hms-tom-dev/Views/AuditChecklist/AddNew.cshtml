@@ -1,0 +1,280 @@
+﻿@{
+    ViewBag.Title = "Warehouse > Audit Checklist > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .txt-invalid{
+        border: 1px solid red !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "AuditChecklist")'">Back</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save</button>  
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="box">
+            <form id="newData">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <select class="select2" id="IDLocation"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="text" id="dtAudit" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label><b>C</b> = Complete, <b>NC</b> = Not Complete, <b>NA</b> = Not Available</label>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <label>FG</label>
+                <div id="FGPart">
+
+                </div>
+                <hr />
+                <label>POSM</label>
+                <div id="POSMPart">
+
+                </div>
+                <hr />
+                <label>Others</label>
+                <div id="OtherPart">
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var listSave = new Array();
+
+    $("#dtAudit").val(moment(new Date()).format("DD/MM/YYYY"));
+    generateDropDownLocation();
+    GetQuestion();
+
+    $("#btnSaveNew").click(function() {
+        if (CheckDataBeforeSave()) {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please select/fill the red mark");
+            $('#warningModal').modal('show');
+        } else {
+            SaveData();
+        }
+    });
+
+    function generateDropDownLocation() {
+        var select = $('#IDLocation');
+        $.ajax({
+            url: 'GetDropDownLocation',
+            method: 'GET',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                select.append('<option></option>');
+                $.each(data, function (key, val) {
+                    select.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                });
+            },
+            error: function () {
+                select.html('<option>none available</option>');
+            }
+        });
+    }
+
+    function GetQuestion() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait... Load Question</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: 'GetQuestion',
+            method: 'GET',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                for(var i = 0; i < data.length; i++){
+                    if (data[i].Group == "FG") {
+                        $("#FGPart").append(GenerateQuestion(data[i].IDMasterSurveyQuestion, data[i].Question));
+                        GenerateAnswer(data[i].MasterSurveyAnswers, data[i].IDMasterSurveyQuestion);
+                    }
+                    else if (data[i].Group == "POSM") {
+                        $("#POSMPart").append(GenerateQuestion(data[i].IDMasterSurveyQuestion, data[i].Question));
+                        GenerateAnswer(data[i].MasterSurveyAnswers, data[i].IDMasterSurveyQuestion);
+                    }
+                    else if (data[i].Group == "Others") {
+                        $("#OtherPart").append(GenerateQuestion(data[i].IDMasterSurveyQuestion, data[i].Question));
+                        GenerateAnswer(data[i].MasterSurveyAnswers, data[i].IDMasterSurveyQuestion);
+                    }
+                }
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function GenerateQuestion(idQuestion,question) {
+        var html =
+            '<div class="row">'+
+                '<div class="col-md-12">'+
+                    '<div id="question'+idQuestion+'">' +
+                        '<div class="row">'+
+                            '<div class="form-group col-md-4">'+
+                                '<label>'+question+'</label>'+
+                            '</div>'+
+                            '<div id="generateAnswer'+idQuestion+'" class="form-group col-md-3"></div>'+
+                            '<div class="form-group col-md-5">'+
+                                '<input type="text" class="form-control" id="remark'+idQuestion+'" placeholder="Remarks">'+
+                            '</div>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>'+
+            '</div>';
+        return html;
+    }
+
+    function GenerateAnswer(answer,idQuestion) {
+        var html = "";
+        for (var j = 0; j < answer.length; j++) {
+            html = html +
+                '<div class="form-group col-md-4">'+
+                    '<input type="radio" name="answer'+idQuestion+'" value="'+answer[j].IDMasterSurveyAnswer+'">  '+answer[j].Answer +
+                '</div>';
+        }
+        var elemen = document.getElementById("generateAnswer"+idQuestion);
+        elemen.innerHTML = html;
+    }
+
+    function CheckDataBeforeSave() {
+        listSave = new Array();
+        var invalid = false;
+        if ($("#IDLocation").val() == "") {
+            invalid = true;
+            $("#IDLocation").addClass("txt-invalid");
+        } else {
+            $("#IDLocation").removeClass("txt-invalid");
+        }
+
+        $('*[id*=question').each(function() {
+            var id = $(this).attr('id');
+            var survey = new Object();
+            var idquestion = id.replace('question','');
+            if ($('input[name=answer' + idquestion + ']:checked').length == 0) {
+                invalid = true;
+                $('#question' + idquestion + '').addClass("txt-invalid");
+            } else {
+                $('#question' + idquestion + '').removeClass("txt-invalid");
+                if ($('input[name=answer' + idquestion + ']:checked').parent().text().trim() != "C") {
+                    if ($('#remark' + idquestion + '').val() == "") {
+                        invalid = true;
+                        $('#remark' + idquestion + '').addClass("txt-invalid");
+                    } else {
+                        $('#remark' + idquestion + '').removeClass("txt-invalid");
+                    }
+                } else {
+                    $('#remark' + idquestion + '').removeClass("txt-invalid");
+                }
+                var split = $("#dtAudit").val().split("/");
+                var strDate = split[2] + "-" + split[1] + "-" + split[0];
+                var d = moment(strDate.toString());
+                var date = d.toISOString();
+                survey.IDLocation = $("#IDLocation").val();
+                survey.SurveyDate = date;
+                survey.IDMasterSurveyQuestion = idquestion;
+                survey.IDMasterSurveyAnswer = $('input[name=answer' + idquestion + ']:checked').val();
+                survey.IsActive = true;
+                survey.Remarks = $('#remark' + idquestion + '').val();
+                listSave.push(survey);
+            }
+        });
+        return invalid;
+    }
+
+    function SaveData() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait... Save Data</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: 'InsertList',
+            method: 'POST',
+            data: {saveData: listSave},
+            cache: false,
+            success: function (result) {
+                dialog.modal('hide');
+                if (result == "exist") {
+                    var data = $("#IDLocation").select2('data');
+                    $("#textModalWarning").html("");
+                    $("#textModalWarning").append("Checklist " + data.text + " date " + $("#dtAudit").val() + " already exist");
+                    $('#warningModal').modal('show');
+                }
+                else{
+                    $('#modalsuccess').modal('show');
+                    ResetData();
+                }
+            }
+        });
+    }
+
+    function ResetData() {
+        $('#newData')[0].reset();
+        $("#IDLocation").select2();
+        $("#dtAudit").val(moment(new Date()).format("DD/MM/YYYY"));
+        //window.location.href = '@Url.Action("Index", "AuditChecklist")';
+    }
+</script>

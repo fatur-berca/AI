@@ -1,0 +1,1314 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Safety & Security Data > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <a role="button" class="toggle-collapse in-box collapse" data-toggle="collapse" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Ticket Form
+            <i class="fa fa-angle-up pull-right"></i>
+        </a>
+        <div id="collapseOne" role="tabpanel" aria-labelledby="collapseOne">
+            <div class="col-panel">
+                <div class="col-md-12">
+                    <div class="title-deck wmb">
+                        <div class="button-wrap pull-left">
+                            <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index","TicketNcr")'">Back</button>
+                            <button class="btn btn-primary" id="btnSaveTicketForm">Save</button>
+                            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                            {
+                                <button class="btn btn-primary" id="btnEditTicketForm" disabled>Edit</button>
+                            }
+                            <button disabled="disabled" class="btn btn-primary" id="GeneratePDF">Print Document</button>
+                            <div class="form-group checkbox-padding"></div>
+                                <div class="checkbox-deck">
+                                    <input type="checkbox" name="" id="NonTicket">
+                                    <label for="NonTicket"></label>
+                                </div>
+                                <span class="checkbox-deck-span">Non Ticket</span>
+
+                            </div>
+                    </div>
+                </div>
+                     
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Ticket Number</label>
+                        <input type="text" id="TiketNumber" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" id="TicketCategory"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Ticket Quantity</label>
+                        <input type="number" id="TicketQty" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" class="form-control" id="Location">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Vendor Name</label>
+                        <select class="select2" id="VendorName"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Police Registration Number</label>
+                        <input type="text" id="VehiclePlateNumber" class="form-control">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Offender Name</label>
+                        <input type="text" id="OffenderName" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Offender Role</label>
+                        <select class="form-control" id="OffenderRole"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Offender Age</label>
+                        <input type="text" id="OffenderAge" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Incident Date and Time</label>
+                        <input type="text" id="CorrectiveDate" class="form-control datetimepicker">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label>Attachment</label>
+                        <input type="file" id="Attachment" class="filestyle" accept=".pdf">
+                        <a href="#" id="linkdownload">Download</a>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <textarea id="RemarkTicket" class="form-control" style="height: 200px;"></textarea>
+                    </div>
+                </div>  
+                    
+            </div>
+        </div>
+        <a role="button" class="toggle-collapse in-box collapsed" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            CIRF
+            <i class="fa fa-angle-up pull-right"></i>
+        </a>
+        <div id="collapseTwo" role="tabpanel" aria-labelledby="collapseTwo">
+            <div class="col-panel">
+                <div class="col-md-12">
+                    <div class="title-deck wmb">
+                        <div class="button-wrap pull-left">
+                            <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index","TicketNcr")'">Back</button>
+                            <button class="btn btn-primary" id="btnSaveCIRF">Save</button>
+                            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                            {
+                                <button class="btn btn-primary" id="btnEditCRIF">Edit</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <form id="fCIRF">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Vehicle Type</label>
+                            <select class="form-control" id="VehicleType"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Manufacturing Year</label>
+                            <input type="text" id="ManufacturingYear" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                            @*<select class="form-control" id="ManufacturingYear"></select>*@
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Offender Year of Service</label>
+                            @*<input type="text" id="OffenderYOS" class="datetimepicker form-control" >*@
+                            @*<input type="text" id="OffenderYOS" class="form-control">*@
+                            <select class="form-control" id="OffenderYOS"></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Location Category</label>
+                            <select class="form-control" id="LocationCategory"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Type of Location</label>
+                            <select class="form-control" id="TypeLocation"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Road Condition</label>
+                            <select class="form-control" id="RoadCondition"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Preventability</label>
+                            <select class="form-control" id="Preventability">
+                                <option value="1">YES</option>
+                                <option value="0">NO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Weather Condition</label>
+                            <select class="form-control" id="WeatherCondition"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Accident Category</label>
+                            <select class="form-control" id="AccidentCategory"></select>
+                        </div>
+                    </div>                 
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Value of Loss (IDR)</label>                           
+                            <input type="text" id="ValueOfLoss" class="form-control">
+                            <div hidden><input type="text" id="Value" class="form-control"></div>      
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Corrective Action</label>
+                            <input type="text" id="CorrectiveAction" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Ticket Status</label>
+                            <select class="form-control" id="TicketStatus">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>SIRS Number</label>
+                            <input type="text" id="SIRSNumber" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>NCR Number</label>
+                            <input type="text" id="NCRNumber" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Root Cause Analysis 1</label>
+                            <select class="form-control" id="ProblemIssue1"></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Root Cause Analysis 2</label>
+                            <select class="form-control" id="ProblemIssue2"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Root Cause Analysis 3</label>
+                            <select class="form-control" id="ProblemIssue3"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Main Root Cause</label>
+                            <select class="form-control" id="MainFactor"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Attachment</label>
+                            <input type="file" id="CIRFAttachment" class="filestyle" accept=".xls, .xlsx">
+                            <a href="#" id="CIRFdownload">Download</a>
+                        </div>
+                    </div>
+                    @*<div class="col-md-4">
+                        <div class="form-group">
+                            <label>Problem Issue 2</label>
+                            <select class="form-control" id="ProblemIssue2"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Problem Issue 3</label>
+                            <select class="form-control" id="ProblemIssue3"></select>
+                        </div>
+                    </div>*@
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Whoopss... something(s) wrong with your input, please check your data</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror1" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Please complete data on ticket form</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="modalOK">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+       // generateDropDownLocation();
+        generateDropDownVendor();
+        //generateDropDown("TicketCategory", "TicketNCRTicketCategory");
+        //generateDropDown("OffenderRole", "TicketNCROffenderRole");
+        //generateDropDown("VehicleType", "TicketNCRVehicleType");
+        //generateDropDown("LocationCategory", "TicketNCRLocationCategory");
+        //generateDropDown("TypeLocation", "TicketNCRTypeLocation");
+        //generateDropDown("RoadCondition", "TicketNCRRoadCondition");
+        //generateDropDown("WeatherCondition", "TicketNCRWeatherCondition");
+        //generateDropDown("AccidentCategory", "TicketNCRAccidentCategory");
+        //generateDropDown("TicketStatus", "TicketNCRTicketStatus");
+        generateTicketCategory();
+        document.getElementById("fCIRF").disabled = true;
+        
+        document.getElementById("btnEditCRIF").disabled = true;
+        document.getElementById("ValueOfLoss").disabled = true;
+        document.getElementById("CorrectiveAction").disabled = true;
+    
+        document.getElementById("SIRSNumber").disabled = true;
+        document.getElementById("NCRNumber").disabled = true;
+        document.getElementById("CIRFAttachment").disabled = true;
+        document.getElementById("OffenderYOS").disabled = true;
+        document.getElementById("ManufacturingYear").disabled = true;
+        document.getElementById("btnSaveCIRF").disabled = true;
+
+        document.getElementById("ProblemIssue1").disabled = true;
+        document.getElementById("ProblemIssue2").disabled = true;
+        document.getElementById("ProblemIssue3").disabled = true;
+        document.getElementById("MainFactor").disabled = true;
+        document.getElementById("VehicleType").disabled = true;
+        document.getElementById("LocationCategory").disabled = true;
+        document.getElementById("RoadCondition").disabled = true;
+        document.getElementById("Preventability").disabled = true;
+        document.getElementById("WeatherCondition").disabled = true;
+        document.getElementById("AccidentCategory").disabled = true;
+        document.getElementById("TicketStatus").disabled = true;
+        document.getElementById("TypeLocation").disabled = true;
+
+        //generateticketnumber();
+        $('#TiketNumber').val("TIK.");
+
+        generateDropDownAccidentCategory();
+        generateDropDownLocationCategory();
+        generateDropDownLocationType();
+        generateDropDownRoadCondition();
+        generateDropDownVehicleType();
+        generateDropDownWeatherCondition();
+        generateGetOffenderRole();
+        generateNewDropDown();
+        generateOffenderYOS();
+        //generateManufacturingyear();
+      
+        ticketsave = "Save";
+
+    });
+    var ticketsave;
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    
+    $('#ValueOfLoss').on('change', function () {
+        var val = parseInt($('#ValueOfLoss').val());
+        //Use the code in the answer above to replace the commas.
+        val = numberWithCommas(val);
+        $('#ValueOfLoss').val(val);
+        // alert(val);
+
+        document.getElementById("ValueOfLoss").onblur = function () {
+            this.value = parseFloat(this.value.replace(/,/g, ""))
+                            .toFixed(0)
+                            .toString()
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          
+            $('#Value').val(this.value.replace(/,/g, ""));
+        }
+    });
+    $('#btnEditTicketForm').click(function () {
+        ticketsave = "Edit";
+        document.getElementById("TicketCategory").disabled = false;
+        document.getElementById("TicketQty").disabled = false;
+        document.getElementById("Location").disabled = false;
+        document.getElementById("VendorName").disabled = false;
+        document.getElementById("VehiclePlateNumber").disabled = false;
+        document.getElementById("OffenderName").disabled = false;
+        document.getElementById("OffenderRole").disabled = false;
+        document.getElementById("OffenderAge").disabled = false;
+        document.getElementById("RemarkTicket").disabled = false;
+        document.getElementById("Attachment").disabled = false;
+        document.getElementById("btnSaveTicketForm").disabled = false;
+        document.getElementById("CorrectiveDate").disabled = false;
+
+    });
+    //$('#btnSaveTicketForm').click(function () {
+    //    ticketsave = "Save";
+    //    document.getElementById("TicketCategory").disabled = false;
+    //    document.getElementById("TicketQty").disabled = false;
+    //    document.getElementById("Location").disabled = false;
+    //    document.getElementById("VendorName").disabled = false;
+    //    document.getElementById("VehiclePlateNumber").disabled = false;
+    //    document.getElementById("OffenderName").disabled = false;
+    //    document.getElementById("OffenderRole").disabled = false;
+    //    document.getElementById("OffenderAge").disabled = false;
+    //    document.getElementById("RemarkTicket").disabled = false;
+    //    document.getElementById("Attachment").disabled = false;
+    //    document.getElementById("btnSaveTicketForm").disabled = false;
+    //    document.getElementById("CorrectiveDate").disabled = false;
+
+    //});
+
+    $('#btnSaveCIRF').click(function () {
+        editCIRF();
+    });
+
+  
+    $('#modalOK').click(function () {
+        GetDataByID();
+    });
+
+    $('#NonTicket').click(function() {
+        if(document.getElementById('NonTicket').checked) {
+            document.getElementById("TicketQty").disabled = true;
+            //generatenonticketnumber();
+            $('#TiketNumber').val("NONTIK.");
+        } else {
+            document.getElementById("TicketQty").disabled = false;
+            //generateticketnumber();
+            $('#TiketNumber').val("TIK.");
+        }
+    });
+    
+ 
+    $('#GeneratePDF').click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        
+      
+        $.ajax({
+            url: '@Url.Action("GeneratePDF", "TicketNcr")',
+            type: "POST",
+            cache : false,
+            data: { "id": document.getElementById('TiketNumber').value },
+            // contentType: "application/pdf; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                window.location.assign("../Assets/Download/" + data);
+                dialog.modal('hide');
+            },
+            error: function (err) {
+                //alert("Somethings Wrong");
+                dialog.modal('hide');
+            }
+        });
+    });
+    
+    $('#btnEditCRIF').click(function () {
+        $(this).prop("disabled", true);
+
+        document.getElementById("fCIRF").disabled = false;
+       
+        document.getElementById("ValueOfLoss").disabled = false;
+        document.getElementById("CorrectiveAction").disabled = false; 
+        document.getElementById("SIRSNumber").disabled = false;
+        document.getElementById("NCRNumber").disabled = false;
+        document.getElementById("CIRFAttachment").disabled = false;
+        document.getElementById("OffenderYOS").disabled = false;
+        document.getElementById("ManufacturingYear").disabled = false;
+        document.getElementById("btnSaveCIRF").disabled = false;
+        document.getElementById("ProblemIssue1").disabled = false;
+        document.getElementById("ProblemIssue2").disabled = false;
+        document.getElementById("ProblemIssue3").disabled = false;
+        document.getElementById("MainFactor").disabled = false;
+
+        document.getElementById("VehicleType").disabled = false;
+        document.getElementById("LocationCategory").disabled = false;
+        document.getElementById("RoadCondition").disabled = false;
+        document.getElementById("Preventability").disabled = false;
+        document.getElementById("WeatherCondition").disabled = false;
+        document.getElementById("AccidentCategory").disabled = false;
+        document.getElementById("TicketStatus").disabled = false;
+        document.getElementById("TypeLocation").disabled = false;
+    });
+
+
+    $('#btnSaveTicketForm').click(function () {
+        if (ticketsave == "Save") {
+            save();
+        } else {
+            edit();
+        }
+    });
+
+    function editCIRF() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var filename;
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#CIRFAttachment").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object  
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object  
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+                filename = files[i].name;
+            }
+
+            // Adding one more key to FormData object  
+            fileData.append('username', 'Manas');
+           /// alert(fileData.toString);
+            $.ajax({
+                url: '@Url.Action("Upload", "TicketNcr")',
+                type: "POST",
+                contentType: false, // Not to set any content header  
+                processData: false, // Not to process data  
+                data: fileData,
+                success: function (result) {
+
+                    // dialog.modal('hide');
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    //dialog.modal('hide');
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+        var ticketnumber = document.getElementById('TiketNumber').value;
+        var VehicleType = $('#VehicleType :selected').val();
+        var ManufacturingYear = document.getElementById('ManufacturingYear').value;
+        //var ManufacturingYear = $('#ManufacturingYear :selected').val();
+        //var OffenderYOS = document.getElementById('OffenderYOS').value;
+        var OffenderYOS = $('#OffenderYOS :selected').val();
+        var LocationCategory = $('#LocationCategory :selected').val();
+        var TypeLocation = $('#TypeLocation :selected').val();
+        var RoadCondition = $('#RoadCondition :selected').val();
+        var Preventability = $('#Preventability :selected').val();
+        var WeatherCondition = $('#WeatherCondition :selected').val();
+        var AccidentCategory = $('#AccidentCategory :selected').val();    
+        // var ValueOfLoss = document.getElementById('ValueOfLoss').value;
+        var ValueOfLoss = document.getElementById('Value').value;
+        var CorrectiveAction = document.getElementById('CorrectiveAction').value;
+        var CorrectiveDate = document.getElementById('CorrectiveDate').value;
+       
+
+        var TicketStatus = $('#TicketStatus :selected').val();
+        var SIRSNumber = document.getElementById('SIRSNumber').value;
+        var NCRNumber = document.getElementById('NCRNumber').value;
+        var AttachmentNRC = filename;
+        var ProblemIssue1 = $('#ProblemIssue1 :selected').val();    
+        var ProblemIssue2 = $('#ProblemIssue2 :selected').val();    
+        var ProblemIssue3 = $('#ProblemIssue3 :selected').val();    
+        var MainFactor = $('#MainFactor :selected').val();    
+
+        if (TicketStatus == "1") {
+            TicketStatus = true;
+        } else {
+            TicketStatus = false;
+        }
+
+
+        var data = {
+            "new": [{}],
+            "edit": [{
+                "TicketNumber": ticketnumber, "VehicleType": VehicleType, "ManufacturingYear": ManufacturingYear, "OffenderYearOfService": OffenderYOS,
+                "LocationCategory": LocationCategory, "TypeOfLocation": TypeLocation, "RoadCondition": RoadCondition, "Preventablility": Preventability,
+                "WeatherCondition": WeatherCondition, "AccidentCategory": AccidentCategory, "ValueOfLoss": ValueOfLoss,
+                "IsActive": TicketStatus, "TicketStatus": TicketStatus, "SIRSNumber": SIRSNumber, "NCRNumber": NCRNumber, "AttachmentNRC": AttachmentNRC,
+                "ProblemIssue1": ProblemIssue1, "ProblemIssue2": ProblemIssue2, "ProblemIssue3": ProblemIssue3, "MainFactor": MainFactor, "CorrectiveAction": CorrectiveAction
+            }]
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertCirf", "TicketNcr")',
+            data: data,
+            success: function (data) {
+
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+
+                            $('#modalsuccess').modal('show');
+                            dialog.modal('hide');
+                           
+                            document.getElementById("fCIRF").disabled = true;
+                          
+                            document.getElementById("ValueOfLoss").disabled = true;
+                            document.getElementById("CorrectiveAction").disabled = true;                         
+                            document.getElementById("SIRSNumber").disabled = true;
+                            document.getElementById("NCRNumber").disabled = true;
+                            document.getElementById("CIRFAttachment").disabled = true;
+                            document.getElementById("OffenderYOS").disabled = true;
+                            document.getElementById("ManufacturingYear").disabled = true;
+                            document.getElementById("btnSaveCIRF").disabled = true;
+                  
+                            document.getElementById("ProblemIssue1").disabled = true;
+                            document.getElementById("ProblemIssue2").disabled = true;
+                            document.getElementById("ProblemIssue3").disabled = true;
+                            document.getElementById("MainFactor").disabled = true;
+
+                            document.getElementById("VehicleType").disabled = true;
+                            document.getElementById("LocationCategory").disabled = true;
+                            document.getElementById("RoadCondition").disabled = true;
+                            document.getElementById("Preventability").disabled = true;
+                            document.getElementById("WeatherCondition").disabled = true;
+                            document.getElementById("AccidentCategory").disabled = true;
+                            document.getElementById("TicketStatus").disabled = true;
+                            document.getElementById("TypeLocation").disabled = true;
+                 
+                            //generateticketnumber();
+                        } else {
+                            $('#modalerror').modal('show');
+
+                            dialog.modal('hide');
+                        }
+
+                    });
+                }
+
+            }
+        });
+    }
+
+    function edit() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var filename;
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#Attachment").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object  
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object  
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+                filename = files[i].name;
+            }
+
+            // Adding one more key to FormData object  
+            fileData.append('username', 'Manas');
+            //alert(fileData);
+            $.ajax({
+                url: '@Url.Action("Upload", "TicketNcr")',
+                type: "POST",
+                contentType: false, // Not to set any content header  
+                processData: false, // Not to process data  
+                data: fileData,
+                success: function (result) {
+
+                    // dialog.modal('hide');
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    //dialog.modal('hide');
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+
+        var ticketnumber = document.getElementById('TiketNumber').value;
+        var ticketcategory = $('#TicketCategory  :selected').val();
+        var ticketqty = document.getElementById('TicketQty').value;
+        var location = document.getElementById('Location').value;
+        var vendorname = $('#VendorName  :selected').val();
+        var vehicleplatenumber = document.getElementById('VehiclePlateNumber').value;
+        var offendername = document.getElementById('OffenderName').value;
+        var offenderrole = $('#OffenderRole :selected').val();
+        var offenderage = document.getElementById('OffenderAge').value;
+        var remarkticket = document.getElementById('RemarkTicket').value;
+        var attachment = filename;
+        var CorrectiveDate = moment(document.getElementById('CorrectiveDate').value).format("YYYY-MM-DD HH:mm");
+
+        var data = {
+            "new": [{ }],
+            "edit": [{
+                "TicketNumber": ticketnumber, "TicketCategory": ticketcategory, "TicketQuantity": ticketqty, "Location": location, "IDVendor": vendorname,
+                "PoliceRegNumber": vehicleplatenumber, "OffenderName": offendername, "OffenderRole": offenderrole, "OffenderAge": offenderage, "RemarksTicket": remarkticket,          
+                "strCorrectiveActionDate": CorrectiveDate, "Attachment": attachment, "IsActive": true
+            }]
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InsertTransTicketNcr", "TicketNcr")',
+            data: data,
+            success: function (data) {
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            $('#modalsuccess').modal('show');
+                            dialog.modal('hide');
+
+                            document.getElementById("TicketCategory").disabled = true;
+                            document.getElementById("TicketQty").disabled = true;
+                            document.getElementById("Location").disabled = true;
+                            document.getElementById("VendorName").disabled = true;
+                            document.getElementById("VehiclePlateNumber").disabled = true;
+                            document.getElementById("OffenderName").disabled = true;
+                            document.getElementById("OffenderRole").disabled = true;
+                            document.getElementById("OffenderAge").disabled = true;
+                            document.getElementById("RemarkTicket").disabled = true;
+                            document.getElementById("Attachment").disabled = true;
+                            document.getElementById("btnSaveTicketForm").disabled = true;
+                            document.getElementById("CorrectiveDate").disabled = true;
+                            //generateticketnumber();
+                        } else {
+                            $('#modalerror').modal('show');
+                            dialog.modal('hide');
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function generateGetOffenderRole() {
+        var select = $('#OffenderRole');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetOffenderRole", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function save() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var filename;
+        if (window.FormData !== undefined) {
+  
+            var fileUpload = $("#Attachment").get(0);  
+            var files = fileUpload.files;  
+              
+            // Create FormData object  
+            var fileData = new FormData();  
+  
+            // Looping over all files and add it to FormData object  
+            for (var i = 0; i < files.length; i++) {  
+                fileData.append(files[i].name, files[i]);
+                filename = files[i].name;
+            }  
+              
+            // Adding one more key to FormData object  
+           fileData.append('username', 'Manas');  
+           var ticketnumber;
+           if(document.getElementById('NonTicket').checked) {
+               ticketnumber = "NONTIK";
+           } else {
+               ticketnumber = "TIK";
+           }
+                      
+           var ticketcategory = $('#TicketCategory  :selected').val();
+           var ticketqty = document.getElementById('TicketQty').value;
+           var location = document.getElementById('Location').value;
+           var vendorname = $('#VendorName  :selected').val();
+           var vehicleplatenumber = document.getElementById('VehiclePlateNumber').value;
+           var offendername = document.getElementById('OffenderName').value;
+           var offenderrole = $('#OffenderRole :selected').val();
+           var offenderage = document.getElementById('OffenderAge').value;
+           var remarkticket = document.getElementById('RemarkTicket').value;
+           var attachment = filename;
+           var CorrectiveDate = moment(document.getElementById('CorrectiveDate').value).format("YYYY-MM-DD HH:mm");
+           var data = {
+               "new": [{
+                   "TicketNumber": ticketnumber, "TicketCategory": ticketcategory, "TicketQuantity": ticketqty, "Location": location, "IDVendor": vendorname,
+                   "PoliceRegNumber": vehicleplatenumber, "OffenderName": offendername, "OffenderRole": offenderrole, "OffenderAge": offenderage, "RemarksTicket": remarkticket,
+           
+                   "strCorrectiveActionDate": CorrectiveDate,"Attachment": attachment, "IsActive": true
+               }],
+               "edit": [{}]
+           };
+          
+
+           if (  ticketcategory == null ||  location == null || vendorname == null  || CorrectiveDate ==  null ||  offenderrole == null) {
+               $('#modalerror1').modal('show');
+
+               dialog.modal('hide');
+           } else if (ticketcategory == '' || location == '' || vendorname == '' || CorrectiveDate == '' || offenderrole == '') {
+               $('#modalerror1').modal('show');
+
+               dialog.modal('hide');
+           } else {
+               $.ajax({
+                   url: '@Url.Action("Upload", "TicketNcr")',
+                   type: "POST",
+                   contentType: false, // Not to set any content header  
+                   processData: false, // Not to process data  
+                   data: fileData,
+                   success: function (result) {
+                       // dialog.modal('hide');
+                   },
+                   error: function (err) {
+                       //alert(err.statusText);
+                       alert("No File Uploaded");
+
+                       //dialog.modal('hide');
+                   }
+               });
+               //generateticketnumber();
+               $.ajax({
+                   type: 'POST',
+                   url: '@Url.Action("InsertTransTicketNcr", "TicketNcr")',
+                   data: data,
+                   success: function (data) {
+                       if (data.New) {
+                           $.each(data.New, function (k, value) {
+                               if (value.ResponseType == "Success") {
+
+                                   $('#modalsuccess').modal('show');
+                                   dialog.modal('hide');
+                                   //-------Afer Save Complete CIRF Enable------
+                                   document.getElementById("fCIRF").disabled = false;
+                          
+                                   document.getElementById("ValueOfLoss").disabled = false;
+                                   document.getElementById("CorrectiveAction").disabled = false;                         
+                                   document.getElementById("SIRSNumber").disabled = false;
+                                   document.getElementById("NCRNumber").disabled = false;
+                                   document.getElementById("CIRFAttachment").disabled = false;
+                                   document.getElementById("OffenderYOS").disabled = false;
+                                   document.getElementById("ManufacturingYear").disabled = false;
+                                   document.getElementById("btnSaveCIRF").disabled = false;
+                  
+                                   document.getElementById("ProblemIssue1").disabled = false;
+                                   document.getElementById("ProblemIssue2").disabled = false;
+                                   document.getElementById("ProblemIssue3").disabled = false;
+                                   document.getElementById("MainFactor").disabled = false;
+
+                                   document.getElementById("VehicleType").disabled = false;
+                                   document.getElementById("LocationCategory").disabled = false;
+                                   document.getElementById("RoadCondition").disabled = false;
+                                   document.getElementById("Preventability").disabled = false;
+                                   document.getElementById("WeatherCondition").disabled = false;
+                                   document.getElementById("AccidentCategory").disabled = false;
+                                   document.getElementById("TicketStatus").disabled = false;
+                                   document.getElementById("TypeLocation").disabled = false;
+
+                                   //-------Afer Save Complete Ticket Form Dsable------
+                                   document.getElementById("btnEditCRIF").disabled = true;
+                                   document.getElementById("btnSaveTicketForm").disabled = true;
+                                   document.getElementById("btnEditTicketForm").disabled = false;
+                                   document.getElementById("CorrectiveDate").disabled = true;
+                                   document.getElementById("TicketCategory").disabled = true;
+                                   document.getElementById("TicketQty").disabled = true;
+                                   document.getElementById("Location").disabled = true;
+                                   document.getElementById("VendorName").disabled = true;
+                                   document.getElementById("VehiclePlateNumber").disabled = true;
+                                   document.getElementById("OffenderName").disabled = true;
+                                   document.getElementById("OffenderRole").disabled = true;
+                                   document.getElementById("OffenderAge").disabled = true;
+                                   document.getElementById("RemarkTicket").disabled = true;
+                                   document.getElementById("Attachment").disabled = true;
+
+                                   document.getElementById("GeneratePDF").disabled = false;
+                                   //document.getElementById("VehicleType").disabled = true;
+                                   //document.getElementById("LocationCategory").disabled = true;
+                                   //document.getElementById("RoadCondition").disabled = true;
+                                   //document.getElementById("Preventability").disabled = true;
+                                   //document.getElementById("WeatherCondition").disabled = true;
+                                   //document.getElementById("AccidentCategory").disabled = true;
+                                   //document.getElementById("TicketStatus").disabled = true;
+                                   //document.getElementById("TypeLocation").disabled = true;
+
+                                   $('#TiketNumber').val(value.TicketNumber);
+                                   document.getElementById("NonTicket").disabled = true;
+                                   window.location = "TransportTicketNcrEdit?TicketNumber=" + value.TicketNumber;
+                                   dialog.modal('hide');
+                               } else {
+                                   $('#modalerror').modal('show');
+
+                                   dialog.modal('hide');
+                               }
+
+                           });
+                       }
+
+                   }
+               });
+           }
+        } else {  
+            alert("FormData is not supported.");  
+        }
+    }
+
+    function generateticketnumber() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("getTicketnumber", "TicketNcr")',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                $('#TiketNumber').val(json);
+            }
+            //error: function () {
+            //    //if there is an error append a 'none available' option
+            //    $select.html('<option value="NULL">none available</option>');
+            //}
+        });
+    }
+
+    function generatenonticketnumber() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("getNonTicketnumber", "TicketNcr")',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                $('#TiketNumber').val(json);
+            }
+            //error: function () {
+            //    //if there is an error append a 'none available' option
+            //    $select.html('<option value="NULL">none available</option>');
+            //}
+        });
+    }
+
+    function generateDropDown(idSelect, fieldName) {
+        var select = $('#' + idSelect + '');
+        $.ajax({
+            url: '@Url.Action("GetMasterListByFieldName", "TicketNcr")',
+            dataType: 'JSON',
+            data: { fieldName: fieldName },
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateTicketCategory() {
+        var select = $('#TicketCategory');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetDropTicketCatergory", "TicketNcr")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateOffenderYOS() {
+        var select = $('#OffenderYOS');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetOffenderYOS", "TicketNcr")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownVendor() {
+        var select = $('#VendorName');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetMasterVendor", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.IDVendor + '">' + val.VendorName + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownVehicleType() {
+        var select = $('#VehicleType');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("Getvehicletype", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateManufacturingyear() {
+        var select = $('#ManufacturingYear');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetManufacturingDate", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val + '">' + val + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownLocationType() {
+        var select = $('#TypeLocation');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetLocationType", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownLocationCategory() {
+        var select = $('#LocationCategory');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetLocationCategory", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownRoadCondition() {
+        var select = $('#RoadCondition');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetRoadCondition", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownWeatherCondition() {
+        var select = $('#WeatherCondition');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetWeatherCondition", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownAccidentCategory() {
+        var select = $('#AccidentCategory');
+        select.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetAccidentCategory", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                select.html('<option value="NULL"></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateNewDropDown() {
+        var ProblemIssues = $('#ProblemIssue1, #ProblemIssue2, #ProblemIssue3');
+        ProblemIssues.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetAnalisystProblem", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                ProblemIssues.html('<option value=""></option>');
+                $.each(data,
+                    function (key, val) {
+                        ProblemIssues.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                ProblemIssues.html('<option value="NULL">none available</option>');
+            }
+        });
+
+        var MainProblem = $('#MainFactor');
+        MainProblem.html('<option >Please Wait...</option>');
+        $.ajax({
+            url: '@Url.Action("GetMainProblem", "TicketNcr")',
+            dataType: 'JSON',
+            success: function (data) {
+                MainProblem.html('<option value=""></option>');
+                $.each(data,
+                    function (key, val) {
+                        MainProblem.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                MainProblem.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function GetDataByID() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetDataByID", "TicketNcr")',
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            cache: false,
+            data: { "id":  $('#TiketNumber').val() },
+            success: function (data) {
+                if (data) {
+                    $.each(data, function (key, val) {
+                        var nonticket = val.TicketNumber.substr(0, 3);
+                        if (nonticket == "NON") {
+                            $('#NonTicket').prop('checked', true);
+                            document.getElementById("GeneratePDF").disabled = true;
+                        } else {
+                            $('#NonTicket').prop('checked', false);
+                            document.getElementById("GeneratePDF").disabled = false;
+                        }
+
+                        document.getElementById('TiketNumber').value = val.TicketNumber;
+                        $('#VehicleType').val(val.VehicleType);
+                        $('#ManufacturingYear').val(val.ManufacturingYear);
+                        $('#OffenderYOS').val(val.OffenderYearOfService);
+                        $('#LocationCategory').val(val.LocationCategory);
+                        $('#TypeLocation').val(val.TypeOfLocation);
+                        $('#RoadCondition').val(val.RoadCondition);
+                        $('#Preventability').val((val.Preventablility == true) ? "1" : "0");
+                        $('#WeatherCondition').val(val.WeatherCondition);
+                        $('#AccidentCategory').val(val.AccidentCategory);
+
+                        var tamvung = parseInt(val.ValueOfLoss);
+                        //Use the code in the answer above to replace the commas.
+                        tamvung = numberWithCommas(tamvung);
+                        $('#ValueOfLoss').val(tamvung);
+
+                        $('#Value').val(val.ValueOfLoss);
+                        $('#VehiclePlateNumber').val(val.PoliceRegNumber);
+                        $('#CorrectiveAction').val(val.CorrectiveAction);
+                        $('#CorrectiveDate').val(moment(moment(val.CorrectiveActionDate)).format("MM/DD/YYYY h:mm A"));
+
+                        $('#TicketCategory').val(val.TicketCategory);
+                        $('#TicketStatus').val((val.IsActive == true) ? "1" : "0");
+                        $('#SIRSNumber').val(val.SIRSNumber);
+                        $('#NCRNumber').val(val.NCRNumber);
+
+                        $('#TicketQty').val(val.TicketQuantity);
+                        document.getElementById('Location').value = val.Location;
+                        $("#VendorName").select2('data', { id: val.IDVendor, text: val.VendorName });
+                        $('#OffenderAge').val(val.OffenderAge);
+                        $('#OffenderName').val(val.OffenderName);
+                        $('#OffenderRole').val(val.OffenderRole);
+                        $('#ProblemIssue1').val(val.ProblemIssue1);
+                        $('#ProblemIssue2').val(val.ProblemIssue2);
+                        $('#ProblemIssue3').val(val.ProblemIssue3);
+                        $('#MainFactor').val(val.MainFactor);
+                        //var createdDate = moment(Number(val.CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                        //setBtnEdit(createdDate, null);
+                        document.getElementById('RemarkTicket').value = val.RemarksTicket == null ? "" : val.RemarksTicket;
+                        
+                        if (val.Attachment) {
+                            document.getElementById('Attachment').value = "../assets/Uploads/TransportTicketNCR/" + val.Attachment;
+                            document.getElementById('linkdownload').href = "../assets/Uploads/TransportTicketNCR/" + val.Attachment;
+                        }
+
+                        if (val.AttachmentNRC) {
+                            document.getElementById('CIRFdownload').href = "../assets/Uploads/TransportTicketNCR/" + val.AttachmentNRC;
+                            document.getElementById('CIRFAttachment').value = "../assets/Uploads/TransportTicketNCR/" + val.AttachmentNRC;
+                        }
+
+                        return false; // break loop
+                    });
+                    dialog.modal('hide');
+                } else {
+                    alert("Eror");
+                    dialog.modal('hide');
+                }
+            }
+        });
+    }
+    
+</script>

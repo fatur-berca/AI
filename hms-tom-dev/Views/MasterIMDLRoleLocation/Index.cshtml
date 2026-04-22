@@ -1,0 +1,487 @@
+﻿@{
+    ViewBag.Title = "Master Data > Master IMDL Role Location";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th>IMDL Role</th>
+            <th>Location</th>
+            <th>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th>IMDL Role</th>
+            <th>Location</th>
+            <th>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">IMDL Role Location</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>ID IMDL Role Location</label>
+                                            <input type="text" id="IDIMDLRoleLocation" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IMDL Role</label>
+                                            @Html.DropDownList("IMDLRole", (SelectList)ViewBag.ListGetIMDLRole, string.Empty, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Location </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul id="locationtree" class="tree"></ul>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL List Location-->
+<div class="modal fade" id="listLocationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Module List</h4>
+            </div>
+            <div class="box sameHeight">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><u> AREA RESPONSIBILITY</u></strong>
+                            <ul id="treeview" class="list-group-item" style="height: 250px; overflow-y: scroll"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var tempListChecked = [];
+    var tempArrayLocation = [];
+    var tempListALLLocation = [];
+    var defaultIsActive = true;
+
+    $(document).ready(function () {
+        generateTable();
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val('INSERT');
+            $('#IMDLRole').attr('disabled', false);
+            tempArrayLocation = [];
+            defaultIsActive = "";
+            generateTreeListLocation();
+        });
+    });
+
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+        $('#addNew').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+
+    function generateTreeListLocation(roleId) {
+        $.ajax({
+            url: "MasterIMDLRoleLocation/GetTreeListLocation",
+            type: 'GET',
+            cache: false,
+            dataType: 'json',
+            success: function (data) {
+                tempListALLLocation = [];
+                var zone = "";
+                var region = "";
+                var warehouse = "";
+                $("#locationtree").empty();
+                for (var i = 0; i < data.length; i++) {
+                    if (region != data[i]["NameRegion"]) {
+                        region = data[i]["NameRegion"];
+                        $("#locationtree").append("<li id='li-" + data[i]["IDRegion"].split(' ').join('_') + "'></li>");
+                        $('#li-' + data[i]["IDRegion"].split(' ').join('_')).append("<i class='fa fa-plus'></i> <label><input id='xnode-" + data[i]["IDRegion"].split(' ').join('_') + "' data-id='custom-" + data[i]["IDRegion"].split(' ').join('_') + "' name='disabledNode' type='checkbox'/>" + data[i]["NameRegion"] + "</label> <ul id='ul-" + data[i]["IDRegion"].split(' ').join('_') + "' style='display: none;'></ul>");
+                        tempListALLLocation.push(data[i]["IDRegion"]);
+                    }
+                    if (warehouse != data[i]["NameWarehouse"]) {
+                        warehouse = data[i]["NameWarehouse"];
+                        $('#ul-' + data[i]["IDRegion"].split(' ').join('_')).append("<li id='li-" + data[i]["IDWarehouse"].split(' ').join('_') + "'></li>");
+                        $('#li-' + data[i]["IDWarehouse"].split(' ').join('_')).append("<label><input class='hummingbirdNoParent' id='xnode-" + data[i]["IDWarehouse"].split(' ').join('_') + "' data-id='custom-" + data[i]["IDRegion"].split(' ').join('_') + "-" + data[i]["IDWarehouse"].split(' ').join('_') + "' name='disabledNode' type='checkbox'/>" + data[i]["NameWarehouse"] + "</label>");
+                        tempListALLLocation.push(data[i]["IDWarehouse"]);
+                    }
+                }
+                $("#locationtree").hummingbird('collapseAll');
+                $("#locationtree").hummingbird();
+                treeListChecked(roleId);
+            }
+        });
+    }
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MasterIMDLRoleLocation/GetMasterIMDLRoleLocation',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        { 'data': 'IMDLRole', 'searchable': true },
+                        {
+                            'data': 'IDLocation', "render": function (data, type, row, meta) {
+                                var res = row["IMDLRole"];
+                                return '<div id=""><a href="#" id="" onclick="generateListLocation(\'' + res + '\');" data-toggle="modal" data-target="#listLocationModal">Module List</a></div>';
+                            }
+                        },
+                        {
+                             render: function (data, type, row) {
+                                 var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                 var formatted = date.getFullYear() + "-" +
+                                       ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                       ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                       date.getMinutes();
+                                 var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                 return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                             }
+                        },
+                        {
+                            "data": "IMDLRole", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="return editTable(' + "'" + data + "'" + ');"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 0) && (index < 3)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    function generateListLocation(id) {
+        var ul1 = $('#treeview');
+        $.ajax({
+            url: "MasterIMDLRoleLocation/GetWarehouseNameById",
+            type: 'GET',
+            cache: false,
+            dataType: 'json',
+            data: { "id": id },
+            success: function (data) {
+                ul1.html('');
+                $.each(data, function (key, val) {
+                    var split = val.split(" - ");
+                    var active = "Active";
+                    if (split[1] == "False")
+                        active = "Inactive";
+                    console.log(split);
+                    ul1.append('<li value="' + split[0] + '">' + split[0] + ' - ' + active + '</li>');
+                });
+            }
+        });
+        generateListFunction(id);
+    }
+
+    function treeListChecked(id) {
+        $.ajax({
+            url: "MasterIMDLRoleLocation/GetIDLocationList?roleid=" + id,
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                tempListChecked = [];
+                for (var x = 0; x < data.length; x++) {
+                    tempListChecked.push(data[x]);
+                    $("#locationtree").hummingbird("checkNode", { attr: "id", name: "xnode-" + data[x].split(' ').join('_'), expandParents: false });
+                    var index = tempListALLLocation.indexOf(data[x]);
+                    if (index > -1) {
+                        tempListALLLocation.splice(index, 1);
+                    }
+                }
+                //console.log(tempListALLLocation);
+                //uncheck function baru yang diinsert langsung ke database
+                for (var y = 0; y < tempListALLLocation.length; y++) {
+                    $("#locationtree").hummingbird("uncheckNode", { attr: "id", name: "xnode-" + tempListALLLocation[y].split(' ').join('_'), expandParents: false });
+                }
+            }
+        });
+    }
+
+    //MENGECEK TREE LIST 2 SEBELUM SAVE START
+    function CheckTreeListBeforeSave() {
+        var ListChecked = [];
+        var ListUnchecked = [];
+        $("#locationtree").hummingbird("getChecked", { attr: "id", list: ListChecked });//mengambil semua id yang tercheck
+        $("#locationtree").hummingbird("getUnchecked", { attr: "id", list: ListUnchecked });//mengambil semua id yang uncheck
+        for (var i = 0; i < ListChecked.length; i++) {
+            var id = ListChecked[i].split("-");
+            var result = $.grep(tempListChecked, function (e) { return e == id[1].split('_').join(' '); });//mencari apakah id function yang tercheck ada didatabase
+            if (result.length == 0) {
+                var result2 = $.grep(tempArrayLocation, function (e) { return e == id[1].split('_').join(' '); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2.length == 0)
+                    tempArrayLocation.push(id[1].split('_').join(' '));//kalau tidak ada id function di masukkan ke dalam array
+            }
+            else {
+                tempArrayLocation = tempArrayLocation.filter(function (obj) {//kalau dapat, maka id functionnya dikeluarkan
+                    return obj !== id[1].split('_').join(' ');
+                });
+            }
+        }
+        for (var j = 0; j < ListUnchecked.length; j++) {
+            var iduncheck = ListUnchecked[j].split("-");
+            var resultuncheck = $.grep(tempListChecked, function (e) { return e == iduncheck[1]; });//mencari apakah id function yang teruncheck ada didatabase
+            if (resultuncheck[0] != undefined) {
+                tempArrayLocation.push(resultuncheck[0].split('_').join(' '));//kalau dapat, artinya id function yang ada didatabase, di uncheck/mau dihilangkan dari mapping. id function di masukkan ke dalam array
+            } else {
+                var result2uncheck = $.grep(tempArrayLocation, function (e) { return e == iduncheck[1].split('_').join(' '); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2uncheck.length != 0) {
+                    tempArrayLocation = tempArrayLocation.filter(function (obj) {//kalau dapat, id functionnya di hilangkan dari array yang akan di simpan di database(defaultnya teruncheck, setelah itu di check, kemudian diuncheck lagi)
+                        return obj !== result2uncheck[0].split('_').join(' ');
+                    });
+                }
+            }
+        }
+    }
+    //MENGECEK TREE LIST 2 SEBELUM SAVE END
+
+    function save() {
+        CheckTreeListBeforeSave();
+        $('#Loading').modal('show');
+        var id = $('#IDIMDLRoleLocation').val();
+        var IMDLRole = $('#IMDLRole').val();
+        var IDLocation = tempArrayLocation;
+
+        var data = {
+            "new": [{ "IDIMDLRoleLocation":id, "IMDLRole": IMDLRole, "ListIDLocation": IDLocation, "IsActive": true }],
+            "edit": [{}]
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'MasterIMDLRoleLocation/InsertIMDLRoleLocation',
+            data: data,
+            success: function (data) {
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+                    });
+                }
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+    function editTable(id) {
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        tempArrayLocation = [];
+        $("#IMDLRole").val(id);
+        $('#IMDLRole').prop('disabled', true);
+        var table = $("#dtFilterMaster").DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            generateTreeListLocation(data["IMDLRole"]);
+        });
+        $('#addnew').modal('show');
+    }
+
+    //update edited data
+    function edit() {
+        CheckTreeListBeforeSave();
+        $('#Loading').modal('show');
+        var IDIMDLRoleLocation = $('#IDIMDLRoleLocation').val();
+        var IMDLRole = $('#IMDLRole').val();
+        var IDLocation = tempArrayLocation;
+        
+        var data = {
+            "new": [{}],
+            "edit": [{ "IDIMDLRoleLocation":IDIMDLRoleLocation, "IMDLRole": IMDLRole, "ListIDLocation": IDLocation, "IsActive": true }]
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'MasterIMDLRoleLocation/InsertIMDLRoleLocation',
+            data: data,
+            success: function (data) {
+                generateTable();
+                $("#locationtree").hummingbird('collapseAll');
+                $('#modalsuccess').modal('show');
+                $("#Loading").modal('hide');
+            }
+        });
+    }
+</script>

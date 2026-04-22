@@ -1,0 +1,1103 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportOrderRequestViewModel
+@{
+    ViewBag.Title = "Transport > Transportation Order > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+    .dataTables_processing {
+        top: 64px !important;
+        z-index: 11000 !important;
+    }
+</style>
+
+<div class="filter-deck">
+    @*<div class="title-deck wmb">
+        <div class="col-panel" style="padding-bottom: 0px;">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>TOTAL ORDERED VEHICLE</label>
+                        <h4 class="sub-text" id="total-order-unit"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>TOTAL SUBMIT</label>
+                        <h4 class="sub-text" id="total-submit"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>TOTAL IN PROCESS</label>
+                        <h4 class="sub-text" id="total-in-process"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>TOTAL ON DELIVERY</label>
+                        <h4 class="sub-text" id="tolal-on-delivery"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>TOTAL COMPLETE</label>
+                        <h4 class="sub-text" id="total-complete"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+            {
+                <button class="btn btn-primary" type="button" onclick="location.href='@Url.Action("Edit", "TransportationOrder")'" id="btnAddNew">New Order</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+            {
+                <button class="btn btn-primary" type="button" id="btnDelete">Delete</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+            {
+                <button class="btn btn-primary" type="button" id="btnExport">Export</button>
+                <button class="btn btn-primary" type="button" id="btnCustomExport">Custom Report</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+            {
+                <button class="btn btn-primary" type="button" id="btnUpload">Upload</button>
+            }
+        </div>
+        <a href="#filter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advsrc"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <div class="filter-deck nmb">
+        <div id="filter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Order Number</label>
+                            <input type="hidden" style="width:250px" id="FilterSTONumber" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Zone</label>
+                            @Html.DropDownListFor(model => Model.zone, Model.zone, new { @multiple = "multiple", id = "FilterZone" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Order Type</label>
+                            @*<select class="select2" multiple="multiple" id="FilterOrderType"></select>*@
+                            @Html.DropDownListFor(model => Model.orderType, Model.orderType, new { @multiple = "multiple", id = "FilterOrderType" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Ordered Vehicle Type</label>
+                            @*<select class="select2" multiple="multiple" id="FilterVehicleType"></select>*@
+                            @Html.DropDownListFor(model => Model.vehicleType, Model.vehicleType, new { @multiple = "multiple", id = "FilterVehicleType" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2" style="width: 20.8%">
+                        <div class="form-group">
+                            <label>Shipment Date</label>
+                            <input type="text" id="FilterFromDate" class="form-control datepicker">
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <label class="text-center">TO</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="width: 20.8%">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <input type="text" id="FilterToDate" class="form-control datepicker">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Material Type</label>
+                            @*<select class="select2" multiple="multiple" id="FilterMaterialType"></select>*@
+                            @Html.DropDownListFor(model => Model.materialType, Model.materialType, new { @multiple = "multiple", id = "FilterMaterialType" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Order Status</label>
+                            @*<select class="select2" multiple="multiple" id="FilterOrderStatus"></select>*@
+                            @Html.DropDownListFor(model => Model.orderStatus, Model.orderStatus, new { @multiple = "multiple", id = "FilterOrderStatus" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Sender</label>
+                            @*<select class="select2" multiple="multiple" id="FilterSender"></select>*@
+                            @Html.DropDownListFor(model => Model.location, Model.location, new { @multiple = "multiple", id = "FilterSender" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Receiver</label>
+                            @*<select class="select2" multiple="multiple" id="FilterReceiver"></select>*@
+                            @Html.DropDownListFor(model => Model.location, Model.location, new { @multiple = "multiple", id = "FilterReceiver" })
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" id="btnSearch">Search</button>
+                    <button type="button" class="btn btn-purple" id="btnReset">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable">
+    <thead>
+        <tr>
+            <th width="5%" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" id="SelectAllChk">
+                    <label for="SelectAllChk"></label>
+                </div>
+            </th>
+            <th style="width: 5%">Active</th>
+            <th>Request Number</th>
+            <th>Request Date</th>
+            <th>Total Vehicle</th>
+            <th>Order Creator</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width="5%" nowrap class="text-center">Filter</th>
+            <th></th>
+            <th>Request Number</th>
+            <th>Request Date</th>
+            <th>Total Vehicle</th>
+            <th>Order Creator</th>
+        </tr>
+    </thead>
+</table>
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="RequestNo" class="ui-draggable">Request Number</div>
+                        <div data-field="Zone" class="ui-draggable">Zone</div>
+                        <div data-field="VehicleType" class="ui-draggable">Vehicle Type</div>
+                        <div data-field="ShipmentDate" class="ui-draggable">Shipment Date</div>
+                        <div data-field="OrderNo" class="ui-draggable">Order No</div>
+                        <div data-field="Sender" class="ui-draggable">Sender</div>
+                        <div data-field="Receiver" class="ui-draggable">Receiver</div>
+                        <div data-field="OrderType" class="ui-draggable">Order Type</div>
+                        <div data-field="SequenceNumber" class="ui-draggable">Sequence Number</div>
+                        <div data-field="OrderStatus" class="ui-draggable">Order Status</div>
+                        <div data-field="OrderRemark" class="ui-draggable">Order Remark</div>
+                        <div data-field="MaterialType" class="ui-draggable">Material Type</div>
+                        <div data-field="MaterialDescription" class="ui-draggable">Material Description</div>
+                        <div data-field="Code" class="ui-draggable">Material Code</div>
+                        <div data-field="Qty" class="ui-draggable">Quantity</div>
+                        <div data-field="UoM" class="ui-draggable">UoM</div>
+                        <div data-field="CostCenter" class="ui-draggable">Cost Center</div>
+                        <div data-field="CreatedBy" class="ui-draggable">Created By</div>
+                        <div data-field="CreatedDate" class="ui-draggable">Created Date</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayout" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+                <button class="btn btn-primary" id="btnExportCustomReport">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--=========================== IMPORT MODAL BEGIN ===========================-->
+<div class="modal fade" id="mdlUpload" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUpload">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload Transport Order</label>
+                                <input type="file" id="fileInput" class="filestyle" accept=".xls, .xlsx">
+                                <a href="javascript:void(0)" id="btnDownloadTemplate" target="_self">Download Template</a> <br />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadFile" class="btn btn-primary">Upload</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+    $("#btnDownloadTemplate").on("click", function () {
+        ez.Modals.BeginLoading();
+        $.ajax({
+            url: "@Url.Action("DownloadTemplateTO")",
+            method: "POST",
+        success: function (res) {
+            ez.Modals.EndLoading();
+
+            if (!res) {
+                ez.Modals.error("Failed to download template");
+            }
+            else {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + res);
+            }
+        },
+        error: function() {
+            ez.Modals.EndLoading();
+            ez.Modals.error("Failed to download template");
+        }
+    });
+    });
+</script>
+
+<!--===========================  IMPORT MODAL END  ===========================-->
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="labelCheck">Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BEGIN MODAL LOADING -->
+<div id="modalloading" class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span>Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL LOADING -->
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+<script type="text/javascript">
+    var chk_escape = false;
+    function WriteChecks(val)
+    {
+        $(".chkList").prop("checked", val);
+    }
+    function ReadChecks()
+    {
+        var allCheck = true;
+        $(".chkList").each(function (idx, ele) {
+            if (!$(ele).prop("checked"))
+                allCheck = false;
+        });
+        chk_escape = true;
+        $("#SelectAllChk").prop("checked", allCheck);
+        chk_escape = false;
+    }
+    $("#SelectAllChk").on("change", function () {
+        if (chk_escape) return;
+        WriteChecks($("#SelectAllChk").prop("checked"));
+    });
+
+
+    $("#FilterSTONumber").val("");
+    var dialog;
+    var filter = new Object();
+    var tempIDTO = [];
+
+    $(function () {
+        $('#FilterFromDate').val(moment(new Date()).format("DD/MM/YYYY"));
+        $('#FilterToDate').val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#FilterZone").select2({ width: '100%' });
+        $("#FilterOrderType").select2({ width: '100%' });
+        $("#FilterVehicleType").select2({ width: '100%' });
+        $("#FilterMaterialType").select2({ width: '100%' });
+        $("#FilterOrderStatus").select2({ width: '100%' });
+        $("#FilterSender").select2({ width: '100%' });
+        $("#FilterReceiver").select2({ width: '100%' });
+        resetFilterField();
+        loadDataTable();
+    });
+
+    $("#advsrc").click(function () {
+        resetFilterField();
+    });
+
+    $("#btnSearch").click(function () {
+        advancedSearch();
+    });
+
+    $("#btnReset").click(function () {
+        resetFilterField();
+        advancedSearch();
+    });
+
+    /** CUSTOM REPORT - BEGIN **/
+    var $dataLayout = {};
+
+    /** FIELD CHOOSER - BEGIN **/
+    $("#fieldChooser .ui-draggable").attr("draggable", "true");
+    $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+    $("#layoutSelect").on("change", function () {
+        var sel = $("#layoutSelect").val();
+        if (sel) {
+            linq($dataLayout).do(function (d) {
+                if (d.LayoutName == sel) {
+                    $("#sourceFields").find(".fc-selected").removeClass("fc-selected");
+                    moveAllItems('#destinationFields', '#sourceFields');
+
+                    linq(d.FieldName).do(function (fname) {
+                        $("#sourceFields").find("div").each(function (idx, ele) {
+                            var fi = $(ele).attr("data-field");
+                            if (fname == fi)
+                                $(ele).addClass("fc-selected");
+                            moveItems('#sourceFields', '#destinationFields');
+                        });
+                    });
+
+                    $("#destinationFields").find(".fc-selected").removeClass("fc-selected");
+                }
+            });
+        }
+        else {
+            $("#sourceFields").find(".fc-selected").removeClass("fc-selected");
+            moveAllItems('#destinationFields', '#sourceFields');
+        }
+    });
+
+    $(document).on('click', '#left', function (e) {
+        moveItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#right', function (e) {
+        moveItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#leftall', function (e) {
+        moveAllItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightall', function (e) {
+        moveAllItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+    $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#sourceFields,#destinationFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+    // */
+
+    /** FIELD CHOOSER - END **/
+
+    function LoadCustomReport(loadDefault, notclear) {
+        // load custom
+        if (!notclear)
+            moveAllItems('#destinationFields', '#sourceFields');
+        $("#sourceFields").find(".fc-selected").removeClass("fc-selected");
+        var lastSelected = $("#layoutSelect").val();
+        $("#layoutSelect").html('<option value="" selected>Loading...</option>');
+        $.ajax({
+            url: "@Url.Action("LoadCustomReport")",
+            success: function (data) {
+                if (data)
+                {
+                    $("#layoutSelect").html('');
+                    $("#layoutSelect").append('<option selected>&nbsp;</option>');
+                    linq(data).do(function (d) {
+                        $("#layoutSelect").append('<option>' + d.LayoutName + '</option>');
+                    });
+                    $dataLayout = data;
+                    if (loadDefault)
+                    {
+                        // load default
+                        linq($dataLayout).do(function (d) {
+                            if (d.IsActive)
+                            {
+                                $("#layoutSelect").val(d.LayoutName);
+                            }
+                        });
+                    }
+                    else
+                        $("#layoutSelect").val(lastSelected);
+                }
+            }
+        });
+    }
+
+    $("#btnCustomExport").on("click", function () {
+        $("#customReport").modal("show");
+        LoadCustomReport(true);
+    });
+
+    $("#btnSaveLayout").on("click", function () {
+        var lname = $("#layoutName").val();
+        if (lname == "" || lname == null)
+        {
+            ez.Modals.error("Please enter a name!");
+            return;
+        };
+        var hdr = CompileCustomReportHeaders();
+        if (hdr.length == 0) {
+            ez.Modals.error("Please select at least one field to export!");
+            return;
+        };
+        
+        $.ajax({
+            url: "@Url.Action("SaveCustomReport")",
+            method: "POST",
+            data: {
+                name: lname,
+                layout: hdr
+            },
+            success: function (data) {
+                if (data) {
+                    console.log(data);
+                    ez.Modals.notification("Custom export saved!");
+                    LoadCustomReport(undefined, true);
+                }
+                else
+                    ez.Modals.error("Failed to save custom report!");
+            }
+        });
+    });
+
+    function CompileCustomReportHeaders() {
+        var hdr = [];
+        $("#destinationFields div").each(function (idx, ele) {
+            hdr.push($(ele).attr("data-field"));
+        });
+        return hdr;
+    }
+
+    $("#btnExportCustomReport").on("click", function () {
+        var hdr = CompileCustomReportHeaders();
+        if (hdr.length == 0)
+        {
+            ez.Modals.error("Please select at least one field to export!");
+            return;
+        }
+        Export(hdr);
+    });
+    $("#btnExport").on("click", function () {
+        Export();
+    });
+
+    function Export(hdr)
+    {
+        var filter = {};
+        filter.weekFilter = $("#FilterWeek").val();
+        filter.yearFilter = $("#FilteYear").val();
+        filter.zoneListFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val();
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        filter.dateToFilter = moment($('#FilterToDate').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateFromFilter = moment($('#FilterFromDate').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.orderVehicleTypeListFiter = $("#FilterVehicleType").val();
+        filter.materialTypeListFilter = $("#FilterMaterialType").val();
+        filter.orderStatusListFilter = $("#FilterOrderStatus").val();
+
+        ez.Modals.BeginLoading();
+        $.ajax({
+            url: hdr ? "@Url.Action("CustomExportTO")" : "@Url.Action("ExportTO")",
+            method: "POST",
+            data: {
+                cols: hdr,
+                filter: filter
+            },
+            success: function (res) {
+                ez.Modals.EndLoading();
+
+                if (res.IsSuccess !== undefined) {
+                    ez.Modals.error("Failed to export data");
+                }
+                else {
+                    window.location.assign('@Url.Content("~/Assets/Download/")' + res);
+                }
+            },
+            error: function() {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to export data");
+            }
+        });
+    }
+
+    /** CUSTOM REPORT - END **/
+
+    $("#FilterSTONumber").select2({
+        ajax: {
+            url: '@Url.Action("GetStoNoFilter", "TransportationOrder")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    term: params
+                };
+            },
+            results: function (data) {
+                var myResults = [];
+                $.each(data, function (index, item) {
+                    myResults.push({
+                        'id': item.STONo,
+                        'text': item.STONo
+                    });
+                });
+                return {
+                    results: myResults
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type STO No',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    function advancedSearch() {
+        loadDataTable();
+    }
+
+    function resetFilterField() {
+        $("#FilterSTONumber").select2("val", null);
+        $("#FilterZone").select2("val", null);
+        $("#FilterOrderType").select2("val", null);
+        $("#FilterVehicleType").select2("val", null);
+        $('#FilterFromDate').val(moment(new Date()).format("DD/MM/YYYY"));
+        $('#FilterToDate').val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#FilterMaterialType").select2("val", null);
+        $("#FilterOrderStatus").select2("val", null);
+        $("#FilterSender").select2("val", null);
+        $("#FilterReceiver").select2("val", null);
+    }
+
+    function loadDataTableBackup() {
+        var filter = {};
+        filter.weekFilter = $("#FilterWeek").val();
+        filter.yearFilter = $("#FilteYear").val();
+        filter.zoneListFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val();
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        filter.dateToFilter = moment($('#FilterToDate').val(),"DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateFromFilter = moment($('#FilterFromDate').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.orderVehicleTypeListFiter = $("#FilterVehicleType").val();
+        filter.materialTypeListFilter = $("#FilterMaterialType").val();
+        filter.orderStatusListFilter = $("#FilterOrderStatus").val();
+        filter.orderTypeListFilter = $("#FilterOrderType").val();
+        
+        console.log("filter", filter);
+
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetTransportOrderList", "TransportationOrder")',
+            cache: false,
+            data: filter,
+            success: function (json) {
+                dialog.modal("hide");
+                
+                console.log(json);
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json.viewModel,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    "columnDefs": [{
+                        "targets": [0, 1],
+                        "orderable": false
+                    }],
+                    aaSorting: [],
+                    columns: [
+                        {
+                            'data': 'IDRequest', "class": "text-center", "render": function (data, type, row, meta) {
+                                if (row["Deleteable"] && row["IsActive"] && row["TotalVehicle"] > 0)
+                                    return '<input type="checkbox" data-reqno="' + row["RequestNo"] + '" class="chkList">';
+                                else
+                                    return '<td></td>';
+                            }
+                        },
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true || data == 1) {
+                                    return '<div><img src="@Url.Content("~/assets/images/circlegreen.png")" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="@Url.Content("~/assets/images/circlered.png")" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            'data': 'RequestNo', "render": function (data, type, row, meta) {
+                                return '<td><div ><a href="@Url.Action("Edit")?reqno=' + row["RequestNo"] + '" target="_self">' + row["RequestNo"] + '</a></div></td>';
+                            }
+                        },
+                        {
+                            'data': 'RequestDate', "render": function (data, type, row, meta) {
+                                return moment(row["CreatedDate"]).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'TotalVehicle', 'searchable': true },
+                        { 'data': 'CreatedName', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $(".chkList").on("change", function () {
+                    ReadChecks();
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 2) && (index < 8)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+
+                $("#total-order-unit").html(json.totOrderUnit);
+                $("#total-in-process").html(json.totInProcess);
+                $("#total-submit").html(json.totSubmit);
+                $("#tolal-on-delivery").html(json.totOnDeliver);
+                $("#total-complete").html(json.totComplete);
+            },
+            error: function () {
+                dialog.modal("hide");
+            }
+        });
+    }
+
+    function loadDataTable() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var filter = {};
+        filter.zoneListFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val().split(',');
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        filter.dateToFilter = moment($('#FilterToDate').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateFromFilter = moment($('#FilterFromDate').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.orderVehicleTypeListFiter = $("#FilterVehicleType").val();
+        filter.materialTypeListFilter = $("#FilterMaterialType").val();
+        filter.orderStatusListFilter = $("#FilterOrderStatus").val();
+        filter.orderTypeListFilter = $("#FilterOrderType").val();
+
+        console.log("filter", filter);
+
+        var table = $('#dtFilterMaster').DataTable({
+            "paging": true,
+            "ordering": false,
+            "filter": true,
+            "destroy": true,
+            "orderMulti": false,
+            "serverSide": true,
+            "processing": true,
+            "pageLength": 10,
+            "ajax": {
+                dataType: 'JSON',
+                type: 'POST',
+                url: '@Url.Action("GetTransportOrderTableList", "TransportationOrder")',
+                data: function (data) {
+                    data.filter = filter;
+                    return data;
+                },
+                "complete": function (res) {
+                    console.log("result", res);
+                    dialog.modal('hide');
+                },
+                "error": function (res) {
+                    console.log("error", res);
+                    dialog.modal('hide');
+                }
+            },
+            "columns": [
+                 {
+                    'data': 'IDRequest', "class": "text-center", "render": function (data, type, row, meta) {
+                        if (row["IsActive"] == false && row["TotalVehicle"] > 0)
+                            return '<input type="checkbox" data-reqno="' + row["RequestNo"] + '" class="chkList">';
+                        else
+                            return '<td></td>';
+                    }
+                 },
+                {
+                    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        if (data == true || data == 1) {
+                            return '<div><img src="@Url.Content("~/assets/images/circlegreen.png")" alt=""height="15" width="15"></div>';
+                        } else { return '<div><img src="@Url.Content("~/assets/images/circlered.png")" alt=""height="15" width="15"></div>'; }
+                    }
+                 },
+                 {
+                    'data': 'RequestNo', "render": function (data, type, row, meta) {
+                        return '<td><div ><a href="@Url.Action("Edit")?reqno=' + row["RequestNo"] + '" target="_self">' + row["RequestNo"] + '</a></div></td>';
+                    }
+                 },
+                 {
+                     'data': 'ShipmentDate', "render": function (data, type, row, meta) {
+                         return moment(row["ShipmentDate"]).format("DD-MMM-YYYY");
+                    }
+                 },
+                { 'data': 'TotalVehicle', 'searchable': false },
+                { 'data': 'CreatedName', 'searchable': true }
+            ],
+            orderCellsTop: true
+        });
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        $('#dtFilterMaster thead.filters th').each(function (index) {
+            if (index > 1) {
+                var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        table.columns().every(function (index) {
+            if (index > 0) {
+                $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                    table.settings()[0].jqXHR.abort();
+                    table.column($(this).parent().index() + ':visible')
+                        .search(this.value)
+                        .draw();
+                });
+            }
+        });
+    }
+
+    function editdata(stoNo) {
+        if (stoNo !== null && stoNo !== undefined && stoNo !== "")
+        window.location.href = '@Url.Action("Edit", "TransportationOrder")?reqno='+stoNo;
+    }
+
+    $("#btnDelete").click(function () {
+        tempIDTO = [];
+        $(".chkList").each(function (idx, ele) {
+            if ($(ele).prop("checked"))
+            {
+                tempIDTO.push($(ele).attr("data-reqno"));
+            }
+        });
+        if (tempIDTO.length > 0) {
+            //$("#textModalWarningYesNo").html("");
+            $("#textModalWarningYesNo").html("Are you sure to delete this data?");
+            $('#warningModalYesNo').modal('show');
+        } else if (tempIDTO.length == 0) {
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    });
+
+    $("#confirmationSave").click(function () {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: '@Url.Action("DeleteRequest", "TransportationOrder")',
+            method: 'POST',
+            dataType: 'json',
+            data: { requestNo: tempIDTO },
+            cache: false,
+            success: function (res) {
+                dialog.modal('hide');
+                tempIDTO = [];
+                if (res.IsSuccess) {
+                    ez.Modals.notification("Your data has been successfully deleted");
+                    loadDataTable();
+                }
+                else
+                    ez.Modals.notification("Failed to delete data!");
+            }
+        });
+    });
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var idreq = data["IDRequest"];
+            var result = $.grep(tempIDTO, function (e) { return e == idreq; });
+            if (result.length == 0) {
+                tempIDTO.push(idreq);
+            } else if (result.length == 1) {
+                tempIDTO = tempIDTO.filter(function (obj) {
+                    return obj !== idreq;
+                });
+            }
+        });
+    }
+
+    /*
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#dtFilterMaster').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempIDTO.push(table.cell(i, 1).data());
+            });
+            tempIDTO = tempIDTO.filter(onlyUnique);
+        } else {
+            tempIDTO = [];
+        }
+    });
+    */
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+
+    $("#btnUpload").on("click", function () {
+        $("#mdlUpload").modal("show");
+        $("#fileInput").jfilestyle('clear');
+    });
+
+    $("#btnUploadFile").on("click", function () {
+        ez.Modals.BeginLoading();
+        if ($("#fileInput").val() == '' || $("#fileInput").val() == null) {
+            ez.Modals.EndLoading();
+            ez.Modals.Error.show("Please select file first!");
+            return;
+        }
+        if (window.FormData) {
+            var fileData = new FormData();
+            var fileUpload = document.getElementById('fileInput').files;
+            if (fileUpload.length > 0) {
+                fileUpload = fileUpload[0];
+                fileData.append('FileUpload', fileUpload);
+            } else {
+                ez.Modals.EndLoading();
+                ez.Modals.Error.show("No file to be uploaded!");
+                return;
+            }
+            $.ajax(
+                {
+                    type: 'POST',
+                    url: '@Url.Action("UploadTO")',
+                    data: fileData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        console.log("Upload Response:", res);
+                        ez.Modals.EndLoading();
+                        if (res.IsSuccess === undefined || res.IsSuccess === true) {
+                            $("#fileInput").jfilestyle('clear');
+                            $("#mdlUpload").modal("hide");
+
+                            ez.Modals.Notif.show("Upload success!");
+                            loadDataTable();
+                        }
+                        else if (res.IsSuccess === false) {
+                            ez.Modals.Error.show("<b style=\"font-size:larger\">Upload Failed!</b><br />" + res.ErrorMessage);
+                        }
+                        else {
+                            ez.Modals.Error.show("Failed to upload file!");
+                        }
+                    },
+                    error: function (err) {
+                        ez.Modals.EndLoading();
+                        ez.Modals.Error.show("Failed to upload file!");
+                    }
+                }
+            );
+        }
+        setTimeout(function () { $("#mdlUpload").modal("hide"); }, 1000);
+    });
+</script>

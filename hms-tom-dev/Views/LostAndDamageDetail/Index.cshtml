@@ -1,0 +1,450 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DFIS - Lost & Damage Detail</title>
+    <link rel="shortcut icon" href="assets/images/logo.png" type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="VTI Indonesia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <!-- Load Style -->
+    <link rel="stylesheet" href="assets/css/select2.min.css" media="screen">
+    <link rel="stylesheet" href="assets/css/jquery.dataTables.min.css" media="screen">
+    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.min.css" media="screen">
+    <link rel="stylesheet" href="assets/css/jquery-ui.css" media="screen">
+    <link rel="stylesheet" href="assets/css/app.css" media="screen">
+    <!-- Load Scripts -->
+    <script type="text/javascript" src="assets/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="assets/js/main.min.js"></script>
+    <script type="text/javascript" src="assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="assets/js/moment.js"></script>
+    <script type="text/javascript" src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/jquery-mousewheel.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/hammer.min.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/jquery-hammerjs.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/imgViewer.js"></script>
+    <script type="text/javascript" src="assets/js/image-editor/imgNotes.js"></script>
+    <script type="text/javascript" src="assets/js/scripts.js"></script>
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <header class="transport">
+        <section class="head">
+            <div class="logo-deck pull-left">
+                <a href="Home">
+                    <img src="assets/images/logo.png" alt="">
+                    <span>DFIS</span>
+                </a>
+            </div>
+            <ul class="breadcrumb pull-left">
+                <li>Transport</li>
+                <li>Lost & Damage Claim</li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="#!"><img src="assets/images/guide.png" alt=""></a></li>
+                <li class="dropdown">
+                    <a href="#!" class="dropdown-toggle" role="button" data-toggle="dropdown"><img src="assets/images/notif.png" alt=""></a>
+                    <ul class="dropdown-menu">
+                        <li>You have 3 notifications</li>
+                        <li><a href="#" class="red">Lost Ciggarate Claim</a></li>
+                        <li><a href="#" class="blue">Verified Ciggarate Claim</a></li>
+                        <li><a href="#" class="green">Success Ciggarate Claim</a></li>
+                        <li><a href="#" class="text-center">View All</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><span>John Doe</span><img src="assets/images/user.png"></a>
+                </li>
+                <li><a href="javascript:void(0)" class="toggle-news"><img src="assets/images/news-ico.png" alt=""></a></li>
+            </ul>
+        </section>
+        <section class="menu">
+            <ul>
+                <li><a href="#!" class="active">Lost & Damage Claim</a></li>
+                <li><a href="#!">Ticket & NCR</a></li>
+                <li><a href="#!">Vessel Monitoring</a></li>
+                <li><a href="#!">Loading & Unloading History</a></li>
+                <li><a href="#!">Driver Management</a></li>
+                <li><a href="#!">Vehicle Data & Unit Frequent</a></li>
+                <li><a href="#!">Global InsuranceGlobal Insurance</a></li>
+            </ul>
+        </section>
+    </header>
+    <main>
+        <section class="news-highlight">
+            <div class="news-highlight-head">
+                <h5>News & Highlight</h5>
+                <a href="javascript:void(0)" class="news-highlight-close"><img src="assets/images/close.png" alt=""></a>
+            </div>
+            <div class="news-highlight-body">
+                <ul>
+                    <li>
+                        <h6 class="date">22 Jun 2017 - 17:03</h6>
+                        <h5 class="views">473 <img src="assets/images/eye.png"></h5>
+                        <h5 class="title">Mobile Warehouse Guideline</h5>
+                        <p>New best practice from Jakarta Inner Region already stored in Best Practice tool box.</p>
+                    </li>
+                    <li>
+                        <h6 class="date">22 Jun 2017 - 17:03</h6>
+                        <h5 class="views">473 <img src="assets/images/eye.png"></h5>
+                        <h5 class="title">Logger Go-Live in ADW Jogjakarta</h5>
+                        <p>New best practice from Jakarta Inner Region already stored in Best Practice tool box.</p>
+                    </li>
+                    <li>
+                        <h6 class="date">22 Jun 2017 - 17:03</h6>
+                        <h5 class="views">473 <img src="assets/images/eye.png"></h5>
+                        <h5 class="title">Mobile Warehouse Guideline</h5>
+                        <p>New best practice from Jakarta Inner Region already stored in Best Practice tool box.</p>
+                    </li>
+                    <li>
+                        <h6 class="date">22 Jun 2017 - 17:03</h6>
+                        <h5 class="views">473 <img src="assets/images/eye.png"></h5>
+                        <h5 class="title">Logger Go-Live in ADW Jogjakarta</h5>
+                        <p>New best practice from Jakarta Inner Region already stored in Best Practice tool box.</p>
+                    </li>
+                    <li>
+                        <h6 class="date">22 Jun 2017 - 17:03</h6>
+                        <h5 class="views">473 <img src="assets/images/eye.png"></h5>
+                        <h5 class="title">Mobile Warehouse Guideline</h5>
+                        <p>New best practice from Jakarta Inner Region already stored in Best Practice tool box.</p>
+                    </li>
+                </ul>
+                <a href="#!" class="more-news">See More News <img src="assets/images/caret-right.png" alt=""></a>
+            </div>
+        </section>
+
+        <section class="main">
+            <div class="content">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 class="title-page">Lost & Damage Claim Detail</h4>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="box">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>GP Number</label>
+                                            <input type="text" name="" class="form-control" placeholder="GP/KAR/0417/00364">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Delivery Note Number</label>
+                                            <input type="number" name="" class="form-control" placeholder="1501393674">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>STO NUmber</label>
+                                            <input type="number" name="" class="form-control" placeholder="4701133659">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>SJ Number</label>
+                                            <input type="text" name="" class="form-control" placeholder="SJ/KAR/0417/00543">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Origin warehouse</label>
+                                            <input type="text" name="" class="form-control" placeholder="ZD4B - DC Karawang Lot 41">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>date of delivery</label>
+                                            <input type="text" name="" class="form-control datepicker" placeholder="08/04/2017">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>SJ Date</label>
+                                            <input type="text" name="" class="form-control datepicker" placeholder="12/07/2017">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Destination warehouse</label>
+                                            <input type="text" name="" class="form-control" placeholder="ZD7J - DC Sukorejo">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>date of receipt</label>
+                                            <input type="text" name="" class="form-control datepicker" placeholder="09/04/2017">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>transportation vendor</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Police reg. Number</label>
+                                            <input type="text" name="" class="form-control" placeholder="W-9015-US">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>receiver</label>
+                                            <select class="form-control">
+                                                <option>Warsito</option>
+                                                <option>Zaqi</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>co driver name</label>
+                                            <input type="text" name="" class="form-control" placeholder="Mustofa">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>driver name</label>
+                                            <input type="text" name="" class="form-control" placeholder="Khoirul Ikhwan">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>witness</label>
+                                            <select class="form-control">
+                                                <option>Zainuri</option>
+                                                <option>Zaqi</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>dn to reverse logistics</label>
+                                            <input type="text" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>attachment</label>
+                                            <input type="file" name="" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Fa code</label>
+                                            <input type="text" class="form-control" placeholder="FA044121.11">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Speaking code</label>
+                                            <input type="text" class="form-control" placeholder="MLD16RA182K7">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>LOST/DAMAGE</label>
+                                            <select class="form-control">
+                                                <option>Damage</option>
+                                                <option>Triangle</option>
+                                                <option>Hexagon</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>pack</label>
+                                            <input type="number" name="" class="form-control" placeholder="6">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <input type="text" name="" class="form-control" placeholder="Terdapat 3 box rokok basah, setelah di investigasi di nyatakan 6 pack yang basah">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary">+ add new row</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="box interactive">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>upload boxes condition</label>
+                                        <ul class="image-point">
+                                            <li><a href="LostAndDamageEditor" class="thumbnail" style="background-image: url('assets/images/gudang.jpg');"></a></li>
+                                            <li><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang.jpg');"></a></li>
+                                            <li><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang.jpg');"></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>upload position on truck</label>
+                                        <ul class="image-point inner">
+                                            <li class="column"><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang2.jpg');"></a></li>
+                                            <li class="column"><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang2.jpg');"></a></li>
+                                            <li class="column"><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang2.jpg');"></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>upload final result</label>
+                                        <ul class="image-point">
+                                            <li><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang3.jpg');"></a></li>
+                                            <li><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang3.jpg');"></a></li>
+                                            <li><a href="#!" class="thumbnail" style="background-image: url('assets/images/gudang3.jpg');"></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                © 2017 Distribution & Facility Information System. PT HM Sampoerna, Tbk
+            </footer>
+        </section>
+    </main>
+
+    <!-- Modal fullscreen -->
+    <div class="modal modal-fullscreen fade" id="modal-fullscreen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        ; (function ($) {
+            var notes = [];
+            /*var notes = [{x: "0.5", y:"0.5", note:"AFL Grand Final Trophy"},
+						{x: "0.322", y:"0.269", note: '\
+						<center><b>Brisbane Lions Flag</b><br/>\
+						<img src="http://www.lions.com.au/static-resources/themes/brisbane/images/logo-brisbane.png"/></center>\
+						<a href="http://www.lions.com.au/" target="blank">The Brisbane Lions</a> \
+						is an <a href="http://en.wikipedia.org/wiki/Australian_rules_football" target="blank">Australian rules football club.</a>'
+						},
+						{x: "0.824", y: "0.593", note: "Fluffy microphone"}];*/
+
+            $(window).load(function () {
+
+                var $img = $("#image").imgNotes({
+                    onEdit: function (ev, elem) {
+                        var $elem = $(elem);
+                        $('#NoteDialog').remove();
+                        return $('<div id="NoteDialog"></div>').dialog({
+                            title: "Note Editor",
+                            resizable: false,
+                            modal: true,
+                            height: "300",
+                            width: "450",
+                            position: { my: "left bottom", at: "right top", of: elem },
+                            buttons: {
+                                "Save": function () {
+                                    var txt = $('textarea', this).val();
+                                    $elem.data("note").note = txt;
+                                    $(this).dialog("close");
+                                },
+                                "Delete": function () {
+                                    $elem.trigger("remove");
+                                    $(this).dialog("close");
+                                },
+                                Cancel: function () {
+                                    $(this).dialog("close");
+                                }
+                            },
+                            open: function () {
+                                $(this).css("overflow", "hidden");
+                                var textarea = $('<textarea id="txt" style="height:100%; width:100%;">');
+                                $(this).html(textarea);
+                                textarea.val($elem.data("note").note);
+                            }
+                        });
+                    }
+                });
+
+                $img.imgNotes("import", notes);
+
+                var $toggle = $("#toggleEdit");
+                if ($img.imgNotes("option", "canEdit")) {
+                    $toggle.text("Save");
+                } else {
+                    $toggle.text("Edit");
+                }
+                $toggle.on("click", function () {
+                    var $this = $(this);
+                    if ($this.text() == "Edit") {
+                        $this.text("Save");
+                        $img.imgNotes("option", "canEdit", true);
+                    } else {
+                        $this.text('Edit');
+                        $img.imgNotes('option', 'canEdit', false);
+                    }
+                });
+
+                var $export = $("#export");
+                $export.on("click", function () {
+                    var $table = $("<table/>").addClass("gridtable");
+                    var notes = $img.imgNotes('export');
+                    $table.append("<th>X</th><th>Y</th><th>NOTE</th>");
+                    $.each(notes, function (index, item) {
+                        $table.append("<tr><td>" + item.x + "</td><td>" + item.y + "</td><td>" + item.note + "</td></tr>");
+                    });
+                    $('#txt').html($table);
+                });
+
+                var $clear = $("#clear");
+                $clear.on("click", function () {
+                    $img.imgNotes('clear');
+                });
+
+                var $toggleZ = $("#toggleZoom");
+                if ($img.imgNotes("option", "zoomable"))
+                    $toggleZ.text("Zoom Off");
+                else
+                    $toggleZ.text("Zoom On");
+
+                $toggleZ.on("click", function () {
+                    var $this = $(this);
+                    if ($this.text() == "Zoom On") {
+                        $this.text("Zoom Off");
+                        $img.imgNotes("option", "zoomable", true);
+                    } else {
+                        $this.text("Zoom On");
+                        $img.imgNotes("option", "zoomable", false);
+                    }
+                });
+
+                var $toggleD = $("#toggleDrag");
+                if ($img.imgNotes("option", "dragable"))
+                    $toggleD.text("Drag Off");
+                else
+                    $toggleD.text("Drag On");
+
+                $toggleD.on("click", function () {
+                    var $this = $(this);
+                    if ($this.text() == "Drag On") {
+                        $this.text("Drag Off");
+                        $img.imgNotes("option", "dragable", true);
+                    } else {
+                        $this.text("Drag On");
+                        $img.imgNotes("option", "dragable", false);
+                    }
+                });
+
+            });
+        })(jQuery);
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+﻿using AutoMapper;
+using TOM.EntitiesDAL.EDMX;
+using DFIS.Universal.Domain.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TOM.Master.BusinessLogics.Mappers
+{
+    public class MasterIMDLRoleMapperProfile : Profile
+    {
+        public MasterIMDLRoleMapperProfile()
+        {
+            CreateMap<MasterIMDLRoleDTO, MasterIMDLRole>();
+            CreateMap<MasterIMDLRole, MasterIMDLRoleDTO>();
+        }
+    }
+}

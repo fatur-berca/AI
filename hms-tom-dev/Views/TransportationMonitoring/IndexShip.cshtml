@@ -1,0 +1,1173 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportMonitoringViewModel
+@{
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+
+    .dataTables_processing {
+        top: 64px !important;
+        z-index: 99000 !important;
+        height: 100%;
+    }
+</style>
+
+<div class="title-deck wmb" hidden>
+    <div class="col-panel">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>ON DELIVERY</label>
+                    <h4 class="sub-text" id="state1"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label>ARRIVED AT DESTINATION AND WAITING FOR CONFIRMATION</label>
+                    <h4 class="sub-text" id="state2"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>COMPLETE</label>
+                    <h4 class="sub-text" id="state3"><i class="fa fa-spin fa-refresh"></i></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="exportDefaultButton">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" id="btnCustomReportShip">Custom Report</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#uploadModal" id="uploadButton">Upload</button>
+        }
+    </div>
+    <a href="#searchfilterShip" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilterShip"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilterShip" class="collapse" role="tabpanel" aria-labelledby="searchfilterShip">
+        <div class="col-panel">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        @*<select id="ddvendor" class="select2" multiple="multiple"></select>*@
+                        @Html.DropDownListFor(model => Model.VendorName, Model.vendorNames, new { @multiple = "multiple", @id = "ddvendor", @placeholder = " " })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Transportation Number</label>
+                        @*<select class="select2" id="ddtransportationnumber"><option value=""> </option></select>*@
+                        <input type="hidden" style="width: 100%" id="ddtransportationnumber" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Order Number</label>
+                        @*<select class="select2" id="ddordernumber"></select>*@
+                        <input type="hidden" style="width:100%" id="ddordernumber" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Start Location</label>
+                        @*<select class="select2" multiple id="ddstartlocation"></select>*@
+                        @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "ddstartlocation", @placeholder = " " })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Transportation Status</label>
+                        @*<select class="select2" multiple id="ddtransportationstatus"></select>*@
+                        @Html.DropDownListFor(model => Model.TransportStatus, Model.transStatus, new { @multiple = "multiple", @id = "ddtransportationstatus", @placeholder = " " })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Stuffing Date</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                @*<input type="text" class="form-control datepicker FromHaveFuture" id="DateOfStuffingFrom">*@
+                                <input type="text" class="form-control datepicker" id="DateOfStuffingFrom" data-date-format="DD/MM/YYYY" value="@DateTime.Now.ToString("dd/MM/yyyy")">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                @*<input type="text" class="form-control datepicker ToHaveFuture" id="DateOfStuffingTo">*@
+                                <input type="text" class="form-control datepicker" id="DateOfStuffingTo" data-date-format="DD/MM/YYYY" value="@DateTime.Now.ToString("dd/MM/yyyy")">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group checkbox-padding">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" id="DelayShipment" value="delay">
+                            <label for="DelayShipment"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Delay Shipment</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Sender</label>
+                        @*<select class="select2" multiple id="ddsender"></select>*@
+                        @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "ddsender", @placeholder = " " })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Receiver</label>
+                        @*<select class="select2" multiple id="ddreceiver"></select>*@
+                        @Html.DropDownListFor(model => Model.LocationName, Model.locationNames, new { @multiple = "multiple", @id = "ddreceiver", @placeholder = " " })
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            @if (isSuperUser)
+            {
+                <div class="clearfix"></div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label for="input-type">Status</label>
+                        <div id="input-type" class="row">
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="all" value="1" type="radio" />All
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <button class="btn btn-primary" onclick="GenerateSearch()">Search</button>
+                <button class="btn btn-purple" onclick="resetSearch()">Reset</button>
+            </div>
+            @*</form>*@
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterShip" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">Active</th>
+            <th>Transportation Number</th>
+            <th>Stuffing Date</th>
+            <th>Start Location</th>
+            <th>Finish Location</th>
+            <th>Vendor Name</th>
+            <th>Vessel Name</th>
+            <th>Transportation Status</th>
+            <th>Container No.</th>
+            <th>Via</th>
+            <th>ETD 1</th>
+            <th>ETD 2</th>
+            <th>ATD</th>
+            <th>Estimate Received</th>
+            <th class="long-col">Remarks</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th>Filter</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th hidden></th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div class="modal fade" id="customReportModalShip" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelectShip" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooserShip" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFieldsShip" class="source">
+                        <div class="ui-draggable" data-field="TransportationNumber" index="1">Transportation Number</div>
+                        <div class="ui-draggable" data-field="STONumber" index="2">STO Number</div>
+                        <div class="ui-draggable" data-field="StuffingDate" index="3">Stuffing Date</div>
+                        <div class="ui-draggable" data-field="StartLocation" index="4">Start Location</div>
+                        <div class="ui-draggable" data-field="FinishLocation" index="5">Finish Location</div>
+                        <div class="ui-draggable" data-field="VendorName" index="6">Vendor Name</div>
+                        <div class="ui-draggable" data-field="VesselName" index="7">Vessel Name</div>
+                        <div class="ui-draggable" data-field="ETD1" index="8">ETD 1</div>
+                        <div class="ui-draggable" data-field="ETD2" index="9">ETD 2</div>
+                        <div class="ui-draggable" data-field="ATD" index="10">ATD</div>
+                        <div class="ui-draggable" data-field="EstimateReceived" index="11">Estimate Received</div>
+                        <div class="ui-draggable" data-field="Remarks" index="12">Remarks</div>
+                        <div class="ui-draggable" data-field="TransportationStatus" index="13">Transportation Status</div>
+                        <div class="ui-draggable" data-field="ETA1" index="14">ETA 1</div>
+                        <div class="ui-draggable" data-field="ETA2" index="15">ETA 2</div>
+                        <div class="ui-draggable" data-field="ATA" index="16">ATA</div>
+                        <div class="ui-draggable" data-field="ActualTimeBerthing" index="17">Actual Time Berthing</div>
+                        <div class="ui-draggable" data-field="ContainerNo" index="18">Container No</div>
+                        <div class="ui-draggable" data-field="Via" index="19">Via</div>
+                        <div class="ui-draggable" data-field="ContainerSeal" index="20">Container Seal</div>
+                        <div class="ui-draggable" data-field="OrderStatus" index="21">Order Status</div>
+                        <div class="ui-draggable" data-field="POWeekAgent" index="22">PO Week Agent</div>
+                        <div class="ui-draggable" data-field="Sender" index="23">Sender</div>
+                        <div class="ui-draggable" data-field="Receiver" index="24">Receiver</div>
+                        <div class="ui-draggable" data-field="GIDate" index="25">GI Date</div>
+                        <div class="ui-draggable" data-field="GRDate" index="26">GR Date</div>
+                        <div class="ui-draggable" data-field="GRBy" index="27">GR By</div>
+                        <div class="ui-draggable" data-field="CreatedBy" index="28">Created By</div>
+                        <div class="ui-draggable" data-field="CreatedDate" index="29">Created Date</div>
+                        <div class="ui-draggable" data-field="UpdatedBy" index="30">Updated By</div>
+                        <div class="ui-draggable" data-field="UpdatedDate" index="31">Updated Date</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="leftShip" value="<">
+                            <input class="btn btn-info mini" type="button" id="rightShip" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFieldsShip" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightallShip" value=">>">
+                            <input class="btn btn-info" type="button" id="leftallShip" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayoutShip" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutNameShip">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @if (listUserRole != null)
+                {
+                    foreach (var x in listUserRole)
+                    {
+                        if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                        {
+                            <div class="form-group pull-left">
+                                <div class="checkbox-deck">
+                                    <input type="checkbox" id="chkGlobalCustomReportShip">
+                                    <label for="chkGlobalCustomReportShip"></label>
+                                </div>
+                                <span class="checkbox-deck-span">Global Custom Report</span>
+                            </div>
+                        }
+                    }
+                }
+
+                <button class="btn btn-primary" id="btnExportCustomReportShip">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" style="text-align: left;">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label style="text-transform: none;">Upload Template</label>
+                            <input id="uploadMonitoringList" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                            <br /><br />
+                            <a href="Assets/Download/TemplateExcel/TemplateTransportMonitoringShip.xlsx">Download Template</a>
+                            <br />
+                            <a href="~/Assets/Download/TemplateExcel/TransportMonitoringGRTemplate.xlsx">Download Template GR</a>
+                            <br />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label>
+                        <br />
+                        <button type="button" id="btnUploadMonitoringList" class="btn btn-primary" disabled>Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalloadingShi" class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span>Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="delModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="modaltext"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="labelCheck"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width: 28%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-2">
+                    <img src="assets/images/cancel.png" alt="">
+                </div>
+                <div class="col-md-10">
+                    <span><b><u>Save Failed</u></b></span><br />
+                    <span id="labelError"></span><br /><br />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="okError" type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*@Html.Action("PartialViewCustomReport")*@
+<script type="text/javascript">
+    var myParam = "firstload";
+    var filter = {};
+
+    $(function () {
+        $("#ddtransportationstatus").select2({ width: '100%' });
+        $("#ddvendor").select2({ width: '100%' });
+        $("#ddsender").select2({ width: '100%' });
+        $("#ddreceiver").select2({ width: '100%' });
+        $("#ddstartlocation").select2({ width: '100%' });
+
+        resetSearch();
+    });
+
+    $("#ddtransportationnumber").select2({
+        ajax: {
+            url: '@Url.Action("GetTransportNoDtos", "TransportationMonitoring")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    TransportNo: params,
+                    TransportMode: 'Ship'
+                };
+            },
+            results: function (data) {
+                var myResults1 = [];
+                $.each(data, function (index, item) {
+                    myResults1.push({
+                        'id': item.TransportNo,
+                        'text': item.TransportNo
+                    });
+                });
+                return {
+                    results: myResults1
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Transportation Number',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    $("#ddordernumber").select2({
+        ajax: {
+            url: '@Url.Action("GetOrderNoDtos", "TransportationMonitoring")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    STONo: params
+                };
+            },
+            results: function (data) {
+                var myResults = [];
+                $.each(data, function (index, item) {
+                    myResults.push({
+                        'id': item.STONo,
+                        'text': item.STONo
+                    });
+                });
+                return {
+                    results: myResults
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type Order Number',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    // ------------------------------------------------------------------------------  advancedsearch functions----------------------------------------------------------------------------
+
+    function createFilter(param) {
+
+        var idvendor = (param == "firstload") ? jQuery("#ddvendor").val() : (jQuery("#ddvendor").val() == null ? jQuery("#ddvendor").val() : jQuery("#ddvendor").val().toString()),
+            tnNo = (param == "firstload") ? $("#ddtransportationnumber").val() : ($("#ddtransportationnumber").val() == null ? $("#ddtransportationnumber").val() : $("#ddtransportationnumber").val().toString()),
+            stoNo = (param == "firstload") ? $("#ddordernumber").val() : ($("#ddordernumber").val() == null ? $("#ddordernumber").val() : $("#ddordernumber").val().toString()),
+            startLocation = (param == "firstload") ? $("#ddstartlocation").val() : ($("#ddstartlocation").val() == null ? $("#ddstartlocation").val() : $("#ddstartlocation").val().toString()),
+            tnstatus = (param == "firstload") ? $("#ddtransportationstatus").val() : ($("#ddtransportationstatus").val() == null ? $("#ddtransportationstatus").val() : $("#ddtransportationstatus").val().toString()),
+            DateOfStuffingFrom = jQuery("#DateOfStuffingFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateOfStuffingTo = jQuery("#DateOfStuffingTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DelayShipment = ($('#DelayShipment').is(':checked')) ? true : false,
+            sender = (param == "firstload") ? $("#ddsender").val() : ($("#ddsender").val() == null ? $("#ddsender").val() : $("#ddsender").val().toString()),
+            receiver = (param == "firstload") ? $("#ddreceiver").val() : ($("#ddreceiver").val() == null ? $("#ddreceiver").val() : $("#ddreceiver").val().toString()),
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        var isExportOrSearch;
+        if (param == "firstload") {
+            isExportOrSearch = false;
+        } else if (param == "advSearch") {
+            isExportOrSearch = true;
+        }
+        var input = {
+            "VendorID": idvendor,
+            "TransportNo": tnNo,
+            "STONo": stoNo,
+            "StartLocation": startLocation,
+            "TransportStatus": tnstatus,
+            "DateOfStuffingFrom": DateOfStuffingFrom,
+            "DateOfStuffingTo": DateOfStuffingTo,
+            "DelayShipment": DelayShipment,
+            "SenderIDLocation": sender,
+            "ReceiverIDLocation": receiver,
+            "IncludeInActive": includeInActive,
+            "IsExportOrSearch": isExportOrSearch
+        };
+
+        return input;
+    }
+
+    function generateTable() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if (moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").isAfter(moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+
+        filter.transportNo = $("#ddtransportationnumber").val().split(',');
+        filter.transportStatus = $("#ddtransportationstatus").val();
+        filter.vendor = $("#ddvendor").val();
+        filter.orderNo = $("#ddordernumber").val().split(',');
+        filter.sender = $("#ddsender").val();
+        filter.receiver = $("#ddreceiver").val();
+        filter.startLocation = $("#ddstartlocation").val();
+        filter.dateFrom = moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Ship";
+        filter.delayShipment = ($('#DelayShipment').is(':checked')) ? true : false;
+        filter.includeInactive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        var table = $('#dtFilterShip').DataTable({
+            "paging": true,
+            "ordering": false,
+            "filter": true,
+            "destroy": true,
+            "orderMulti": false,
+            "serverSide": true,
+            "processing": true,
+            "pageLength": 10,
+            "ajax": {
+                dataType: 'JSON',
+                type: 'POST',
+                url: '@Url.Action("GetListViewTruckShipTrainServerSide", "TransportationMonitoring")',
+                data: function (data) {
+                    data.filter = filter;
+                    return data
+                },
+                "complete": function (res) {
+                    console.log("result", res);
+                    dialog.modal('hide');
+                },
+                "error": function (res) {
+                    console.log("error", res);
+                    dialog.modal('hide');
+                }
+            },
+            "columns": [
+                {
+                    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        if (data === true) {
+                            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                    }
+                },
+                {
+                    'data': 'TransportNo', 'searchable': true, "render": function (data, type, row, meta) {
+                        return '<a href="@Url.Action("EditShip")?te=' + row["IDTransportExecution"] + '&tv=' + row["IDTransportVesselMonitoring"] + '">' + data + '</a>';
+                    }
+                },
+                {
+                    'data': 'TransportDate', 'searchable': true, "render": function (data) {
+                        return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                    }
+                },
+                { 'data': 'StartLocationName', 'searchable': true },
+                { 'data': 'FinishLocationName', 'searchable': true },
+                { 'data': 'VendorName', 'searchable': true },
+                { 'data': 'VesselName', 'searchable': true },
+                { 'data': 'TransportStatus', 'searchable': true },
+                { 'data': 'ContainerNo', 'searchable': true },
+                { 'data': 'Via', 'searchable': true },
+                {
+                    'data': 'ETD1', 'searchable': true, "render": function (data) {
+                        if (data == null) {
+                            return '<div></div>';
+                        }
+                        else {
+                            return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                        }
+                    }
+                },
+                {
+                    'data': 'ETD2', 'searchable': true, "render": function (data) {
+                        if (data == null) {
+                            return '<div></div>';
+                        }
+                        else {
+                            return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                        }
+                    }
+                },
+                {
+                    'data': 'ATD', 'searchable': true, "render": function (data) {
+                        if (data == null) {
+                            return '<div></div>';
+                        }
+                        else {
+                            return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                        }
+                    }
+                },
+                {
+                    'data': 'EstReceived', 'searchable': true, "render": function (data) {
+                        if (data == null) {
+                            return '<div></div>';
+                        }
+                        else {
+                            return '<div>' + moment(data).format("DD-MMM-YYYY") + '</div>';
+                        }
+                    }
+                },
+                { 'data': 'Remarks', 'searchable': true }
+            ],
+            //"dom": 'lf<"table-overflow"t>ip',
+        });
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        $('#dtFilterShip thead.filters th').each(function (index) {
+            if (index > 0) {
+                var title = $('#dtFilterShip thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        table.columns().every(function (index) {
+            if (index > 0) {
+                $('#dtFilterShip thead.filters th:eq(' + index + ') input').on('input', function () {
+                    table.settings()[0].jqXHR.abort();
+                    table.column($(this).parent().index() + ':visible')
+                        .search(this.value)
+                        .draw();
+                });
+            }
+        });
+    }
+
+    function GenerateSearch() {
+        myParam = "advSearch";
+        generateTable("advSearch");
+        excelParam = "Search";
+    }
+
+    function resetSearch() {
+        $("#ddvendor").select2("val", "");
+        $("#ddtransportationnumber").val("");
+        $("#ddordernumber").select2("val", "");
+        $("#ddstartlocation").select2("val", "");
+        $("#ddtransportationstatus").select2("val", "");
+        $("#DateOfStuffingFrom").val(moment().subtract(0, 'd').format("DD/MM/YYYY"));
+        $("#DateOfStuffingTo").val(moment().format("DD/MM/YYYY"));
+        $("#DelayShipment").prop("checked", false);
+        $("#ddsender").select2("val", "");
+        $("#ddreceiver").select2("val", "");
+        $("#all").prop("checked", true);
+        generateTable("firstload");
+        excelParam = "firstload";
+    }
+
+    $("#btnCustomReportShip").click(function () {
+        generateLayoutSelectShip();
+        $("#customReportModalShip").modal("show");
+        $("#layoutNameShip").val("");
+        moveAllItems('#destinationFieldsShip', '#sourceFieldsShip');
+    });
+
+    $("#fieldChooserShip .ui-draggable").attr("draggable", "true");
+
+    $("#fieldChooserShip").fieldChooser($("#sourceFieldsShip"), $("#destinationFieldsShip"));
+
+    $(document).on('click', '#leftShip', function (e) {
+        moveItems('#destinationFieldsShip', '#sourceFieldsShip');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightShip', function (e) {
+        moveItems('#sourceFieldsShip', '#destinationFieldsShip');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#leftallShip', function (e) {
+        moveAllItems('#destinationFieldsShip', '#sourceFieldsShip');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightallShip', function (e) {
+        moveAllItems('#sourceFieldsShip', '#destinationFieldsShip');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#checkall', function () {
+        if ($("#dtFilterShip > tbody > tr > td").length > 1) {
+            if ($("#checkall").prop('checked') == true) {
+                $('#dtFilterShip > tbody > tr').each(function () {
+                    var id = $(this).find("td").eq(12).html();
+                    $("#checkrow" + id + "").prop('checked', true);
+                });
+            }
+            else {
+                $('#dtFilterShip > tbody > tr').each(function () {
+                    var id = $(this).find("td").eq(12).html();
+                    $("#checkrow" + id + "").prop('checked', false);
+                });
+            }
+        }
+    });
+
+    $(document).on('click', '#exportDefaultButton', function () {
+        exportDataShi();
+    });
+
+    $(document).on('click', '#btnExportCustomReportShip', function () {
+        if ($('#destinationFieldsShip .fc-field').text().length == 0) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Please select of the existing fields");
+            $('#modalwarning').modal('show');
+        }
+        else {
+            customReportShi();
+        }
+    });
+    var layoutIsGlobal = [];
+    function generateLayoutSelectShip() {
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TransportMonitoringShip" },
+            success: function (response) {
+                //console.log(response);
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = "<option value='";
+                    //options = options + "<option>";
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            //if (firstLayout == "") {
+                            //    firstLayout = "";
+                            //    ++k;
+                            //    layoutIsGlobal[k] = { "isGlobal": false, "LayoutName": "" };
+                            //}
+                            thenLayout = response[i].LayoutName;
+                            ++k;
+                            layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            //if (firstLayout != response[i].LayoutName) {
+
+                            //}
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    $("#layoutSelectShip").html(options);
+                } else {
+                    options = options + "'<option></option>";
+                    jQuery("#layoutSelectShip").html(options);
+                }
+            }
+        });
+    }
+
+    $("#btnSaveLayoutShip").click(function () {
+        saveLayoutShip();
+    });
+    function saveLayoutShip() {
+        var nonvalid = false;
+
+        if ($("#layoutNameShip").val() == "") { //layout name
+            $("#layoutNameShip").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutNameShip").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutNameShip").val(),
+                isGlobal = ($("#chkGlobalCustomReportShip").prop('checked')) ? true : false;
+
+            if ($('#destinationFieldsShip .fc-field').length > 0) {
+                $('#destinationFieldsShip .fc-field').each(function () {
+                    fieldNames = fieldNames + $(this).data('field') + ',';
+                });
+                fieldNames = fieldNames.slice(0, -1);
+
+                var dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                    closeButton: false
+                });
+
+                jQuery.ajax({
+                    url: '@Url.Action("InsertRecords", "CustomReportState")',
+                    method: 'post',
+                    dataType: 'json',
+                    data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TransportMonitoringShip", "isGlobal": isGlobal },
+                    success: function (response) {
+                        if (response == "Success") {
+                            if (isGlobal) {
+                                SaveChangesButton(dialog);
+                            } else {
+                                alertCrSaveSuccess();
+                                dialog.modal('hide');
+                                $("#chkGlobalCustomReportShip").prop('checked', false);
+                            }
+                        } else if (response == "NoLayoutName") {
+                            alertCrPleaseFill();
+                            dialog.modal('hide');
+                        }
+
+                        if ($("#layoutNameShip").val() != $("#layoutSelectShip option:selected").text()) {
+                            $("#layoutSelectShip").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                        }
+                    }
+                });
+                return true;
+            }
+            else {
+                $("#modalerror #textModalError").html(" Please select at least one field to export! ");
+                $('#modalerror').modal('show');
+                return false;
+            }
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutName = $("#layoutNameShip").val(),
+            destinationFields = '',
+            isGlobal = ($("#chkGlobalCustomReportShip").prop('checked')) ? true : false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TransportSeal", "isGlobal": isGlobal },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    $('#layoutSelectShip').on('change', function () {
+        for (var j = 1; j < layoutIsGlobal.length; j++) {
+            if ($('#layoutSelectShip option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                $('#chkGlobalCustomReportShip').prop('checked', layoutIsGlobal[j].isGlobal);
+            }
+        }
+        var sourceFieldNames = [
+            { 'field': 'TransportationNumber', 'label': 'Transportation Number' },
+            { 'field': 'STONumber', 'label': 'STO Number' },
+            { 'field': 'StuffingDate', 'label': 'Stuffing Date' },
+            { 'field': 'StartLocation', 'label': 'Start Location' },
+            { 'field': 'VendorName', 'label': 'Vendor Name' },
+            { 'field': 'VesselName', 'label': 'Vessel Name' },
+            { 'field': 'ETD1', 'label': 'ETD1' },
+            { 'field': 'ETD2', 'label': 'ETD2' },
+            { 'field': 'ATD', 'label': 'ATD' },
+            { 'field': 'EstimateReceived', 'label': 'Estimate Received' },
+            { 'field': 'Remarks', 'label': 'Remarks' },
+            { 'field': 'TransportationStatus', 'label': 'Transportation Status' },
+            { 'field': 'ETA1', 'label': 'ETA 1' },
+            { 'field': 'ETA2', 'label': 'ETA 2' },
+            { 'field': 'ATA', 'label': 'ATA' },
+            { 'field': 'ActualTimeBerthing', 'label': 'Actual Time Berthing' },
+            { 'field': 'ContainerNo', 'label': 'Container No' },
+            {'field': 'Via', 'label': 'Via'},
+            { 'field': 'ContainerSeal', 'label': 'Container Seal' },
+            { 'field': 'CreatedBy', 'label': 'Created By' },
+            { 'field': 'CreatedDate', 'label': 'Created Date' },
+            { 'field': 'UpdatedBy', 'label': 'Updated By' },
+            { 'field': 'UpdatedDate', 'label': 'Updated Date' },
+            { 'field': 'GRBy', 'label': 'GR By' },
+            { 'field': 'GIDate', 'label': 'GI Date' },
+            { 'field': 'GRDate', 'label': 'GR Date' },
+            { 'field': 'OrderStatus', 'label': 'Order Status' },
+            { 'field': 'POWeekAgent', 'label': 'PO Week Agent' },
+            { 'field': 'Sender', 'label': 'Sender' },
+            { 'field': 'Receiver', 'label': 'Receiver' },
+        ],
+        sourceFields = '',
+        destinationFieldNames = this.value != "" ? this.value.split(',') : "",
+        destinationFields = '',
+        destinationfieldLabels = [];
+
+        for (i = 0; i < sourceFieldNames.length; ++i) {
+            if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                // the element is not in the array
+                if (sourceFieldNames[i]['field'] !== undefined && sourceFieldNames[i]['label'] !== undefined) {
+                    sourceFields = sourceFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + sourceFieldNames[i]['field'] + "' index='" + i + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                }
+            } else {
+                destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+            }
+        }
+
+        $("#fieldChooserShip #sourceFieldsShip").html(sourceFields);
+
+        for (i = 0; i < destinationFieldNames.length; ++i) {
+            destinationFields = destinationFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + destinationFieldNames[i] + "' index='" + i + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+        }
+        $("#fieldChooserShip #destinationFieldsShip").html(destinationFields);
+
+        $("#fieldChooserShip .ui-draggable").prop("draggable", true);
+        $("#fieldChooserShip").fieldChooser($("#sourceFieldsShip"), $("#destinationFieldsShip"));
+        $("#fieldChooserShip .ui-draggable").on("dragstart", function (ev) {
+            $(this).addClass("fc-selected");
+            ev.originalEvent.dataTransfer.setData("text", "COPY");
+        });
+        $("#sourceFieldsShip,#destinationFieldsShip").on("dragover", function (ev) {
+            ev.originalEvent.preventDefault();
+        });
+        $("#sourceFieldsShip,#destinationFieldsShip").on("drop", function (ev) {
+            var data = ev.originalEvent.dataTransfer.getData("text");
+            if (data == "COPY")
+                moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+            $("#fieldChooserShip .ui-draggable").removeClass("fc-selected");
+        });
+    });
+
+    $(document).on('click', '#uploadButton', function () {
+        $('#uploadMonitoringList').val("");
+        $("#uploadMonitoringList").jfilestyle('clear');
+        if ($("#tabship .focus-jfilestyle label span").text() != "Browse") {
+            $("#tabship .jfilestyle input").appendTo('#tabship .jfilestyle');
+            $(".focus-jfilestyle label span").text("Browse")
+        }
+        $("#btnUploadMonitoringList").prop("disabled", true);
+    });
+
+    $('#uploadMonitoringList').on('change', function (e) {
+        $("#btnUploadMonitoringList").prop("disabled", false);
+    });
+
+    $("#fieldChooserShip .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+
+    $("#sourceFieldsShip,#destinationFieldsShip").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+
+    $("#sourceFieldsShip,#destinationFieldsShip").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+
+    $(document).on('click', '#btnUploadMonitoringList', function () {
+        importDataShi();
+    });
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function selectRowShi(r) {
+        if ($("#checkrow" + r + "").prop('checked') == false) {
+            $("#checkall").prop('checked', false);
+        }
+    }
+
+    function exportDataShi() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if (moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").isAfter(moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+
+        filter.transportNo = $("#ddtransportationnumber").val().split(',');
+        filter.transportStatus = $("#ddtransportationstatus").val();
+        filter.vendor = $("#ddvendor").val();
+        filter.orderNo = $("#ddordernumber").val().split(',');
+        filter.sender = $("#ddsender").val();
+        filter.receiver = $("#ddreceiver").val();
+        filter.startLocation = $("#ddstartlocation").val();
+        filter.dateFrom = moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Ship";
+        filter.delayShipment = ($('#DelayShipment').is(':checked')) ? true : false;
+        filter.includeInactive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        $.ajax({
+            url: 'TransportationMonitoring/ExportMonitoringXlsShip',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { criteria: filter },
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function customReportShi() {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        if (moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").isAfter(moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY")))
+        {
+            dialog.modal("hide");
+            $("#labelErrorTru").html("");
+            $("#labelErrorTru").html("Stuffing Date To must be greater than Stuffing Date From!");
+            $('#modalerrorTru').modal('show');
+            return;
+        }
+
+        filter.transportNo = $("#ddtransportationnumber").val().split(',');
+        filter.transportStatus = $("#ddtransportationstatus").val();
+        filter.vendor = $("#ddvendor").val();
+        filter.orderNo = $("#ddordernumber").val().split(',');
+        filter.sender = $("#ddsender").val();
+        filter.receiver = $("#ddreceiver").val();
+        filter.startLocation = $("#ddstartlocation").val();
+        filter.dateFrom = moment($('#DateOfStuffingFrom').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.dateTo = moment($('#DateOfStuffingTo').val(), "DD/MM/YYYY").format("YYYY-MM-DD");
+        filter.mode = "Ship";
+        filter.delayShipment = ($('#DelayShipment').is(':checked')) ? true : false;
+        filter.includeInactive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+        var columns = ''
+        var indexs = ''
+        var cols = [];
+        $('#destinationFieldsShip .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+            indexs = indexs + $(this).attr('index') + ',';
+            cols.push($(this).html().trim());
+        });
+        columns = columns.slice(0, -1);
+        indexs = indexs.slice(0, -1);
+
+        $.ajax({
+            url: 'TransportationMonitoring/CustomMonitoringXlsShip',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { criteria: filter, colCaption: columns, colIndex: indexs, colExport: cols },
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    function importDataShi() {
+        $('#modalloadingShi').modal('show');
+
+        var form = new FormData();
+        var field = document.getElementById('uploadMonitoringList');
+        var value = field.files[0].name;
+        form.append(value, field.files[0]);
+        var url = 'TransportationMonitoring/ImportMonitoringXlsShipGR';
+        //if (value == "TransportMonitoringGRTemplate.xlsx") {
+        //    url = 'TransportationMonitoring/ImportMonitoringXlsShipGR';
+        //}
+        $.ajax({
+            url: url,
+            method: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: form,
+            success: function (result) {
+                //console.log(result);
+                $('#uploadModal').modal('hide');
+                $('#modalloadingShi').modal('hide');
+                if (result.IsSuccess == true) {
+                    $("#modaltext").html("");
+                    $("#modaltext").html("Data has been successfully uploaded!");
+                    $('#modalsuccess').modal('show');
+                } else {
+                    $("#labelError").html("");
+                    if (result.err == 1) {
+                        $("#labelError").html("Failed to upload data!");
+                    }
+                    else if (result.err == 2) {
+                        $("#labelError").html("Data error at row " + result.rec + " (Sheet " + result.sht + ")");
+                    }
+                    else if (result.err == 3) {
+                        $("#labelError").html("Data not found at row " + result.rec + " (Sheet " + result.sht + ")");
+                    } else {
+                        $("#labelError").html("Upload data is not success or nothing record");
+                    }
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+
+</script>

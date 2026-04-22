@@ -1,0 +1,215 @@
+﻿@model hms_tom_dev.Models.Transport.TransportExecutionPrintViewModel
+<link rel="stylesheet" href="../Assets/Css/app-new.css" media="screen">
+<style>
+    .watermarks{
+        background-image: url("../../Assets/images/watermarks.jpg");        
+        background-size: 100% auto;
+        background-position: center top; 
+        padding:50px;          
+    }
+    body {
+        background-color: #ffffff;
+        color: black!important;
+        font-family: sans-serif;
+        font-size: 15px;
+        font-weight: normal;
+    }
+    table {border-color:black;border-radius:5px;color:black;font-size:13px;}
+    table thead tr th{padding: 10px 15px;}
+    table tbody tr td {padding: 10px 15px;}
+</style>
+<body class="report-page">   
+                @for (var i = 0; i < @Model.TotalPage; i++)
+                {
+                    var idte = @Model.ListTE[i].IDTransportExecution;
+                    var receiver = @Model.ListTE[i].ReceiverIDLocation;
+                    var TODetails = @Model.ListTOD.Where(x => x.ReceiverIDLocation == receiver).ToList();
+                    int TotalPage = (int)TODetails.Count / (int)@Model.MAX_ROW_PER_PAGE;
+                    int StartIndex = 0;
+                    var TODetails1 = @Model.ListTOD.Where(x => x.ReceiverIDLocation == receiver).Skip(StartIndex).Take(@Model.MAX_ROW_PER_PAGE).ToList();
+                    var TODetails2 = @Model.ListTOD.Where(x => x.ReceiverIDLocation == receiver).Skip((int)@Model.MAX_ROW_PER_PAGE).Take(TODetails.Count).ToList();
+                    var ONumber = "";
+                    var ONValue = "";
+                    <main>
+                        <div class="row watermarks">
+                            <h3 class="title">Transportation Memo</h3>
+                            <div class="text-center">Informasi Penerimaan Barang</div>
+                            <br />
+                            <div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>To</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        :
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>CC</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        :
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Document Date</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        : @DateTime.Now.ToString("dd-MMM-yyyy")
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Attachment</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        :
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix" style="height:20px;border-bottom:1px solid black"></div>
+                            <br />
+                            <div>
+                                We would like to inform that transportation to @Model.ListTE[i].ReceiverName on week @Model.ListTE[i].WeekTransportDate with detail
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Name</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        : @Model.ListTE[i].CompanyName
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Date</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        : @Model.ListTE[i].dateWeek
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Vessel</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        : @Model.ListTE[i].VesselName
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Vendor</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        : @Model.ListTE[i].VendorName
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>ATD</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        : @Model.ListTE[i].ATDDate
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Receive Date</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        : @Model.ListTE[i].GRDateTO
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>SO Number</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        :
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix" style="height:20px;"></div>
+                            <div class="col-md-6">
+                                <table border="1">
+                                    <thead>
+                                        <tr>
+                                            <th>Order Number/STO</th>
+                                            <th>Description</th>
+                                            <th>Qty</th>
+                                            <th>UoM</th>
+                                            <th>KPS Week</th>
+                                            <th>Remark</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (var j = 0; j < TODetails1.Count; j++)
+                                        {
+                                            if (ONumber != TODetails1[j].STONo)
+                                            {
+                                                ONumber = TODetails1[j].STONo;
+                                                ONValue = ONumber;
+                                            }
+                                            else
+                                            {
+                                                ONValue = "";
+                                            }
+
+                                            <tr>
+                                                <td>@ONValue</td>
+                                                <td>@TODetails1[j].Description</td>
+                                                <td>@Convert.ToInt16(TODetails1[j].Qty)</td>
+                                                <td>@TODetails1[j].UoM</td>
+                                                <td>@TODetails1[j].POWeek</td>
+                                                <td>@TODetails1[j].Remarks</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if (TODetails.Count > @Model.MAX_ROW_PER_PAGE)
+                            {
+                                <div class="col-md-6">
+                                    <table border="1">
+                                        <thead>
+                                            <tr>
+                                                <th>Order Number/STO</th>
+                                                <th>Description</th>
+                                                <th>Qty</th>
+                                                <th>UoM</th>
+                                                <th>KPS Week</th>
+                                                <th>Remark</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var j = 0; j < TODetails2.Count; j++)
+                                            {
+                                                <tr>
+                                                    <td>@TODetails2[j].STONo</td>
+                                                    <td>@TODetails2[j].Description</td>
+                                                    <td>@Convert.ToInt16(TODetails2[j].Qty)</td>
+                                                    <td>@TODetails2[j].UoM</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            <div class="clearfix"></div>
+                            <div>
+                                <div class="col-md-3 sign text-center">
+                                    <p>Issued By,<br />@Model.SampoernaPIC</p>
+                                    <div class="clearfix" style="height:60px;"></div>
+                                    <p class="name">(______________)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+        <div style="float:right; padding-top:5px; page-break-before:always;" class="numbering"></div>
+       
+        }
+    
+</body>

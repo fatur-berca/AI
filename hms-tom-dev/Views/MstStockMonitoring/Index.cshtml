@@ -1,0 +1,726 @@
+﻿@{
+    ViewBag.Title = " Master Data > Master Stock Monitoring";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="col-md-12">
+    <ul class="nav nav-pills title">
+        <li class="active"><a data-toggle="pill" href="#leadtime">Master Lead Time</a></li>
+        <li><a data-toggle="pill" href="#mappinglocation">Master Mapping Location Percentage</a></li>
+        <li><a data-toggle="pill" href="#zonelocation">Master Zone Location</a></li>
+        <li><a data-toggle="pill" href="#supportwarehouse">Master Support Warehouse</a></li>
+    </ul>
+    <div id="form" class="tab-content">
+        <div id="leadtime" class="tab-pane fade in active">
+            
+            <div class="title-deck wmb">
+                <div class="button-wrap pull-left">
+                    <button id="uploadLeadTime" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadLeadModal">Upload</button>
+                </div>
+            </div>
+
+            <table id="dtMasterLeadTime" class="display table dataTable table-condensed">
+                <thead>
+                <tr>
+                    <th width=5% nowrap class="text-center">Active</th>
+                    <th>Location From</th>
+                    <th>Location To</th>
+                    <th>Vehicle Type</th>
+                    <th>Lead Time</th>
+                </tr>
+                </thead>
+                <thead class="filters">
+                <tr class="filter-row">
+                    <th width=5% nowrap class="text-center"></th>
+                    <th>Location From</th>
+                    <th>Location To</th>
+                    <th>Vehicle Type</th>
+                    <th>Lead Time</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div id="mappinglocation" class="tab-pane fade">
+            
+            <div class="title-deck wmb">
+                <div class="button-wrap pull-left">
+                    <button id="uploadMappingLoc" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadMappingLocModal">Upload</button>
+                </div>
+            </div>
+
+            <table id="dtMasterMappingLocation" class="display table dataTable table-condensed">
+                <thead>
+                <tr>
+                    <th width=5% nowrap class="text-center">Active</th>
+                    <th>Location From</th>
+                    <th>Location To</th>
+                    <th>Brand</th>
+                    <th>Percentage</th>
+                </tr>
+                </thead>
+                <thead class="filters">
+                <tr class="filter-row">
+                    <th width=5% nowrap class="text-center"></th>
+                    <th>Location From</th>
+                    <th>Location To</th>
+                    <th>Brand</th>
+                    <th>Percentage</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div id="zonelocation" class="tab-pane fade">
+            
+            <div class="title-deck wmb">
+                <div class="button-wrap pull-left">
+                    <button id="uploadZoneLoc" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadZoneModal">Upload</button>
+                </div>
+            </div>
+
+            <table id="dtMasterZoneLocation" class="display table dataTable table-condensed">
+                <thead>
+                <tr>
+                    <th width=5% nowrap class="text-center">Active</th>
+                    <th>Zone Location</th>
+                    <th>ID Location</th>
+                </tr>
+                </thead>
+                <thead class="filters">
+                <tr class="filter-row">
+                    <th width=5% nowrap class="text-center"></th>
+                    <th>Zone Location</th>
+                    <th>ID Location</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div id="supportwarehouse" class="tab-pane fade">
+
+            <div class="title-deck wmb">
+                <div class="button-wrap pull-left">
+                    <button id="uploadSupportWare" class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadSupportModal">Upload</button>
+                </div>
+            </div>
+
+            <table id="dtMasterSupportWarehouse" class="display table dataTable table-condensed">
+                <thead>
+                    <tr>
+                        <th width=5% nowrap class="text-center">Active</th>
+                        <th>Source Warehouse</th>
+                        <th>Support Warehouse</th>
+                    </tr>
+                </thead>
+                <thead class="filters">
+                    <tr class="filter-row">
+                        <th width=5% nowrap class="text-center"></th>
+                        <th>Source Warehouse</th>
+                        <th>Support Warehouse</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadLeadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadLead">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadlead" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterLeadTime.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadLead" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadMappingLocModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel2">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadMapping">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadmapping" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterMappingLocationPercentage.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadMapping" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadZoneModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel3">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadZone">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadzone" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterZoneLocation.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadZone" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadSupportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modadUploadLabel4">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadSupport">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadsupport" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterSupportWarehouse.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnUploadSupport" class="btn btn-primary" disabled>Execute</button>
+                <button class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        generateTabelLeadTime();
+        generateTabelMappingLocationPercentage();
+        generateTabelZoneLocation();
+        generateTabelSupportWarehouse();
+    });
+
+    //START : BAGIAN LEAD TIME
+    var fileleadtime;
+    function generateTabelLeadTime() {
+        $.ajax({
+            url: 'MstStockMonitoring/GetDataLeadTime',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtMasterLeadTime').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[2, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'LocationFrom', 'searchable': true },
+                        { 'data': 'LocationTo', 'searchable': true },
+                        { 'data': 'VehicleType', 'searchable': true },
+                        { 'data': 'LeadTime', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtMasterLeadTime thead.filters th').each(function (index) {
+                    if (index > 0) {
+                        var title = $('#dtMasterLeadTime thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtMasterLeadTime thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#uploadLeadTime").click(function () {
+        $("#btnUploadLead").prop("disabled", true);
+        $("#uploadlead").val("");
+        $("#uploadlead").jfilestyle('clear');
+        fileleadtime = "";
+    });
+ 
+    $('#uploadlead').on('change', function (e) {
+        $("#btnUploadLead").prop("disabled", false);
+        fileleadtime = e.target.files;
+    });
+
+    $("#btnUploadLead").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        var data = new FormData();
+        for (var x = 0; x < fileleadtime.length; x++) {
+            data.append("fileleadtime", fileleadtime[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'MstStockMonitoring/UploadFileLeadTime',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (data) {
+                dialog.modal('hide');
+                if (data.length == 0) {
+                    $('#modalsuccess').modal('show'); 
+                }
+                else {
+                    var txtLeadError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "LocationFrom") {
+                            txtLeadError = txtLeadError + "There is no Location From " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "LocationTo") {
+                            txtLeadError = txtLeadError + "There is no Location To " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "Type") {
+                            txtLeadError = txtLeadError + "Vehicle Type empty or null on row " + split[1] + " <br/>";
+                        }
+                        if (split[0] == "DataExist") {
+                            txtLeadError = txtLeadError + "Location From " + split[1] + " To " + split[2] + " Vehicle Type " + split[3] + " row " + split[4] + " already exist<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtLeadError);
+                    $('#modalerror').modal('show');
+                }
+                generateTabelLeadTime();
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+    //END : BAGIAN LEAD TIME
+
+    //START : BAGIAN MAPPING LOCATION PERCENTAGE
+    var filemappinglocation;
+    function generateTabelMappingLocationPercentage() {
+        $.ajax({
+            url: 'MstStockMonitoring/GetDataMappingLocationPercentage',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table2 = $('#dtMasterMappingLocation').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[2, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'LocationFrom', 'searchable': true },
+                        { 'data': 'LocationTo', 'searchable': true },
+                        { 'data': 'BrandCode', 'searchable': true },
+                        { 'data': 'Percentage', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtMasterMappingLocation thead.filters th').each(function (index) {
+                    if (index > 0) {
+                        var title = $('#dtMasterMappingLocation thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table2.columns().every(function (index) {
+                    $('#dtMasterMappingLocation thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table2.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#uploadMappingLoc").click(function () {
+        $("#btnUploadMapping").prop("disabled", true);
+        $("#uploadmapping").val("");
+        $("#uploadmapping").jfilestyle('clear');
+        filemappinglocation = "";
+    });
+
+    $('#uploadmapping').on('change', function (e) {
+        $("#btnUploadMapping").prop("disabled", false);
+        filemappinglocation = e.target.files;
+    });
+
+    $("#btnUploadMapping").click(function () {
+        var data = new FormData();
+        for (var x = 0; x < filemappinglocation.length; x++) {
+            data.append("filemappingloc", filemappinglocation[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'MstStockMonitoring/UploadFileMappingLocationPercentage',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (data) {
+                if (data.length == 0) {
+                    $('#modalsuccess').modal('show');
+                }
+                else {
+                    var txtMappingError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "LocationFrom") {
+                            txtMappingError = txtMappingError + "There is no Location From " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "LocationTo") {
+                            txtMappingError = txtMappingError + "There is no Location To " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "Brand") {
+                            txtMappingError = txtMappingError + "There is no Brand " + split[1] + " row " + split[2] + " in table master brand<br/>";
+                        }
+                        if (split[0] == "DataExist") {
+                            txtMappingError = txtMappingError + "Location From " + split[1] + " To " + split[2] + " brand " + split[3] + " row " + split[4] + " already exist<br/>";
+                        }
+                        if (split[0] == "DataOver") {
+                            txtMappingError = txtMappingError + "Location To " + split[1] + " brand " + split[2] + " Percentage More Than 100<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtMappingError);
+                    $('#modalerror').modal('show');
+                }
+                generateTabelMappingLocationPercentage();
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+    //END : BAGIAN MAPPING LOCATION PERCENTAGE
+
+    //START : BAGIAN ZONE LOCATION
+    var filezonelocation;
+    function generateTabelZoneLocation() {
+        $.ajax({
+            url: 'MstStockMonitoring/GetDataZoneLocation',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table3 = $('#dtMasterZoneLocation').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[2, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'Zone', 'searchable': true },
+                        { 'data': 'IDLocation', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtMasterZoneLocation thead.filters th').each(function (index) {
+                    if (index > 0) {
+                        var title = $('#dtMasterZoneLocation thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table3.columns().every(function (index) {
+                    $('#dtMasterZoneLocation thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table3.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#uploadZoneLoc").click(function () {
+        $("#btnUploadZone").prop("disabled", true);
+        $("#uploadzone").val("");
+        $("#uploadzone").jfilestyle('clear');
+        filezonelocation = "";
+    });
+
+    $('#uploadzone').on('change', function (e) {
+        $("#btnUploadZone").prop("disabled", false);
+        filezonelocation = e.target.files;
+    });
+
+    $("#btnUploadZone").click(function () {
+        var data = new FormData();
+        for (var x = 0; x < filezonelocation.length; x++) {
+            data.append("filezoneloc", filezonelocation[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'MstStockMonitoring/UploadFileZoneLocation',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (data) {
+                if (data.length == 0) {
+                    $('#modalsuccess').modal('show'); 
+                }
+                else {
+                    var txtZoneError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "Location") {
+                            txtZoneError = txtZoneError + "There is no Location " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "DataExist") {
+                            txtZoneError = txtZoneError + "Zone " + split[1] + " Location " + split[2] + " row " + split[3] + " already exist<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtZoneError);
+                    $('#modalerror').modal('show');
+                }
+                generateTabelZoneLocation();
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+    //END : BAGIAN ZONE LOCATION
+
+    //START : BAGIAN SUPPORT WAREHOUSE
+    var filesupportwarehouse;
+    function generateTabelSupportWarehouse() {
+        $.ajax({
+            url: 'MstStockMonitoring/GetDataSupportWarehouse',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table4 = $('#dtMasterSupportWarehouse').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'SourceWarehouse', 'searchable': true },
+                        { 'data': 'SupportWarehouse', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtMasterSupportWarehouse thead.filters th').each(function (index) {
+                    if (index > 0) {
+                        var title = $('#dtMasterSupportWarehouse thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table4.columns().every(function (index) {
+                    $('#dtMasterSupportWarehouse thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table4.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#uploadSupportWare").click(function () {
+        $("#btnUploadSupport").prop("disabled", true);
+        $("#uploadsupport").val("");
+        $("#uploadsupport").jfilestyle('clear');
+        filesupportwarehouse = "";
+    });
+
+    $('#uploadsupport').on('change', function (e) {
+        $("#btnUploadSupport").prop("disabled", false);
+        filesupportwarehouse = e.target.files;
+    });
+
+    $("#btnUploadSupport").click(function () {
+        var data = new FormData();
+        for (var x = 0; x < filesupportwarehouse.length; x++) {
+            data.append("filesupportware", filesupportwarehouse[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'MstStockMonitoring/UploadFileSupportWarehouse',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (data) {
+                if (data.length == 0) {
+                    $('#modalsuccess').modal('show');
+                }
+                else {
+                    var txtSupportError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "LocationSource") {
+                            txtSupportError = txtSupportError + "There is no Location Source " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "LocationSupport") {
+                            txtSupportError = txtSupportError + "There is no Location Support " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "DataExist") {
+                            txtSupportError = txtSupportError + "Location Source " + split[1] + " Location Support " + split[2] + " row " + split[3] + " already exist<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtSupportError);
+                    $('#modalerror').modal('show');
+                }
+                generateTabelSupportWarehouse();
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+    //END : BAGIAN SUPPORT WAREHOUSE
+</script>

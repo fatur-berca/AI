@@ -1,0 +1,2036 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportOrderViewModel
+
+@{
+    ViewBag.Title = "Transport > Picking List > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<style>
+    .tabDayPickingList {
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 50px;
+    }
+
+    a.disabled {
+        color: gray;
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .labelGenerateSap {
+        margin-top: 13px;
+    }
+
+    /*thead tr th {
+        text-align: center;
+    }*/
+
+    .summaryTitle {
+        width: 20%;
+        padding-left: 6px;
+    }
+
+    .summaryNumber {
+        text-align: right;
+        width: 50px;
+    }
+
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+    .modal-body {
+        position: relative;
+        padding: 15px;
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    .datepicker {
+        z-index: 999 !important;
+    }
+    #modalGenerateSAPFile .modal-dialog {
+        min-width: 70%;
+    }
+    #modalGenerateSAPFile .modal-dialog .modal-body {
+        min-height: 335px;
+    }
+</style>
+
+
+<div class="map-deck vessel">
+    <a id="MarineTrafficView" role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#summarywrap" aria-expanded="true" aria-controls="summarywrap" style="padding:10px 5px;">
+        Total Unit For
+        <i class="fa fa-angle-up pull-right"></i>
+    </a>
+    <div id="summarywrap" class="collapse" role="tabpanel" aria-labelledby="summarywrap" style="">
+        <table border="0" style="width:100%; background-color:#FFF" id="tableSummary">
+            <!--
+            <tr style="font-weight:bold;">
+                <td class="summaryTitle" style="padding-left:5px">DC Lot Karawang. 41</td>
+                <td class="summaryNumber">12</td>
+                <td class="summaryTitle">DC Lot Karawang. 41</td>
+                <td class="summaryNumber">13</td>
+                <td class="summaryTitle">DC Lot Karawang. 41</td>
+                <td class="summaryNumber">13</td>
+                <td class="summaryTitle">DC 16</td>
+                <td ss="summaryNumber"></td>
+            </tr>
+             -->
+        </table>
+    </div>
+</div>
+
+<div class="filter-deck">
+    <!--
+    <h3 class="sub-text">Total Unit For</h3>
+    <div class="title-deck wmb">
+        <div class="col-panel">
+            <div class="row">
+
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>DC Sukorejo</label>
+                        <h4 class="sub-text" id="ZD7A"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>DC Surabaya - Kalirungkut</label>
+                        <h4 class="sub-text" id="ZD7O"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>DC Karawang Lot.17</label>
+                        <h4 class="sub-text" id="ZD4A"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>DC Karawang Lot.41</label>
+                        <h4 class="sub-text" id="ZD4B"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    -->
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+{
+            <button class="btn btn-primary" type="button" id="btnExportReport" data-toggle="modal" data-target="#modalExport">Export</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+{
+            <button class="btn btn-primary" type="button" id="btnCustomReport">Custom Report</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+{
+            <button class="btn btn-primary" type="button" id="btnPopUpUpload" data-toggle="modal" data-target="#modalUploadPickingList">Upload</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Email)))
+{
+            <button class="btn btn-primary" id="btnEmail">Email</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.GenerateSAP)))
+{
+            <button class="btn btn-primary" type="button" id="btnGenerateSAP" data-toggle="modal" data-target="#modalGenerateSAPFile">Generate SAP File</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Log)))
+{
+            <button class="btn btn-primary" type="button" id="btnLog" data-toggle="modal" data-target="#modalLog">Log</button>
+}
+        </div>
+        <a href="#filter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSearch"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <div class="filter-deck nmb">
+        <div id="filter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>STO Number</label>
+                            @*<select class="select2" multiple="multiple" id="FilterSTONumber"></select>*@
+                            <input class="filterAdvance" type="hidden" style="width:250px" id="FilterSTONumber" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Zone</label>
+                            @*<select class="form-control" id="FilterZone"></select>*@
+                            @Html.DropDownListFor(model => Model.Zone, Model.zoneList, new { @class = "filterAdvance form-control", id = "FilterZone" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Week</label>
+                            @*<select class="form-control" id="FilterWeek"></select>*@
+                            @Html.DropDownListFor(model => Model.weekNow,
+                                new SelectList(Enumerable.Range(1, 53).Select(r => new { Text = r.ToString(), Value = r }), "Value", "Text", Model.ListWeeks), new { @class = "filterAdvance form-control", id = "FilterWeek" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Year</label>
+                            @*<select class="form-control" id="FilterYear"></select>*@
+                            @Html.DropDownListFor(model => Model.yearNow,
+                                new SelectList(Enumerable.Range(-2, 5).Select(r => new { Text = (DateTime.Now.Year + r).ToString(), Value = DateTime.Now.Year + r }), "Value", "Text", Model.ListYears), new { @class = "filterAdvance form-control", id = "FilteYear" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Sender</label>
+                            @*<select class="select2" multiple="multiple" class="form-control" id="FilterSender"></select>*@
+                            @Html.DropDownListFor(model => Model.SenderIDLocation, Model.senderList, new { @multiple = "multiple", @id = "FilterSender", @class = "filterAdvance" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Receiver</label>
+                            @*<select class="select2" multiple="multiple" class="form-control" id="FilterReceiver"></select>*@
+                            @Html.DropDownListFor(model => Model.ReceiverIDLocation, Model.receiveList, new { @multiple = "multiple", @id = "FilterReceiver", @class = "filterAdvance" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Uploaded By</label>
+                            <select id="FilterUploadedBy" class="form-control"></select>
+                            @*@Html.DropDownListFor(model => Model.UploadedBy.Select(x => x.Value), Model.UploadedBy.Select(x => x.Text), new { @id = "FilterUploadedBy", @class = "form-control" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" id="btnSearch">Search</button>
+                    <button type="button" class="btn btn-purple" id="btnReset">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUploadPickingList" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUploadPickingList">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Upload Picking List</label>
+                                <input id="uploadPickingList" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <label style="color:red">*Uploaded data PO will replace existing data</label>
+                                <a href="Assets/Download/TemplateExcel/UploadTransportPickingListTemplate.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label>&nbsp;</label>
+                            <br />
+                            <button type="button" id="btnUploadPickingList" class="btn btn-primary" disabled>Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGenerateSAPFile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Generate SAP File</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmGenerateSAPFile">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="labelGenerateSap">Shipment Date</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <input type="text" class="form-control datepicker" id="GenerateSAPDateFrom" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="labelGenerateSap">To</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <input type="text" class="form-control datepicker" id="GenerateSAPDateTo" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="labelGenerateSap">Uploaded By</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <select class="form-control" id="GenerateSAPUploadedBy">
+                                    <option value="">All</option>
+                                    <option value="PMI\DWardhan">Wardhani Dwi Puspita</option>
+                                    <option value="pmi\mkurnia2">Muhammad Ikhsan Kurniawan</option>
+                                    <option value="PMI\faurino1">Fendy Aurino</option>
+                                    <option value="PMI\NMelisa">Nydia Melisa</option>
+                                    <option value="PMI\JJo2">Joanna Jo</option>
+                                    <option value="PMI\DPratama3">Denny Pratama</option>
+                                    <option value="PMI\AJanardo">Aditya Janardono</option>
+                                    <option value="pmi\maudrey">Audrey, Marcella</option>
+                                    @*<option value="pmi\ksiswoad">Kristian Praba Raditya Siswoadji</option>*@
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGenerateSAPFile" class="btn btn-primary">Generate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExport" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Export</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" id="chkExportPickingListRawData" name="exportType">
+                                <span class="checkbox-deck-span">Raw Data</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" id="chkExportPickingListForm" name="exportType">
+                                <span class="checkbox-deck-span">Picking List Form</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="exportLink">
+                    <button disabled="disabled" id="btnExport" class="btn btn-primary">Export</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalLog" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Log</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Shipment Date</label>
+                                <input type="text" class="form-control datepicker" id="LogDateFrom" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <br />
+                                <label class="labelGenerateSap">To</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <br />
+                                <input type="text" class="form-control datepicker" id="LogDateTo" data-date-format="DD/MM/YYYY">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Batch</label>
+                                <select class="form-control" id="DrpDownLogBatch" width="100%"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <br />
+                                <button id="btnLogSearch" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <br />
+                                <button id="btnLogDelete" class="btn btn-primary">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="height:510px; overflow-y:scroll">
+                        <table id="dtLogPickingList" class="display table dataTable">
+                            <thead>
+                                <tr>
+                                    <th hidden></th>
+                                    <th >Active</th>
+                                    <th>STO Number</th>
+                                    <th>Shipment Date</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Zone</th>
+                                    <th>Sequence</th>
+                                </tr>
+                            </thead>
+                            <thead class="filters">
+                                <tr class="filter-row">
+                                    <th hidden>sorting</th>
+                                    <th class="text-center">Filter</th>
+                                    <th >STO Number</th>
+                                    <th>Shipment Date</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Zone</th>
+                                    <th>Sequence</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="STONumber" class="ui-draggable">STO Number</div>
+                        <div data-field="Supplier" class="ui-draggable">Supplier</div>
+                        <div data-field="Item" class="ui-draggable">Item</div>
+                        <div data-field="Brand" class="ui-draggable">Brand</div>
+                        <div data-field="Qty" class="ui-draggable">Qty</div>
+                        <div data-field="UoM" class="ui-draggable">UoM</div>
+                        <div data-field="ShipmentDate" class="ui-draggable">Shipment Date</div>
+                        <div data-field="Sender" class="ui-draggable">Sender</div>
+                        <div data-field="Receiver" class="ui-draggable">Receiver</div>
+                        <div data-field="Sequence" class="ui-draggable">Sequence</div>
+                        <div data-field="VehicleType" class="ui-draggable">Vehicle Type</div>
+                        <div data-field="Remarks" class="ui-draggable">Remarks</div>
+                        <div data-field="CreatedBy" class="ui-draggable">Created By</div>
+                        <div data-field="UpdatedBy" class="ui-draggable">Updated By</div>
+                        @*<div data-field="STONumber" class="ui-draggable" index="1" width="20">STO Number</div>
+                        <div data-field="ShipmentDate" class="ui-draggable" index="2" width="18">Shipment Date</div>
+                        <div data-field="Sender" class="ui-draggable" index="3" width="15">Sender</div>
+                        <div data-field="Receiver" class="ui-draggable" index="4" width="15">Receiver</div>
+                        <div data-field="Zone" class="ui-draggable" index="5" width="12">Zone</div>
+                        <div data-field="Sequence" class="ui-draggable" index="6" width="10">Sequence</div>*@
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="btnSaveLayout" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+                <button class="btn btn-primary" id="btnExportCustomReport">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="title-deck wmb divday">
+    <a id="monday"><label class="tabDayPickingList">Monday</label></a>
+    <a id="tuesday"><label class="tabDayPickingList">Tuesday</label></a>
+    <a id="wednesday"><label class="tabDayPickingList">Wednesday</label></a>
+    <a id="thursday"><label class="tabDayPickingList">Thursday</label></a>
+    <a id="friday"><label class="tabDayPickingList">Friday</label></a>
+    <a id="saturday"><label class="tabDayPickingList">Saturday</label></a>
+    <a id="sunday"><label class="tabDayPickingList">Sunday</label></a>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable">
+    <thead>
+        <tr>
+            <th>Active</th>
+            <th>STO Number</th>
+            <th>Shipment Date</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Zone</th>
+            <th>Sequence</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>STO Number</th>
+            <th>Shipment Date</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Zone</th>
+            <th>Sequence</th>
+        </tr>
+    </thead>
+</table>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="labelCheck">Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BEGIN MODAL LOADING -->
+<div id="modalloading" class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span>Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL LOADING -->
+
+@*<script src="@Url.Content("~/Scripts/ez.js")"></script>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        getUploadedByData();
+    });
+    jQuery(function ($) {
+        $(document).on('click', '#left', function (e) {
+            moveItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#right', function (e) {
+            moveItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#leftall', function (e) {
+            moveAllItems('#destinationFields', '#sourceFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#rightall', function (e) {
+            moveAllItems('#sourceFields', '#destinationFields');
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnCustomReport', function (e) {
+            generateLayoutSelect();
+            $("#layoutName").val("");
+            $("#customReport").modal("show");
+            moveAllItems('#destinationFields', '#sourceFields');
+        });
+
+        $(document).on('click', '#btnExportCustomReport', function () {
+            if ($('#destinationFields .fc-field').text().length == 0) {
+                $("#labelCheck").html("");
+                $("#labelCheck").html("Please select at least one field to export!");
+                $('#modalwarning').modal('show');
+            }
+            else {
+                customReport();
+            }
+        });
+
+        function customReport() {
+            $('#modalloading').modal('show');
+
+            var columns = '', indexs = '', widths = '';
+
+            $('#destinationFields .fc-field').each(function () {
+                columns = columns + $(this).text() + ',';
+                //indexs = indexs + $(this).attr('index') + ',';
+                //widths = widths + $(this).attr('width') + ',';
+            });
+            columns = columns.slice(0, -1);
+            //indexs = indexs.slice(0, -1);
+            //widths = widths.slice(0, -1);
+
+            filter.weekFilter = $("#FilterWeek").val();
+            filter.yearFilter = $("#FilteYear").val();
+            filter.zoneFilter = $("#FilterZone").val();
+            filter.stoNoListFilter = $("#FilterSTONumber").val();
+            filter.senderIdLocListFilter = $("#FilterSender").val();
+            filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+            filter.uploadedByFilter = $("#FilterUploadedBy").val();
+
+            $.ajax({
+                url: '@Url.Action("CustomExportXls", "TransportPickingList")',
+                method: 'POST',
+                dataType: 'json',
+                cache: false,
+                data: { colCaption: columns, criteria: filter },
+                success: function (result) {
+                    $('#modalloading').modal('hide');
+                    window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                }
+            });
+        }
+
+        $('#layoutSelect').on('change', function () {
+            for (var j = 1; j < layoutIsGlobal.length; j++) {
+                if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                    $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                }
+            }
+            var sourceFieldNames = [
+                    { 'field': 'STONumber', 'label': 'STO Number' },
+                    { 'field': 'Supplier', 'label': 'Supplier' },
+                    { 'field': 'Item', 'label': 'Item' },
+                    { 'field': 'Brand', 'label': 'Brand' },
+                    { 'field': 'Qty', 'label': 'Qty' },
+                    { 'field': 'UoM', 'label': 'UoM' },
+                    { 'field': 'ShipmentDate', 'label': 'Shipment Date' },
+                    { 'field': 'Sender', 'label': 'Sender' },
+                    { 'field': 'Receiver', 'label': 'Receiver' },
+                    { 'field': 'Sequence', 'label': 'Sequence' },
+                    { 'field': 'VehicleType', 'label': 'Vehicle Type' },
+                    { 'field': 'Remarks', 'label': 'Remarks' },
+                    { 'field': 'CreatedBy', 'label': 'Created By' },
+                    { 'field': 'UpdatedBy', 'label': 'Updated By' }
+            ],
+            sourceFields = '',
+            destinationFieldNames = this.value != "" ? this.value.split(',') : "",
+            destinationFields = '',
+            destinationfieldLabels = [];
+
+            for (i = 0; i < sourceFieldNames.length; ++i) {
+                if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                    // the element is not in the array
+                    sourceFields = sourceFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                } else {
+                    destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                }
+            }
+
+            $("#fieldChooser #sourceFields").html(sourceFields);
+
+            for (i = 0; i < destinationFieldNames.length; ++i) {
+                destinationFields = destinationFields + "<div tabindex='1' class='ui-draggable fc-field' draggable='true' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+            }
+            $("#fieldChooser #destinationFields").html(destinationFields);
+
+            $("#fieldChooser .ui-draggable").prop("draggable", true);
+            $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+            $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+                $(this).addClass("fc-selected");
+                ev.originalEvent.dataTransfer.setData("text", "COPY");
+            });
+            $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+                ev.originalEvent.preventDefault();
+            });
+            $("#sourceFields,#destinationFields").on("drop", function (ev) {
+                var data = ev.originalEvent.dataTransfer.getData("text");
+                if (data == "COPY")
+                    moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+                $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+            });
+        });
+
+        //$(document).on('click', '#exportCustomReport', function (e) {
+        //    exportCustomToExcel();
+        //    e.preventDefault();
+        //});
+
+        $(".filterAdvance").change(function () {
+            getUploadedByData();
+        });
+    });
+
+    function getUploadedByData() {
+        filter.weekFilter = $("#FilterWeek").val();
+        filter.yearFilter = $("#FilteYear").val();
+        filter.zoneFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val();
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        //bootbox.dialog({
+        //    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please wait...</div>',
+        //    closeButton: false
+        //});
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetUploadedBy", "TransportPickingList")',
+            cache: false,
+            data: { criteria: filter },
+            success: function (result) {
+                var str = "<option value=''></option>";
+                $.each(result, function (key, val) {
+                    if (key != "") str += "<option value='" + key + "'>" + val + "</option>";
+                });
+                $("#FilterUploadedBy").html(str);
+                //bootbox.hideAll();
+            },
+            error: function () {
+                //bootbox.hideAll();
+            }
+        });
+    }
+
+    //$("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+    //var $sourceFields = $("#sourceFields");
+    //var $destinationFields = $("#destinationFields");
+    //var $chooser = $("#fieldChooser").fieldChooser($sourceFields, $destinationFields);
+
+    var layoutIsGlobal = [];
+    $("#fieldChooser .ui-draggable").prop("draggable", true);
+    $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function generateLayoutSelect() {
+        var firstLayout = "",
+            thenLayout = "",
+            k = 0;
+
+        jQuery.ajax({
+            url: '@Url.Action("GetLayouts", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "TransportPickingList" },
+            success: function (response) {
+                //console.log(response);
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = "<option value='";
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            thenLayout = response[i].LayoutName;
+                            ++k;
+                            layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    $("#layoutSelect").html(options);
+                    console.log($("#layoutSelect").val());
+                } else {
+                    options = options + "'<option></option>";
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    $("#btnSaveLayout").click(function () {
+        saveLayout();
+    });
+    function saveLayout() {
+        var nonvalid = false;
+
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            var fieldNames = '',
+                layoutName = $("#layoutName").val(),
+                isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+            if ($('#destinationFields .fc-field').length > 0) {
+                $('#destinationFields .fc-field').each(function () {
+                    fieldNames = fieldNames + $(this).data('field') + ',';
+                });
+                fieldNames = fieldNames.slice(0, -1);
+
+                var dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                    closeButton: false
+                });
+
+                jQuery.ajax({
+                    url: '@Url.Action("InsertRecords", "CustomReportState")',
+                    method: 'post',
+                    dataType: 'json',
+                    data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "TransportPickingList", "isGlobal": isGlobal },
+                    success: function (response) {
+                        if (response == "Success") {
+                            if (isGlobal) {
+                                SaveChangesButton(dialog);
+                            } else {
+                                alertCrSaveSuccess();
+                                dialog.modal('hide');
+                                $("#chkGlobalCustomReport").prop('checked', false);
+                            }
+                        } else if (response == "NoLayoutName") {
+                            alertCrPleaseFill();
+                            dialog.modal('hide');
+                        }
+
+                        if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                            $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                        }
+                    }
+                });
+                return true;
+            }
+            else {
+                $("#modalerror #textModalError").html(" Please select at least one field to export! ");
+                $('#modalerror').modal('show');
+                return false;
+            }
+        }
+    }
+
+    function SaveChangesButton(dialog) {
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '',
+            isGlobal = ($("#chkGlobalCustomReport").prop('checked')) ? true : false;
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data("field") + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("SaveSelectedLayout", "CustomReportState")',
+            method: 'post',
+            dataType: 'json',
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "TransportPickingList", "isGlobal": isGlobal },
+            success: function (response) {
+                dialog.modal('hide');
+                if (response == "Success") {
+                    alertCrSaveSuccess();
+                } else {
+                    alertCrSaveFail();
+                }
+            }
+        });
+    }
+
+    $("#fieldChooser .ui-draggable").on("dragstart", function (ev) {
+        $(this).addClass("fc-selected");
+        ev.originalEvent.dataTransfer.setData("text", "COPY");
+    });
+    $("#sourceFields,#destinationFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#sourceFields,#destinationFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+    $("#destinationFields, #sourceFields").on("dragover", function (ev) {
+        ev.originalEvent.preventDefault();
+    });
+    $("#destinationFields, #sourceFields").on("drop", function (ev) {
+        var data = ev.originalEvent.dataTransfer.getData("text");
+        if (data == "COPY")
+            moveItems("#" + $(ev.originalEvent.srcElement).parent().attr("id"), "#" + $(this).attr("id"));
+        $("#fieldChooser .ui-draggable").removeClass("fc-selected");
+    });
+
+    @*function exportCustomToExcel() {
+        var columns = "",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        jQuery('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this).text() + ',';
+        });
+        columns = columns.slice(0, -1);
+        var year = $(".yearpicker").val();
+        console.log(year);
+        if (year == undefined || year == null) {
+            year = new Date().getFullYear();
+        } else {
+            if (year.length > 4)
+                year = new Date().getFullYear();
+        }
+        if (typeof year == "string") {
+            year = new Date().getFullYear();
+        }
+        jQuery.ajax({
+            url: '@Url.Action("FetchData", "TransportPickingList")',
+            method: 'get',
+            dataType: 'json',
+            data: {
+                "flag": "custom",
+                "Columns": columns,
+                "year": year
+            },
+            cache: false,
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+
+    }*@
+
+    var hari = "Monday";
+    var filter = new Object();
+    var dialog;
+    var today = new Date();
+    var yearNow = today.getFullYear();
+    var weekNow = moment(today).isoWeek();
+    var hariNow = moment(today).day();
+    if (hariNow == 0) {
+        hari = "Sunday";
+        $("#sunday").addClass('disabled');
+    }
+    else if (hariNow == 1) {
+        hari = "Monday";
+        $("#monday").addClass('disabled');
+    }
+    else if (hariNow == 2) {
+        hari = "Tuesday";
+        $("#tuesday").addClass('disabled');
+    }
+    else if (hariNow == 3) {
+        hari = "Wednesday";
+        $("#wednesday").addClass('disabled');
+    }
+    else if (hariNow == 4) {
+        hari = "Thursday";
+        $("#thursday").addClass('disabled');
+    }
+    else if (hariNow == 5) {
+        hari = "Friday";
+        $("#friday").addClass('disabled');
+    }
+    else if (hariNow == 6) {
+        hari = "Saturday";
+        $("#saturday").addClass('disabled');
+    }
+
+    //add underline on selected day
+    $('.divday').find('a.disabled').find('.tabDayPickingList').css('border-bottom', '2px solid gray');
+
+    advancedSearch();
+
+    $(function () {
+        $("#FilterSender").select2({ width: '100%' });
+        $("#FilterReceiver").select2({ width: '100%' });
+    });
+
+    //$("#advSearch").click(function () {
+    //    resetFilterField();
+    //});
+
+    $('.tabDayPickingList').click(function () {
+        $('.tabDayPickingList').css('border-bottom', '');
+        $(this).css('border-bottom', '2px solid gray');
+    });
+
+    $("#btnSearch").click(function () {
+        advancedSearch();
+    });
+
+    $("#btnReset").click(function () {
+        filter.weekFilter = weekNow;
+        filter.yearFilter = yearNow;
+        $("#FilterWeek").val(weekNow);
+        $("#FilteYear").val(yearNow);
+        $("#FilterUploadedBy").val("");
+        resetFilterField();
+        advancedSearch();
+        loadDataTable();
+    });
+
+    $("#FilterSTONumber").select2({
+        ajax: {
+            url: '@Url.Action("GetStoNoFilter", "TransportPickingList")',
+            dataType: 'json',
+            data: function (params) {
+                return {
+                    term: params
+                };
+            },
+            results: function (data, params) {
+               
+                var myResults = [];
+                $.each(data, function (index, item) {
+                    myResults.push({
+                        'id': item,
+                        'text': item,
+                        'class': 'filterAdvance'
+                    });
+                });
+                console.log(myResults);
+                return {
+                    results: myResults
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Type STO No',
+        delay: 250,
+        multiple: true,
+        minimumInputLength: 1
+    });
+
+    function advancedSearch() {
+        filter.weekFilter = $("#FilterWeek").val();
+        filter.yearFilter = $("#FilteYear").val();
+        filter.zoneFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val();
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        filter.uploadedByFilter = $("#FilterUploadedBy").val();
+
+        bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Fetching data...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetTransportPickingList", "TransportPickingList")',
+            cache: false,
+            data: { criteria: filter },
+            success: function () {
+                loadDataTable();
+                //getUploadedByData();
+            },
+            error: function () {
+                //dialog.modal("hide");
+                bootbox.hideAll();
+            }
+        });
+    }
+
+    function resetFilterField() {
+        $("#FilterSTONumber").select2("val", "");
+        $("#FilterZone").val("");
+        $("#FilterSender").select2("val", "");
+        $("#FilterReceiver").select2("val", "");
+        $("#FilterSender option:selected").prop("selected", false);
+        $("#FilterReceiver option:selected").prop("selected", false);
+    }
+
+    function loadDataTable() {
+        //var dialog = bootbox.dialog({
+        //    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Fetching data... </div>',
+        //    closeButton: false
+        //});
+        $('#dtFilterMaster').DataTable().clear().draw();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetTransportPickingListFilterDay", "TransportPickingList")',
+            //cache: false,
+            data: { hari: hari, criteria: filter },
+            //complete: function () { },
+            success: function (json) {
+                //dialog.modal("hide");
+                bootbox.hideAll();
+                //console.log(hari);
+                //console.log(json);
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json.viewModel,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    //aaSorting: [[4, 'asc']],
+                    "columnDefs": [{
+                        "targets": [0, 1],
+                        "orderable": false
+                    }],
+                    columns: [
+                        //{
+                        //    'data': 'IDTransportOrder', "class": "text-center", "render": function (data, type, row, meta) {
+                        //        return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["IDTransportOrder"] + ']" class="chkList"><label for="check[' + row["IDTransportOrder"] + ']"></label></div></td>';
+                        //    }
+                        //},
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        {
+                            'data': 'STONo', "render": function (data, type, row, meta) {
+                                var ret = data == null ? "" : data;
+                                return '<td><div ><a href="@Url.Action("Edit")?stono=' + ret + '" target="_self">' + ret + '</a></div></td>';
+                            }
+                        },
+                        {
+                            'data': 'ShipmentDate', "render": function (data, type, row, meta) {
+                                return moment(row["ShipmentDate"]).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            'data': 'SenderName', "render": function (data, type, row, meta) {
+                                if (row["SenderIDLocation"] != row["ActualSenderIDLocation"]) {
+                                    return row["ActualSenderName"];
+                                } else {
+                                    return row["SenderName"];
+                                }
+                            }
+                        },
+                        {
+                            'data': 'ReceiverName', "render": function (data, type, row, meta) {
+                                if (row["ReceiverIDLocation"] != row["ActualReceiverIDLocation"]) {
+                                    return row["ActualReceiverName"];
+                                } else {
+                                    return row["ReceiverName"];
+                                }
+                            }
+                        },
+                        { 'data': 'ZoneBased', 'searchable': true },
+                        {
+                            'data': 'SeqNo', "render": function (data, type, row, meta) {
+                                return row["SeqNo"] == null ? row["DefaultSeqNo"] : row["SeqNo"];
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 8)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+                /*
+                $("#ZD7A").html('0');
+                $("#ZD7O").html('0');
+                $("#ZD4A").html('0');
+                $("#ZD4B").html('0');
+                for (var i = 0; i < json.totUnit.length; i++) {
+                    var totalUnit = json.totUnit[i];
+                    if (totalUnit != undefined) {
+                        $("#" + totalUnit.SenderIDLocation).html('');
+                        $("#" + totalUnit.SenderIDLocation).html(totalUnit.Total);
+                    }
+                }
+                */
+                //console.log(json.viewModel);
+                //var summaries = [];
+                //var prev = "";
+                //var prevSender = "";
+                //json.viewModel.forEach(function (e) {
+                //    var sender = $(e)[0].SenderName;
+                //    var seq = $(e)[0].SeqNo;
+                //    if (seq != 0 && seq != "" && seq != undefined && seq != null) {
+                //        if (sender.indexOf('DC ') > -1) {
+                //            if (summaries[sender] === undefined) {
+                //                summaries[sender] = 1;
+                //                prev = seq;
+                //                prevSender = sender;
+                //            }
+                //            else if (seq != prev && sender == prevSender) {
+                //                summaries[sender] += 1
+                //                prev = seq;
+                //                prevSender = sender;
+                //            }
+                //            else if (seq == prev && sender != prevSender) {
+                //                summaries[sender] += 1
+                //                prev = seq;
+                //                prevSender = sender;
+                //            }
+                //            else if (seq != prev && sender != prevSender) {
+                //                summaries[sender] += 1
+                //                prev = seq;
+                //                prevSender = sender;
+                //            }
+                //        }
+                //    }
+                //});
+
+                /*summary dc*/
+                //var totalrow = Math.ceil(parseFloat(Object.keys(summaries).length / 5));
+
+                //var keys = Object.keys(summaries);
+                //console.log(keys);
+                //keys.sort();
+                //var content = "";
+                //var idx = 0;
+                //for (var row = 0; row <= totalrow; row++) {
+                //    content += "<tr>";
+                //    for (var col = 0; col <= 5; col++) {
+                //        var key = keys[idx] === undefined ? '' : keys[idx];
+                //        var total = summaries[key] === undefined ? '' : summaries[key];
+                //        content += "<td class='summaryTitle' style=''>" + key + "<br/>" + total + "</td>";
+                //        //content += "<br/>";
+                //        //content += "<td class='summaryNumber'>" + total + "</td>";
+                //        idx++;
+                //    }
+                //    content += "</tr>";
+                //}
+
+                var content = "";
+                for (var i = 0; i < json.totUnit.length; i++) {
+                    if (json.totUnit[i].Total != 0)
+                        content += "<td class='summaryTitle' style=''><strong>" + json.totUnit[i].SenderIDLocation + "</strong><br/>" + json.totUnit[i].Total + "</td>";
+                }
+                content += "</tr>";
+
+                $('#tableSummary').html(content);
+            },
+            error: function (event, jqxhr, settings) {
+                console.log(event);
+                console.log(jqxhr);
+                console.log(settings);
+                bootbox.hideAll();
+                bootbox.alert(settings);
+            }
+        });
+    }
+
+    function enabledHari() {
+        $("#monday").removeClass('disabled');
+        $("#tuesday").removeClass('disabled');
+        $("#wednesday").removeClass('disabled');
+        $("#thursday").removeClass('disabled');
+        $("#friday").removeClass('disabled');
+        $("#saturday").removeClass('disabled');
+        $("#sunday").removeClass('disabled');
+    }
+
+    function editdata(stoNo) {
+        @*$.ajax({
+            url: '@Url.Action("Edit", "TransportPickingList")',
+            data: { stono : stoNo },
+            success: function (data) {
+                console.log(data);
+            },
+        });*@
+        @*window.location.href = '@Url.Action("Edit", "TransportPickingList", new { stono = "PK" })'.replace("PK", stoNo);*@
+    }
+
+    $("#monday").click(function () {
+        hari = "Monday";
+        loadDataTable();
+        enabledHari();
+        $("#monday").addClass('disabled');
+    });
+
+    $("#tuesday").click(function () {
+        hari = "Tuesday";
+        loadDataTable();
+        enabledHari();
+        $("#tuesday").addClass('disabled');
+    });
+
+    $("#wednesday").click(function () {
+        hari = "Wednesday";
+        loadDataTable();
+        enabledHari();
+        $("#wednesday").addClass('disabled');
+    });
+
+    $("#thursday").click(function () {
+        hari = "Thursday";
+        loadDataTable();
+        enabledHari();
+        $("#thursday").addClass('disabled');
+    });
+
+    $("#friday").click(function () {
+        hari = "Friday";
+        loadDataTable();
+        enabledHari();
+        $("#friday").addClass('disabled');
+    });
+
+    $("#saturday").click(function () {
+        hari = "Saturday";
+        loadDataTable();
+        enabledHari();
+        $("#saturday").addClass('disabled');
+    });
+
+    $("#sunday").click(function () {
+        hari = "Sunday";
+        loadDataTable();
+        enabledHari();
+        $("#sunday").addClass('disabled');
+    });
+
+    $("#btnPopUpUpload").click(function () {
+        $("#uploadPickingList").val("");
+        $("#uploadPickingList").jfilestyle('clear');
+        $("#btnUploadPickingList").prop("disabled", true);
+    });
+
+    $('#uploadPickingList').on('change', function (e) {
+        $("#btnUploadPickingList").prop("disabled", false);
+        //fileUpload = e.target.files;
+    });
+
+    $("#btnUploadPickingList").click(function () {
+        if ($("#uploadPickingList").val() == "") {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: "<div class='text-left'><img src='assets/images/danger.png' alt=''> Please select file first!</div>",
+                backdrop: true
+            });
+        }
+        else{
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait, the data is being uploaded... </div>',
+                closeButton: false
+            });
+            /*var data = new FormData();
+            for (var x = 0; x < fileUpload.length; x++) {
+                data.append("fileUpload", fileUpload[x]);
+            }*/
+            //var data = $("#uploadPickingList").get(0).files[0];
+            var data = new FormData();
+            var fileUpload = $("#uploadPickingList").get(0).files;
+            if (fileUpload.length > 0) {
+                data.append('fileUpload', fileUpload[0]);
+            }
+            //console.log(data);
+            $(this).prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UploadPickingList", "TransportPickingList")',
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: data,
+                success: function (data) {
+                    //console.log(data);
+                    if (data.length == 0) {
+                        dialog.modal('hide');
+                        $("#modalUploadPickingList").modal('hide');
+                        $("#textModalSucess").html("");
+                        $("#textModalSucess").html("Your data has been successfully saved");
+                        $('#modalsuccess').modal('show');
+                        $("#modalUploadPickingList").modal('hide');
+                        //searchData();
+                        advancedSearch();
+                        getUploadedByData();
+                        $('.bootbox').modal("hide");
+                    }
+                    else {
+                        dialog.modal('hide');
+                        var txtError = "<strong><u> Cannot proceed data :</u></strong></br><ul>";
+                        for (var i = 0; i < data.length; i++) {
+                            txtError += "<li>" + data[i].toString() + "</li>";
+                        }
+                        txtError += "</ul></br> <strong>Please Contact Admin</strong>";
+                        $("#modalUploadPickingList").modal('hide');
+                        $("#textModalError").html("");
+                        $("#textModalError").append(txtError);
+                        $('#modalerror').modal('show');
+                        $('.bootbox').modal("hide");
+                    }
+                    //ResetPopUpUpload();
+                },
+                error: function () {
+                    dialog.modal('hide');
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Failed!</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#btnLog', function () {
+        var s = moment();
+        $("#LogDateFrom").val(moment(s).format("DD/MM/YYYY").toString());
+        $("#LogDateTo").val(moment(s).format("DD/MM/YYYY").toString());
+
+        generateListBatch();
+        //searchData();
+        $('#dtLogPickingList').DataTable().clear().draw();
+        var table = $('#dtLogPickingList').DataTable({
+            'destroy': true,
+            'paging': true,
+            'searching': true,
+            'iDisplayLength': 25,
+            "dom": 'lf<"table-overflow"t>ip'
+        });
+
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+        // Setup - add a text input to each footer cell
+        $('#dtLogPickingList thead.filters th').each(function (index) {
+            if (index >= 2 && index <= 7) {
+                if (index == 2) { mx = '10'; } else { mx = ''; }
+                var title = $('#dtLogPickingList thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" maxlength="' + mx + '" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        //searching with column on datatable
+        table.columns().every(function (index) {
+            if (index >= 2 && index <= 7) {
+                $('#dtLogPickingList thead.filters th:eq(' + index + ') input').on('input', function () {
+                    table.column($(this).parent().index() + ':visible')
+                        .search(this.value)
+                        .draw();
+                });
+            }
+        });
+
+
+        $("#btnLogDelete").prop('disabled', true);
+    });
+
+    $(document).on('click', '#btnLogSearch', function () {
+        if ($("#DrpDownLogBatch").val() == null) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Batch must be selected");
+            $('#modalwarning').modal('show');
+            $("#btnLogDelete").prop("disabled", true);
+            return false;
+        }
+        else {
+            searchData();
+            $("#btnLogDelete").prop("disabled", false);
+        }
+    });
+
+    $(document).on('click', '#btnLogDelete', function () {
+        if ($("#DrpDownLogBatch").val() == null) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Batch must be selected");
+            $('#modalwarning').modal('show');
+
+            return false;
+        }
+        else {
+            bootbox.confirm({
+                title: "TOM Notification Center",
+                message: "Are you sure you want to delete this batch?",
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if(result){
+                        deleteData();
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#btnExportReport', function () {
+        $("#chkExportPickingListRawData").prop('checked', false);
+        $("#chkExportPickingListForm").prop('checked', false);
+        $("#btnExport").prop('disabled', true);
+    });
+
+    var exportSelected = "";
+    $(document).on('click', '#chkExportPickingListRawData', function () {
+        $("#btnExport").prop('disabled', false);
+        @*$("#exportLink").attr('href', '@Url.Action("ExportRawData")');*@
+        exportSelected = "RD";
+    });
+
+    $(document).on('click', '#chkExportPickingListForm', function () {
+        $("#btnExport").prop('disabled', false);
+        @*$("#exportLink").attr('href', '@Url.Action("ExportPickingListForm")');*@
+        exportSelected = "LF";
+    });
+
+    $(document).on('click', '#exportLink', function () {
+        filter.weekFilter = $("#FilterWeek").val();
+        filter.yearFilter = $("#FilteYear").val();
+        filter.zoneFilter = $("#FilterZone").val();
+        filter.stoNoListFilter = $("#FilterSTONumber").val();
+        filter.senderIdLocListFilter = $("#FilterSender").val();
+        filter.receiverIdLocListFilter = $("#FilterReceiver").val();
+        filter.uploadedByFilter = $("#FilterUploadedBy").val();
+
+        var Url = "";
+        if (exportSelected == "RD") {
+            Url = '@Url.Action("ExportRawData")';
+        }
+        if (exportSelected == "LF") {
+            Url = '@Url.Action("ExportPickingListForm")'
+        }
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: Url,
+            cache: false,
+            data: { criteria: filter },
+            success: function (result) {
+                dialog.modal("hide");
+                if (result)
+                    window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                else {
+                    $("#textModalError").html("Failed to generate export data!");
+                    $('#modalerror').modal('show');
+                }
+            },
+            error: function () {
+                dialog.modal("hide");
+            }
+        });
+    });
+
+    /*
+    $(document).on('click', '#btnExportPickingList', function () {
+        if ($("#chkExportPickingListRawData").prop('checked') == false && $("#chkExportPickingListForm").prop('checked') == false)
+        {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Please select one of the existing options");
+            $('#modalwarning').modal('show');
+        }
+        else {
+            if ($("#chkExportPickingListRawData").prop('checked') == true) {
+                $('#modalloading').modal('show'); exportRawData(); }
+            else if ($("#chkExportPickingListForm").prop('checked') == true) {
+                $('#modalloading').modal('show'); exportListForm(); }
+        }
+    });
+    */
+
+    $('#LogDateFrom').on('dp.change', function (e) {
+        var s = moment();
+        var d = new Date(s);
+        var d = parseInt(moment(d).format("YYYYMMDD").toString());
+
+        var f = $(this).val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = parseInt(moment(f).format("YYYYMMDD").toString());
+
+        var t = $("#LogDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = parseInt(moment(t).format("YYYYMMDD").toString());
+
+        if (f > d) {
+            if(f > t){
+                $("#LogDateTo").val($(this).val());
+            }
+        }
+        else {
+            $(this).val(moment(s).format("DD/MM/YYYY").toString());
+        }
+
+        generateListBatch();
+    });
+
+    $('#LogDateTo').on('dp.change', function (e) {
+        var s = moment();
+
+        var d = new Date(s);
+        var d = parseInt(moment(d).format("YYYYMMDD").toString());
+
+        var t = $("#LogDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = parseInt(moment(t).format("YYYYMMDD").toString());
+
+        var f = $("#LogDateFrom").val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = parseInt(moment(f).format("YYYYMMDD").toString());
+
+        if (f > t) {
+            $("#labelCheck").html("");
+            $("#labelCheck").html("Shipment Date To Must be Greater than Shipment Date From");
+            $('#modalwarning').modal('show');
+            $("#LogDateTo").val($("#LogDateFrom").val());
+        }
+        else {
+            if (t >= d) {
+                generateListBatch();
+            }
+            if (t < d) {
+                $("#LogDateTo").val(moment(s).format("DD/MM/YYYY").toString());
+            }
+        }
+    });
+
+    $("#DrpDownLogBatch").change(function () {
+        $("#btnLogDelete").prop("disabled", true);
+    });
+
+    function generateListBatch() {
+        var f = $("#LogDateFrom").val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = moment(f).format("YYYY, MM, DD").toString();
+
+        var t = $("#LogDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = moment(t).format("YYYY, MM, DD").toString();
+        //$("#dtLogPickingList").DataTable().clear();
+        $.ajax({
+            url: '@Url.Action("GetBatchDate", "TransportPickingList")',
+            dataType: 'json',
+            //cache: false,
+            data: { tfrom: f, tto: t },
+            success: function (data) {
+                //console.log("batch date");
+                //console.log(data);
+                $("#btnLogDelete").prop('disabled', true);
+                $('#DrpDownLogBatch').html('');
+                if(data.length > 0){
+                    $.each(data, function (key, val) {
+                        var tgl = moment(val.CreatedDate).format("DD/MM/YYYY HH:mm:ss");
+                        $('#DrpDownLogBatch').append('<option value="' + moment(val.CreatedDate).format("DD/MM/YYYY HH:mm") + '-' + val.CreatedBy + '">' + tgl + ' - ' + val.CreatedBy + '</option>');
+                    });
+                }
+                //searchData();
+            }
+        });
+
+
+        //$('.dataTables_filter input').attr("placeholder", "Search Here");
+        //$('#dtFilterMaster thead.filters th').each(function (index) {
+        //    if ((index >= 2) && (index < 8)) {
+        //        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+        //        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+        //    }
+        //});
+        //table.columns().every(function (index) {
+        //    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+        //        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+        //    });
+        //});
+    }
+
+    function searchData() {
+        $('#modalloading').modal('show');
+        var f = $("#LogDateFrom").val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = moment(f).format("YYYY, MM, DD").toString();
+
+        var t = $("#LogDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = moment(t).format("YYYY, MM, DD").toString();
+        //console.log("batch " + $("#DrpDownLogBatch").val());
+        if ($("#DrpDownLogBatch").val() != undefined && $("#DrpDownLogBatch").val() != null) {
+            var b = $("#DrpDownLogBatch").val().split("-")[0];
+            //console.log(b.split("/"));
+            var b = new Date(b.split("/")[1] + '/' + b.split("/")[0] + '/' + b.split("/")[2]);
+            //console.log("2"+b);
+            var b = moment(b).format("YYYY, MM, DD HH:mm:ss").toString();
+            //console.log("3"+b);
+            var u = $("#DrpDownLogBatch").val().split("-")[1];
+        } else {
+            var b = new Date();
+            var b = moment(b).format("YYYY, MM, DD HH:mm:ss").toString();
+            var u = "";
+        }
+
+        //console.log(b);
+
+        $.ajax({
+            url: '@Url.Action("SearchBatchData", "TransportPickingList")',
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            data: { tbtc: b, usr: u, tfrom: f, tto: t },
+            success: function (data) {
+                var table = $('#dtLogPickingList').DataTable({
+                    'destroy': true,
+                    'data': data,
+                    'paging': true,
+                    'searching': true,
+                    'iDisplayLength': 25,
+                    aaSorting: [[1, 'asc']],
+                    columns: [
+                        { 'data': 'IDTransportOrder', 'class': 'hidden' },
+                        {
+                            'data': 'IsActive', 'class': 'text-center', 'render': function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                }
+                                else {
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                                }
+                            }, 'sortable': false
+                        },
+                        //{ 'data': 'STONo', 'searchable': true, 'sortable': false },
+                        {
+                            'data': 'STONo', 'render': function (data) {
+                                if (data == null) {
+                                    return '';
+                                }
+                                else {
+                                    return data;
+                                }
+                            }, 'searchable': true, 'sortable': false
+                        },
+                        {
+                            render: function (data, type, row) {
+                                var date = new Date(parseInt(row['ShipmentDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                    ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                    ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                    date.getMinutes();
+                                var jamtanggal = moment(row['ShipmentDate']).format("DD MMM YYYY");
+
+                                return jamtanggal;
+                            }, 'sortable': false
+                        },
+                        { 'data': 'SenderIDLocation', 'searchable': true, 'sortable': false },
+                        { 'data': 'ReceiverIDLocation', 'searchable': true, 'sortable': false },
+                        { 'data': 'ZoneBased', 'searchable': true, 'sortable': false },
+                        {
+                            'data': 'SeqNo', "render": function (data, type, row, meta) {
+                                return row["SeqNo"] == null ? row["DefaultSeqNo"] : row["SeqNo"];
+                            }, 'sortable': false
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                // Setup - add a text input to each footer cell
+                $('#dtLogPickingList thead.filters th').each(function (index) {
+                    if (index >= 2 && index <= 7) {
+                        if (index == 2) { mx = '10'; } else { mx = ''; }
+                        var title = $('#dtLogPickingList thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" maxlength="' + mx + '" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    if (index >= 2 && index <= 7) {
+                        $('#dtLogPickingList thead.filters th:eq(' + index + ') input').on('input', function () {
+                            table.column($(this).parent().index() + ':visible')
+                                .search(this.value)
+                                .draw();
+                        });
+                    }
+                });
+
+                $('#modalloading').modal('hide');
+            }
+        });
+    }
+
+    function deleteData() {
+        $('#modalloading').modal('show');
+
+        var f = $("#LogDateFrom").val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = moment(f).format("YYYY, MM, DD").toString();
+
+        var t = $("#LogDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = moment(t).format("YYYY, MM, DD").toString();
+
+        var b = $("#DrpDownLogBatch").val().split("-")[0];
+        var b = new Date(b.split("/")[1] + '/' + b.split("/")[0] + '/' + b.split("/")[2]);
+        var b = moment(b).format("YYYY, MM, DD HH:mm").toString();
+        //console.log("date = "+b);
+        var u = $("#DrpDownLogBatch").val().split("-")[1];
+
+        $.ajax({
+            url: '@Url.Action("DeleteBatchData", "TransportPickingList")',
+            method: 'POST',
+            data: { tbtc: b, usr: u, tfrom: f, tto: t },
+            success: function (result) {
+                $('#modalloading').modal('hide');
+                if (result == "") {
+                    $('#modalLog').modal('hide');
+                    generateListBatch();
+                    advancedSearch();
+                }
+                else {
+                    $("#textModalError").html(result);
+                    //$("#textModalError").html("Sorry your connection might be lost");
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+
+    function exportRawData() {
+        $.post({
+            url: '@Url.Action("ExportRawData", "TransportPickingList")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                $('#modalloading').modal('hide');
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+            }
+        });
+    }
+    function exportListForm() {
+        $.ajax({
+            url: '@Url.Action("ExportPickingListForm", "TransportPickingList")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                $('#modalloading').modal('hide');
+                if (result)
+                    window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                else {
+                    $("#textModalError").html("Failed to generate export data!");
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    }
+
+    $('#GenerateSAPDateFrom').on('dp.change', function (e) {
+        var f = $(this).val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = parseInt(moment(f).format("YYYYMMDD").toString());
+
+        var t = $("#GenerateSAPDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = parseInt(moment(t).format("YYYYMMDD").toString());
+
+        if (f > t) {
+            $("#GenerateSAPDateTo").val($(this).val());
+        }
+    });
+
+    $('#GenerateSAPDateTo').on('blur', function (e) {
+        var t = $("#GenerateSAPDateTo").val();
+        var t = new Date(t.split("/")[1] + '/' + t.split("/")[0] + '/' + t.split("/")[2]);
+        var t = parseInt(moment(t).format("YYYYMMDD").toString());
+
+        var f = $("#GenerateSAPDateFrom").val();
+        var f = new Date(f.split("/")[1] + '/' + f.split("/")[0] + '/' + f.split("/")[2]);
+        var f = parseInt(moment(f).format("YYYYMMDD").toString());
+
+        if (f > t) {
+            //$("#labelCheck").html("");
+            //$("#labelCheck").html("<strong>Date To</strong> Must be Greater than <strong>Date From</strong>");
+            //$('#modalwarning').modal('show');
+            $("#GenerateSAPDateTo").val($("#GenerateSAPDateFrom").val());
+        }
+    });
+
+    $("#btnGenerateSAPFile").click(function () {
+        var fromDate = $("#GenerateSAPDateFrom").val();
+        var toDate = $("#GenerateSAPDateTo").val();
+        var StruploadedBy = $("#GenerateSAPUploadedBy").val();
+        //console.log("fromDate:" + fromDate);
+        //console.log("toDate:" + toDate);
+        //console.log("ub:" + StruploadedBy);
+        if (fromDate == '' || toDate == '') {
+            $("#textModalError").html("");
+            $("#textModalError").html("Shipment date must be filled");
+            $('#modalerror').modal('show');
+            return;
+        }
+        DateFrom = $('#GenerateSAPDateFrom').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        DateTo = $('#GenerateSAPDateTo').val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Generating SAP File...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: '@Url.Action("GenerateSAPFile", "TransportPickingList")',
+            method: 'post',
+            data: {
+                "DateFrom": DateFrom,
+                "DateTo": DateTo,
+                "DocDate": moment(new Date()).format("DD/MM/YYYY").replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+                "uploadedBy": StruploadedBy
+            },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                window.location.assign('@Url.Content("~/Assets/Download/")' + result);
+                dialog.modal('hide');
+            }
+        });
+    });
+
+    $("#btnEmail").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Sending email...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: '@Url.Action("SendEmail", "TransportPickingList")',
+            method: 'get',
+            success: function (result) {
+                if (result == "true") {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='modal-body'><img src='assets/images/checked.png' alt=''><span>Email sent</span></div>",
+                        backdrop: true
+                    });
+                }
+                else {
+                    bootbox.alert({
+                        title: "TOM Notification Center",
+                        message: "<div class='modal-body'><img src='assets/images/cancel.png' alt=''><span> Error while sending email. See console log for more info.</span></div>",
+                        backdrop: true
+                    });
+                }
+                dialog.modal('hide');
+            }
+        });
+    });
+</script>

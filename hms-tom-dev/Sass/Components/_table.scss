@@ -1,0 +1,203 @@
+// table
+
+.table-overflow-outer{
+    overflow: auto;
+	border-bottom: 1px solid $lightGray;
+    margin: 0 0 20px 0;
+    .table{
+    	overflow: hidden;
+    	margin: 0;
+		@include border-radius(5px);
+    	thead{
+    		tr{
+    			th{
+    				background-color: $gray3;
+    				border: none;
+    				color: $main;
+    				font-size: 13px;
+					padding: 10px 15px;
+					background-position: center right 10px;
+					border-bottom: 1px solid $lightGray;
+					vertical-align: middle;
+					.checkbox-deck label{
+						border-color: $second;
+					}
+    			}
+    		}
+    		tr.filter-row{
+    			th{
+    				background-color: $gray4;
+    				font-weight: normal;
+    			}
+    		}
+    	}
+    	tbody{
+    		tr{
+    			td{
+    				color: $main;
+    				font-size: 13px;
+					padding: 10px 15px;
+					vertical-align: middle;
+					border-top: none;
+					.checkbox-deck label{
+						border-color: $second;
+					}
+    			}
+    		}
+    	}
+    }
+}
+
+.table-deck-head{
+	float: left;
+	width: 100%;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid rgba(76, 88, 105, 0.1);
+	h5{
+		font-family: $b;
+		font-size: 15px;
+   		margin: 8px 0 0 0;
+		float: left;
+	}	
+	.button-wrap{
+		float: right;
+		.btn + .btn{
+			margin-left: 5px;
+		}
+	}
+}
+
+.dataTables_wrapper{
+	.dataTables_length{
+		label{
+			font-weight: normal;
+			font-family: $r;
+			color: rgba(128, 142, 167, 0.6);
+			select{
+				margin: 0 5px;
+				appearance: none;
+				-webkit-appearance: none;
+				background: url('../images/sort_both.png') no-repeat transparent center right;
+				color: $second;
+				outline: none !important;
+				border: none;
+				padding-right: 5px;
+			}
+		}
+	}
+	.dataTables_filter{
+		label{
+			font-size: 0px;
+			input{
+				font-size: 14px;
+				border: none;
+				box-shadow: none;
+				font-weight: normal;
+				font-family: $r;
+				outline: none !important;
+				padding-right: 20px;
+				text-align: right;
+				margin: 0;
+				color: $second;
+				background: url('../images/search-blue.png') no-repeat transparent center right;
+			}
+		}
+	}
+	.table-overflow{
+	    float: left;
+	    width: 100%;
+	    overflow: auto;
+	    margin: 20px 0;
+	    .table{
+	    	overflow: hidden;
+			border-bottom: 1px solid $lightGray;
+			@include border-radius(5px);
+	    	thead{
+	    		tr{
+	    			th{
+	    				background-color: $gray3;
+	    				border: none;
+	    				color: $main;
+	    				font-size: 13px;
+    					padding: 10px 15px;
+    					background-position: center right 10px;
+    					border-bottom: 1px solid $lightGray;
+    					vertical-align: middle;
+    					.checkbox-deck label{
+    						border-color: $second;
+    					}
+	    			}
+	    		}
+	    		tr.filter-row{
+	    			th{
+	    				background-color: $gray4;
+    					font-weight: normal;
+	    			}
+	    		}
+	    	}
+	    	tbody{
+	    		tr{
+	    			td{
+	    				color: $main;
+	    				font-size: 13px;
+    					padding: 10px 15px;
+    					vertical-align: middle;
+    					border-top: none;
+    					border-bottom: 1px solid $lightGray;
+    					.checkbox-deck label{
+    						border-color: $second;
+    					}
+	    			}
+	    		}
+	    	}
+	    }
+	}
+	.dataTables_paginate{
+		float: left;
+		text-align: left;
+		padding-top: 0px;
+		.paginate_button{
+			font-size: 14px;
+			padding: 5px 10px;
+			border: none;
+			color: $main !important;
+			box-shadow: none !important;
+			@include border-radius(4px);
+			&:hover, &:focus{
+				color: $wt !important;
+				background-color: $blue;
+				background-image: none;
+				border: none;
+			}
+			&.current{
+				color: $wt !important;
+				background-color: $blue;
+				background-image: none;
+				border: none;
+				&:hover, &:focus{
+					color: $wt !important;
+					background-color: $blue;
+					background-image: none;
+					border: none;
+					@include border-radius(4px);
+				}
+			}
+			&.previous{
+				margin-left: 0px;
+				padding-left: 0px;
+			}
+			&.previous, &.next{
+				&:hover, &:focus{
+					color: $main !important;
+					background-color: transparent;
+				}
+			}
+		}
+	}
+	.dataTables_info{
+		float: right;
+		color: $main;
+		padding-top: 0px;
+	}
+}

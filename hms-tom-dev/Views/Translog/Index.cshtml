@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "Log";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="title-deck wborder">
+    <h4 class="title-page pull-left">@ViewBag.Title</h4>
+</div>
+<table id="dtLog" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" name="" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th hidden>IdLog</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Remark</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th hidden>IdLog</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Remark</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+</table>
+
+<script type="text/javascript">
+    // page   : TransLog
+    // author : Sidiq
+    // ticket :
+    // date   : 2017-08-14
+
+    $(document).ready(function () {
+        // BEGIN : JQUERY SELECT TO DataTable
+        //call generate table
+        generateTable();
+    });
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'Translog/GetLog',
+            method: 'get',
+            data: {
+                "ctr": location.pathname.substring(1, location.pathname.length)
+            },
+            dataType: 'json',
+            success: function (data) {
+                var table = $('#dtLog').DataTable({
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    columns: [
+                        { 'data': 'null', 'defaultContent': '<td text-center><div class="checkbox-deck"><input type="checkbox" name="" id="check1"><label for="check1"></label></div></td>' },
+                        { 'data': 'IdLog', 'searchable': false, 'visible': false },
+                        { 'data': 'UserName', 'searchable': true },
+                        { 'data': 'Action', 'searchable': true },
+                        { 'data': 'Remark', 'searchable': true },
+                        {
+                            "data": "CreatedDate", "type": "date ",
+                            "render": function (value) {
+                                if (value === null) return "";
+
+                                var pattern = /Date\(([^)]+)\)/;
+                                var results = pattern.exec(value);
+                                var dt = new Date(parseFloat(results[1]));
+
+                                return dt.getDate() + " " + getMonth((dt.getMonth() + 1)) + " " + dt.getFullYear() + " " + dt.getHours() + ":" + dt.getMinutes();
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtLog thead.filters th').each(function (index) {
+                    if ((index > 1) && (index < 6)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtLog  thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function getMonth(month) {
+        if (month == 1)
+            return 'Jan';
+        if (month == 2)
+            return 'Feb';
+        if (month == 3)
+            return 'Mrt';
+        if (month == 4)
+            return 'Apr';
+        if (month == 5)
+            return 'Mei';
+        if (month == 6)
+            return 'Jun';
+        if (month == 7)
+            return 'Jul';
+        if (month == 8)
+            return 'Ags';
+        if (month == 9)
+            return 'Sep';
+        if (month == 10)
+            return 'Okt';
+        if (month == 11)
+            return 'Nov';
+        if (month == 12)
+            return 'Des';
+    }
+    // END : JQUERY SELECT TO DataTable
+</script>
+
+
+

@@ -1,0 +1,152 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime PrintedDate = Model.CreatedDate;
+    hms_tom_dev.Models.WarehouseStockCountListViewModel scm = new hms_tom_dev.Models.WarehouseStockCountListViewModel();
+    int TotalPage = (int)Math.Ceiling((decimal)Model.WarehouseStockCountDetails.Count / (decimal)scm.MAX_ROW_PER_PAGE_FORM_MANUAL);
+    int StartIndex = 0;
+    int rowNumber = 0;
+    int LastRecNoPerPage = 0;
+}
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/ReportStockCount.css")" media="screen">
+
+<script src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .table thead tr th {
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .contentAlign {
+        text-align: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .table_row {
+        height: 50px;
+    }
+
+    .table tbody tr td
+    {
+        font-size: 18px;
+    }
+</style>
+
+<body class="report-page watermarks">
+    <main>
+        @for (int j = 1; j <= TotalPage; j++)
+        {
+            var rows = Model.WarehouseStockCountDetails.Skip(StartIndex).Take(scm.MAX_ROW_PER_PAGE_FORM_MANUAL).ToList();
+            LastRecNoPerPage = rows.Count;
+            <div style="float:right; @(j > 1 ? "padding-top:15px;" : "")" class="numbering"></div>
+            <h3 class="title noline" style="@(j > 1 ? "padding-top:30px;" : "")"><b> FORM MANUAL STOCK COUNT </b></h3>
+
+            <ul class="col-data">
+                <li><label>Date</label><span>: <b>@Model.TransDate.ToString("dd-MMM-yyyy")</b></span></li>
+                <li><label>Warehouse</label><span>: <b>@Model.WarehouseName</b></span></li>
+            </ul>
+
+            <ul class="col-data">
+                <li><label>Distribution Asistant</label><span>: </span></li>
+                <li><label>Shift</label><span>: <b>@Model.Shift</b></span></li>
+            </ul>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Brand</th>
+                        <th>Batch</th>
+                        <th>Jumlah Pallet</th>
+                        <th>Isi Per Pallet</th>
+                        <th>Recehan</th>
+                        <th>Total (Box)</th>
+                        <th>Total (Pack)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in rows)
+                    {
+                        //var row = Model.WarehouseStockCountDetails.ElementAt(i);
+                        rowNumber += 1;
+                        <tr class="table_row">
+                            <td class="contentAlign">@(Html.Raw(String.IsNullOrEmpty(row.Brand) ? "&nbsp" : "" + rowNumber))</td>
+                            <td class="contentAlign">@row.Brand</td>
+                            <td class="contentAlign">@row.Batch</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            StartIndex += scm.MAX_ROW_PER_PAGE_FORM_MANUAL;
+
+            if (j < TotalPage)
+            {
+                <div style="page-break-after: always"></div>
+            }
+        }
+
+        @if (LastRecNoPerPage > (scm.MAX_ROW_PER_PAGE_FORM_MANUAL - 5))
+        {
+            <div style="float:right; padding-top:5px; page-break-before:always;" class="numbering"></div>
+        }
+
+        <div class="signature">
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>Helper / Admin Area</p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>DA / Admin Area</p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>Regional Team</p>
+            </div>
+
+            <div class="sign text-center" style="float:right">
+                <p>DA/Helper/Admin</p>
+                <p class="name">(______________)</p>
+            </div>
+        </div>
+        <hr class="bold" />
+        <p class="printed printedby">Printed by : @Model.UserName on @PrintedDate.ToString("dd-MMM-yyyy HH:mm")</p>
+    </main>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var total_page = $('.numbering').length;
+        var no = 1;
+        $('.numbering').each(function (e) {
+            $(this).html(no + ' of ' + total_page);
+            no++;
+        });
+    });
+</script>

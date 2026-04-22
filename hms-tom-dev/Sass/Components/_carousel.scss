@@ -1,0 +1,29 @@
+// carousel
+
+.carousel.warehouse{
+	.item{
+		height: 300px;
+		overflow: hidden;
+		@include border-radius(5px);
+		.item-wrap{
+			position: relative;
+			width: 100%;
+			height: 100%;
+			.bg-image{
+				width: 100%;
+				height: 100%;
+				background-size: cover;
+				background-position: center center;
+			}
+			.tags{
+				position: absolute;
+				left: 30px;
+				top: 20px;
+				background-color: $blue;
+				color: $wt;
+				padding: 5px 10px;
+				font-size: 14px;
+			}
+		}
+	}
+}

@@ -1,0 +1,142 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > e-Transport Barcode Generator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    const byte MAX_INPUT_TRANSPORT_CARD = 9;
+}
+<style>
+    .col-sm-1
+    {
+        width: 1%;
+    }
+
+    .input-barcode
+    {
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .separator
+    {
+        width: 2px;
+        padding-left: 0px;
+        padding-right: 0px; 
+        margin-top: 8px; 
+    }
+</style>
+
+<div class="title-deck wmb">
+    <button class="btn btn-primary" type="button" id="btnGenerate">Generate</button>
+    <button class="btn btn-primary" type="button" id="btnPrint" style="display:none">Print</button>
+</div>
+
+<div class="col-md-12">
+    @for (var i = 1; i <= MAX_INPUT_TRANSPORT_CARD; i++)
+    {
+        <div class="row" style="margin-bottom: 5px;">
+            <div class="col-sm-1">
+                <label>@i</label>
+            </div>
+            <div class="col-md-1">
+                <input type="input" style="width:60px;" class="form-control input-barcode" id="barcode_format_1_@i" maxlength="2" placeholder="L">
+            </div>
+            <div class="col-md-1 separator" style="">
+                -
+            </div>
+            <div class="col-md-2">
+                <input type="input" style="" class="form-control input-barcode" id="barcode_format_2_@i" min="0" maxlength="4" placeholder="7789">
+            </div>
+            <div class="col-md-1 separator" style="">
+                -
+            </div>
+            <div class="col-md-1">
+                <input type="input" style="width:60px;" class="form-control input-barcode" id="barcode_format_3_@i" maxlength="3" placeholder="US">
+            </div>
+            <div class="col-md-4">
+                <img src="" id="preview_barcode_@i" class="preview_barcode" style="width: 200px; height: 35px; display:none">
+            </div>
+        </div>
+    }
+</div>
+
+<!--
+<div class="col-md-6">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="" id="previewBarcode" style="width: 400px; height: 250px; display:none;">
+        </div>
+    </div>
+</div>
+-->
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        var stringCode = '';
+        $('#btnPrint').on('click', function () {
+            var urlDownloadPdf = '@Url.Action("downloadETransportCardPdf")' + "?codes=" + stringCode;
+            window.location.href = urlDownloadPdf;
+        });
+
+        $('#btnGenerate').on("click", function () {
+            var codes = [];
+            var is_not_empty = false;
+            stringCode = '';
+
+            for (var i = 1; i <= @MAX_INPUT_TRANSPORT_CARD; i++)
+            {
+                var code = $('#barcode_format_1_' + i).val() + ' ' + $('#barcode_format_2_' + i).val() + ' ' + $('#barcode_format_3_' + i).val();
+                if ($.trim(code) != '' && !is_not_empty) is_not_empty = true;
+                codes.push(code);
+                stringCode += '|' + code;
+            }
+            stringCode = stringCode.substr(1, stringCode.length);
+
+            if (!is_not_empty)
+            {
+                bootbox.alert("Please fill transport card number (min. 1).");
+                return;
+            }
+
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            $.ajax({
+                beforeSend: function () {
+                    
+                },
+                complete: function () {
+                    
+                },
+                type: "POST",
+                url: '@Url.Action("GenerateBarcode")',
+                datatype: "json",
+                traditional: true,
+                data: { 'codes': codes },
+                success: function (res) {
+                    if (res.length > 0)
+                    {
+                        $('.preview_barcode').css('display', 'none');
+                        var is_has_data = false;
+                        for (var i = 0; i < res.length; i++)
+                        {
+                            var base64String = "data:image/png;base64," + res[i];
+                            if (res[i] != '')
+                            {
+                                $('#preview_barcode_' + (i + 1)).css('display', 'inline');
+                                is_has_data = true;
+                            }
+                            $('#preview_barcode_' + (i+1)).attr('src', base64String);
+                        }
+
+                        if (is_has_data) $('#btnPrint').show();
+                    }
+                    dialog.modal("hide");
+                }
+            });
+        });
+    });
+</script>

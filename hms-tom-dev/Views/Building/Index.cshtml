@@ -1,0 +1,1364 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "General > Building & Facility > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button class="btn btn-primary" onclick=" window.location.href = 'buildingDetail' ">Add New</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+        {
+            <button class="btn btn-primary" id="btnSetInactive" type="button" onclick=" SetIsActive('Delete') ">Delete</button>
+        }
+        
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="exportButton">Export</button>
+        }
+        
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        }
+        
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)))
+        {
+            <button class="btn btn-primary" id="btnSetActive" type="button" onclick="SetIsActive('Recovery')">Recovery</button>
+        }
+        
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.PrintProfile)))
+        {
+            <button class="btn btn-primary" id="btnPrintDoc">Print Profile</button>
+        }
+        
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.RegionalMapView)))
+        {
+            <button class="btn btn-primary button-collapse" data-toggle="collapse" href="#mapwrap" aria-expanded="true" aria-controls="mapwrap">Regional Map View</button>
+        }
+        
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Warehouse Name</label>
+                        <select id="warehouseSearch" class="select2" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input id="addressSearch" type="text" name="" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Warehouse Status</label>
+                        <select class="form-control" id="status">
+                            <option value=""></option>
+                            <option value="Owned">Owned</option>
+                            <option value="Rent">Rent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Regional</label>
+                        <select id="regionalSearch" class="select2" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" name="" id="expiration">
+                            <label for="expiration"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Close to expiration (&#60; 12 months)</span>
+                    </div>
+                </div>
+                @*<div class="col-md-4">
+                    <div class="form-group">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" name="" id="chkInactive">
+                            <label for="chkInactive"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Include deleted data</span>
+                    </div>
+                </div>*@
+                @if (isSuperUser)
+                {
+                    <div class="clearfix"></div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+
+                            <label for="input-type">Status</label>
+                            <div id="input-type" class="row">
+                                <div class="col-sm-2">
+                                    <label class="radio-inline">
+                                        <input name="isIncludeActive" id="all" value="1" type="radio" />All
+                                    </label>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label class="radio-inline">
+                                        <input name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-md-12">
+                    <input type="button" class="btn btn-primary" onclick="search()" value="Search" />
+                    <input type="button" class="btn btn-purple" onclick="refresh()" value="Reset" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- map deck -->
+<div class="map-deck nmt">
+    <div id="mapwrap" class="collapse" role="tabpanel" aria-labelledby="mapwrap">
+        <div id="map" class="wmb"></div>
+        <div class="map-detail">
+            <a href="javascript:void(0)" class="close-map-detail"><img src="assets/images/close.png" alt=""></a>
+            <h3>DC Surabaya Berbek</h3>
+            <h5>Distribution Center</h5>
+            <hr />
+            <h5 class="text-uppercase">ADDRESS</h5>
+            <p>
+                Jl. Berbek No, 234, Surabaya<br />
+                6.9175° S, 107.6191° E
+            </p>
+            <h5 class="text-uppercase">Warehouse status</h5>
+            <p>
+                Owned
+            </p>
+            <hr />
+            <ul class="gallery">
+                <li><div class="img-deck"><img src="assets/images/building.jpg" alt=""></div></li>
+                <li><div class="img-deck"><img src="assets/images/building2.jpg" alt=""></div></li>
+                <li><div class="img-deck"><img src="assets/images/building3.jpg" alt=""></div></li>
+                <li><div class="img-deck"><img src="assets/images/building.jpg" alt=""></div></li>
+                <li><div class="img-deck"><img src="assets/images/building2.jpg" alt=""></div></li>
+                <li><div class="img-deck"><img src="assets/images/building3.jpg" alt=""></div></li>
+            </ul>
+            <button class="btn btn-transparent big" onclick="window.location.href='general-building-detail.html'">See the detail</button>
+            <button class="btn btn-white big" onclick="window.location.href='general-interactive-map.html'">Go to interactive map</button>
+        </div>
+    </div>
+</div>
+
+<div id="dataTable"></div>
+
+<div class="modal fade" id="customReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body custom-report">
+                <div class="row label-top">
+                    <div class="col-md-6">
+                        <label>Column Set</label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="dis">Displayed Columns</label>
+                        <select id="layoutSelect" class="form-control">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="fieldChooser" tabindex="1" class="field-chooser form-group">
+                    <div id="sourceFields" class="source">
+                        <div data-field="WarehouseID">Whs ID</div>
+                        <div data-field="WarehouseName">Whs Name</div>
+                        <div data-field="WarehouseRegional">Regional</div>
+                        <div data-field="WarehouseAddress">Address</div>
+                        <div data-field="WhsSize">Whs Size</div>
+                    </div>
+                    <div class="button-column">
+                        <div>
+                            <input class="btn btn-info mini" type="button" id="left" value="<">
+                            <input class="btn btn-info mini" type="button" id="right" value=">">
+                        </div>
+                    </div>
+                    <div id="destinationFields" class="destination"></div>
+                </div>
+                <div class="opt-bot">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="btn btn-info amr" type="button" id="rightall" value=">>">
+                            <input class="btn btn-info" type="button" id="leftall" value="<<">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn btn-info" type="button" id="saveLayoutButton" value="Save Layout">
+                            <input type="text" class="form-control" id="layoutName">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @foreach (var x in listUserRole)
+                {
+                    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+                    {
+                        <div class="form-group pull-left">
+                            <div class="checkbox-deck">
+                                <input type="checkbox" id="chkGlobalCustomReport">
+                                <label for="chkGlobalCustomReport"></label>
+                            </div>
+                            <span class="checkbox-deck-span">Global Custom Report</span>
+                        </div>
+                    }
+                }
+
+                <button class="btn btn-primary" id="exportCustomReport" onclick="exportToExcel()">Export</button>
+                <button class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Set Inactive -->
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Set Inactive Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to set inactive?
+                <div class="alert alert-success" role="alert">
+                    <strong><i class="fa fa-check"></i></strong> Your data has been successfully saved
+                </div>
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fa fa-times"></i></strong>
+                    Sorry there's no result with this keyword
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Success -->
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Error -->
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry theres no result with this keyword</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Warning -->
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="overlay-loader hide">
+    <img src="assets/images/ripple.svg" alt="">
+</div>
+
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave" onclick="ChangeIsActive()">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+
+<script>
+    $("#all").prop('checked', true);
+    var counterDd = 0;
+    var warehouseSearch = "";
+    var regionalSearch = "";
+    var tempIDBuilding = [];//buat checkbox paling kiri
+    var map;
+    var markers = [];
+    var markerWh = [];
+    var positions = [];
+    var region = [];
+    //var region = [
+    //    { region: "Sumatera 1", position: "ADW Medan 1" },
+    //    { region: "Sumatera 2", position: "ADW Pekanbaru" },
+    //    { region: "Sumatera 3", position: "ADW Palembang" },
+    //    { region: "Jakarta Inner", position: "ADW Jakarta Utara" },
+    //    { region: "Jakarta Outer", position: "DC Karawang Lot. 17" },
+    //    { region: "Java 1", position: "ADW Bandung" },
+    //    { region: "Java 2", position: "ADW Yogyakarta" },
+    //    { region: "Java 3", position: "ADW Semarang" },
+    //    { region: "Java 4", position: "ADW Sidoarjo" },
+    //    { region: "Bali Nusra", position: "ADW Denpasar" },
+    //    { region: "Kalimantan", position: "ADW Balikpapan" },
+    //    { region: "Indonesia", position: "ADW Makassar" }
+    //];
+
+    var iconBase = 'assets/images/';
+    var icon = ["marker-aspalt.png", "marker-black.png", "marker-blue.png", "marker-borange.png", "marker-brown.png", "marker-gray.png", "marker-green.png", "marker-lblue.png", "marker-lgreen.png", "marker-lpurple.png", "marker-lred.png", "marker-lturq.png", "marker-orange.png", "marker-pink.png", "marker-ppink.png", "marker-pumpkin.png", "marker-purple.png", "marker-red.png", "marker-turq.png", "marker-yellow.png"];
+
+    function initMap() {
+        // Create a map object and specify the DOM element for display.
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: -0.789275, lng: 113.921327 },
+            scrollwheel: false,
+            zoom: 5
+        });
+
+        map.addListener('zoom_changed', function () {
+            if (map.getZoom() == 5) {
+                deleteMarkersWh();
+                showMarker();
+            }
+            else {
+
+            }
+        });
+    }
+
+    function setMapOnAll(map) {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(map);
+        }
+    }
+
+    function clearMarkers() {
+        setMapOnAll(null);
+    }
+
+    function deleteMarkers() {
+        clearMarkers();
+        markers = [];
+    }
+
+    function deleteMarkersWh() {
+        clearMarkersWh();
+        markerWh = [];
+    }
+
+    function clearMarkersWh() {
+        for (var i = 0; i < markerWh.length; i++) {
+            markerWh[i].setMap(null);
+        }
+    }
+
+    function hideMarker() {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setVisible(false);
+        }
+    }
+
+    function showMarker() {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setVisible(true);
+        }
+    }
+
+    function setMarker() {
+        deleteMarkers();
+        for (var a = 0; a < region.length; a++) {
+            if (positions[region[a].position].lat * 1 != null && positions[region[a].position].lat * 1 != null && positions[region[a].position].lat * 1 != 0 || positions[region[a].position].lat * 1 != 0) {
+                var markerPos = { lat: positions[region[a].position].lat * 1, lng: positions[region[a].position].long * 1 };
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: markerPos,
+                    title: positions[region[a].position].region,
+                    region: positions[region[a].position].region,
+                    icon: iconBase + icon[a]
+                });
+
+                marker.addListener('click', function (event) {
+                    addMarkerGroup(this.region);
+                });
+
+                markers.push(marker);
+            }
+        }
+
+    }
+
+    function addMarkerGroup(region) {
+        hideMarker();
+        var latlngbounds = new google.maps.LatLngBounds();
+        var a = 0;
+        for (var key in positions) {
+            if (positions[key].lat * 1 != 0 && positions[key].long * 1 != 0 && positions[key].lat * 1 != null && positions[key].long * 1 != null) {
+                if (positions[key].region == region) {
+                    //console.log(positions[key].name + " x " + positions[key].lat * 1 + " x " + positions[key].long);
+                    var markerPos = { lat: positions[key].lat * 1, lng: positions[key].long * 1 };
+                    markerWh[a] = new google.maps.Marker({
+                        map: map,
+                        position: markerPos,
+                        title: positions[key].name,
+                        id: positions[key].id,
+                        icon: iconBase + icon[a]
+                    });
+
+                    latlngbounds.extend(markerWh[a].position);
+                    markerWh[a].addListener('click', function (event) {
+                        location.href = "buildingDetail?b=" + this.id;
+                    });
+
+                    a++;
+                }
+            }
+        }
+
+        var bounds = new google.maps.LatLngBounds();
+
+        //Center map and adjust Zoom based on the position of all markers.
+        map.setCenter(latlngbounds.getCenter());
+        map.fitBounds(latlngbounds);
+
+        //Object.size = function (obj) {
+        //    var size = 0, key;
+        //    for (key in obj) {
+        //        if (obj.hasOwnProperty(key)) size++;
+        //    }
+        //    return size;
+        //};
+
+        //for (var a = 0; a < Object.size(positions) ; a++) {
+        //    if (positions[a] == region) {
+        //        console.log(positions);
+        //        //var markerPos = { lat: positions[region[a].position].lat * 1, lng: positions[region[a].position].long * 1 };
+        //        //new google.maps.Marker({
+        //        //    map: map,
+        //        //    position: markerPos,
+        //        //    title: region[a].region,
+        //        //    icon: iconBase + 'marker-blue.png'
+        //        //});
+        //    }
+        //}
+    }
+
+    $(document).on('click', '#left', function (e) {
+        moveItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#right', function (e) {
+        moveItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#leftall', function (e) {
+        moveAllItems('#destinationFields', '#sourceFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#rightall', function (e) {
+        moveAllItems('#sourceFields', '#destinationFields');
+        e.preventDefault();
+    });
+
+    $(document).on('click', '#customReportButton', function (e) {
+        $('#chkGlobalCustomReport').prop('checked', false);
+        $("#layoutName").val('');
+        generateLayoutSelect();
+        e.preventDefault();
+    });
+
+    $(document).ready(function () {
+        // sidebar toggle
+        $('.button-collapse').on('click', function () {
+            var refresh = function () {
+                google.maps.event.trigger(map, "resize");
+                var center = new google.maps.LatLng(-0.789275, 113.921327);
+                map.setCenter(center);
+            }
+            setTimeout(refresh, 300);
+        });
+
+        // field chooser
+        $("#fieldChooser").fieldChooser($("#sourceFields"), $("#destinationFields"));
+
+        generateLayoutSelect();
+        getData();
+        generateDropDownRegional();
+    });
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function getData() {
+
+        $.ajax({
+            url: 'building/getData',
+            method: 'get',
+            dataType: 'json',
+            data: {
+                "IncludeInActive": ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null
+            },
+            cache: false,
+            success: function (respond) {
+                createTable(respond);
+                setMarker();
+            }
+        });
+    }
+
+    //function createTable(respond) {
+    //    //console.log(respond);
+    //    var warehouseSearch = "";
+    //    var data = "";
+    //    data += '<table id="dtTable" class="display table dataTable no-placeholder-filter"><thead><tr><th data-orderable="false" class="text-center"><input type="checkbox" name="" id="checkall"><label for="checkall"></label></th><th class=" text-center">Status</th><th class="id">Whs ID</th><th>Whs Name</th><th>Regional</th><th>Address</th><th>Whs Size (sqm)</th></tr></thead><thead class="filters"><tr class="filter-row"><th class="text-center">Filter</th><th class="no-search"></th><th class="id">ID</th><th>Regional</th><th>Warehouse Name</th><th>Address</th><th>Whs Size (sqm)</th></tr></thead><tbody>';
+
+    //    for (var i = 0; i < respond.length; i++) {
+    //        positions[respond[i].LocationName] = {
+    //            "lat": respond[i].Latitude,
+    //            "long": respond[i].Longitude,
+    //            "region": respond[i].ParentLocation,
+    //            "name": respond[i].LocationName
+    //        };
+
+    //        data += '<tr>';
+    //        data += '<td class="text-center"><div class="checkbox-deck"><input type="checkbox" name="" id="check' + respond[i].IDBuildingFacility + '" class="chkList" onchange="InsertTempArray()"><label for="check' + respond[i].IDBuildingFacility + '"></label></div></td>';
+    //        //console.log(respond[i].IsActive);
+    //        if (respond[i].IsActive)
+    //            data += '<td class=" text-center"><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></td>';
+    //        else if (respond[i].IsActive == false)
+    //            data += '<td class=" text-center"><img src="assets/images/circlered.png" alt=""height="15" width="15"></td>';
+    //        else
+    //            data += '<td></td>';
+    //        //console.log(data);
+    //        data += '<td><a href="buildingDetail?b=' + respond[i].IDLocation + '">' + respond[i].IDLocation + '</a></td>';
+    //        data += '<td>' + respond[i].LocationName + '</td>';
+    //        data += '<td>' + respond[i].ParentLocation + '</td>';
+    //        data += '<td>' + respond[i].WarehouseAddress + '</td>';
+    //        data += '<td>' + respond[i].WhsSze + '</td>';
+    //        warehouseSearch += "<option value='" + respond[i].WarehouseID + "'>" + respond[i].WarehouseID + " " + respond[i].WarehouseName + "</option>";
+    //    }
+    //    data += '</tbody></table>';
+
+    //    $("#dataTable").html(data);
+
+    //    setTable();
+
+    //    $("#warehouseSearch").html(warehouseSearch);
+
+    //    checkAllChange();
+    //}
+
+    function createTable(respond) {
+        //console.log(respond);
+        var data = "";
+        data += '<table id="dtTable" class="display table dataTable no-placeholder-filter"><thead><tr><th data-orderable="false" class="text-center"><input type="checkbox" name="" id="checkall"><label for="checkall"></label></th><th data-orderable="false" class=" text-center">Status</th><th class="id">Whs ID</th><th>Whs Name</th><th>Regional</th><th>Address</th><th>Whs Size (sqm)</th></tr></thead><thead class="filters"><tr class="filter-row"><th class="text-center">Filter</th><th class="no-search"></th><th class="id">ID</th><th>Regional</th><th>Warehouse Name</th><th>Address</th><th>Whs Size (sqm)</th></tr></thead><tbody>';
+
+        for (var i = 0; i < respond.length; i++) {
+            positions[respond[i].LocationName] = {
+                "lat": respond[i].Latitude,
+                "long": respond[i].Longitude,
+                "region": respond[i].ParentLocation,
+                "name": respond[i].LocationName,
+                "id": respond[i].IDLocation
+            };
+            data += '<tr>';
+            //data += '<td class="text-center"><div class="checkbox-deck"><input type="checkbox" name="" id="check' + respond[i].IDBuildingFacility + '" class="chkList" onchange="InsertTempArray(' + respond[i].IDBuildingFacility + ')"><label for="check' + respond[i].IDBuildingFacility + '"></label></div></td>';
+            data += '<td><div class="checkbox-deck"><input type="checkbox" name="check" id="check[' + respond[i].IDBuildingFacility + ']" data="' + respond[i].IDBuildingFacility + '" class="chkList" onchange="InsertTempArray(' + respond[i].IDBuildingFacility + ')"><label for="check[' + respond[i].IDBuildingFacility + ']"></label></div></td>';
+            //console.log(respond[i].IsActive);
+            if (respond[i].IsActive)
+                data += '<td class=" text-center"><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></td>';
+            else if (respond[i].IsActive == false)
+                data += '<td class=" text-center"><img src="assets/images/circlered.png" alt=""height="15" width="15"></td>';
+            else
+                data += '<td></td>';
+            //console.log(data);
+            data += '<td><a href="buildingDetail?b=' + respond[i].IDLocation + '">' + respond[i].IDLocation + '</a></td>';
+            data += '<td>' + respond[i].LocationName + '</td>';
+            data += '<td>' + respond[i].ParentLocation + '</td>';
+            data += '<td>' + respond[i].WarehouseAddress + '</td>';
+            data += '<td>' + respond[i].WhsSze + '</td>';
+            if (counterDd == 0) {
+                warehouseSearch += "<option value='" + respond[i].IDLocation + "'>" + respond[i].IDLocation + " " + respond[i].LocationName + "</option>";
+            }
+            //if (respond[i].isRegionalOffice == 1)
+            //   region.push({ region: respond[i].ParentLocation, position: respond[i].LocationName });
+        }
+        data += '</tbody></table>';
+        $("#dataTable").html(data);
+        setTable();
+        counterDd = 1;
+        checkAllChange();
+    }
+
+    $("#advSrc").click(function() {
+        $("#warehouseSearch").html(warehouseSearch);
+    });
+
+    function setTable() {
+        //dataTable init
+        var table = $('#dtTable').DataTable({
+            "iDisplayLength": 25,
+            order: [[2, "asc"]],
+            "dom": 'lf<"table-overflow"t>ip',
+            orderCellsTop: true
+        });
+
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        // Setup - add a text input to each footer cell
+        // Setup - add a text input to each header cell
+        $('#dtTable thead.filters th').each(function (index) {
+            var title = $('#dtTable thead.filters th').eq($(this).index()).text();
+            if ($(this).hasClass('no-search')) {
+            }
+            else if (title == 'Filter') {
+            }
+            else {
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        // Apply the search
+        table.columns().every(function (index) {
+            $('#dtTable thead.filters th:eq(' + index + ') input').on('input', function () {
+                table.column($(this).parent().index() + ':visible')
+                    .search(this.value)
+                    .draw();
+            });
+        });
+
+    }
+
+    $(document).on('click', '#saveLayoutButton', function (e) {
+        saveLayout();
+        e.preventDefault();
+    });
+
+
+
+    var layoutIsGlobal = [];
+    function generateLayoutSelect() {
+        var firstLayout = "", thenLayout = "";
+        var k = 0;
+        jQuery.ajax({
+            url: '@Url.Action("../CustomReportState/GetLayouts")',
+            method: 'post',
+            dataType: 'json',
+            data: { "PageName": "BuildingFacility" },
+            success: function (response) {
+                var layoutName = '',
+                    options = '';
+
+                if (parseInt(response.length) > 0) {
+                    options = '';
+                    for (var i = 0; i < response.length; ++i) {
+                        if (layoutName != response[i].LayoutName) {
+                            if (firstLayout == "") {
+                                firstLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            if (firstLayout != response[i].LayoutName) {
+                                thenLayout = response[i].LayoutName;
+                                ++k;
+                                layoutIsGlobal[k] = { "isGlobal": response[i].IsGlobal, "LayoutName": response[i].LayoutName };
+                            }
+
+                            options = options + "'>" + layoutName + "</option><option value='" + response[i].FieldName;
+                            layoutName = response[i].LayoutName;
+                        } else {
+
+                            options = options + "," + response[i].FieldName;
+                        }
+                    }
+                    options = options + "'>" + layoutName + "</option>";
+                    jQuery("#layoutSelect").html(options.slice(11)).ready(function () {
+                        // Load selected layout
+                        jQuery.ajax({
+                            url: '@Url.Action("../CustomReportState/GetSelectedLayout")',
+                            method: 'post',
+                            dataType: 'json',
+                            data: { "PageName": "BuildingFacility" },
+                            success: function (response) {
+                                if (response.length > 0) {
+                                    $('#layoutSelect').val(response[0].FieldName);
+                                    for (var j = 1; j < layoutIsGlobal.length; j++) {
+                                        if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                                            $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                                        }
+
+                                    }
+                                    var sourceFieldNames = getTemplateData(),
+                                        sourceFields = '',
+                                        destinationFieldNames = response[0].FieldName.split(','),
+                                        destinationFields = '',
+                                        destinationfieldLabels = [];
+
+                                    for (i = 0; i < sourceFieldNames.length; ++i) {
+                                        if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                                            // the element is not in the array
+                                            sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+                                        } else {
+                                            destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+                                        }
+                                    }
+                                    $("#fieldChooser #sourceFields").html(sourceFields);
+
+                                    for (i = 0; i < destinationFieldNames.length; ++i) {
+                                        destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+                                    }
+
+                                    $("#fieldChooser #destinationFields").html(destinationFields);
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    jQuery("#layoutSelect").html(options);
+                }
+            }
+        });
+    }
+
+    function saveLayout() {
+        var nonvalid = false;
+        if ($("#layoutName").val() == "") { //layout name
+            $("#layoutName").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#layoutName").css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            bootbox.alert({
+                size: "small",
+                title: "DFIS Notification Center",
+                message: "<img src='assets/images/danger.png' alt=''>Please fill yellow field",
+                callback: function () { /* your callback code */
+                }
+            });
+            return false;
+        } else {
+            //var fieldNames = '',
+            //    layoutName = $("input[name=layoutName]").val();
+
+            var fieldNames = '',
+                layoutName = $("#layoutName").val();
+            var isGlobal;
+            if ($("#chkGlobalCustomReport").prop('checked'))
+                isGlobal = true;
+            else
+                isGlobal = false;
+
+            $('#destinationFields .fc-field').each(function () {
+                fieldNames = fieldNames + $(this).data('field') + ',';
+            });
+            fieldNames = fieldNames.slice(0, -1);
+
+            $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+            $('#notificationModal').modal('show');
+            
+            jQuery.ajax({
+                url: '@Url.Action("../CustomReportState/InsertRecords")',
+                method: 'post',
+                dataType: 'json',
+                data: { "layoutName": layoutName, "fieldNames": fieldNames, "pageName": "BuildingFacility", "isGlobal": isGlobal },
+                success: function (response) {
+                    if (response == "Success") {
+                        if (isGlobal) {
+                            //SaveChangesButton();
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            $("#chkGlobalCustomReport").prop('checked', true);
+                        } else {
+                            $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                            $("#chkGlobalCustomReport").prop('checked', false);
+                        }
+                    } else if (response == "NoLayoutName") {
+                        $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Please fill layout name.</span>');
+                        $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>');
+                    }
+                    if ($("#layoutName").val() != $("#layoutSelect option:selected").text()) {
+                        $("#layoutSelect").append('<option value="' + fieldNames + '">' + layoutName + '</option>').val(fieldNames);
+                    }
+                }
+            });
+            return true;
+        }
+    }
+
+    function SaveChangesButton() {
+        $('#customReportModal').modal('hide');
+        $('#notificationModal .modal-body').html('<img src="assets/images/loading.gif" alt=""><span> Please wait, saving in progress.</span>');
+        $('#notificationModal').modal('show');
+
+        //var selectedLayoutName = $('#layoutSelect :selected').text(),
+        //    destinationFields = '';
+        var selectedLayoutName = $("#layoutName").val(),
+            destinationFields = '';
+        var isGlobal;
+        if ($("#chkGlobalCustomReport").prop('checked'))
+            isGlobal = true;
+        else
+            isGlobal = false;
+
+
+        $('#destinationFields .fc-field').each(function () {
+            destinationFields = destinationFields + $(this).data('field') + ',';
+        });
+        destinationFields = destinationFields.slice(0, -1);
+
+        $.ajax({
+            url: '@Url.Action("../CustomReportState/SaveSelectedLayout")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: { "layoutName": selectedLayoutName, "fieldNames": destinationFields, "pageName": "BuildingFacility", "isGlobal": isGlobal },
+            success: function (response) {
+                if (response == "Success") {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Your changes has been successfully saved.</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                } else {
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span>' + response + '</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+                }
+            }
+        });
+    }
+
+    $('#layoutSelect').on('change', function () {
+        for (var j = 1; j < layoutIsGlobal.length; j++) {
+            if ($('#layoutSelect option:selected').text() == layoutIsGlobal[j].LayoutName) {
+                $('#chkGlobalCustomReport').prop('checked', layoutIsGlobal[j].isGlobal);
+                //console.log(layoutIsGlobal[j].isGlobal);
+            }
+
+        }
+        var sourceFieldNames = getTemplateData(),
+            sourceFields = '',
+            destinationFieldNames = this.value.split(','),
+            destinationFields = '',
+            destinationfieldLabels = [];
+
+        for (i = 0; i < sourceFieldNames.length; ++i) {
+            if (jQuery.inArray(sourceFieldNames[i]['field'], destinationFieldNames) == -1) {
+                // the element is not in the array
+                sourceFields = sourceFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + sourceFieldNames[i]['field'] + "'>" + sourceFieldNames[i]['label'] + "</div>";
+            } else {
+                destinationfieldLabels[sourceFieldNames[i]['field']] = sourceFieldNames[i]['label'];
+            }
+        }
+        $("#fieldChooser #sourceFields").html(sourceFields);
+
+        for (i = 0; i < destinationFieldNames.length; ++i) {
+            destinationFields = destinationFields + "<div class='fc-field ui-sortable-handle' tabindex='1' data-field='" + destinationFieldNames[i] + "'>" + destinationfieldLabels[destinationFieldNames[i]] + "</div>";
+        }
+        $("#fieldChooser #destinationFields").html(destinationFields);
+    });
+
+    function getTemplateData() {
+        return [
+            { 'field': 'WarehouseID', 'label': 'Whs ID' },
+            { 'field': 'WarehouseName', 'label': 'Whs Name' },
+            { 'field': 'WarehouseRegional', 'label': 'Regional' },
+            { 'field': 'WarehouseAddress', 'label': 'Address' },
+
+            { 'field': 'ContractExpiredPeriod', 'label': 'Contract Expired Period' },
+            { 'field': 'WawrehouseExtension', 'label': 'Warehouse Extension' },
+            { 'field': 'WhsSize', 'label': 'Whs Size' },
+            { 'field': 'OfficeSize', 'label': 'Office Size' },
+            { 'field': 'LoadingDockSize', 'label': 'Loading Dock Size' },
+
+            { 'field': 'ParkingLotSize', 'label': 'Parking Lot Size' },
+            { 'field': 'BulkStoragePalletPosition', 'label': 'Bulk Storage Pallet Position' },
+            { 'field': 'RackingPalletPosition', 'label': 'Racking Pallet Position' },
+            { 'field': 'Sprinkle', 'label': 'Sprinkle' },
+            { 'field': 'FireExtinguisher', 'label': 'Fire Extinguisher' },
+
+            { 'field': 'First Aid Kit', 'label': 'First Aid Kit' },
+            { 'field': 'CCTV', 'label': 'CCTV' },
+            { 'field': 'DVR', 'label': 'DVR' },
+            { 'field': 'UPS', 'label': 'UPS' },
+            { 'field': 'Hygro-Termometer', 'label': 'Hygro-Termometer' },
+
+            { 'field': 'L-Track', 'label': 'L-Track' },
+            { 'field': 'I-SMS', 'label': 'I-SMS' },
+            { 'field': 'PCDesktop', 'label': 'PC Desktop' },
+            { 'field': 'Laptop', 'label': 'Laptop' },
+            { 'field': 'Printer', 'label': 'Printer' },
+
+            { 'field': 'PlasticPallet', 'label': 'Plastic Pallet' },
+            { 'field': 'WoodenPallet(single)', 'label': 'Wooden Pallet (single)' },
+            { 'field': 'WoodenPallet(double)', 'label': 'Wooden Pallet (double)' },
+            { 'field': 'Plywood', 'label': 'Plywood' },
+            { 'field': 'BeetleTrap', 'label': 'Beetle Trap' },
+
+            { 'field': 'CigaretteBoxsBelt', 'label': 'CigaretteBoxsBelt' },
+            { 'field': 'Forklift(battery)', 'label': 'Forklift (battery)' },
+            { 'field': 'HandPallet', 'label': 'Hand Pallet' },
+            { 'field': 'SupervisorAreaDistributionMonthly', 'label': 'Supervisor Area Distribution Monthly' },
+            { 'field': 'SupervisorAreaDistributionDaily', 'label': 'Supervisor Area Distribution Daily' },
+
+            { 'field': 'SupervisorAreaDistributionOutsource', 'label': 'Supervisor Area Distribution Outsource' },
+            { 'field': 'DistributionCoordinatorMonthly', 'label': 'Distribution Coordinator Monthly' },
+            { 'field': 'DistributionCoordinatorDaily', 'label': 'Distribution Coordinator Daily' },
+            { 'field': 'DistributionCoordinatorOutsource', 'label': 'Distribution Coordinator Outsource' },
+            { 'field': 'DistributionAssistantMonthly', 'label': 'Distribution Assistant Monthly' },
+
+            { 'field': 'DistributionAssistantDaily', 'label': 'Distribution Assistant Daily' },
+            { 'field': 'DistributionAssistantOutsource', 'label': 'Distribution Assistant Outsource' },
+            { 'field': 'Helper/AdminSupportMonthly', 'label': 'Helper/Admin Support Monthly' },
+            { 'field': 'Helper/AdminSupportDaily', 'label': 'Helper/Admin Support Daily' },
+            { 'field': 'Helper/AdminSupportOutsource', 'label': 'Helper/Admin Support Outsource' },
+
+            { 'field': 'ForkliftDriverMonthly', 'label': 'Forklift Driver Monthly' },
+            { 'field': 'ForkliftDriverDaily', 'label': 'Forklift Driver Daily' },
+            { 'field': 'ForkliftDriverOutsource', 'label': 'Forklift Driver Outsource' },
+            { 'field': 'LaboursTeamLeaderMonthly', 'label': 'Labours Team Leader Monthly' },
+            { 'field': 'LaboursTeamLeaderDaily', 'label': 'Labours Team Leader Daily' },
+
+            { 'field': 'LaboursTeamLeaderOutsource', 'label': 'Labours Team Leader Outsource' },
+            { 'field': 'LaboursMonthly', 'label': 'Labours Monthly' },
+            { 'field': 'LaboursDaily', 'label': 'Labours Daily' },
+            { 'field': 'LaboursOutsource', 'label': 'Labours Outsource' },
+            { 'field': 'CleaningServiceMonthly', 'label': 'Cleaning Service Monthly' },
+
+            { 'field': 'CleaningServiceDaily', 'label': 'Cleaning Service Daily' },
+            { 'field': 'CleaningServiceOutsource', 'label': 'Cleaning Service Outsource' }
+        ];
+    }
+
+
+
+    $(document).on('click', '#exportButton', function (e) {
+        exportToExcel();
+        e.preventDefault();
+    });
+
+    function exportToExcel() {
+
+        //untuk implode dan explode
+
+        var warehouseSearch = "";
+        $("#s2id_warehouseSearch .select2-choices li div").each(function () {
+            warehouseSearch += $(this).text() + ",";
+        });
+        if (warehouseSearch != "" || warehouseSearch != null) {
+            if (warehouseSearch.endsWith(",")) {
+                warehouseSearch = warehouseSearch.slice(",", warehouseSearch.length - 1);
+            }
+        }        
+        var regionalSearch = "";
+        $("#s2id_regionalSearch .select2-choices li div").each(function () {
+            regionalSearch += $(this).text() + ",";
+        });
+        if (regionalSearch != "" || regionalSearch != null) {
+            if (regionalSearch.endsWith(",")) {
+                regionalSearch = regionalSearch.slice(",", regionalSearch.length - 1);
+            }
+        }
+
+        var warehouseSrc = $("#warehouseSearch").val();
+        //$(".select2-choices li div").each(function(){
+        //    warehouseSearch += $(this).text() + ",";
+        //});
+        //if (warehouseSearch != "" || warehouseSearch != null) {
+        //    if (warehouseSearch.endsWith(",")) {
+        //        warehouseSearch = warehouseSearch.slice(",", warehouseSearch.length - 1);
+        //    }
+        //}
+
+        //
+        //console.log(regionalSearch);
+        var addressSearch = $("#addressSearch").val();
+        var owned = $("#status").val();
+        var expiration = $("#expiration").is(":checked");
+        //var includeDeleted = $("#chkInactive").prop('checked');
+        var includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+        console.log(warehouseSrc);
+        var columns = '';
+        $('#destinationFields .fc-field').each(function () {
+            columns = columns + $(this)[0].textContent + ',';
+        });
+        columns = columns.slice(0, -1);
+
+        jQuery.ajax({
+            url: '@Url.Action("exportToExcel")',
+            method: 'get',
+            dataType: 'json',
+
+            data: { "warehouseSearch": warehouseSearch, "regionalSearch": regionalSearch, "addressSearch": addressSearch, "owned": owned, "IncludeInActive": includeInActive, "expiration": expiration, "Columns": columns },
+
+           // data: { "warehouseSearch": warehouseSrc, "addressSearch": addressSearch, "owned": owned, "IncludeInActive": includeInActive, "expiration": expiration, "Columns": columns },
+
+            success: function (response) {
+                // window.location.assign("/dfis/Assets/Download/" + response);
+                window.location.assign("Assets/Download/" + response);
+
+            }
+        });
+    }
+
+    function refresh() {
+        $("#warehouseSearch").select2('val', '');
+        $("#addressSearch").val("");
+        $("#status").val("");
+        $("#all").prop('checked', true);
+        getData();
+    }
+
+    function search() {
+        var warehouseSrc = $("#warehouseSearch").val();
+        var regionalSearch = $("#regionalSearch").val();
+        var addressSearch = $("#addressSearch").val();
+        var owned = $("#status").val();
+        var expiration = $("#expiration").is(":checked");
+        //var includeDeleted = $("#chkInactive").prop('checked');
+        var includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+       
+
+        jQuery.ajax({
+            url: 'building/getDataSearching',
+            method: 'get',
+            dataType: 'json',
+            data: { "warehouseSearch": warehouseSrc, "regionalSearch": regionalSearch, "addressSearch": addressSearch, "owned": owned, "IncludeInActive": includeInActive, "expiration": expiration },
+            success: function (response) {
+                createTable(response);
+            }
+        });
+    }
+
+    function setInactive() {
+
+    }
+
+    $("#btnPrintDoc").click(function () {
+        if (tempIDBuilding.length > 0) {
+            var getUrl = location.origin;
+
+            //document.cookie = "idbuildingfacility=" + getUrl + "/BuildingPrintDocument/PrintDocument?id=" + tempIDBuilding + ";";
+            @*var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", '@Url.Action("PrintDocument", "Building")');*@
+
+            //var dialog = bootbox.dialog({
+            //    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            //    closeButton: false
+            //});
+            //$.ajax({
+            //    url: 'Building/GetDocument',
+            //    type: 'POST',
+            //    //dataType: 'json',
+            //    cache: false,
+            //    data: { "idbuildingfacility": getUrl + "/BuildingPrintDocument/PrintDocument?id=" + tempIDBuilding },
+            //    success: function (response) {
+            //        //createTable(response);
+            //        dialog.modal('hide');
+            //    }
+            //});
+            var array = [];
+            while (tempIDBuilding.length > 0)
+                array.push(tempIDBuilding.splice(0, 6));
+            for (var i = 0; i < array.length; i++) {
+                //window.location.assign("Building/GetDocument?idbuildingfacility=" + getUrl + "/DFIS/BuildingPrintDocument/PrintDocument?id=" + array[i]);
+                window.open("Building/GetDocument?idbuildingfacility=" + getUrl + "/DFIS/BuildingPrintDocument/PrintDocument?id=" + array[i]);
+            }
+            //console.log(tempIDBuilding);
+            //window.location.assign("Building/GetDocument?idbuildingfacility=" + getUrl + "/DFIS/BuildingPrintDocument/PrintDocument?id=" + tempIDBuilding);
+
+            //$.ajax({
+            //    url: 'Building/GetDocument',
+            //    //method: 'post',
+            //    data: { "idbuildingfacility": getUrl + "/BuildingPrintDocument/PrintDocument?id=" + tempIDBuilding },
+            //    dataType: 'json',
+            //    cache: false,
+            //    success: function (data) {
+
+            //        dialog.modal('hide');
+            //    }
+            //});
+
+
+            // form.setAttribute("action", '@Url.Action("PrintDocument", "Building")');
+            //  form.setAttribute("action", '@Url.Action("GetDocument", "Building")');
+
+
+            //var hiddenField = document.createElement("input");
+            //hiddenField.setAttribute("type", "hidden");
+            //hiddenField.setAttribute("name", "id");
+            //hiddenField.setAttribute("value", tempIDBuilding);
+            //form.appendChild(hiddenField);
+            //document.body.appendChild(form);
+            //form.submit();
+
+
+            //$.ajax({
+            //    url: 'building/PrintDocument',
+            //    method: 'post',
+            //    dataType: 'json',
+            //    cache: false,
+            //    data: {idbuildingfacility: tempIDBuilding},
+            //    success: function (response) {
+            //        console.log(response);
+            //    }
+            //});
+        } else {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please choose at least 1 Warehouse by tick data table checkbox");
+            $('#modalwarning').modal('show');
+        }
+    });
+
+    // BEGIN : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+    var stat = false;
+    var filter = new Object();
+    function SetIsActive(param) {
+        if (tempIDBuilding.length > 0) {
+            $("#textModalWarningYesNo").html("");
+            if (param == "Recovery")
+                $("#textModalWarningYesNo").append("Are you sure to recovery this data?");
+            else
+                $("#textModalWarningYesNo").append("Are you sure to delete this data?");
+            $('#warningModalYesNo').modal('show');
+            stat = (param == "Delete") ? false : true;
+        } else if (tempIDBuilding.length == 0) {
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    }
+
+    function ChangeIsActive() {
+        //console.log(tempIDBuilding);
+        filter.ListIsActiveId = tempIDBuilding;
+        filter.Isactive = stat;
+        $.ajax({
+            url: "Building/SetStatusResult",
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (response) {
+                var msg = stat ? "Recovered" : "Deleted";
+                if (response == "Success") {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/checked.png" alt=""><span> Success your data has been ' + msg + ' !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                } else {
+                    $('#notificationModal').modal('show');
+                    $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Error your data cannot be ' + msg + ' !</span>');
+                    $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" id="btnOK">OK</button>');
+                }
+                $("#btnOK").click(function () {
+                    getData();
+                    filter.ListIsActiveId = null;
+                    tempIDBuilding = [];
+                });
+
+            }
+        });
+    }
+    // END : SET INACTIVE OR ACTIVE RELATED TO CHECKBOX FUNCTION
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray(idbuildingfacility) {
+        //var table = $('#dtTable').DataTable();
+        //$('#dtTable tbody').one('change', 'tr', function () {
+        //    var data = table.row(this).data();
+        //    console.log(data[0]);
+
+        //    //var split = data[0].split(" ");
+        //    //var checkid = split[4].split("\"");
+        //    //var idbuilding = checkid[2].substring(6);
+        //    //var idbuildingfacility = parseInt(idbuilding);
+        //    //var result = $.grep(tempIDBuilding, function (e) { return e == idbuildingfacility; });
+        //    //if (result.length == 0) {
+        //    //    tempIDBuilding.push(idbuildingfacility);
+        //    //} else if (result.length == 1) {
+        //    //    tempIDBuilding = tempIDBuilding.filter(function (obj) {
+        //    //        return obj !== idbuildingfacility;
+        //    //    });
+        //    //}
+
+        //    //tempIDBuilding.push(idbuildingfacility);
+        //});
+        //console.log('id building '+idbuildingfacility);
+        var result = $.grep(tempIDBuilding, function (e) { return e == idbuildingfacility; });
+        if (result.length == 0) {
+            tempIDBuilding.push(idbuildingfacility);
+        } else if (result.length == 1) {
+            tempIDBuilding = tempIDBuilding.filter(function (obj) {
+                return obj !== idbuildingfacility;
+            });
+        }
+        //console.log(tempIDBuilding);
+    }
+
+    function checkAllChange() {
+        //console.log('temp id building before');
+        //console.log(tempIDBuilding);
+        $("#checkall").change(function () {
+            $(".chkList").prop('checked', $("#checkall").prop('checked'));
+
+            $("input[name='check']").each(function () {
+                //values.push($(this).val());
+                //console.log('data '+$(this).attr("data"));
+                InsertTempArray($(this).attr("data"));
+            });
+            if ($("#checkall").prop('checked')) {
+                var table = $('#dtTable').DataTable();
+                table.column(1).nodes().each(function (cell, i) {
+                    var split = table.cell(i, 0).data().split('"');
+                    var str = split[3];
+                    var value = str.substring(6, (str.length - 1));
+                    if (value != "k")
+                        tempIDBuilding.push(value);
+                });
+                tempIDBuilding = tempIDBuilding.filter(onlyUnique);
+            } else {
+                tempIDBuilding = [];
+            }
+        });
+    }
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+    function random() {
+        min = Math.ceil(0);
+        max = Math.floor(icon.length);
+        var index = Math.floor(Math.random() * (max - min)) + min;
+        return index;
+    }
+
+    function generateDropDownRegional() {
+        //get a reference to the select element
+        $drpLocation = $('#regionalSearch');
+        //request the JSON data and parse into the select element
+        $drpLocation.append('<option></option>');
+
+        $.ajax({
+            url: "Building/GetMasterLocation",
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                //clear the current content of the select
+
+                //iterate over the data and append a select option
+
+                $.each(data, function (kunci, val) {
+                    $drpLocation.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+
+                })
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $drpLocation.html('<option></option');
+            }
+        });
+    }
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3RzFUX0j0_JzVRqlbzyN4_Y-dXFm4Dd8&callback=initMap" async defer></script>

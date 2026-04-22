@@ -1,0 +1,328 @@
+﻿@{
+    ViewBag.Title = "Transport > Transport Truck Arrival";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+    }
+</style>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="btnCalculate" class="btn btn-primary" type="button">Calculate</button>
+        <button id="btnExportReport" class="btn btn-primary">Export</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Police Number</label>
+                        <input type="text" class="form-control" id ="FilterNoPol" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>GP No</label>
+                        <input type="text" class="form-control" id="FilterGPNo" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>ETA Category</label>
+                        <select class="form-control" id="FilterETACategory"></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button id="btnSearch" class="btn btn-primary">Search</button>
+                    <button id="btnReset" class="btn btn-purple">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="map" hidden=""></div>
+<!--<div id="map"></div>-->
+
+<table id="dtTruckArrival" class="display table dataTable table-condensed">
+    <thead>
+    <tr>
+        <th>Police Number</th>
+        <th>GP No</th>
+        <th>Date</th>
+        <th>Finish Address</th>
+        <th>ETA Category</th>
+        <th>ETA Calculate Category</th>
+    </tr>
+    </thead>
+    <thead class="filters">
+    <tr class="filter-row">
+        <th>Police Number</th>
+        <th>GP No</th>
+        <th>Date</th>
+        <th>Finish Address</th>
+        <th>ETA Category</th>
+        <th>ETA Calculate Category</th>
+    </tr>
+    </thead>
+</table>
+
+<script type="text/javascript">
+    var dialog;
+    var listETACategory = [];
+    var distance;
+    var maxSpeed = 0;
+    var filter = new Object();
+    filter.PoliceNumber = "";
+    filter.GPNo = "";
+    filter.ETACategory = "ALL";
+    $(document).ready(function () {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+            closeButton: false
+        });
+        getMaxSpeed();
+        generateTabelTruckArrival();
+        GetETACategoryList();
+    });
+
+    function getMaxSpeed() {
+        $.ajax({
+            type: "GET",
+            url: 'TruckArrival/GetMaxSpeed',
+            cache: false,
+            async: false,
+            success: function (data) {
+                maxSpeed = data.Value;
+            }
+        });
+    }
+
+    function generateTabelTruckArrival() {
+        $.ajax({
+            url: 'TruckArrival/GetALLTransportTruckArrival',
+            method: 'post',
+            data: filter,
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtTruckArrival').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    columns: [
+                        { 'data': 'PoliceNumber', 'searchable': true },
+                        { 'data': 'GPNo', 'searchable': true },
+                        {
+                            render: function (data, type, row) {
+                                return moment(row['Date']).format("DD-MMM-YYYY  HH:mm");
+                            }
+                        },
+                        { 'data': 'FinishAddress', 'searchable': true },
+                        { 'data': 'ETACategory', 'searchable': true },
+                        { 'data': 'ETACategoryCalculate', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    "initComplete": function () {
+                        dialog.modal('hide');
+                    }
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtTruckArrival thead.filters th').each(function (index) {
+                    var title = $('#dtTruckArrival thead.filters th').eq($(this).index()).text();
+                    $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                });
+                table.columns().every(function (index) {
+                    $('#dtTruckArrival thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function GetETACategoryList() {
+        var select = $('#FilterETACategory');
+        $.ajax({
+            type: "GET",
+            url: 'TruckArrival/GetETACategory',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                select.append('<option value="ALL">ALL</option>');
+                $.each(data, function (key, val) {
+                    var split = val.FieldValue.split('-');
+                    var start = split[0].trim();
+                    var end = split[1].trim();
+                    var ETACategory = new Object();
+                    ETACategory.start = start;
+                    ETACategory.end = end;
+                    ETACategory.value = val.FieldValue;
+                    listETACategory.push(ETACategory);
+                    select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                });
+            },
+            error: function () {
+                select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    jQuery(function ($) {
+        $(document).on('click', '#btnSearch', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+                closeButton: false
+            });
+            filter.PoliceNumber = $("#FilterNoPol").val();
+            filter.GPNo = $("#FilterGPNo").val();
+            filter.ETACategory = $("#FilterETACategory").val();
+            generateTabelTruckArrival();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnReset', function (e) {
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+                closeButton: false
+            });
+            filter.PoliceNumber = "";
+            filter.GPNo = "";
+            filter.ETACategory = "ALL";
+            $("#FilterNoPol").val("");
+            $("#FilterGPNo").val("");
+            $("#FilterETACategory").val("ALL");
+            generateTabelTruckArrival();
+            e.preventDefault();
+        });
+    });
+
+    $("#btnCalculate").click(function () {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Uploading Data</div>',
+            closeButton: false
+        });
+        var table = $("#dtTruckArrival").DataTable();
+        var data = table.rows().data();
+        data.each(function (value, index) {
+            GetCalculateGoogleAPI(value,value.LongitudeTruck, value.LatitudeTruck, value.LongitudeDestination, value.LatitudeDestination);  
+        });
+    });
+
+    function GetCalculateGoogleAPI(row,truckLong, truckLat, destinationLong, destinationLat) {
+        var origin = { lat: parseFloat(truckLat), lng: parseFloat(truckLong) };
+        var destination = { lat: parseFloat(destinationLat), lng: parseFloat(destinationLong) };
+        var service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix(
+            {
+                origins: [origin],
+                destinations: [destination],
+                travelMode: 'DRIVING'
+            }, callback);
+        function callback(response, status) {
+            if (status == 'OK') {   
+                var origins = response.originAddresses;
+                var destinations = response.destinationAddresses;
+                for (var i = 0; i < origins.length; i++) {
+                    var results = response.rows[i].elements;
+                    for (var j = 0; j < results.length; j++) {
+                        var element = results[j];
+                        distance = element.distance.text;
+                        //var duration = element.duration.text;
+                        //var from = origins[i];
+                        //var to = destinations[j];
+                        CalculateETA(row,distance);
+                    }
+                }
+            }
+            dialog.modal('hide');
+        }
+    }
+
+    function initMap() {
+        var uluru = { lat: -25.363, lng: 131.044 };
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: uluru
+        });
+        var marker = new google.maps.Marker({
+            position: uluru,
+            map: map
+        });
+    }
+
+    function CalculateETA(value,distance) {
+        var tempETA = 0;
+        var travelTime;
+        var ETACategory;
+        if (maxSpeed != 0)
+            tempETA = parseFloat(distance) / maxSpeed;
+        var restingTime = Math.floor(tempETA / 4);
+        var travelTime = tempETA + restingTime;
+        var calculateETA = moment(value.Date).add(travelTime, 'h');
+        var calculateTime = moment(calculateETA).format('hh:mm:ss');
+        $.each(listETACategory, function (index, value) {
+            var between = moment(calculateTime, 'hh:mm:ss');
+            var start = moment(value.start, 'hh:mm:ss');
+            var end = moment(value.end, 'hh:mm:ss');
+            if (between.isBetween(start, end, 'hh:mm:ss'))
+                ETACategory = value.value;
+        });
+        insertUpdateCalculate(value.PoliceNumber, calculateETA.toISOString(), ETACategory);
+    }
+
+    function insertUpdateCalculate(nopol, eta, etacategory) {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Calculating Data</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: "GET",
+            url: 'TruckArrival/Calculate',
+            data: { nopol: nopol, eta: eta, etaCategory: etacategory },
+            cache: false,
+            success: function () {
+                generateTabelTruckArrival();
+            }
+        });
+    }
+
+    $("#btnExportReport").click(function () {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "TruckArrival/ExportReport");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "nopol");
+        hiddenField.setAttribute("value", filter.PoliceNumber);
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "gpno");
+        hiddenField2.setAttribute("value", filter.GPNo);
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "etacat");
+        hiddenField3.setAttribute("value", filter.ETACategory);
+        form.appendChild(hiddenField3);
+        document.body.appendChild(form);
+        form.submit();
+    });
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXw_8_2bZxAbt3LiGLzMfPEvciBEveuWY&callback=initMap"></script>
+

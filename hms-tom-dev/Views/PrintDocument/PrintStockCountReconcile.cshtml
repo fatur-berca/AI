@@ -1,0 +1,327 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountListViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    int MAX_ROW_PER_PAGE = Model.WarehouseStockCounts[0].Type == false ? 21 : 36;
+
+    //DateTime PrintedDate = DateTime.Parse(Model.PrintedDate);
+    bool isNotFirstLoop = false;
+    hms_tom_dev.Models.WarehouseStockCountViewModel tool = new hms_tom_dev.Models.WarehouseStockCountViewModel();    
+}
+
+@*<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">*@
+@*<link rel="stylesheet" href="~/Assets/Css/app.css" media="screen">*@
+@*<link rel="stylesheet" href="../Assets/Css/app-new.css" media="screen">*@
+
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/ReportStockCount.css")" media="screen">
+
+<script src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+
+
+<style>
+    .imgPdf {
+        width: 240px !important;
+        height: 190px !important;
+    }
+
+    .widthTableHeader {
+        width: 280px !important;
+    }
+
+    .widthTable {
+        width: 368px !important;
+    }
+
+    .widthTableValue {
+        width: 144px !important;
+    }
+
+    .widthTableHeadcount {
+        width: 170px !important;
+    }
+
+    .images-wrap {
+        width: 740px !important;
+    }
+
+    table {
+        width: 100% !important;
+    }
+
+    .fixedheight .topbottom {
+        height: 75px;
+    }
+
+    .fixedheight .middle {
+        height: 96px;
+    }
+
+    .numberAlign {
+        text-align: right;
+    }
+
+    .contentAlign {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .midAlign {
+        text-align: center;
+    }
+
+    .page_break {
+        page-break-after: always;
+    }
+
+    .table tbody tr td
+    {
+        font-size: 15px;
+    }
+
+    .table thead tr th
+    {
+        font-size: 15px;
+    }
+
+    .info_style 
+    {
+        font-size: 15px;
+    }
+</style>
+
+<body class="report-page watermarks">
+    <main>
+        @for (int idx = 0; idx < Model.WarehouseStockCounts.Count; idx++)
+        {
+            var r = Model.WarehouseStockCounts[idx];
+            Type type = r.GetType();
+            int next_shift = (Model.WarehouseStockCounts[0].Shift % 3) + 1;
+            int idx_head = 0;
+            int start = 0;
+            int record_no = 0;
+            foreach (string SLoc in Model.STORE_LOCATIONS)
+            {
+                bool IsPageBreak = false;
+                int TotalRecordPerPage = 0;
+                var DataPerSLoc = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc);
+                //int TotalRowPerSLoc = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).Count;
+                string TotalUnrestr = DataPerSLoc.Sum(f => f.Unrestr).ToString().Replace(",", ".");
+                string TotalQualityInsp = DataPerSLoc.Sum(f => f.QualityInsp).ToString().Replace(",", ".");
+                string TotalSAPQtyBox = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.SAPQtyBox)));
+                string TotalSAPQtyPack = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.SAPQtyPack)));
+                string TotalManQtyBox = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.ManQtyBox)));
+                string TotalManQtyPack = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.ManQtyPack)));
+                string TotalInterfaceBox = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.InterfaceQtyBox)));
+                string TotalInterfacePack = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.InterfaceQtyPack)));
+                string TotalReceivingeBox = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.ReceivingQtyBox)));
+                string TotalReceivingPack = tool.addSeparator(Convert.ToInt32(DataPerSLoc.Sum(f => f.ReceivingQtyPack)));
+
+                start = 0;
+                int no = 0;
+                int TotalDetail = DataPerSLoc.ToList().Count;
+                if (TotalDetail == 0) { continue; }
+                while (true)
+                {
+                    //var StockCountDetails = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).Skip(start).Take(Model.MAX_ROW_PER_PAGE).ToList();
+                    var StockCountDetails = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).Skip(start).Take(MAX_ROW_PER_PAGE).ToList();
+                    if (StockCountDetails.Count == 0) { break; }
+                    TotalRecordPerPage = StockCountDetails.Count;
+                    idx_head++;
+                    start += MAX_ROW_PER_PAGE;
+
+                    <div style="float:right; @(isNotFirstLoop ? "padding-top:15px;" : "")" class="numbering"></div>
+                    <h3 class="title noline" style="@(isNotFirstLoop ? "padding-top:30px;" : "")"> <b> STOCK COUNT RECONCILE </b></h3>
+                    <!--<div class="A4">-->
+                    <ul class="col-data" style="width:45%;">
+                        <li><label class="info_style">Date</label><span>: <b class="info_style"> @r.TransDate.ToString("dd-MMM-yyyy") </b></span></li>
+                        <li><label class="info_style">Warehouse</label><span>: <b class="info_style"> @r.IDLocation - @r.MasterLocation.LocationName </b></span></li>
+                    </ul>
+                    <ul class="col-data" style="width:45%;">
+                        <li><label class="info_style">Operational Shift</label><span>: <b class="info_style"> @(Model.ShiftList[""+r.Shift]) </b></span></li>
+                        <!--<li><label>SLoc</label><span>: @SLoc</span></li>-->
+                    </ul>
+                    <div style="" class="div_small_box">
+                        <div style="" class="slocinfo"><b>SLoc</b></div>
+                        <div style="padding: 4px 1px 1px 4px;"><b>@SLoc</b></div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="midAlign">No</th>
+                                <th class="midAlign">Brand</th>
+                                @if (!Model.isWarehouseWeekly || r.Type == false)
+                                {
+                                    <th class="midAlign">Batch</th>
+                                }
+                                @if (Model.showUnresnQiField)
+                                {
+                                    <th class="midAlign">Unrest. Qty</th>
+                                    <th class="midAlign">QI Qty</th>
+                                }
+                                <th class="midAlign">Total SAP <br />  Qty (Box)</th>
+                                <th class="midAlign">Total Man <br /> Qty (Box)</th>
+                                <th class="midAlign">Loading <br /> Not Yet Interface <br /> Qty / GI (Box)</th>
+                                <th class="midAlign">Receiving <br /> Not Yet Interface <br /> Qty / GR (Box)</th>
+                                <th class="midAlign">Total SAP <br /> Qty (Pack)</th>
+                                <th class="midAlign">Total Man <br />  Qty (Pack)</th>
+                                <th class="midAlign">Loading <br /> Not Yet Interface <br /> Qty / GI (Pack)</th>
+                                <th class="midAlign">Receiving <br /> Not Yet Interface <br /> Qty / GR (Pack)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @for (int i = 0; i < StockCountDetails.Count; i++)
+                        {
+                            var row = StockCountDetails.ElementAt(i);
+                            no += 1;
+                            record_no += 1;
+                                <tr class="@( (row.SAPQtyBox != (row.ManQtyBox + row.InterfaceQtyBox - row.ReceivingQtyBox) || row.SAPQtyPack != (row.ManQtyPack + row.InterfaceQtyPack - row.ReceivingQtyPack)) ? "block_not_balance" : "" )">
+                                    <td class="midAlign">@no</td>
+                                    <td class="contentAlign">@StockCountDetails.ElementAt(i).BrandDescription</td>
+                                    @if (!Model.isWarehouseWeekly || r.Type == false)
+                                    {
+                                        <td class="contentAlign">@StockCountDetails.ElementAt(i).Batch</td>
+                                    }
+                                    @if (Model.showUnresnQiField)
+                                    {
+                                        <td class="numberAlign">@((StockCountDetails.ElementAt(i).Unrestr.ToString().Replace(",", ".")))</td>
+                                        <td class="numberAlign">@((StockCountDetails.ElementAt(i).QualityInsp.ToString().Replace(",", ".")))</td>
+                                    }
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).SAPQtyBox))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).ManQtyBox))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).InterfaceQtyBox))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).ReceivingQtyBox))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).SAPQtyPack))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).ManQtyPack))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).InterfaceQtyPack))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(StockCountDetails.ElementAt(i).ReceivingQtyPack))</td>
+                                </tr>
+                            }
+
+                            @if (start >= TotalDetail)
+                            {
+                                <tr style="background-color:#d9e0c5;">
+                                    <td colspan="3" class="total" style="text-align:center;">Grand Total</td>
+                                    @if (Model.showUnresnQiField)
+                                    {
+                                        <td class="numberAlign total">@TotalUnrestr</td>
+                                        <td class="numberAlign total">@TotalQualityInsp</td>
+                                    }
+                                    <td class="numberAlign total">@TotalSAPQtyBox</td>
+                                    <td class="numberAlign total">@TotalManQtyBox</td>
+                                    <td class="numberAlign total">@TotalInterfaceBox</td>
+                                    <td class="numberAlign total">@TotalReceivingeBox</td>
+                                    <td class="numberAlign total">@TotalSAPQtyPack</td>
+                                    <td class="numberAlign total">@TotalManQtyPack</td>
+                                    <td class="numberAlign total">@TotalInterfacePack</td>
+                                    <td class="numberAlign total">@TotalReceivingPack</td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                    isNotFirstLoop = true;
+
+                    if (record_no < Model.WarehouseStockCounts[0].WarehouseStockCountDetails.Count && no < DataPerSLoc.ToList().Count)
+                    {
+                        <div class="page_break"></div>
+                        IsPageBreak = true;
+                    }
+
+                    if (start >= TotalDetail)
+                    {
+                        System.Reflection.PropertyInfo pInfo = type.GetProperty("Remarks" + (SLoc == "1000" ? "" : SLoc));
+                        <p style="font-size:15px;float:left;">
+                            Remarks: <br /> @pInfo.GetValue(r, null)
+                        </p>
+
+                        <table class="table_info_qty" style="float:right; width: 500px !important;">
+                            <tr style="">
+                                <td style="text-align:left">Total Qty SAP</td>
+                                <td id="" class="info_total_qty" style="text-align:right;">@(Model.Summaries[SLoc]["SAP"]))</td>
+
+                                <td class="" style="padding-left:10px;">Total Qty Loading Not Yet Int./GI</td>
+                                <td id="" class="info_total_qty" style="text-align:right;">@(Model.Summaries[SLoc]["LOADING"]))</td>
+                            </tr>
+                            <tr style="">
+                                <td style="text-align:left">Total Qty MAN</td>
+                                <td id="" class="info_total_qty" style="text-align:right;">@Model.Summaries[SLoc]["MAN"]))</td>
+
+                                <td class="table_info_qty_second_column" style="padding-left:10px;">Total Qty Receiving Not Yet Int./GR</td>
+                                <td id="" class="info_total_qty" style="text-align:right;">@Model.Summaries[SLoc]["RECEIVING"]))</td>
+                            </tr>
+                        </table>
+                        break;
+                    }
+                    else
+                    {
+                        <!--<div class="foot"></div>-->
+                    }
+                }
+
+                if ((TotalRecordPerPage > (MAX_ROW_PER_PAGE - 8)) && !IsPageBreak)
+                {
+                    <div class="page_break"></div>
+                }
+
+                <div class="signature col3">                    
+                    <div class="sign text-center">
+                        <p>
+                            Distribution Assistant Shift @Model.WarehouseStockCounts[0].Shift
+                        </p>
+                        <p class="name"><strong>@Model.WarehouseStockCounts[0].WarehouseStaff1</strong></p>
+                    </div>
+                    <div class="sign text-center">
+                        <p>@(!String.IsNullOrEmpty(Model.WarehouseStockCounts[0].NextShift) ? ("Staff Next Shift " + next_shift) : "")</p>
+                        <p class="name"><strong>@(!String.IsNullOrEmpty(Model.WarehouseStockCounts[0].NextShift) ? Model.WarehouseStockCounts[0].NextShift : "")</strong></p>
+                    </div>
+                    <div class="sign text-center">
+                        <p>
+                            Mengetahui, <br />Supervisor Area Distribution
+                        </p>
+                        <p class="name"><strong>@Model.SPVName</strong></p>
+                    </div>
+                </div>
+                <hr class="bold" />
+                <p class="printed printedby" style="width: 50%; float: left;">Printed by : @Model.UserName on @Model.PrintedDate</p>
+                <p class="printed printedby page_break" style="width: 50%; float: left; text-align: right; page-break-after: always;">Last updated by : @Model.WarehouseStockCounts[0].UpdatedBy on @Model.WarehouseStockCounts[0].UpdatedDate.ToString("dd-MMM-yyyy HH:mm")</p>
+            }
+        }
+        @if (Model.WarehouseStockCounts.Count > 0)
+        {
+
+        }
+        else
+        {
+            <h1>No Data Found</h1>
+        }
+    </main>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var total_page = $('.numbering').length;
+        var no = 1;
+        $('.numbering').each(function (e) {
+            $(this).html(no + ' of ' + total_page);
+            no++;
+        });
+    /*
+        var a = 0;
+        $('.title').each(function () {
+            if (a > 0) $(this).after('<div style="page-break-before: always;">ini page break</div>');
+            a++;
+        });
+        */
+    });
+
+</script>

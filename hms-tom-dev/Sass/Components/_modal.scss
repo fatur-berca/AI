@@ -1,0 +1,99 @@
+// modal
+
+/* .modal-fullscreen */
+
+.modal{
+	z-index: 9999;
+}
+
+.modal-fullscreen {
+    background: rgba(76, 88, 105, 0.96);
+}
+.modal-fullscreen .modal-content {
+  background: transparent;
+  border: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  width: 80%;
+  margin: 80px auto;
+  color: #fff;
+}
+.modal-backdrop.modal-backdrop-fullscreen {
+  background: #ffffff;
+}
+.modal-backdrop.modal-backdrop-fullscreen.in {
+  opacity: .97;
+  filter: alpha(opacity=97);
+}
+
+/* .modal-fullscreen size: we use Bootstrap media query breakpoints */
+
+.modal-fullscreen .modal-dialog {
+  margin: 0;
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .modal-fullscreen .modal-dialog {
+    width: 750px;
+  }
+}
+@media (min-width: 992px) {
+  .modal-fullscreen .modal-dialog {
+    width: 970px;
+  }
+}
+@media (min-width: 1200px) {
+  .modal-fullscreen .modal-dialog {
+     width: 1170px;
+  }
+}
+
+
+.ui-widget.ui-widget-content{
+  padding: 0px;
+  font-family: $r;
+  .ui-widget-header{
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid $border;
+    @include border-radius(0px !important);
+  }
+  .ui-dialog-content{
+    height: auto !important;
+    textarea{
+      background-color: $wt;
+      border: 1px solid $border2;
+      box-shadow: none;
+      font-size: 12px;
+      height: 80px !important;
+      outline: none !important;
+    }
+  }
+  .ui-dialog-buttonpane{
+    padding: .5em 1em;
+    .ui-dialog-buttonset{
+      float: left;
+      button{
+        font-family: $b;
+        font-size: 13px;
+        padding: 7px 15px;
+        color: #fff;
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        @include border-radius(5px);
+      }
+      button:first-child{
+        background-color: $blue;
+      }
+      button:nth-child(2){
+        background-color: $red;
+      }
+      button:last-child{
+        background-color: $purple;
+      }
+    }
+  }
+}

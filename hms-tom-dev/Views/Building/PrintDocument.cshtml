@@ -1,0 +1,246 @@
+﻿@model hms_tom_dev.Models.General.GenBuildingFacilityPrintDocumentViewModel
+@*<link rel="stylesheet" href="@Server.MapPath("~/Assets/Css/app.css")" media="screen">*@
+<link rel="stylesheet" href="~/Assets/Css/app.css" media="screen">
+
+<style>
+    .imgPdf {
+        width: 240px !important;
+        height: 190px !important;
+    }
+
+    .widthTableHeader {
+        width: 280px !important;
+    }
+
+    .widthTable { width: 368px !important; }
+    .widthTableValue { width: 144px !important; }
+    
+    .widthTableHeadcount { width: 170px !important; }
+
+    .images-wrap {
+        width: 740px !important;
+    }
+
+    table {
+        width: 100% !important;
+    }
+
+    .fixedheight .topbottom {
+        height: 75px;
+    }
+
+    .fixedheight .middle {
+        height: 96px;
+    }
+</style>
+
+<body class="report-page">
+<main>
+    @for (var i = 0; i < @Model.HeaderSize; i++)
+    {
+        <table class="fixedheight" height="250px">
+            <tr>
+                <td class="widthTableHeader topbottom" style="overflow:auto;" valign="top">
+                    <label><b>WAREHOUSE NAME SSSSS</b></label>
+                    <br />
+                    <span>@Model.ListHeader[i].IDLocation - @Model.ListHeader[i].WarehouseName</span>
+                </td>
+                <td rowspan="3" valign="bottom" align="center">
+                    @* <div class="images-wrap" style="min-height: 200px"> *@
+                    @if (!String.IsNullOrEmpty(@Model.ListHeader[i].pic1))
+                    {
+                        <img src="@Server.MapPath(@Model.ListHeader[i].pic1)" onerror="this.src = '@Server.MapPath("~/Assets/Images/no-image.jpg")'" alt="" class="imgPdf">
+                        @*<img src="~/Assets/Images/building.jpg" alt="" class="imgPdf">*@
+                    }
+                    <label>Warehouse</label>
+                    @* </div>*@
+                </td>
+                <td rowspan="3" valign="bottom" align="center">
+                    @if (!String.IsNullOrEmpty(@Model.ListHeader[i].pic2))
+                    {
+                        <img src="@Server.MapPath(@Model.ListHeader[i].pic2)" onerror="this.src = '@Server.MapPath("~/Assets/Images/no-image.jpg")'" alt="" class="imgPdf">
+                        @*<img src="~/Assets/Images/building2.jpg" alt="" class="imgPdf">*@
+                    }
+                    <label>Loading Dock</label>
+                </td>
+                <td rowspan="3" valign="bottom" align="center">
+                    @if (!String.IsNullOrEmpty(@Model.ListHeader[i].pic3))
+                    {
+                        <img src="@Server.MapPath(@Model.ListHeader[i].pic3)" onerror="this.src = '@Server.MapPath("~/Assets/Images/no-image.jpg")'" alt="" class="imgPdf">
+                        @*<img src="~/Assets/Images/building3.jpg" alt="" class="imgPdf">*@
+                    }
+                    <label>Office</label>
+                </td>
+            </tr>
+            <tr>
+                <td class="widthTableHeader middle">
+                    <label><b>WAREHOUSE ADDRESS</b></label>
+                    <br />
+                    <span>@Model.ListHeader[i].WarehouseAddress</span>
+                </td>
+
+            </tr>
+            <tr> 
+                <td class="widthTableHeader topbottom" style="overflow:auto;" valign="bottom">
+                    <label><b>WAREHOUSE STATUS</b></label>
+                    <br />
+                    <span>@Model.ListHeader[i].WarehouseStatus</span>
+                </td>
+
+            </tr>
+        </table>
+
+        <br/>
+        <br />
+
+        <label>GENERAL</label>
+        <br />
+        <table class="table">
+            <tbody>
+                @for (var j = 0; j < @Model.ListHeader[i].GeneralSize; j += 2)
+                {
+                    <tr>
+                        <td class="widthTable">
+                            <label>@Model.ListHeader[i].ListGeneral[j].FieldName</label>
+                        </td>
+                        <td class="widthTableValue">
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListGeneral[j].Value</span>
+                        </td>
+                        <td class="widthTable">
+                            @if ((j + 1) < @Model.ListHeader[i].GeneralSize)
+                            {
+                                <label>@Model.ListHeader[i].ListGeneral[j + 1].FieldName</label>
+                            }
+                        </td>
+                        <td class="widthTableValue">
+                            @if ((j + 1) < @Model.ListHeader[i].GeneralSize)
+                            {
+                                <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListGeneral[j + 1].Value</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <label>ASSET</label>
+        <br />
+        <table class="table">
+            <tbody>
+                @for (var k = 0; k < @Model.ListHeader[i].AssetSize; k += 2)
+                {
+                    <tr>
+                        <td class="widthTable">
+                            <label>@Model.ListHeader[i].ListAsset[k].FieldName</label>
+                        </td>
+                        <td class="widthTableValue">
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListAsset[k].Value</span>
+                        </td>
+                        <td class="widthTable">
+                            @if ((k + 1) < @Model.ListHeader[i].AssetSize)
+                            {
+                                <label>@Model.ListHeader[i].ListAsset[k + 1].FieldName</label>
+                            }
+                        </td>
+                        <td class="widthTableValue">
+                            @if ((k + 1) < @Model.ListHeader[i].AssetSize)
+                            {
+                                <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListAsset[k + 1].Value</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <label>EQUIPMENT</label>
+        <br />
+        <table class="table">
+            <tbody>
+                @for (var l = 0; l < @Model.ListHeader[i].EquipmentSize; l += 2)
+                {
+                    <tr>
+                        <td class="widthTable">
+                            <label>@Model.ListHeader[i].ListEquipment[l].FieldName</label>
+                        </td>
+                        <td class="widthTableValue">
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListEquipment[l].Value</span>
+                        </td>
+                        <td class="widthTable">
+                            @if ((l + 1) < @Model.ListHeader[i].EquipmentSize)
+                            {
+                                <label>@Model.ListHeader[i].ListEquipment[l + 1].FieldName</label>
+                            }
+                        </td>
+                        <td class="widthTableValue">
+                            @if ((l + 1) < @Model.ListHeader[i].EquipmentSize)
+                            {
+                                <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListEquipment[l + 1].Value</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <label>HEADCOUNT</label>
+        <br />
+
+        <table class="table">
+            <tbody>
+            @for (var m = 0; m < @Model.ListHeader[i].HeadcountSize; m += 2)
+            {
+                <tr>
+                    <td class="widthTableHeadcount" colspan="3">
+                        <label>@Model.ListHeader[i].ListHeadcount[m].FieldName</label>
+                    </td>
+                    <td class="widthTableHeadcount" colspan="3">
+                        @if ((m + 1) < @Model.ListHeader[i].HeadcountSize)
+                        {
+                            <label>@Model.ListHeader[i].ListHeadcount[m + 1].FieldName</label>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>MONTHLY</label>
+                        <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m].Monthly</span>
+                    </td>
+                    <td>
+                        <label>DAILY</label>
+                        <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m].Daily</span>
+                    </td>
+                    <td>
+                        <label>OUTSOURCE</label>
+                        <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m].Outsource</span>
+                    </td>
+
+                    <td>
+                        @if ((m + 1) < @Model.ListHeader[i].HeadcountSize)
+                        {
+                            <label>MONTHLY</label>
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m + 1].Monthly</span>
+                        }
+                    </td>
+                    <td>
+                        @if ((m + 1) < @Model.ListHeader[i].HeadcountSize)
+                        {
+                            <label>DAILY</label>
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m + 1].Daily</span>
+                        }
+                    </td>
+                    <td>
+                        @if ((m + 1) < @Model.ListHeader[i].HeadcountSize)
+                        {
+                            <label>OUTSOURCE</label>
+                            <span>:&nbsp;&nbsp;@Model.ListHeader[i].ListHeadcount[m + 1].Outsource</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        if (i < @Model.HeaderSize -1)
+        { 
+            <div style="page-break-after: always;"></div>
+        }
+    }
+</main>
+</body>

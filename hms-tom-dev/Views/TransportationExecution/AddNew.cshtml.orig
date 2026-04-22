@@ -1,0 +1,883 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportExecutionViewModel
+@{
+    ViewBag.Title = "Transport > Transportation Execution > New TN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .tabTransportationExecutionList {
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 50px;
+    }
+
+    a.disabled {
+        color: gray;
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .horizontal-execution-type {
+        white-space: nowrap;
+        overflow: auto;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #dtFilterMaster {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    #dtFilterMaster > td + td {
+        border-left: 0;
+    }
+
+    .padding-filter {
+        padding-right: 0;
+    }
+
+    .checkbox-deck label {
+        width:17px!important;
+        height:17px;
+    }
+</style>
+<div class="map-deck vessel" hidden>
+    <a id="MarineTrafficView" role="button" class="toggle-collapse collapsed" data-toggle="collapse" href="#summarywrap" aria-expanded="true" aria-controls="summarywrap" style="padding:10px 5px;">
+        Total Trip
+        <i class="fa fa-angle-up pull-right"></i>
+    </a>
+    <div id="summarywrap" class="collapse" role="tabpanel" aria-labelledby="summarywrap" style="">
+        <div class="col-md-12" id="boxSummary" style="width:100%; background-color:#FFF;padding:20px 10px;">
+
+        </div>
+    </div>
+</div>
+<div class="filter-deck">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationExecution")'">Back</button>
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.GenerateTN)))
+{
+        <button class="btn btn-primary" type="button" id="btnPopUpGenerateTN" data-toggle="modal">Generate TN</button>
+}
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+{
+        <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+}
+    </div>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="filter" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <div class="row">
+                @Html.DropDownListFor(model => Model.vendorList, Model.vendorList, new { @class = "form-control hidden", @id = "VendorListHidden" })
+                <div class="col-md-2 padding-filter">
+                    <div class="form-group">
+                        <label>Zone</label>
+                        @*<select class="form-control" id="FilterZone"></select>*@
+                        @Html.DropDownListFor(model => Model.zoneList, Model.zoneList, new { @class = "form-control", @id = "FilterZone" })
+                    </div>
+                </div>
+                <div class="col-md-2 padding-filter">
+                    <div class="form-group">
+                        <label>Order Type</label>
+                        @*<select class="select2" multiple="multiple" id="FilterSTONumber"></select>*@
+                        @Html.DropDownListFor(model => Model.orderTypeList, Model.orderTypeList, new { @multiple = "multiple", @id = "FilterOrderType" })
+                    </div>
+                </div>
+                <div class="col-md-1 padding-filter">
+                    <div class="form-group">
+                        <label>Week</label>
+                        @*<select class="form-control" id="FilterWeek"></select>*@
+                        @Html.DropDownListFor(model => Model.weekNow,
+                            new SelectList(Enumerable.Range(1, 53).Select(r => new { Text = r.ToString(), Value = r }), "Value", "Text", Model.ListWeeks), new { @class = "form-control", id = "FilterWeek" })
+                    </div>
+                </div>
+                <div class="col-md-1 padding-filter">
+                    <div class="form-group">
+                        <label>Year</label>
+                        @*<select class="form-control" id="FilterYear"></select>*@
+                        @Html.DropDownListFor(model => Model.yearNow,
+                            new SelectList(Enumerable.Range(-1, 3).Select(r => new { Text = (DateTime.Now.Year + r).ToString(), Value = DateTime.Now.Year + r }), "Value", "Text", Model.ListYears), new { @class = "form-control", id = "FilterYear" })
+                    </div>
+                </div>
+                <div class="col-md-2 padding-filter">
+                    <div class="form-group">
+                        <label>Sender</label>
+                        @*<select class="form-control" id="FilterSender"></select>*@
+                        @Html.DropDownListFor(model => Model.locationList, Model.locationList, new { @multiple = "multiple", @id = "FilterSender" })
+                    </div>
+                </div>
+                <div class="col-md-2 padding-filter">
+                    <div class="form-group">
+                        <label>Ordered Vehicle Type</label>
+                        @*<select class="form-control" id="FilterVehicleType"></select>*@
+                        @Html.DropDownListFor(model => Model.vehicleTypeList, Model.vehicleTypeList, new { @class = "form-control", @id = "FilterVehicleType" })
+                    </div>
+                </div>
+                <div class="col-md-1 padding-filter">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-primary" id="btnSearch">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="title-deck wmb">
+</div>
+
+<div class="title-deck wmb horizontal-execution-type">
+    @foreach (var x in Model.executionTypeList)
+    {
+        if (x.Value == "ALL")
+        {
+            <a id="@x.Value" class="executiontype disabled"><label class="tabTransportationExecutionList">@x.Value</label></a>
+        }
+        else
+        {
+            <a id="@x.Value" class="executiontype"><label class="tabTransportationExecutionList">@x.Value</label></a>
+        }
+    }
+</div>
+<table id="dtFilterMaster" class="display table dataTable">
+    <thead>
+        <tr>
+            <th width="5%" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" id="SelectAllChk">
+                    <label for="SelectAllChk"></label>
+                </div>
+            </th>
+            <th>Order Number</th>
+            <th>Shipment Date</th>
+            <th>Sequence</th>
+            <th>Order Type</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Ordered Vehicle Type</th>
+            <th>Material Type</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>UoM</th>
+            <th>Order Remarks</th>
+            <th>Order Creator</th>
+            <th>Submitted</th>
+            <th>Transportation Number</th>
+            <th>Vendor</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width="5%" nowrap class="text-center">Filter</th>
+            <th>Order Number</th>
+            <th>Shipment Date</th>
+            <th>Sequence</th>
+            <th>Order Type</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Ordered Vehicle Type</th>
+            <th>Material Type</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>UoM</th>
+            <th>Order Remarks</th>
+            <th>Order Creator</th>
+            <th>Submitted</th>
+            <th>Transportation Number</th>
+            <th></th> 
+        </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="modalGenerateTN" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmExportPickingList">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Start Location</label>
+                                @*<select class="form-control" id="StartLocationGenerateTN"></select>*@
+                                @Html.DropDownListFor(model => Model.locationList, Model.locationList, new { @id = "StartLocationGenerateTN" })
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Transportation Mode</label>
+                                @*<select class="form-control" id="TransportationModeGenerateTN"></select>*@
+                                @Html.DropDownListFor(model => Model.transportationModeList, Model.transportationModeList, new { @class = "form-control", @id = "TransportationModeGenerateTN" })
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGenerateTN" class="btn btn-primary">Generate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span id="textModalSucess"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var filter = new Object();
+    var dialog;
+    var idCheckBox = 0;
+    var prevID = 0;
+    var executionType = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var orderNumber = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var orderType = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var sender = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var receiver = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var vehicleType = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var shipmentDate = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var remark = "";//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var seqNo = 0;//digunakan untuk data tabel, mennyembunyikan atau menampilkan data yang ada
+    var transNumber = "";
+    var idVendor = "";
+
+    var tempIDGenerateTN = [];//digunakan untuk generate TN
+    var tempCheckIDGenerateTN = [];//digunakan untuk pengecekan pada saat generate TN
+    var duplicateTO = [];//digunakan untuk menandakan to mana saja yang duplicate
+    var listColor = [];//supaya tidak ada warna yang sama
+
+    $(function () {
+        //$("#FilterOrderType").val($("#FilterOrderType option:last").val());
+        $("#FilterOrderType").val("Finished Good");
+        $("#FilterOrderType").select2({ width: '100%' });
+        $("#FilterSender").select2({ width: '100%' });
+        
+        $(".vSuggest").select2({});        
+        var id = $("a.executiontype.disabled").attr("id");
+        loadDataTable(id, 0, 0);
+        resetParam();
+        $('.horizontal-execution-type').find('a.disabled').find('.tabTransportationExecutionList').css('border-bottom', '2px solid grey');
+    });
+    $('#modalGenerateTN').on('hidden.bs.modal', function () {
+        $('#StartLocationGenerateTN').select2("close");
+    });
+    $("#btnSearch").click(function () {               
+        /*var FilterOrderType = $("#FilterOrderType").val();
+        if(FilterOrderType == null){
+            $("#textModalError").html("");
+            $("#textModalError").append("Please select Order Type");
+            $('#modalerror').modal('show');
+        } else {*/
+            var id = $("a.executiontype.disabled").attr("id");
+            loadDataTable(id, 0, 0);
+            resetParam();
+        //}
+    });
+    $(".executiontype").click(function () {
+        //reinit temp var
+        tempIDGenerateTN = [];
+        tempCheckIDGenerateTN = [];
+
+        //unchecked checkbox select all
+        $('#SelectAllChk').prop('checked', false);
+
+        $(".executiontype").each(function () {
+            $(this).removeClass('disabled');
+        });
+        $(this).addClass('disabled');
+        $('.tabTransportationExecutionList').css('border-bottom', '');
+        $(this).find('.tabTransportationExecutionList').css('border-bottom', '2px solid grey');
+        var id = $(this).attr('id');
+        loadDataTable(id, 0, 0);
+        resetParam();
+    });
+    
+    /*function setTabList(param) {        
+        loadDataTable();
+        resetParam();        
+    }*/
+    
+    function resetParam() {
+        idCheckBox = 0;
+        prevID = 0;
+        executionType = "";
+        orderNumber = "";
+        orderType = "";
+        sender = "";
+        receiver = "";
+        vehicleType = "";
+        shipmentDate = "";
+        remark = "";
+        seqNo = 0;
+        transNumber = "";
+        idVendor = "";
+        vendorSuggestion = 0;
+    }
+    
+    function loadDataTable(param, idCheckBox, prevID) {
+        //console.log(param);
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+            closeButton: false
+        });
+        if (param == "With TN") {
+            $("#btnPopUpGenerateTN").addClass("disabled");
+            $("#btnSave").prop("disabled", false);
+        } else {
+            $("#btnPopUpGenerateTN").removeClass("disabled");
+            $("#btnSave").prop("disabled", true);
+        }
+
+        var FilterZone = "ALL";
+        if ($("#FilterZone").val() != "") {
+            FilterZone = $("#FilterZone").val();
+        }
+        var FilterOrderType = "ALL";
+        if ($("#FilterOrderType").val() != "") {
+            FilterOrderType = $("#FilterOrderType").val();
+        }
+        var FilterWeek = $("#FilterWeek").val();
+        var FilterYear = $("#FilterYear").val();
+        var FilterSender = "ALL";
+        if ($("#FilterSender").val() != "") {
+            FilterSender = $("#FilterSender").val();
+        }
+        var FilterVehicleType = "ALL";
+        if ($("#FilterVehicleType").val() != "") {
+            FilterVehicleType = $("#FilterVehicleType").val();
+        }
+        //executionType = param;
+        filter.executionTypeFilter = param;
+        filter.zoneFilter = FilterZone;
+        filter.orderTypeListFilter = FilterOrderType;
+        filter.weekFilter = FilterWeek;
+        filter.yearFilter = FilterYear;
+        filter.senderListFilter = FilterSender;
+        filter.vehicleTypeFilter = FilterVehicleType;
+        //console.log(filter);
+        if (param == "With TN") {
+            $(".map-deck").attr("hidden", false);
+            loadTotalVendor();
+        } else {
+            $(".map-deck").attr("hidden", true);
+        }
+        //idCheckBox = 0;
+        //prevID = 0;        
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetTransportExecutionAddNewList", "TransportationExecution")',
+            cache: false,
+            data: { input: filter },
+            async: true,
+            success: function (json) {
+                dialog.modal("hide");
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': false,
+                    'sort': false,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[1, 'asc']],
+                    columns: [
+                        {
+                            'data': 'IDCheck', "class": "text-center", "render": function (data, type, row) {
+                                if (idCheckBox != row["IDCheck"]) {
+                                    idCheckBox = row["IDCheck"];
+                                    if ((!row["TransportationNumber"] && param != "With TN") || (param == "With TN" && !row["IDVendor"])) {
+                                        return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["IDCheck"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["IDCheck"] + ']"></label></div></td>';
+                                    }
+                                    else {
+                                        return '';
+                                    }
+                                } else {
+                                    return '';
+                                }
+                            }
+                        },
+                        {
+                            'data': 'OrderNumber', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (orderNumber != row["OrderNumber"] && prevID != row["IDCheck"]) {
+                                        orderNumber = row["OrderNumber"] + " - " + prevID;
+                                        return row["OrderNumber"];
+                                    } else
+                                        return '';
+                                }
+                                return row["OrderNumber"];
+                            }
+                        },
+                        {
+                            'data': 'ShipmentDate', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (shipmentDate != row["ShipmentDate"] || prevID != row["IDCheck"]) {
+                                        shipmentDate = row["ShipmentDate"];
+                                        return moment(row["ShipmentDate"]).format("DD-MMM-YYYY");
+                                    } else
+                                        return '';
+                                }
+                                return moment(row["ShipmentDate"]).format("DD-MMM-YYYY");
+                            }
+                        },
+                        {
+                            'data': 'Sequence', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (seqNo != row["Sequence"] && prevID != row["IDCheck"]) {
+                                        seqNo = row["Sequence"];
+                                        return row["Sequence"];
+                                    } else
+                                        return '';
+                                }
+                                return row["Sequence"];
+                            }
+                        },
+                        {
+                            'data': 'OrderType', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (orderType != row["OrderType"] || prevID != row["IDCheck"]) {
+                                        orderType = row["OrderType"];
+                                        return row["OrderType"];
+                                    } else
+                                        return '';
+                                }
+                                return row["OrderType"];
+                            }
+                        },
+                        {
+                            'data': 'Sender', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (sender != row["Sender"] || prevID != row["IDCheck"]) {
+                                        sender = row["Sender"];
+                                        return row["Sender"];
+                                    } else
+                                        return '';
+                                }
+                                return row["Sender"];
+                            }
+                        },
+                        {
+                            'data': 'Receiver', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (receiver != row["Receiver"] || prevID != row["IDCheck"]) {
+                                        receiver = row["Receiver"];
+                                        return row["Receiver"];
+                                    } else
+                                        return '';
+                                }
+                                return row["Receiver"];
+                            }
+                        },
+                        {
+                            'data': 'OrderedVehicleType', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (vehicleType != row["OrderedVehicleType"] || prevID != row["IDCheck"]) {
+                                        vehicleType = row["OrderedVehicleType"];
+                                        return row["OrderedVehicleType"];
+                                    } else
+                                        return '';
+                                }
+                                return row["OrderedVehicleType"];
+                            }
+                        },
+                        { 'data': 'MaterialType', 'searchable': true },
+                        { 'data': 'Description', 'searchable': true },
+                        { 'data': 'Qty', 'searchable': true },
+                        { 'data': 'UoM', 'searchable': true },
+                        {
+                            'data': 'OrderRemarks', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (remark != row["OrderRemarks"] || idCheckBox != row["IDCheck"] || remark == "") {
+                                        remark = row["OrderRemarks"];
+                                        return row["OrderRemarks"];
+                                    } else
+                                        return '';
+                                }
+                                return row["OrderRemarks"];
+                            }
+                        },
+                        { 'data': 'OrderCreator', 'searchable': true },
+                        { 'data': 'UpdatedDate', "render": function (data, type, row) {
+                                return moment(row["UpdatedDate"]).format("DD-MMM-YYYY HH:mm");
+                            }
+                        },
+                        {
+                            'data': 'TransportationNumber', "render": function (data, type, row) {
+                                if (param == "Next Day" || param == "ALL" || param == "With TN" || param == "Without TN") {
+                                    if (transNumber != row["TransportationNumber"] || idCheckBox != row["IDCheck"] || transNumber == "") {
+                                        transNumber = row["TransportationNumber"];
+                                        return row["TransportationNumber"];
+                                    } else
+                                        return '';
+                                }
+                                return row["Sequence"];
+                            }
+                        },
+                        {
+                            'data': 'IDVendor', "render": function (data, type, row) {
+                                if (param == "With TN" && prevID != row["IDCheck"] && !row["IDVendor"]) {
+                                    prevID = row["IDCheck"];
+                                    var ListVendorSuggest = getVendor(row["IDCheck"]);
+                                    var listVendor = '<select class="select2 vSuggest" id="Vendor' + row["IDCheck"] + '">';
+                                    if (ListVendorSuggest.length > 0) {
+                                        for (var j = 0; j < ListVendorSuggest[0].length; j++) {
+                                            listVendor += '<option value="' + ListVendorSuggest[0][j].IDVendor + '">' + ListVendorSuggest[0][j].VendorName + '</option>';
+                                        }
+                                    }
+                                    listVendor += '</select>';
+                                    return listVendor;
+                                } else if (row["IDVendor"]) {
+                                    if (prevID != row["IDCheck"]) {
+                                        prevID = row["IDCheck"];
+                                        return row["VendorName"];
+                                    } else {
+                                        return '';
+                                    }                                        
+                                } else {
+                                    if (prevID != row["IDCheck"])
+                                        prevID = row["IDCheck"];
+                                    return '';
+                                }                                
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    "createdRow": function(row, data, index) {
+                        $('td', row).addClass('color-' + data["IDCheck"] + "-" + data["IDTransportOrder"]);
+                        $('td', row).addClass('error-generateTN');
+                    }
+                });
+                $(".vSuggest").select2();
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 16)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            },
+            error: function () {
+                dialog.modal("hide");
+            }
+        });        
+        //resetParam();
+    }
+    
+    function loadTotalVendor() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetTotalVendorAddNew", "TransportationExecution")',
+            cache: false,
+            data: { input: filter },
+            async: false,
+            success: function (json) {
+                //console.log(json);
+                var txtSummary = '';
+                for (var i = 0; i < json.length; i++) {
+                    txtSummary += '<div class="col-md-3">' + json[i].MasterVendor.VendorName + '</div>' +
+                    '<div class="col-md-1">' + json[i].TotalVendor + '</div>';
+                }
+                $("#boxSummary").html(txtSummary);
+            }
+        });
+    }
+    function getVendor(idTE) {
+        var tempListVendor = [];
+        $.ajax({
+            url: '@Url.Action("GetVendor", "TransportationExecution")',
+            type: "GET",
+            dataType: "json",
+            cache: false,
+            async: false,
+            data: { "IDTE": idTE },
+            success: function (result) {
+                tempListVendor.push(result);
+                return tempListVendor;
+            }
+        });
+        //console.log(tempListVendor);
+        return tempListVendor;
+    }
+
+<<<<<<< HEAD
+    $('#SelectAllChk').click(function () {
+        var IsChecked = $(this).prop('checked');
+        $('.chkList').each(function (e) {
+            $(this).prop('checked', IsChecked);
+            $(this).trigger('change');
+        });
+    });
+
+    $("#btnGenerateTN").click(function () {
+=======
+    $("#btnGenerateTN").click(function () {        
+>>>>>>> dev
+        var typeexec = $("a.executiontype.disabled").attr("id");
+        if (typeexec == "Synergy" || typeexec == "RMT PP") {
+            $(".error-generateTN").css("border-bottom", "");
+            if (checkDuplicateTO()) {
+                listColor = [];
+                for (var i = 0; i < duplicateTO.length; i++) {
+                    var randomColor = getRandomColor(listColor);
+                    for (var j = 0; j < tempCheckIDGenerateTN.length; j++) {
+                        var index = tempCheckIDGenerateTN[j].to.indexOf(duplicateTO[i]);
+                        if (index > -1) {
+                            var selector = "color-" + tempCheckIDGenerateTN[j].id + "-" + duplicateTO[i];
+                            //$("." + selector).css("border-top", "3px solid " + randomColor);
+                            $("." + selector).css("border-bottom", "3px solid " + randomColor);
+                        }
+                    }
+                }
+                $("#textModalError").html("");
+                $("#textModalError").append("There are duplicate Order Number in selected data");
+                $('#modalerror').modal('show');
+                return false;
+            }
+        }
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+            closeButton: false
+        });
+        $.ajax({
+            url: '@Url.Action("GenerateTransportationNumber", "TransportationExecution")',
+            method: 'POST',
+            data: { idStartLoc: $("#StartLocationGenerateTN").val(), transMode: $("#TransportationModeGenerateTN").val(), idcheckList: tempIDGenerateTN },
+            cache: false,
+            async:true,
+            success: function (data) {
+                dialog.modal('hide');
+                if (data.length == 0) {
+                    var id = $("a.executiontype.disabled").attr("id");
+                    loadDataTable(id, 0, 0);
+                    resetParam();
+                    $("#textModalSucess").html("");
+                    $("#textModalSucess").html("Transportation Number has been successfully generated");
+                    $('#modalsuccess').modal('show');
+                    $('#modalGenerateTN').modal('hide');                    
+                } else {
+                    var txtError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "Vendor") {
+                            txtError = txtError + "Suggestion Vendor for Order Number " + split[2] + " not found<br/>";
+                        }
+                        if (split[0] == "Exists") {
+                            txtError = txtError + "Transportation Number for Order Number " + split[2] + " already generated<br/>";
+                        }
+                    }                    
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtError);
+                    $('#modalerror').modal('show');
+                }
+            }
+        });
+    });
+
+    $("#btnPopUpGenerateTN").click(function() {
+        if (tempIDGenerateTN.length > 0) {
+            $("#StartLocationGenerateTN").select2({ width: '100%' });
+            $("#StartLocationGenerateTN").select2("val", "");
+            $("#TransportationModeGenerateTN").val("");
+            $('#modalGenerateTN').modal('show');
+        } else if (tempIDGenerateTN.length == 0) {
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="../assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    });
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var idCheck = data["IDCheck"];
+            var result = $.grep(tempIDGenerateTN, function (e) { return e == idCheck; });
+            if (result.length == 0) {
+                tempIDGenerateTN.push(idCheck);
+                var transExe = new Object();
+                transExe.id = idCheck;
+                transExe.to = data["ConcatIDTransportOrder"].split('-');
+                tempCheckIDGenerateTN.push(transExe);
+            } else if (result.length == 1) {
+                tempIDGenerateTN = tempIDGenerateTN.filter(function (obj) {
+                    return obj !== idCheck;
+                });
+                tempCheckIDGenerateTN = tempCheckIDGenerateTN.filter(function(obj) {
+                    return obj.id !== idCheck;
+                });
+            }
+        });
+    }
+
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#dtFilterMaster').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempIDGenerateTN.push(table.cell(i, 1).data());
+                tempCheckIDGenerateTN.push(table.cell(i, 1).data());
+            });
+            tempIDGenerateTN = tempIDGenerateTN.filter(onlyUnique);
+            tempCheckIDGenerateTN = tempCheckIDGenerateTN.filter(onlyUnique);
+        } else {
+            tempIDGenerateTN = [];
+            tempCheckIDGenerateTN = [];
+        }
+    });
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+    //START: BAGIAN PENGECEKAN APAKAH DATA DI CHECK PADA SAAT GENERATE TN ADA YANG SAMA
+    function checkDuplicateTO() {
+        var tempListTO = [];
+        for (var i = 0; i < tempCheckIDGenerateTN.length; i++) {
+            var tempObj = tempCheckIDGenerateTN[i];
+            tempListTO.push.apply(tempListTO, tempObj.to);
+        }
+        duplicateTO = searchDuplicate(tempListTO);
+        if (duplicateTO.length > 0)
+            return true;
+        else
+            return false;
+    }
+
+    function getRandomColor(listGeneratedColor) {
+        var letters = '0123456789ABCDEF';
+        var color = '';
+        //console.log(listGeneratedColor);
+        do {
+            color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            if (listGeneratedColor.length == 0)
+                listGeneratedColor.push(color);
+        }
+        while (listGeneratedColor.indexOf(color) > -1 || listGeneratedColor.length == 0)
+        listGeneratedColor.push(color);
+        return color;
+    }
+
+    function searchDuplicate(arr) {
+        var result = [];
+        var obj = {};
+        for (var c = 0; c < arr.length; c++) {
+            if (!obj[arr[c]])
+                obj[arr[c]] = 0;
+            obj[arr[c]] += 1;
+        }
+        Object.keys(obj).forEach(function (key, index) {
+            if (obj[key] >= 2)
+                result.push(key);
+        });
+        return result;
+    }
+    //END: BAGIAN PENGECEKAN APAKAH DATA DI CHECK PADA SAAT GENERATE TN ADA YANG SAMA
+
+    $("#btnSave").click(function () {
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...Loading Data</div>',
+            closeButton: false
+        });
+        if (tempIDGenerateTN.length == 0) {
+            dialog.modal('hide');
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="../assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+            return false;
+        }
+        listSave = new Array();
+        var selectedCheck = new Object();
+        for (var i = 0; i < tempIDGenerateTN.length; i++) {
+            selectedCheck.IDTransportExecution = tempIDGenerateTN[i];
+            selectedCheck.IDVendor = $("#Vendor" + tempIDGenerateTN[i]).val();
+            listSave.push(selectedCheck);
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateVendor", "TransportationExecution")',
+            cache: false,
+            data: { saveData: listSave },
+            async: true,
+            success: function (json) {
+                dialog.modal('hide');
+                if (json == true) {
+                    var id = $("a.executiontype.disabled").attr("id");
+                    loadDataTable(id, 0, 0);
+                    resetParam();
+                    $("#textModalSucess").html("");
+                    $("#textModalSucess").html("Your data has been successfully saved");
+                    $('#modalsuccess').modal('show');                    
+                }
+            }
+        });
+    });
+
+</script>

@@ -1,0 +1,610 @@
+
+@{
+    ViewBag.Title = "Master Data > Master Facility > Icon";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>Icon</th>
+            <th>Field Name</th>            
+            <th class="text-center">Is Application</th>
+            <th>URL</th>
+            <th width=20% nowrap class="text-center">Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th></th>
+            <th>Field Name</th>            
+            <th class="text-center">Is Application</th>
+            <th>URL</th>
+            <th width=20% nowrap class="text-center">Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Facility Icon</h4>
+            </div>
+            <div class="modal-body">
+                <form id="newData">
+                    <div id="fieldChooser" tabindex="1" class="field-chooser">
+                        <div class="col-md-12">
+                            <div class="box sameHeight">
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedDate</label>
+                                            <input type="text" id="CreatedDate" class="form-control datepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedBy</label>
+                                            <input type="text" id="CreatedBy" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IDIconFacility</label>
+                                            <input type="text" id="IDIconFacility" class="form-control">                                                                                 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IconPath</label>
+                                            <input type="text" id="IconPath" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="form-group">
+                                <label class="control-label">Upload Icon</label>
+                                <input type="file" id="UploadI" class="filestyle" accept="image/png,image/jpg,image/jpeg">
+                            </div>*@
+                                <div class="col-md-12" id="divimg">
+                                    <div class="form-group">
+                                        
+                                        <a data-toggle="modal" href="#modalimage"><input type="image" alt="" height="100" id="previmageicon"></a>                                          
+                                        @*<button id="viewimage" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalimage">Preview</button>*@
+                                    </div>
+                                </div>  
+                            
+                                    <div class="col-md-12">                                      
+                                        <div class="form-group">
+                                            <label class="control-label">Upload Icon</label>
+                                            <input type="file" class="filestyle" name="" id="UploadI" accept="image/png,image/jpg,image/jpeg">
+                                            @*<a data-toggle="modal" href="#modalimage">Preview</a>*@
+                                            @*<button id="viewimage" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalimage">Preview</button>*@
+                                        </div>                             
+                                    </div>                                       
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Field Name</label>
+                                        @*<select class="form-control" id="FieldName"></select>*@
+                                        <input type="text" id="FieldName" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>URL</label>
+                                        <textarea id="Url" class="form-control" readonly></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Is Application</label>
+                                        <select class="form-control" id="Application">
+                                            <option value="1">YES</option>
+                                            <option value="0">NO</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Active</label>
+                                        <select class="form-control" id="Status">
+                                            <option value="1">YES</option>
+                                            <option value="0">NO</option>
+                                        </select>
+                                    </div>
+                                </div>                            
+                            </div>
+                        </div>                    
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalimage" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Icon Image Preview</h4>
+            </div>
+            <div class="modal-body">
+                <img alt="" id="srcimage" height="300px">               
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            generateDropDownFieldName();
+            document.getElementById('previmageicon').src = "assets/images/noimage.jpg";
+            document.getElementById("srcimage").src = "";
+            fileI = null;
+
+            checkimage();
+
+     
+           // document.getElementById("Remarks").disabled = true;
+        });
+    });
+    function resetData(){
+        $('#newData')[0].reset();
+        $('#Application').val("0");
+        document.getElementById("Url").readOnly = true;
+    }
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    generateTable();
+    generateDropDownFieldName();
+
+    $('#Application').change(function () {
+        if ($('#Application :selected').val() == 1) {
+           
+            document.getElementById("Url").readOnly = false;
+            document.getElementById("Url").disabled = false;
+        } else {
+           
+            document.getElementById("Url").readOnly = true;
+            document.getElementById("Url").disabled = true;
+
+            $('#Url').val(null);
+        }
+    });
+    //generate table
+    
+    function generateTable() {
+        $.ajax({
+            url     : 'MstIconFacility/GetMasterIconFacility',
+            method  : 'get',
+            dataType: 'json',
+            cache   :false,
+            success: function (json) {
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[6, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        {
+                            'data': 'Icon', "render": function (data, type, row, meta) {
+                                return '<div ><img alt="" src="' + row["LinkIcon"] + '" height="30" ></div>';
+                            }
+                        },
+                        { 'data': 'FieldName', 'searchable':true },
+                        {
+                            'data': 'Status', "class": "text-center", "render": function (data, type, row, meta) {
+                                if (data)
+                                    return "YES";
+                                else
+                                    return "NO";
+                            }
+                        },
+                        { 'data': 'Remarks', 'searchable': true },
+                        {   render: function (data, type, row) {
+                                  var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                  return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDFunction", "class":"text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 2 && index <= 5)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN TYPE
+    function generateDropDownFieldName(selectedValue) {
+        //$.ajax({
+
+        //    url: 'MstIconFacility/GetDropDownFieldName',
+        //    method: 'get',
+        //    cache: false,
+        //    dataType: 'json',
+        //    success: function (data) {
+        //        var select = document.getElementById('FieldName');
+        //        var len = document.getElementById('FieldName').length;
+        //        var option;
+               
+        //        if (len > 0)
+        //            $('#FieldName').empty().append('');
+        //        for (var i = 0; i < data.length; i++) {
+        //            option = document.createElement('option');
+        //            option.value = data[i]["FieldName"];
+        //            option.text = data[i]["FieldName"];
+        //            if (option.value == selectedValue)
+        //                option.setAttribute("selected", "selected");
+        //            select.add(option);
+        //        }
+        //    }
+        //});
+        var select1 = $('#FieldName');
+        $.ajax({
+            url: 'MstIconFacility/GetDropDownFieldName',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select1.html('');
+                select1.html('<option value="NULL"></option>').trigger('change');
+                $.each(data,
+                    function (kunci, tampung) {
+                        select1.append('<option value="' + tampung.FieldName + '">' + tampung.FieldName + '</option>');
+                    });
+            },
+            error: function () {
+                select1.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN TYPE
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        save(false);
+        $('#setinactive').modal('hide');
+        $('#inputModal').modal('hide');
+    });
+    $('#UploadI').on('change', function () {
+        // document.getElementById('previmageicon').src = $('#IconPath').val();
+
+        var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // get loaded data and render thumbnail.
+                document.getElementById("previmageicon").src = e.target.result;
+                document.getElementById("srcimage").src = e.target.result;
+            };
+
+            // read the image file as a data URL.
+            reader.readAsDataURL(this.files[0]);
+            
+
+    });
+    //document.getElementById('IconPath').change(function () {
+    //    //document.getElementById('previmageicon').src = $('#IconPath').val();
+    //    alert("tes");
+    //    var reader = new FileReader();
+
+    //    reader.onload = function (e) {
+    //        // get loaded data and render thumbnail.
+    //        document.getElementById("previmageicon").src = e.target.result;
+    //    };
+
+    //    // read the image file as a data URL.
+    //    reader.readAsDataURL(this.files[0]);
+    //})
+    $('#btnSaveNew').click(function () {
+        if ($('#inputModal').find('input[id="FieldName"]').val() == "" || fileI == null) {
+            $('#modalwarning').modal('show');
+        } else {
+            if ($('#Application :selected').val() == 1 && $('#inputModal').find('textarea[id="Url"]').val() == "") {
+                $('#modalwarning').modal('show');
+            } else {
+                if ($('#InsertOrUpdate').val() == "UPDATE") {
+                    $('#setinactive').modal('show');
+                } else {
+                    save(true);
+                }
+            }
+        }
+       
+    });
+
+    function save(statusSave) {
+        $('#Loading').modal('show');
+        var idiconfacility = $('#IDIconFacility').val();
+        var icon = $('#IconPath').val();      
+        //var fieldname = $('#FieldName :selected').val();
+        var fieldname = $('#FieldName').val();
+        var application = $('#Application :selected').val() == 1 ? true : false;
+        var status = $('#Status :selected').val() == 1 ? true : false;
+        var remarks = $('#Url').val();
+        var createddate = $('#CreatedDate').val();
+        var createdby = $('#CreatedBy').val();
+      
+        var data;
+        if (statusSave) {
+            data = {
+                "new": [{ "FieldName": fieldname, "Status": application, "Remarks": remarks, "IsActive": status }],
+                "edit": [{}]
+            };
+        } else {
+            data = {
+                "new": [{}],
+                "edit": [{ "IDIconFacility": idiconfacility,"Icon": icon, "FieldName": fieldname, "Status": application, "Remarks": remarks, "IsActive": status, "CreatedDate": createddate, "CreatedBy": createdby }]
+            };
+        }
+        $.ajax({
+            type: 'POST',
+            url: 'MstIconFacility/InsertList',
+            data: data,
+            success: function (result) {
+                if (result == "Success") {
+                    uploadFile();
+                    $('#modalsuccess').modal('show');
+                    document.getElementById('previmageicon').src = "assets/images/noimage.jpg";
+                    $('#Loading').modal('hide');
+                }
+                else 
+                    $('#modalerror').modal('show');
+                $('#Loading').modal('hide');
+
+            }
+        });
+    }
+    // END : Insert New Data
+      
+    //BEGIN : Edit Data
+    function editTable(id) {
+        resetData();
+        //generateDropDownFieldName();
+        $('#InsertOrUpdate').val("UPDATE");
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDIconFacility').val(data["IDIconFacility"]);
+            document.getElementById('previmageicon').src = data["LinkIcon"];
+            $('#IconPath').val(data["Icon"]);
+           // $('#Idlink').val(data["Icon"]);
+            document.getElementById("srcimage").src = data["LinkIcon"];
+            fileI = data["LinkIcon"];
+
+           // $('#Imgicon').val(data["Icon"]);
+            
+           // generateDropDownFieldName(data["FieldName"].trim());
+            //generateDropDownFieldName();
+            $('#FieldName').val(data["FieldName"]);
+            if (data["Status"])
+                $('#Application').val("1");
+            else
+                $('#Application').val("0");
+            $('#Url').val(data["Remarks"]);
+          
+            if (data["IsActive"])
+                $('#Status').val("1");
+            else
+                $('#Status').val("0");
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+            if ($('#Application :selected').val() == 1) {
+                document.getElementById("Url").readOnly = false;
+            } else {
+                document.getElementById("Url").readOnly = true;
+            }
+        });
+        $('#inputModal').modal('show');
+    }
+    // END : Edit Data
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+    // START : Upload File
+    var fileI;
+    $('#UploadI').on('change', function (e) {
+        fileI = e.target.files;
+    });
+    function uploadFile() {
+        if(fileI != undefined){
+        if (fileI.length > 0) {
+            if (window.FormData !== undefined) {
+                var data = new FormData();
+                for (var x = 0; x < fileI.length; x++) {
+                    data.append("fileI", fileI[x]);
+                }
+                $.ajax({
+                    type: "POST",
+                    url: 'MstIconFacility/UploadFile',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    cache: false,
+                    success: function (result) {
+                        resetData();
+                        generateTable();
+                    },
+                    error: function(xhr, status, p3, p4) {
+                        var err = "Error " + " " + status + " " + p3 + " " + p4;
+                        if (xhr.responseText && xhr.responseText[0] == "{")
+                            err = JSON.parse(xhr.responseText).Message;
+                    }
+                });
+            } else {
+                alert("This browser doesn't support HTML5 file uploads!");
+            }
+        }
+        } else {
+            $.ajax({
+                type: "POST",
+                url: 'MstIconFacility/dummy',
+                contentType: false,
+                processData: false,
+                data: {"dummy": 'dummy'},
+                success: function (result) {
+                    resetData();
+                    generateTable();
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,261 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    //for (int i= 0; i<= 2; i++) { Model.WarehouseStockCountDetails.Add(new hms_dfis_dev.Models.WarehouseStockCountDetailViewModel()); }
+    /*
+    for (int i = 0; i <= 1; i++)
+    {
+        var deleteRow = Model.WarehouseStockCountDetails.ElementAt(Model.WarehouseStockCountDetails.Count - 1);
+        Model.WarehouseStockCountDetails.Remove(deleteRow);
+    }
+    */
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime PrintedDate = Model.CreatedDate;
+    hms_tom_dev.Models.WarehouseStockCountListViewModel scm = new hms_tom_dev.Models.WarehouseStockCountListViewModel();
+    int MAX_ROW_PER_PAGE = 20;
+
+    int StartIndex = 0;
+    int rowNumber = 0;
+    int rowPerPage = 0;
+    bool IsDailyBS = false;
+    var WarehouseDetails = Model.WarehouseStockCountDetails;
+
+    if (Model.WEEKLY_STORE_LOCATION.Length > 0)
+    {
+        WarehouseDetails = Model.WarehouseStockCountDetails.Where(f => Model.WEEKLY_STORE_LOCATION.Contains(f.SLoc)).ToList();
+    }
+    //Model.WarehouseStockCountDetails = Model.WarehouseStockCountDetails.Where(f => Model.WEEKLY_STORE_LOCATION.Contains(f.SLoc)).ToList();
+    if (Model.WarehouseStockCountDetails.Count > 0)
+    {
+        IsDailyBS = WarehouseDetails.First().SLoc == "1042";
+    }
+
+    if (IsDailyBS)
+    {
+        MAX_ROW_PER_PAGE = 40;
+    }
+
+    int TotalPage = (int)Math.Ceiling((decimal)WarehouseDetails.Count / (decimal)MAX_ROW_PER_PAGE);
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/ReportStockCount.css")" media="screen">
+
+<script src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+
+
+<style>
+    /*body { width: 39cm; height: 21cm; }*/
+    @@media print {
+        @@page {
+            /*size: 39cm 24cm;*/
+            /*size: A4 landscape;*/
+        }
+    }
+
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    table tr th {
+        text-align: center;
+    }
+
+    .contentAlign {
+        text-align: center;
+    }
+
+    .rightAlign {
+        text-align: right;
+    }
+
+    .batchWidth {
+        width:60px;
+    }
+        
+    th[rowspan] {
+        position: relative;
+    }
+
+    th[rowspan]:before {
+        position: absolute;
+        content: "";
+        top: 0px;
+        left: -1px;
+        background-color: transparent;
+        border-left: solid #444 1px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .report-page main .col-data {
+        margin-bottom: 20px;
+    }
+    /*
+    .report-page.watermarks main {
+        background-image: url("../images/watermarks_landscape.jpg");
+    }
+    */
+</style>
+
+<body class="report-page watermarks" style="@(!IsDailyBS ? "width:30cm" : "")">
+    <main style="width:100%">
+        @for (int j = 1; j <= TotalPage; j++)
+        {
+            var Details = WarehouseDetails.Skip(StartIndex).Take(MAX_ROW_PER_PAGE).ToList();
+            rowPerPage  = Details.Count;
+            <div style="float:right; @(j > 1 ? "padding-top:15px;" : "")" class="numbering"></div>
+            <h4 class="section-title noline" style="@(j > 1 ? "padding-top:30px;" : "")"> <b> Stock Count Manual Form </b></h4>
+
+            <ul class="col-data" style="width:45%;">
+                <li><label>Warehouse</label><span>: <b> @Model.WarehouseName </b> </span></li>
+                <li><label>Week</label><span>: <b> @Model.Week </b> </span></li>
+            </ul>
+
+            <ul class="col-data" style="width:45%;">
+                <li><label>Date</label><span>: <b> @Model.TransDate.ToString("dd-MMM-yyyy") </b></span></li>
+                <!--<li><label>Time</label><span>: <b> @Model.CreatedDate.ToString("HH:mm") WIB </b></span></li>-->
+            </ul>
+
+            <div style="" class="div_small_box">
+                <div style="" class="slocinfo"><b>SLoc</b></div>
+                <div style="padding: 4px 1px 1px 4px;"><b>@WarehouseDetails.ElementAt(0).SLoc</b></div>
+            </div>
+
+            <table class="table" style=@(Details.Count > (MAX_ROW_PER_PAGE / 2) ? "" : "")>
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width:5%">No</th>
+                        <th rowspan="2" style="@(!IsDailyBS ? "padding-right:20px; padding-left:20px;" : "width:20%;")">Brand</th>                        
+                        @if (!IsDailyBS)
+                        {
+                        <th rowspan="2" style="padding-right:20px; padding-left:20px;">Pita</th>
+                        <th colspan="12">Production Batch (Box)</th>
+                        <th rowspan="2" class="batchWidth">Total Qty Utuh (Box)</th>
+                        }
+                        <th colspan="4">Quantity (Recehan)</th>
+                        <th colspan="1" rowspan="2" style="@(!IsDailyBS ? "width:120px;" : "width:70px;")" >Grand Total (Pack)</th>
+                    </tr>
+                    <tr style="">
+                        @if (!IsDailyBS)
+                        {
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        <th class="batchWidth"></th>
+                        }
+                        <th class="batchWidth">Box</th>
+                        <th class="batchWidth">Bal</th>
+                        <th class="batchWidth">Slof</th>
+                        <th class="batchWidth">Pack</th>
+                        <!--<th></th>-->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Details)
+                    {
+                        rowNumber += 1;                        
+                        <tr>
+                            <td class="contentAlign">@(Html.Raw(String.IsNullOrEmpty(row.Brand) ? "&nbsp" : "" + rowNumber))</td>
+                            <td class="contentAlign">@row.Brand</td>
+                            <td></td>
+                            @if (!IsDailyBS)
+                            {
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            }
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            StartIndex += MAX_ROW_PER_PAGE;
+
+            if (j < TotalPage)
+            {
+                <div style="page-break-after: always"></div>
+            }
+        }
+
+        @if (rowPerPage > (MAX_ROW_PER_PAGE / 2) + 1)
+        {
+            <div style="float:right; padding-top:5px; page-break-before:always;" class="numbering"></div>
+        }
+
+        <!--<div style="float:right; padding-top:15px;" class="numbering"></div>-->
+        <!--<div class="signature" style="margin-top:0px; @(rowPerPage > (MAX_ROW_PER_PAGE / 2) ? "page-break-before: always" : "")">-->
+        <div class="signature" style="margin-top:0px;">
+            <p>
+                Remarks: <br />
+            </p>
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>Helper / Admin Area</p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>DA / Admin Area</p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp</p>
+                <p class="name">(______________)</p>
+                <p>Regional Team</p>
+            </div>
+
+            <div class="sign text-center" style="float:right">
+                <p>Mengetahui,</p>
+                <p class="name">(______________)</p>
+                <p>SAD / DC</p>
+            </div>
+        </div>
+        <hr class="bold" />
+        <p class="printed printedby">Printed by : @Model.UserName on @PrintedDate.ToString("dd-MMM-yyyy HH:mm")</p>
+    </main>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var total_page = $('.numbering').length;
+        var no = 1;
+        $('.numbering').each(function (e) {
+            $(this).html(no + ' of ' + total_page);
+            no++;
+        });
+    });
+
+</script>

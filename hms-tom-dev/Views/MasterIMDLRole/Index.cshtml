@@ -1,0 +1,374 @@
+﻿@{
+    ViewBag.Title = "Master Data > Master IMDL Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>IMDL Role</th>
+            <th>Role</th>
+            <th>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>IMDL Role</th>
+            <th>Role</th>
+            <th>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">IMDL Role Mapping</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>IMDL Role</label>
+                                    <textarea class="form-control" id="IMDLRole" maxlength="128"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Role </label>
+                                @Html.DropDownList("Role", (SelectList)ViewBag.ListGetRole, string.Empty, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Active</label>
+                                <select class="form-control" id="Status">
+                                    <option value="1">YES</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Please fill the empty field(s) before saving </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val('INSERT');
+            $('#IMDLRole').attr('disabled', false);
+        });
+    });
+
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+        $('#addNew').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+
+    generateTable();
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MasterIMDLRole/GetMasterIMDLRole',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                           "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                               if (data == true) {
+
+                                   return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                               } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                           }
+                        },
+                        { 'data': 'IMDLRole', 'searchable': true },
+                        { 'data': 'RoleName', 'searchable': true },
+                        {
+                             render: function (data, type, row) {
+                                 var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                 var formatted = date.getFullYear() + "-" +
+                                       ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                       ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                       date.getMinutes();
+                                 var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                 return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                             }
+                        },
+                        {
+                            "data": "IMDLRole", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="return editTable(' + "'" + data + "'" + ');"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 4)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    function save() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var IMDLRole = $('#IMDLRole').val();
+        var IDRole = $('#Role').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+
+        var data = {
+            "new": [{ "IMDLRole": IMDLRole, "IDRole": IDRole, "IsActive": status }],
+            "edit": [{}]
+        };
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: 'MasterIMDLRole/InsertIMDLRole',
+            data: data,
+            success: function (data) {
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+                    });
+                }
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+    function editTable(id) {
+
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        $('#IMDLRole').attr('disabled','disabled');
+
+        $.ajax({
+            url: 'MasterIMDLRole/GetDataById',
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            cache: false,
+            data: { "IMDLRole": id },
+            success: function (json) {
+                console.log("edit");
+                console.log(json);
+                $('#IMDLRole').val(json.IMDLRole);
+                $('#Role').val(json.IDRole);
+                if (json.IsActive) {
+                    $('#Status').val("1");
+                } else {
+                    $('#Status').val("0");
+                }
+
+                ////close modal
+                $('#addnew').modal('show');
+
+            }
+        });
+    }
+
+    //update edited data
+    function edit() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var IMDLRole = $('#IMDLRole').val();
+        var IDRole = $('#Role').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+
+        var data = {
+            "new": [{}],
+            "edit": [{ "IMDLRole": IMDLRole, "IDRole": IDRole, "IsActive": status }],
+
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'MasterIMDLRole/InsertIMDLRole',
+            data: data,
+            success: function (data) {
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            generateTable();
+
+                            $('#modalsuccess').modal('show');
+                            resetData();
+                            $('#Loading').modal('hide');
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+
+                        }
+
+                    });
+                }
+
+            }
+        });
+    }
+</script>

@@ -1,0 +1,113 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="EdituploadFinalResult3" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Final Result</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <canvas id="canvasEditFinalResult3" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputFinalResult3" type="file" class="filestyle" name="" accept="image/*">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarkerEditFinalResult3">Add</button>
+                            <button class="btn btn-purple" id="clearMarkerEditFinalResult3">Clear</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="3" id="descUploadFinalResult3">@Model.RemarkUploadFinalResult3</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadinalResultEdit3">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var canvasEditFinalResult3 = new fabric.Canvas('canvasEditFinalResult3');
+    @if (!String.IsNullOrEmpty(Model.JsonCanvasFinalResult3))
+    {
+        <text>
+    canvasEditFinalResult3.loadFromDatalessJSON('@Html.Raw(Model.JsonCanvasFinalResult3)');
+        </text>
+    }else{
+        <text>
+    if ($("#fileInputFinalResult3").val() == '') {
+                $("#btnUploadinalResultEdit3").prop("disabled", true);
+                $("#addMarkerEditFinalResult3").prop("disabled", true);
+                $("#clearMarkerEditFinalResult3").prop("disabled", true);
+                $("#descUploadFinalResult3").prop("disabled", true);
+            } else {
+                $("#btnUploadinalResultEdit3").prop("disabled", false);
+                $("#addMarkerEditFinalResult3").prop("disabled", false);
+                $("#clearMarkerEditFinalResult3").prop("disabled", false);
+                $("#descUploadFinalResult3").prop("disabled", false);
+            }
+        </text>
+    }
+
+    $('#addMarkerEditFinalResult3').click(function (e) {
+        var posX = canvasEditFinalResult3.width / 2;
+        var posY = canvasEditFinalResult3.height / 2;
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvasEditFinalResult3.add(oImg).setActiveObject(oImg);
+            canvasEditFinalResult3.renderAll();
+        });
+    });
+
+    $('#clearMarkerEditFinalResult3').click(function (e) {
+        var canvasObjects = canvasEditFinalResult3.getObjects();
+        while (canvasObjects.length != 0) {
+            canvasEditFinalResult3.remove(canvasObjects[0]);
+            canvasEditFinalResult3.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputFinalResult3").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvasEditFinalResult3.setBackgroundImage(img, canvasEditFinalResult3.renderAll.bind(canvasEditFinalResult3), {
+                    width: canvasEditFinalResult3.getWidth(),
+                    height: canvasEditFinalResult3.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadinalResultEdit3").prop("disabled", false);
+        $("#addMarkerEditFinalResult3").prop("disabled", false);
+        $("#clearMarkerEditFinalResult3").prop("disabled", false);
+        $("#descUploadFinalResult3").prop("disabled", false);
+    });
+
+    $('#btnUploadinalResultEdit3').click(function (e) {
+        var canvas = document.getElementById("canvasEditFinalResult3");
+        $("#frontImgFinalResult3").css("background-image", "url('" + canvasEditFinalResult3.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+
+
+

@@ -1,0 +1,52 @@
+/* for toggle collapse */
+.toggle-collapse{
+    padding: 12px 25px;
+    display: block;
+    color: $main;
+    font-size: 16px;
+    background-color: $wt;
+    border: 1px solid rgba(128, 142, 167, 0.1);
+	border-left-color: transparent;
+	border-right-color: transparent;
+	@include transition(all, 0.3s, ease);
+	i{
+		margin-top: 3px;
+		@include transition(all, 0.3s, ease);
+	}
+	&:hover, &:focus{
+		text-decoration: none;
+		color: $blue;
+	}
+}
+
+.toggle-collapse.in-box{
+	border-left-color: rgba(128, 142, 167, 0.1);
+	border-right-color: rgba(128, 142, 167, 0.1);
+}
+
+.toggle-collapse.collapsed{
+	i{
+		@include transform(rotate(180deg));
+	}
+}
+
+.col-panel{
+	padding: 20px 10px;
+	overflow: hidden;
+	width: 100%;
+	background-color: $gray4;
+	border: 1px solid rgba(128, 142, 167, 0.1);
+	border-top: none;
+}
+
+.filter-deck{
+	float: left;
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.alert{
+	padding: 5px 10px;
+	margin: 10px 0;
+	@include border-radius(0); 
+}

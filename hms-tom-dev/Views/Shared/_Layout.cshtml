@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TOM - @ViewBag.Title</title>
+    <link rel="shortcut icon" href="@Url.Content("~/Contents/images/favicon/ms-icon-144x144.png")" type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="VTI Indonesia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    @{
+        Random rd = new Random();
+        const string allowedChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@$?_-";
+        char[] chars = new char[10];
+        for (int i = 0; i < 10; i++)
+        {
+            chars[i] = allowedChars[rd.Next(0, allowedChars.Length)];
+        }
+        string radomStr = "?" + new string(chars);
+    }
+    <!-- Load Style -->
+    @*<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">*@
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.tree.min.css")@{ @radomStr}" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-select.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.yadcf.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/select2-3.5.1.css")@{ @radomStr }" media="screen">
+    @*<link rel="stylesheet" href="@Url.Content("~/assets/css/stylesheet.css")" media="screen">*@
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-filestyle.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/planit.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/easy-autocomplete.min.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")@{ @radomStr }" media="screen">
+    <link rel="stylesheet" href="@Url.Content("~/assets/css/spectrum.css")@{ @radomStr }" media="screen">
+
+    <!-- Internal CSS -->
+    <style type="text/css">
+        tr th:first-child.sorting_asc {
+            background-image: none;
+            cursor: default;
+        }
+
+        .dataTables_wrapper {
+            overflow-y: auto;
+        }
+    </style>
+
+    <!-- Load Scripts -->
+    @*@Scripts.Render("~/bundles/init-load")*@
+    @Scripts.RenderFormat("<script type=\"text/javascript\" src=\"{0}" + radomStr + "\"></script>", "~/bundles/init-load")
+
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+><body>
+    @Html.Partial("Header")
+
+    <main>
+        @Html.Partial("SidebarLeft")
+        @Html.Partial("SidebarNewsHighlight")
+        <section class="main">
+            <div class="content">
+                @RenderBody()
+            </div>
+
+            @Html.Partial("Footer")
+        </section>
+    </main>
+</body>
+</html>
+<script type="text/javascript">
+    function makeid(length) {
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for (var i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+</script>

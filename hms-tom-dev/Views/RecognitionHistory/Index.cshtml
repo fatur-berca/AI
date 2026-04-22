@@ -1,0 +1,824 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.General.RecognitionHistoryViewModel
+@{
+    ViewBag.Title = "General > Recognition History > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+    var listbtn = ViewBag.ButtonAccess;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+        }
+        <button class="btn btn-primary" id="btnSetInactive" type="button">Delete</button>
+        <button class="btn btn-primary" id="btnExportReport">Export</button>
+        <button class="btn btn-primary" type="button" id="customReportButton" data-toggle="modal" data-target="#customReportModal">Custom Report</button>
+      
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)))
+        {
+         <button class="btn btn-primary" id="btnSetActive" type="button">Recovery</button>
+        }
+    </div>
+    <a href="#searchfilter" id="advSearch" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Certificate Date</label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" id="dtFilterFrom" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                        </div>
+                        <div class="col-md-2 to-bi">
+                            <label>To</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="dtFilterTo" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Recognition Category</label>
+                    <select class="form-control" id="FilterCategory"></select>
+                </div>
+            </div>
+
+            @if (isSuperUser)
+            {
+                <div class="col-sm-4">
+                    <div class="form-group">
+
+                        <label for="input-type">Status</label>
+                        <div id="input-type" class="row">
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" class="isIncludeActive" value="1" type="radio" checked />All
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="radio-inline">
+                                    <input name="isIncludeActive" class="isIncludeActive" value="0" type="radio" /> Deleted
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <button id="btnSearch" class="btn btn-primary">Search</button>
+                <button id="btnReset" class="btn btn-purple">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable">
+    <thead>
+    <tr>
+        <th data-orderable="false" class="text-center">
+            <div class="checkbox-deck">
+                <input type="checkbox" id="checkall">
+                <label for="checkall"></label>
+            </div>
+        </th>
+        <th class="text-center">Status</th>
+        <th>Certificate Date</th>
+        <th>Employee Name</th>
+        <th>Regional</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th class="text-center">Action</th>
+    </tr>
+    </thead>
+    <thead class="filters">
+    <tr class="filter-row">
+        <th class="text-center">Filter</th>
+        <th class="text-center"></th>
+        <th>Certificate Date</th>
+        <th>Employee Name</th>
+        <th>Regional</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th class="text-center"></th>
+    </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="popUpRecogLabel">Add New Recognition History</h4>
+            </div>
+            <div class="modal-body">
+                <form id="newData">
+                    <div class="row" hidden>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>InsertOrUpdate</label>
+                                <input type="text" id="InsertOrUpdate" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>IDFunction</label>
+                                <input type="text" id="IDRecognitionHistoryInput" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Certificate Date</label>
+                            <input type="text" class="form-control datepicker" name="dtCertificate" id="dtCertificate">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Recognition Category</label>
+                            <select class="form-control" id="RecognitionCategory"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Employee Name</label>
+                            <select class="select2" id="EmployeeNameInput"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Employee Region</label>
+                            <!--<select class="form-control" id="EmployeeRegion"></select>-->
+                            <input type="text" class="form-control" id="EmployeeRegionInput">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="Description" class="form-control"></textarea>
+                            <h6><i>*please input award description and date of event/project</i></h6>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>CreatedDate</label>
+                                <input type="text" id="CreatedDate" class="form-control datepicker">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>CreatedBy</label>
+                                <input type="text" id="CreatedBy" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.SaveChanges)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+                }
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="labelModalSuccess">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="ConfirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+<style>
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+</style>
+
+<script type="text/javascript">
+    var tempIDRecHistory = [];
+    var filter = new Object();
+    var urlSetStatusActive = '';//set url pada saat tekan tombol delete/recovery
+    //harus pakai .format() kalau tidak data yang ditunjukkan tidak tepat
+    var startOfYear = moment().startOf("year").format();
+    var endOfYear = moment().endOf("year").format();
+    filter.DateF = startOfYear;
+    filter.DateT = endOfYear;
+    filter.filterDate = true;
+
+    //filter.RecognitionCategory = null;
+    filter.includeInActive = "1";//default hanya tampilkan data yang aktif saja
+
+    $('#inputModal').on('hidden.bs.modal', function () {
+        $('#EmployeeNameInput').select2("close");
+    });
+
+    $("#addNew").click(function () {
+        $("#dtCertificate").val(moment(new Date()).format("DD/MM/YYYY")); 
+        generateDropDownCategory();
+        generateDropDownName();
+        $('#EmployeeNameInput').select2('val', "");
+        //$('#EmployeeName').val("null");
+        $("#EmployeeRegionInput").val("");
+        $("#Description").val("");
+        $('#InsertOrUpdate').val("INSERT");
+        removeRedMark();
+    });
+
+    $('#EmployeeNameInput').on("select2-selecting", function (e) {
+        var value = e.val;
+        var split = value.split('-');
+        filter.EmployeeID = split[0];
+        $.ajax({
+            url: 'RecognitionHistory/GetDropDownEmployeeRegion',
+            method: 'get',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function (data) {
+                $("#EmployeeRegionInput").val(data);
+            }
+        });
+    });
+
+    var customDateDDMMMYYYYToOrd = function (date) {
+        var dateParts = date.split(/-/);
+        return (dateParts[2] * 10000) + ($.inArray(dateParts[1].toUpperCase(), ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]) * 100) + (dateParts[0] * 1);
+    };
+
+    jQuery.fn.dataTableExt.aTypes.unshift(
+        function (sData) {
+            if (/^([0-2]?\d|3[0-1])-(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)-\d{4}/i.test(sData)) {
+                console.log('masuk if');
+                return 'date-dd-mmm-yyyy';
+            }
+            return null;
+        }
+    );
+
+    jQuery.fn.dataTableExt.oSort['date-dd-mmm-yyyy-asc'] = function (a, b) {
+        var ordA = customDateDDMMMYYYYToOrd(a),
+            ordB = customDateDDMMMYYYYToOrd(b);
+        return (ordA < ordB) ? -1 : ((ordA > ordB) ? 1 : 0);
+    };
+
+    jQuery.fn.dataTableExt.oSort['date-dd-mmm-yyyy-desc'] = function (a, b) {
+        var ordA = customDateDDMMMYYYYToOrd(a),
+            ordB = customDateDDMMMYYYYToOrd(b);
+        return (ordA < ordB) ? 1 : ((ordA > ordB) ? -1 : 0);
+    };
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    generateTable();
+    //generate table
+    function generateTable() {
+        filter.includeInActive = null;
+        if ($('.isIncludeActive').length > 0) {
+            filter.includeInActive = $('.isIncludeActive:checked').val();
+        }
+
+        $.ajax({
+            url: 'RecognitionHistory/GetRecognitionHistory',
+            method: 'post',
+            dataType: 'json',
+            data: {criteria:filter},
+            cache: false,
+            success: function (json) {
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columnDefs: [
+                        { orderable: false, targets: 1 },
+                        { orderable: false, targets: 7 },
+                        //{ class: 'col-1', targets: 0 },
+                        //{ class: 'col-1', targets: 1 },
+                        { type: 'date-dd-mmm-yyyy', targets: 2 }
+                        //{ class: 'col-1', targets: 7 }
+                    ],
+                    aaSorting: [[2, 'desc']],
+                    bAutoWidth: false , 
+                    columns: [
+                        {
+                            'data': 'IDRecognitionHistory', "class": "text-center", "render": function (data, type, row, meta) {
+                                return '<td><div class="checkbox-deck"><input type="checkbox" id="check[' + row["IDRecognitionHistory"] + ']" class="chkList" onchange="InsertTempArray()"><label for="check[' + row["IDRecognitionHistory"] + ']"></label></div></td>';
+                            }
+                        },
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        {
+                            'data': 'Date', "render": function (data, type, row, meta) {
+                                return moment(row["Date"]).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'EmployeeName', 'searchable': true },
+                        { 'data': 'EmployeeRegion', 'searchable': true },
+                        { 'data': 'RecognitionCategory', 'searchable': true },
+                        { 'data': 'Description', 'searchable': true },
+                        {
+                            "data": "IDRecognitionHistory", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index > 1) && (index < 7)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN CATEGORY
+    function generateDropDownCategory(selectedValue) {
+        var select1 = $('#RecognitionCategory');
+        var selectFilter = $("#FilterCategory");
+        $.ajax({
+            url: 'RecognitionHistory/GetDropDownRecognitionCategory',
+            method: 'get',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select1.html('');
+                select1.append('<option></option>');
+                selectFilter.html('');
+                selectFilter.html('<option value=null>ALL</option>').trigger('change');
+                $.each(data, function (kunci, tampung) {
+                    selectFilter.append('<option value="' + tampung.FieldValue + '">' + tampung.FieldValue + '</option>');
+                    if (tampung.FieldValue == selectedValue)
+                        select1.append('<option value="' + tampung.FieldValue + '" selected>' + tampung.FieldValue + '</option>');
+                    else
+                        select1.append('<option value="' + tampung.FieldValue + '">' + tampung.FieldValue + '</option>');
+                });
+            },
+            error: function () {
+                select1.html('<option>none available</option>');
+                selectFilter.html('<option>none available</option>');
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN CATEGORY
+
+    // BEGIN :JQUERY INSERT DROPDOWN NAME
+    function generateDropDownName(selectedValue) {
+        var dropdownName = $("#EmployeeNameInput");
+        $.ajax({
+            url: 'RecognitionHistory/GetDropDownEmployeeName',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                //console.log(selectedValue);
+                dropdownName.html('');
+                dropdownName.append('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        var idKey = val.IDEmployee;
+                        if (val.IDEmployee == null) {
+                            idKey = val.IdUser;
+                        }
+                        dropdownName.append('<option value="' + idKey + '-' + val.FullName + '">' + idKey + '-' + val.FullName + '</option>');
+                    });
+            },
+            complete: function() {
+                if (selectedValue != "undefined") {
+                    $("#EmployeeNameInput").select2('val', selectedValue);
+                }
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN NAME
+
+    //BEGIN : Edit Data
+    function editTable(id) {
+        $('#newData')[0].reset();
+        $("#EmployeeNameInput").select2('val', "");
+        $('#InsertOrUpdate').val("UPDATE");
+        removeRedMark();
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDRecognitionHistoryInput').val(data["IDRecognitionHistory"]);
+            $('#dtCertificate').val(moment(data["Date"]).format("DD/MM/YYYY"));
+            generateDropDownCategory(data["RecognitionCategory"]);
+            generateDropDownName(data["EmployeeID"] + '-' + data["EmployeeName"]);
+            //$('#EmployeeName').val(data["EmployeeID"] + '-' + data["EmployeeName"]).trigger('change');
+            $('#EmployeeRegionInput').val(data["EmployeeRegion"]);
+            $('#Description').val(data["Description"]);
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+        });
+        $('#inputModal').modal('show');
+    }
+
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+    // END : Edit Data
+
+    // BEGIN : Insert New Data
+    $('#btnSaveNew').click(function () {
+        var mandatory = ["dtCertificate", "RecognitionCategory", "EmployeeNameInput", "Description"];//id field yang mandatory
+        if (!checkField(mandatory)) {
+            if ($('#InsertOrUpdate').val() == "UPDATE") {
+                save(false);
+            } else {
+                save(true);
+            }
+        } else {
+            $("#textModalWarning").html("");
+            $("#textModalWarning").append("Please fill field with red mark");
+            $('#warningModal').modal('show');
+        }
+    });
+
+    function save(statusSave) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var res = $('#EmployeeNameInput :selected').val().split("-");
+        var idrecoghis = $('#IDRecognitionHistoryInput').val();
+        //save tanggal
+        var split = $("#dtCertificate").val().split("/");
+        var strDate = split[2] + "-" + split[1] + "-" + split[0];
+        //var d = new Date(strDate.toString());
+        var d = moment(strDate.toString());
+        var date = d.toISOString();
+
+        var category = $('#RecognitionCategory :selected').val();
+        var employeeid = res[0];
+        var employeename = res[1];
+        var region = $('#EmployeeRegionInput').val();
+        var description = $('#Description').val();
+        var createddate = $('#CreatedDate').val();
+        var createdby = $('#CreatedBy').val();
+        var data; 
+        if (statusSave) {
+            data = {
+                "new": [{"Date": date, "RecognitionCategory": category, "EmployeeID": employeeid, "EmployeeName": employeename, "EmployeeRegion": region, "Description": description }],
+                "edit": [{}]
+            };
+        } else {
+            data = {
+                "new": [{}],
+                "edit": [{"IDRecognitionHistory":idrecoghis, "Date": date, "RecognitionCategory": category, "EmployeeID": employeeid, "EmployeeName": employeename, "EmployeeRegion": region, "Description": description, "CreatedDate": createddate, "CreatedBy": createdby }]
+            };
+        }
+        $.ajax({
+            type: 'POST',
+            url: 'RecognitionHistory/InsertList',
+            cache: false,
+            data: data,
+            success: function () {
+                dialog.modal('hide');
+                generateTable();
+                $('#inputModal').modal('hide');
+                $("#labelModalSuccess").html("");
+                $("#labelModalSuccess").append("Your data has been successfully saved");
+                $('#modalsuccess').modal('show');
+            }
+        });
+    }
+    // END : Insert New Data
+
+    //BAGIAN EXPORT START
+    $("#btnExportReport").click(function () {
+        @*location.href = '@Url.Action("ExportReport", "RecognitionHistory")';*@
+        //console.log(filter);
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", "RecognitionHistory/ExportReport");
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "DateF");
+        hiddenField.setAttribute("value", filter.DateF);
+        form.appendChild(hiddenField);
+        var hiddenField2 = document.createElement("input");
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "DateT");
+        hiddenField2.setAttribute("value", filter.DateT);
+        form.appendChild(hiddenField2);
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "filterDate");
+        hiddenField3.setAttribute("value", filter.filterDate);
+        form.appendChild(hiddenField3);
+        if (filter.RecognitionCategory != null && filter.RecognitionCategory != 'undefined'){
+            var hiddenField4 = document.createElement("input");
+            hiddenField4.setAttribute("type", "hidden");
+            hiddenField4.setAttribute("name", "RecognitionCategory");
+            hiddenField4.setAttribute("value", filter.RecognitionCategory);
+            form.appendChild(hiddenField4); 
+        }
+        var hiddenField5 = document.createElement("input");
+        hiddenField5.setAttribute("type", "hidden");
+        hiddenField5.setAttribute("name", "includeInActive");
+        hiddenField5.setAttribute("value", filter.includeInActive);
+        form.appendChild(hiddenField5);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    $("#btnSetInactive").click(function () {
+        //console.log(tempIDRecHistory.length);
+        if (tempIDRecHistory.length > 0) {
+            $("#textModalWarningYesNo").html("");
+            $("#textModalWarningYesNo").append("Are you sure to delete this data?");
+            $('#warningModalYesNo').modal('show');
+            urlSetStatusActive = "RecognitionHistory/SetActiveFalse";
+        }else if (tempIDRecHistory.length == 0){
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    });
+
+    $("#btnSetActive").click(function () {
+        if (tempIDRecHistory.length > 0) {
+            $("#textModalWarningYesNo").html("");
+            $("#textModalWarningYesNo").append("Are you sure to recovery this data?");
+            $('#warningModalYesNo').modal('show');
+            urlSetStatusActive = "RecognitionHistory/SetActiveTrue";
+        }else if (tempIDRecHistory.length == 0){
+            $('#notificationModal').modal('show');
+            $('#notificationModal .modal-body').html('<img src="assets/images/danger.png" alt=""><span> Please select your data!</span>');
+            $('#notificationModal .modal-footer').html('<button type="button" class="btn btn-primary" data-dismiss="modal" >OK</button>');
+        }
+    });
+
+    $("#confirmationSave").click(function () {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        filter.idRecHistoryInActive = tempIDRecHistory;
+        $.ajax({
+            url: urlSetStatusActive,
+            method: 'post',
+            dataType: 'json',
+            data: filter,
+            cache: false,
+            success: function () {
+                dialog.modal('hide');
+                generateTable();
+                filter.idRecHistoryInActive = null;
+                tempIDRecHistory = [];
+                $("#labelModalSuccess").html("");
+                if (urlSetStatusActive == "RecognitionHistory/SetActiveFalse")
+                    $("#labelModalSuccess").append("Your data has been successfully Deleted");
+                else
+                    $("#labelModalSuccess").append("Your data has been successfully Recovered");
+                $('#modalsuccess').modal('show');
+            }
+        });
+    });
+
+    //CHECK BOX DAN CHECK BOX ALL
+    function InsertTempArray() {
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('change', 'tr', function () {
+            var data = table.row(this).data();
+            var idRecHistory = data["IDRecognitionHistory"];
+            var result = $.grep(tempIDRecHistory, function (e) { return e == idRecHistory; });
+            if (result.length == 0) {
+                tempIDRecHistory.push(idRecHistory);
+            } else if (result.length == 1) {
+                tempIDRecHistory = tempIDRecHistory.filter(function (obj) {
+                    return obj !== idRecHistory;
+                });
+            }
+        });
+    }
+
+    $("#checkall").change(function () {
+        $(".chkList").prop('checked', $("#checkall").prop('checked'));
+        if ($("#checkall").prop('checked')) {
+            var table = $('#dtFilterMaster').DataTable();
+            table.column(1).nodes().each(function (cell, i) {
+                tempIDRecHistory.push(table.cell(i, 1).data());
+            });
+            tempIDRecHistory = tempIDRecHistory.filter(onlyUnique);
+        } else {
+            tempIDRecHistory = [];
+        }
+    });
+
+    //filter supaya array javascript hanya ada unique value
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    //CHECK BOX DAN CHECK BOX ALL END
+
+    //ADVANCED SEARCH START
+    $("#advSearch").click(function() {
+        $("#dtFilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#dtFilterTo").val(moment(new Date()).format("DD/MM/YYYY"));
+        generateDropDownCategory();
+        $("#chkInactive").prop('checked', false);
+        $("#FilterCategory").val(null);
+        filter = new Object();
+        filter.includeInActive = "1";//default hanya tampilkan data yang aktif saja
+    });
+
+    jQuery(function ($) {
+        //clean up datatable
+        $('#dtFilterMaster').DataTable().clear();
+        $('#dtFilterMaster').DataTable().draw();
+
+        $(document).on('click', '#btnSearch', function (e) {
+            var splitFrom = $("#dtFilterFrom").val().split("/");
+            var strDateFrom = splitFrom[2] + "-" + splitFrom[1] + "-" + splitFrom[0];
+            //var dFrom = new Date(strDateFrom.toString());
+            var dFrom = moment(strDateFrom.toString());
+            filter.DateF = dFrom.toISOString();
+
+            var splitTo = $("#dtFilterTo").val().split("/");
+            var strDateTo = splitTo[2] + "-" + splitTo[1] + "-" + splitTo[0];
+            //var dTo = new Date(strDateTo.toString());
+            var dTo = moment(strDateTo.toString());
+            filter.DateT = dTo.toISOString();
+
+            filter.filterDate = true;
+            filter.RecognitionCategory = $('#FilterCategory :selected').val();
+
+            /*
+            if ($("#chkInactive").prop('checked'))
+                filter.includeInActive = "ALL";
+            else
+                filter.includeInActive = "1";
+            */
+            /*
+            filter.includeInActive = null;
+            if ($('.isIncludeActive').length > 0) {
+                filter.includeInActive = $('.isIncludeActive:checked').val();
+            }
+            */
+            //filter.includeInActive = $('#status').length == 1 ? $('#status').val() : 1;
+
+            if (dFrom > dTo) {
+                $("#textModalWarning").html("");
+                $("#textModalWarning").append("Date From tidak boleh lebih besar dari Date To");
+                $('#warningModal').modal('show');
+            } else {
+                generateTable();
+            }
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#btnReset', function (e) {
+            $("#dtFilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+            $("#dtFilterTo").val(moment(new Date()).format("DD/MM/YYYY"));
+            $("#chkInactive").prop('checked', false);
+            $("#FilterCategory").val("null");
+            filter = new Object();
+            filter.DateF = startOfYear;
+            filter.DateT = endOfYear;
+            filter.filterDate = true;
+            filter.includeInActive = "1";//default hanya tampilkan data yang aktif saja
+            if ($('.isIncludeActive').length > 0) $('.isIncludeActive[value=1]').prop('checked', true);
+            generateTable();
+        });
+    });
+    //ADVANCED SEARCH END
+
+    function checkField(arrayField) {
+        var invalid = false;
+        for (var i = 0; i < arrayField.length; i++) {
+            console.log($('#' + arrayField[i] + '').val());
+            if ($('#' + arrayField[i] + '').val() == "" || $('#' + arrayField[i] + '').val() == "null" || $('#' + arrayField[i] + '').val() == null) {
+                invalid = true;
+                $('#' + arrayField[i] + '').addClass("txt-invalid");   
+            }
+            else
+                $('#' + arrayField[i] + '').removeClass("txt-invalid");
+        }
+        return invalid;
+    }
+
+    function removeRedMark() {
+        $(".txt-invalid").removeClass("txt-invalid");
+    }
+</script>

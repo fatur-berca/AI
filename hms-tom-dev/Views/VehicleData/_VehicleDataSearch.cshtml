@@ -1,0 +1,710 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    var listUserRole = ViewBag.ListUserRole;
+    bool isSuperUser = false;
+}
+
+@foreach (var x in listUserRole)
+{
+    if (x.RoleName.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin)))
+    {
+        isSuperUser = true;
+        break;
+    }
+}
+
+<div id="vehicle" class="tab-pane fade in active">
+    @*<div class="title-deck wmb">
+        <div class="col-panel">
+            <div class="row">
+                <div class="col-md-4" id="Sum8Years">
+                    <div class="form-group">
+                        <label>Total Unit with More Than 8 Years Old</label>
+                        <h4 class="sub-text" id="total-unit-with-more-than-eight-years-old"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-4" id="SumLightUnit">
+                    <div class="form-group">
+                        <label>Total Light Truck Units</label>
+                        <h4 class="sub-text" id="total-light-truck-units"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-4" id="SumStdUnit">
+                    <div class="form-group">
+                        <label>Total Standard Units</label>
+                        <h4 class="sub-text" id="total-standard-units"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-4" id="SumLongUnit">
+                    <div class="form-group">
+                        <label>Total Tronton Long Units</label>
+                        <h4 class="sub-text" id="total-tronton-long-units"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+                <div class="col-md-4" id="SumUnitGPS">
+                    <div class="form-group">
+                        <label>Total Unit with GPS</label>
+                        <h4 class="sub-text" id="total-unit-with-gps"><i class="fa fa-spin fa-refresh"></i></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+            {
+                <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("AddNewVehicleData")' ">New Vehicle</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Delete)))
+            {
+                <button class="btn btn-primary" id="SetInactiveButton">Delete</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+            {
+                <button class="btn btn-primary" id="exportDefaultButton">Export</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+            {
+                <button class="btn btn-primary" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+            }
+            @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Recovery)) && isSuperUser)
+            {
+                <button class="btn btn-primary" id="RecoveryButton">Recovery</button>
+            }
+        </div>
+        <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+    <div class="filter-deck">
+        <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel">
+                <form id="filter">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="UnitBrand">Unit Brand</label>
+                            <select class="form-control" id="UnitBrand"><option value="">Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ManufacturingYear">Manufacturing Year</label>
+                            <select class="select2" multiple="multiple" id="ManufacturingYear"><option value="">Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="Basetown">Basetown</label>
+                            <select class="form-control" id="Basetown"><option value="">Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="PoliceRegNumber">Police Registration Number</label>
+                            <select class="select2" multiple="multiple" id="PoliceRegNumber"></select>
+                        </div>
+                    </div>
+                    @*<div class="col-md-4">
+                            <div class="form-group checkbox-padding">
+                                <div class="checkbox-deck">
+                                    <input type="checkbox" id="IncludeInactive" value="1" checked>
+                                    <label for="IncludeInactive"></label>
+                                </div>
+                                <span class="checkbox-deck-span">Include Inactive</span>
+                            </div>
+                        </div>*@
+                    @if (isSuperUser)
+                    {
+                        <div class="clearfix"></div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="input-type">Status</label>
+                                <div id="input-type" class="row">
+                                    <div class="col-sm-2">
+                                        <label class="radio-inline">
+                                            <input class="filterActive" name="isIncludeActive" id="all" value="1" type="radio" />All
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <label class="radio-inline">
+                                            <input class="filterActive" name="isIncludeActive" id="deleted" value="0" type="radio" /> Deleted
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-md-12">
+                        <button class="btn btn-primary search-filter">Search</button>
+                        <button class="btn btn-purple reset-search-filter">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <table id="dtFilter" class="display table dataTable">
+        <thead>
+            <tr>
+                <th data-orderable="false" class="text-center">
+                    <div class="checkbox-deck">
+                        <input type="checkbox" id="checkall">
+                        <label for="checkall"></label>
+                    </div>
+                </th>
+                <th data-orderable="false" class="text-center">Active</th>
+                <th class="text-left">Vendor Name</th>
+                <th class="text-left">Police Registration Number</th>
+                <th class="text-left">Manufacturing Year</th>
+                <th class="text-left">Karoseri</th>
+                <th class="text-left">Unit Brand</th>
+                <th class="text-left">Unit Type</th>
+                <th class="text-left">Cargo</th>
+                <th class="text-left">Basetown</th>
+                <th class="text-left">STNK Expired Date</th>
+                <th class="text-left">Vehicle Identity Number</th>
+            </tr>
+        </thead>
+        <thead class="filters">
+            <tr class="filter-row">
+                <th class="text-center">Filter</th>
+                <th class="text-center"></th>
+                <th>Vendor Name</th>
+                <th>Police Registration Number</th>
+                <th>Manufacturing Year</th>
+                <th>Karoseri</th>
+                <th>Unit Brand</th>
+                <th>Unit Type</th>
+                <th>Cargo</th>
+                <th>Basetown</th>
+                <th>STNK Expired Date</th>
+                <th>Vehicle Identity Number</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#all").prop("checked", true);
+
+        generateTable("onReady");
+        //generateCount();
+        //generatePoliceRegNumbers();
+        generateManufacturingYearDropdown();
+
+        var dropdown = [
+                { 'FieldName': 'UnitBrand', 'IDSelector': 'UnitBrand' },
+                { 'FieldName': 'BaseTown', 'IDSelector': 'Basetown' }
+            ];
+
+        for (i = 0; i < dropdown.length; i++) {
+            generateDropDown(dropdown[i].FieldName, dropdown[i].IDSelector);
+        }
+
+        $(document).on('click', '.search-filter', function (e) {
+            generateTable("onEvent");
+            //generateCount();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '.reset-search-filter', function (e) {
+            $('form#filter')[0].reset();
+            $("#all").prop("checked", true);
+            $("#PoliceRegNumber, #ManufacturingYear").select2("val", "");
+            generateTable("onEvent");
+            //generateCount();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#exportDefaultButton', function (e) {
+            exportToExcel();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#SetInactiveButton', function (e) {
+            SetInactiveRecovery('delete', false);
+
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#RecoveryButton', function (e) {
+            SetInactiveRecovery('recovery', true);
+
+            e.preventDefault();
+        });
+    });
+
+    function generateDropDown(FieldName, IDSelector) {
+        jQuery.ajax({
+            url: '@Url.Action("GetMasterListByFieldName")',
+            dataType: 'JSON',
+            cache: false,
+            data: { 'FieldName': FieldName },
+            success: function (response) {
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value=""></option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>';
+                });
+                jQuery('#' + IDSelector).html(options);
+            },
+            error: function () {
+                jQuery('#' + IDSelector).html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generatePoliceRegNumbers() {
+        jQuery.ajax({
+            url: '@Url.Action("GetTransportVehicleDatas")',
+            method: 'get',
+            dataType: 'json',
+            data: {},
+            cache: false,
+            success: function (response) {
+                // advanced search [Police Registration Number]
+                var options = '';
+                for (i = 0; i < response.length; i++) {
+                    options = options + "<option value='" + response[i].IDPoliceRegNumber + "'>" + response[i].IDPoliceRegNumber + "</option>";
+                }
+                $('#PoliceRegNumber').html(options);
+            }
+        });
+    }
+
+    function generateCount() {
+        var UnitBrand = jQuery('#UnitBrand :selected').val(),
+            ManufacturingYearArray = jQuery('#ManufacturingYear').val(),
+            ManufacturingYear = '',
+            ManufacturingYears = '',
+            Basetown = jQuery('#Basetown :selected').val(),
+            PoliceRegNumberArray = jQuery('#PoliceRegNumber').val(),
+            PoliceRegNumber = '',
+            PoliceRegNumbers = '',
+            includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        if (PoliceRegNumberArray) {
+            for (j = 0; j < PoliceRegNumberArray.length; j++) {
+                PoliceRegNumber = PoliceRegNumber + PoliceRegNumberArray[j] + ",";
+            }
+            PoliceRegNumbers = PoliceRegNumber.slice(0, -1);
+        }
+
+        if (ManufacturingYearArray) {
+            for (i = 0; i < ManufacturingYearArray.length; i++) {
+                ManufacturingYear = ManufacturingYear + ManufacturingYearArray[i] + ",";
+            }
+            ManufacturingYears = ManufacturingYear.slice(0, -1);
+        }
+
+        jQuery("#total-light-truck-units, #total-standard-units, #total-tronton-long-units, #total-unit-with-more-than-eight-years-old, #total-unit-with-gps").html('<i class="fa fa-spin fa-refresh"></i>');
+
+        return jQuery.ajax({
+            url: '@Url.Action("CountTransportVehicleDatas")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "Merk": UnitBrand,
+                "ManufacturingYears": ManufacturingYears,
+                "Basetown": Basetown,
+                "IDPoliceRegNumbers": PoliceRegNumbers,
+                "IncludeInActive": includeInActive
+            },
+            success: function (response) {
+                jQuery("#total-light-truck-units").html(response[0]);
+                jQuery("#total-standard-units").html(response[1]);
+                jQuery("#total-tronton-long-units").html(response[2]);
+                jQuery("#total-unit-with-more-than-eight-years-old").html(response[3]);
+                jQuery("#total-unit-with-gps").html(response[4]);
+
+                if (response[0] != null && response[0] <= 0) {
+                    $("#SumLightUnit").attr("style", "display:none");
+                }
+                else {
+                    $("#SumLightUnit").attr("style", "display:block");
+                }
+                if (response[1] != null && response[1] <= 0) {
+                    $("#SumStdUnit").attr("style", "display:none");
+                }
+                else {
+                    $("#SumStdUnit").attr("style", "display:block");
+                }
+                if (response[2] != null && response[2] <= 0) {
+                    $("#SumLongUnit").attr("style", "display:none");
+                }
+                else {
+                    $("#SumLongUnit").attr("style", "display:block");
+                }
+                if (response[3] != null && response[3] <= 0) {
+                    $("#Sum8Years").attr("style", "display:none");
+                }
+                else {
+                    $("#Sum8Years").attr("style", "display:block");
+                }
+                if (response[4] != null && response[4] <= 0) {
+                    $("#SumUnitGPS").attr("style", "display:none");
+                }
+                else {
+                    $("#SumUnitGPS").attr("style", "display:block");
+                }
+
+            }
+        });
+    }
+
+    function generateTableBackUp(loadType) {
+
+        var dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        }),
+            UnitBrand = jQuery('#UnitBrand :selected').val(),
+            ManufacturingYears = ($("#ManufacturingYear").val()) ? $("#ManufacturingYear").val().join(",") : "",
+            Basetown = jQuery('#Basetown :selected').val(),
+            PoliceRegNumbers = ($("#PoliceRegNumber").val()) ? $("#PoliceRegNumber").val().join(",") : "",
+            includeInActive = $('.filterActive:checked').length > 0 ? $('.filterActive:checked').val() : 1; //($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null;
+
+        $('#checkall').attr('checked', false);
+
+        return jQuery.ajax({
+            url: '@Url.Action("GetTransportVehicleDatas")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "Merk": UnitBrand,
+                "ManufacturingYears": ManufacturingYears,
+                "Basetown": Basetown,
+                "IDPoliceRegNumbers": PoliceRegNumbers,
+                "IncludeInActive": includeInActive
+            },
+            success: function (json) {
+                if (loadType === "onReady") {
+                    // advanced search [Police Registration Number]
+                    var options = '';
+                    for (i = 0; i < json.ViewModel.length; i++) {
+                        options = options + "<option value='" + json.ViewModel[i].IDPoliceRegNumber + "'>" + json.ViewModel[i].IDPoliceRegNumber + "</option>";
+                    }
+                    $('#PoliceRegNumber').html(options);
+                }
+
+                var summary = json.summary;
+                //$("#total-light-truck-units").html(summary.totalLightTruckUnits);
+                //$("#total-standard-units").html(summary.totalStandardUnits);
+                //$("#total-tronton-long-units").html(summary.totalTrontonLongUnits);
+                $("#total-unit-with-more-than-eight-years-old").html(summary.totalUnitWithMoreThanEightYearsOld);
+                $("#total-unit-with-gps").html(summary.totalUnitWithGPS);
+
+                var table = $('#dtFilter').DataTable({
+                    data: json.ViewModel,
+                    "cache": false,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "IDPoliceRegNumber", "class": "text-center", "render": function (datum) {
+                                return '<div class="checkbox-deck"><input name="isActiveRecord" type="checkbox" value="' + datum + '" id="' + datum + '"><label for="' + datum + '"></label></div>';
+                            }
+                        },
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (datum) {
+                                if (datum == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"><input type="hidden" class="status-icon" value="Active"/></div>';
+                                } else {
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"><input type="hidden" class="status-icon" value="Inactive"/></div>';
+                                }
+                            }
+                        },
+                        { 'data': 'Vendor.VendorName', 'searchable': true },
+                        {
+                            "data": "IDPoliceRegNumber", "render": function (data, type, row, meta) {
+                                return '<a href="@Url.Action("AddNewVehicleData")?IDPoliceRegNumber=' + row["IDPoliceRegNumber"] + '&IDVendor=' + row["IDVendor"] + '">' + row["IDPoliceRegNumber"] + '</a>';
+                            }
+                        },
+                        { 'data': 'ManufacturingYear', 'searchable': true },
+                        { 'data': 'Karoseri', 'searchable': true },
+                        { 'data': 'Merk', 'searchable': true },
+                        { 'data': 'Type', 'searchable': true },
+                        { 'data': 'Cargo', 'searchable': true },
+                        { 'data': 'BaseTown', 'searchable': true },
+                        {
+                            "data": "STNKValidityPeriod", "class": "text-left", "render": function (datum) {
+                                return moment(datum).format("DD-MMM-YYYY");
+                            }
+                        },
+                        { 'data': 'VehicleIdentityNumber', 'searchable': true },
+
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if (index == 0) {
+                        $(this).text('Filter');
+                    } else if (index == 1) {
+                        $(this).empty();
+                    } else {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+
+                dialogloading.modal("hide");
+            }
+        });
+    }
+
+    function generateTable(loadType) {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        }),
+            UnitBrand = jQuery('#UnitBrand :selected').val(),
+            ManufacturingYears = ($("#ManufacturingYear").val()) ? $("#ManufacturingYear").val().join(",") : "",
+            Basetown = jQuery('#Basetown :selected').val(),
+            PoliceRegNumbers = ($("#PoliceRegNumber").val()) ? $("#PoliceRegNumber").val().join(",") : "",
+            includeInActive = $('.filterActive:checked').length > 0 ? $('.filterActive:checked').val() : 1;
+
+        $('#checkall').attr('checked', false);
+
+        //var filter = {
+        //    "Merk": UnitBrand,
+        //    "ManufacturingYears": ManufacturingYears,
+        //    "Basetown": Basetown,
+        //    "IDPoliceRegNumbers": PoliceRegNumbers,
+        //    "IncludeInActive": includeInActive
+        //};
+
+
+        var table = $('#dtFilter').DataTable({
+            "paging": true,
+            "ordering": false,
+            "filter": true,
+            "destroy": true,
+            "orderMulti": false,
+            "serverSide": true,
+            "processing": true,
+            "pageLength": 10,
+            "ajax": {
+                dataType: 'JSON',
+                type: 'POST',
+                url: '@Url.Action("GetVehicleDataTableList", "VehicleData")',
+                data: function (data) {
+                    //data.filter = filter;
+                    data.Merk = UnitBrand;
+                    data.ManufacturingYears = ManufacturingYears;
+                    data.Basetown = Basetown;
+                    data.IDPoliceRegNumbers = PoliceRegNumbers;
+                    data.IncludeInActive = includeInActive;
+                    return data
+                },
+                "complete": function (res) {
+                    if (loadType === "onReady") {
+                         //advanced search [Police Registration Number]
+                        var Data = res.responseJSON.data;
+                        var options = '';
+                        for (i = 0; i < Data.length; i++) {
+                            options = options + "<option value='" + Data[i].IDPoliceRegNumber + "'>" + Data[i].IDPoliceRegNumber + "</option>";
+                        }
+                        $('#PoliceRegNumber').html(options);
+                    }
+                    dialog.modal('hide');
+                },
+                "error": function (res) {
+                    dialog.modal('hide');
+                }
+            },
+            "columns": [
+                {
+                    "data": "IDPoliceRegNumber", "class": "text-center", "render": function (datum) {
+                        return '<div class="checkbox-deck"><input name="isActiveRecord" type="checkbox" value="' + datum + '" id="' + datum + '"><label for="' + datum + '"></label></div>';
+                    }
+                },
+                {
+                    "data": "IsActive", "class": "text-center", "render": function (datum) {
+                        if (datum == true) {
+                            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"><input type="hidden" class="status-icon" value="Active"/></div>';
+                        } else {
+                            return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"><input type="hidden" class="status-icon" value="Inactive"/></div>';
+                        }
+                    }
+                },
+                {
+                    'data': 'VendorName',
+                    'searchable': true,
+                    "render": function (data, type, row, meta) {
+                        return row.Vendor.VendorName
+                    }
+                },
+                {
+                    "data": "IDPoliceRegNumber", "render": function (data, type, row, meta) {
+                        return '<a href="@Url.Action("AddNewVehicleData")?IDPoliceRegNumber=' + row["IDPoliceRegNumber"] + '&IDVendor=' + row["IDVendor"] + '">' + row["IDPoliceRegNumber"] + '</a>';
+                    }
+                },
+                { 'data': 'ManufacturingYear', 'searchable': true },
+                { 'data': 'Karoseri', 'searchable': true },
+                { 'data': 'Merk', 'searchable': true },
+                { 'data': 'Type', 'searchable': true },
+                { 'data': 'Cargo', 'searchable': true },
+                { 'data': 'BaseTown', 'searchable': true },
+                {
+                    "data": "STNKValidityPeriod", "class": "text-left", "render": function (datum) {
+                        return moment(datum).format("DD-MMM-YYYY");
+                    }
+                },
+                { 'data': 'VehicleIdentityNumber', 'searchable': true },
+            ],
+            orderCellsTop: true
+        });
+        $('.dataTables_filter input').attr("placeholder", "Search Here");
+        $('#dtFilter thead.filters th').each(function (index) {
+            if (index == 0) {
+                $(this).text('Filter');
+            } else if (index == 1) {
+                $(this).empty();
+            } else {
+                var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        table.columns().every(function (index) {
+            if (index > 1) {
+                $('#dtFilter thead.filters th:eq(' + index + ') input').on('input', function () {
+                    table.settings()[0].jqXHR.abort();
+                    table.column($(this).parent().index() + ':visible')
+                        .search(this.value)
+                        .draw();
+                });
+            }
+        });
+    }
+    function exportToExcel() {
+        var UnitBrand = jQuery('#UnitBrand :selected').val(),
+            ManufacturingYears = ($("#ManufacturingYear").val()) ? $("#ManufacturingYear").val().join(",") : "",
+            Basetown = jQuery('#Basetown :selected').val(),
+            PoliceRegNumbers = ($("#PoliceRegNumber").val()) ? $("#PoliceRegNumber").val().join(",") : "",
+            //includeInActive = ($('#deleted').length > 0) ? (($('#all').prop("checked") == true ? 1 : 0)) : null,
+            includeInActive = $('.filterActive:checked').length > 0 ? $('.filterActive:checked').val() : 1;
+
+        columns = "Vendor Name,Police Registration Number,Manufacturing Year,Karoseri,Unit Brand,Unit Type,Cargo,BaseTown,STNK Expired Date,Vehicle Identity Number",
+        dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "Columns": columns,
+                "Merk": UnitBrand,
+                "ManufacturingYears": ManufacturingYears,
+                "Basetown": Basetown,
+                "IDPoliceRegNumbers": PoliceRegNumbers,
+                "IncludeInActive": includeInActive
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal("hide");
+            }
+        });
+    }
+
+    function SetInactiveRecovery(status, IsActive) {
+        var selected = "";
+        $("input[name=isActiveRecord]:checked").each(function (event) {
+            selected = selected + $(this).val() + ",";
+        });
+        var statusIcon = "";
+        selected = selected.slice(0, -1);
+
+        if (selected) {
+            bootbox.confirm({
+                title: "TOM Notification Center",
+                message: "Are you sure that you want to " + status + " the selected item(s)",
+                size: "medium",
+                closeButton: false,
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-purple'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        /*var dialogloading = bootbox.dialog({
+                            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                            closeButton: false
+                        });*/
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("SetInactiveRecovery")',
+                            data: { "IDPoliceRegNumbers": selected, "IsActive": IsActive },
+                            cache : false,
+                            success: function (response) {
+                                //dialogloading.modal("hide");
+                                $.when(generateTable("onEvent")).done(function (a1, a2) {
+                                    if (status === "recovery") {
+                                        bootbox.alert({
+                                            title: "TOM Notification Center",
+                                            message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully recovered! </div>',
+                                        });
+                                    } else {
+                                        bootbox.alert({
+                                            title: "TOM Notification Center",
+                                            message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully deleted! </div>',
+                                        });
+                                    }
+                                });
+                            },
+                            error: function () {
+                                if (status === "recovery") {
+                                    alertRecoveryFail();
+                                } else {
+                                    alertDeleteFail();
+                                }
+                            }
+                        });
+                    } else {
+                        $('#checkall, input[name=isActiveRecord]').attr('checked', false);
+                    }
+                }
+            });
+        } else {
+            alertPleaseSelect();
+        }
+    }
+
+    function generateManufacturingYearDropdown() {
+        var currentTime = new Date(),
+            currentYear = currentTime.getFullYear(),
+            options = "";
+
+        for (year = parseInt(currentYear) ; year >= parseInt(currentYear)-9 ; year--) {
+            options += '<option value="' + year + '">' + year + '</option>';
+        }
+
+        jQuery("#ManufacturingYear").html(options);
+    }
+</script>

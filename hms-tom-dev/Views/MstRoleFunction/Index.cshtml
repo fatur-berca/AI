@@ -1,0 +1,604 @@
+
+@{
+    ViewBag.Title = "Master Data > Master Role Function";
+  
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div>
+</div>
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <!--<th width=5% nowrap class="text-center">Active</th>-->
+            <th>Role ID</th>
+            <th>ID Function</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <!--<th width=5% nowrap class="text-center">Filter</th>-->
+            <th>Role ID</th>
+            <th>ID Function</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Role Function</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <form id="newData">
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>IDRolesFunctionMapping</label>
+                                            <input type="text" id="IDRolesFunctionMapping" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Role ID</label>
+                                            <select class="form-control" id="RoleID"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label class="form-label col-lg-3">
+                                            Function Tree  
+                                        </label>                                        
+                                    </div>
+                                </div>
+                                <ul id="treeview2" class="tree"> 
+                                </ul>
+                                <!--<div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select class="form-control" id="Status">
+                                                <option value="1">YES</option>
+                                                <option value="0">NO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>-->
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedDate</label>
+                                            <input type="text" id="CreatedDate" class="form-control datepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>CreatedBy</label>
+                                            <input type="text" id="CreatedBy" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="btnSaveNew">Save changes</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL List Function-->
+<div class="modal fade" id="listFunctionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">List Function</h4>
+            </div>
+            <div class="modal-body">
+                <ul id="treeview" class="tree disabled" style=" height: 350px; overflow-y:scroll"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    //liat untuk menampung id function yang berubah dan akan disimpan/diproses ke database
+    var tempArrayFunction = [];
+    //list default yang sudah ada didatabase, digunakan untuk membantu id function mana yang berubah
+    var tempListChecked = [];
+    //list semua function yang ada, digunakan untuk meng uncheck function baru yang langsung di insert ke db
+    var tempListALLFunction = [];
+
+    var defaultIsActive = true;
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        generateTable();
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            generateDropDownRole();
+            generateTreeFunction2(0);
+            $("#RoleID").prop("disabled", false);
+            tempArrayFunction = [];
+            defaultIsActive = "";
+        });
+    });
+    function resetData(){
+        $('#newData')[0].reset();
+    }
+    //$(function () {
+    //    $('#functionTree').tree({
+    //        collapseAll: true,
+    //        collapseUiIcon: 'ui-icon-plus',
+    //        expandUiIcon: 'ui-icon-minus',
+    //        checkbox: true,
+    //        selectable: false,
+    //        onCheck: {
+    //            descendants: 'check'
+    //        },
+    //        onUncheck: {
+    //            ancestors: 'uncheck'
+    //        }
+    //    });
+    //});
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MstRoleFunction/GetMasterRoleFunction',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                console.log(json);
+                var table = $('#dtFilterMaster').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    columns: [
+                        //{
+                        //    "data": "IsActive", "class": "text-center", "render": function (data) {
+                        //        if (data == true) {
+                        //            return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                        //        } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                        //    }
+                        //},
+                        {
+                            "data": "IDRole", "render": function (data, type, row, meta) {
+                                return row["IDRole"] + " - " + row["MasterRole"]["RoleName"];
+                            }
+                        },
+                        {
+                            'data': 'IDFunction', "render": function (data, type, row, meta) {
+                                return '<div id=""><a href="#" id="" onclick="generateTreeFunction(' + row["IDRole"] + ');" data-toggle="modal" data-target="#listFunctionModal">List Function</a></div>';
+                         //{
+                         //    render: function (data, type, row) {
+                         //        $("#" + row['IDRole']).hummingbird('collapseAll');
+                         //        $("#" + row['IDRole']).hummingbird();
+                         //        var iddata = row['IDRole'];                               
+                         //        //var idfunction = row['IDFunction'];
+                         //        return '<ul id="' + iddata + '" class="tree">'+ $.ajax({
+                         //            url: 'MstList/GetMasterList',
+                         //        dataType: 'JSON',
+                         //        data1: [{ "IDRole": 1 }],
+                         //        success: function (data1) {
+                         //            alert(tes);
+                         //            $ul = $('#' + row['IDRole']);                                 
+                         //            $.each(data1, function (key, val) {
+                         //                $ul.append('<li><i class="fa fa-plus"></i><label>' + val.Filedname + '</label></li>');
+                         //                //  $ul.append('<li><i class="fa fa-plus"></i><label>' + val.IDFunction + '</label></li>');                                            
+                         //            })
+                         //        }
+                         //    });+'</ul>'  ;
+                            }
+                        },                     
+                        {
+                            "data": "IDRolesFunctionMapping", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable()"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 0) && (index < 2)){
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN :JQUERY INSERT DROPDOWN ROLE
+    function generateDropDownRole(selectedValue) {
+        $.ajax({
+            url: 'MstRoleFunction/GetDropDownRole',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var select = document.getElementById('RoleID');
+                var len = document.getElementById('RoleID').length;
+                var option;
+                if (len > 0)
+                    $('#RoleID').empty().append('');
+                for (var i = 0; i < data.length; i++) {
+                    option = document.createElement('option');
+                    option.value = data[i]["IDRole"];
+                    option.text = data[i]["RoleName"];
+                    if (option.value == selectedValue)
+                        option.setAttribute("selected", "selected");
+                    select.add(option);
+                }
+            }
+        });
+    }
+    // END :JQUERY INSERT DROPDOWN ROLE
+
+    //GENERATE TREE VIEW DI DATATABLE START
+    //defaultnya disabled, memakai fungsi disabled di check box karena kalau memakai disabled dari hummingbird, maka semua checkboxnya akan tercheck secara default
+    function generateTreeFunction(roleId) {
+        $.ajax({
+            url: "MstRoleFunction/GetTreeListFunction",
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                tempListALLFunction = [];
+                var module = "";
+                var form = "";
+                var button = "";
+                $("#treeview").empty();
+                for (var i = 0; i < data.length; i++) {                   
+                    if (module != data[i]["NameModule"]) {
+                        module = data[i]["NameModule"];
+                        $("#treeview").append("<li id='li-" + data[i]["IDModule"] + "'></li>");
+                        $('#li-' + data[i]["IDModule"]).append("<i class='fa fa-plus'></i> <label><input id='xnode-" + data[i]["IDModule"] + "' data-id='custom-" + data[i]["IDModule"] + "' name='disabledNode' type='checkbox'/>" + data[i]["NameModule"] + "</label> <ul id='ul-" + data[i]["IDModule"] + "' style='display: none;'></ul>");
+                        tempListALLFunction.push(data[i]["IDModule"]);
+                    }
+                    if (form != data[i]["NameForm"]) {
+                        form = data[i]["NameForm"];
+                        $('#ul-' + data[i]["IDModule"]).append("<li id='li-" + data[i]["IDForm"] + "'></li>");
+                        $('#li-' + data[i]["IDForm"]).append("<i class='fa fa-plus'></i> <label><input id='xnode-" + data[i]["IDForm"] + "' data-id='custom-" + data[i]["IDModule"] + "-" + data[i]["IDForm"] + "' name='disabledNode' type='checkbox'/>" + data[i]["NameForm"] + "</label> <ul id='ul-" + data[i]["IDForm"] + "' style='display: none;'></ul>");
+                        tempListALLFunction.push(data[i]["IDForm"]);
+                    }
+                    if (data[i]["NameButton"] != null) {
+                        if (button != data[i]["NameButton"]) {
+                            button = data[i]["NameButton"];
+                            $('#ul-' + data[i]["IDForm"]).append("<li id='li-" + data[i]["IDButton"] + "'></li>");
+                            $('#li-' + data[i]["IDButton"]).append("<label><input class='hummingbirdNoParent' id='xnode-" + data[i]["IDButton"] + "' data-id='custom-" + data[i]["IDModule"] + "-" + data[i]["IDForm"] + "-" + data[i]["IDButton"] + "' name='disabledNode' type='checkbox'/>" + data[i]["NameButton"] + "</label>");
+                            tempListALLFunction.push(data[i]["IDButton"]);
+                        }
+                    }
+                }
+                $("#treeview").hummingbird('collapseAll');
+                $("#treeview").hummingbird();
+                treeListChecked(roleId);
+            }
+        });
+    };
+    //check semua function yang ada di database/is activenya true
+    function treeListChecked(id) {
+        $.ajax({
+            url: "MstRoleFunction/GetIDFunctionList?roleid=" + id,
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                for (var x = 0; x < data.length; x++) {
+                    $("#treeview").hummingbird("checkNode", { attr: "id", name: "xnode-" + data[x], expandParents: false });
+                    var index = tempListALLFunction.indexOf(data[x]);
+                    if (index > -1) {
+                        tempListALLFunction.splice(index, 1);
+                    }
+                }
+                //uncheck function baru yang diinsert langsung ke database
+                for (var y = 0; y < tempListALLFunction.length; y++) {
+                    $("#treeview").hummingbird("uncheckNode", { attr: "id", name: "xnode-" + tempListALLFunction[y], expandParents: false });
+                }
+            }
+        });
+    }
+    //GENERATE TREE VIEW DI DATATABLE END
+
+    //GENERATE TREE VIEW PADA SAAT NEW DATA DAN EDIT DATA START
+    function generateTreeFunction2(roleId) {
+        console.log(12);
+        $.ajax({
+            url: "MstRoleFunction/GetTreeListFunction",
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                tempListALLFunction = [];
+                var module = "";
+                var form = "";
+                var button = "";
+                $("#treeview2").empty();
+                for (var i = 0; i < data.length; i++) {
+                    if (module != data[i]["NameModule"]) {
+                        module = data[i]["NameModule"];
+                        $("#treeview2").append("<li id='li-2-" + data[i]["IDModule"] + "'></li>");
+                        $('#li-2-' + data[i]["IDModule"]).append("<i class='fa fa-plus'></i> <label><input id='xnode2-" + data[i]["IDModule"] + "' data-id='custom2-" + data[i]["IDModule"] + "' type='checkbox'/>" + data[i]["NameModule"] + "</label> <ul id='ul-2-" + data[i]["IDModule"] + "' style='display: none;'></ul>");
+                        tempListALLFunction.push(data[i]["IDModule"]);
+                    }
+                    var IsNextForm = false;
+                    if (form != data[i]["NameForm"]) {
+                        IsNextForm = true;
+                        form = data[i]["NameForm"];
+                        $('#ul-2-' + data[i]["IDModule"]).append("<li id='li-2-" + data[i]["IDForm"] + "'></li>");
+                        $('#li-2-' + data[i]["IDForm"]).append("<i class='fa fa-plus'></i> <label><input id='xnode2-" + data[i]["IDForm"] + "' data-id='custom-2-" + data[i]["IDModule"] + "-" + data[i]["IDForm"] + "' type='checkbox'/>" + data[i]["NameForm"] + "</label> <ul id='ul-2-" + data[i]["IDForm"] + "' style='display: none;'></ul>");
+                        tempListALLFunction.push(data[i]["IDForm"]);
+                    }
+                    if (data[i]["NameButton"] != null) {
+                        if (button != data[i]["NameButton"] || IsNextForm) {
+                            button = data[i]["NameButton"];
+                            $('#ul-2-' + data[i]["IDForm"]).append("<li id='li-2-" + data[i]["IDButton"] + "'></li>");
+                            $('#li-2-' + data[i]["IDButton"]).append("<label><input class='hummingbirdNoParent' id='xnode2-" + data[i]["IDButton"] + "' data-id='custom-2-" + data[i]["IDModule"] + "-" + data[i]["IDForm"] + "-" + data[i]["IDButton"] + "' type='checkbox'/>" + data[i]["NameButton"] + "</label>");
+                            tempListALLFunction.push(data[i]["IDButton"]);
+                        }
+                    }
+                }
+                $("#treeview2").hummingbird('collapseAll');
+                $("#treeview2").hummingbird();
+                treeListChecked2(roleId);
+            }
+        });
+    }
+
+    function treeListChecked2(id) {
+        $.ajax({
+            url: "MstRoleFunction/GetIDFunctionList?roleid=" + id,
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                tempListChecked = [];
+                for (var x = 0; x < data.length; x++) {
+                    tempListChecked.push(data[x]);
+                    $("#treeview2").hummingbird("checkNode", { attr: "id", name: "xnode2-" + data[x], expandParents: false });
+                    var index = tempListALLFunction.indexOf(data[x]);
+                    if (index > -1) {
+                        tempListALLFunction.splice(index, 1);
+                    }
+                }
+                //uncheck function baru yang diinsert langsung ke database
+                for (var y = 0; y < tempListALLFunction.length; y++) {
+                    $("#treeview2").hummingbird("uncheckNode", { attr: "id", name: "xnode2-" + tempListALLFunction[y], expandParents: false });
+                }
+            }
+        });
+    }
+    //GENERATE TREE VIEW PADA SAAT NEW DATA DAN EDIT DATA END
+
+    //MENGECEK TREE LIST 2 SEBELUM SAVE START
+    function CheckTreeListBeforeSave() {
+        var ListChecked = [];
+        var ListUnchecked = [];
+        $("#treeview2").hummingbird("getChecked", { attr: "id", list: ListChecked });//mengambil semua id yang tercheck
+        $("#treeview2").hummingbird("getUnchecked", { attr: "id", list: ListUnchecked });//mengambil semua id yang uncheck
+        for (var i = 0; i < ListChecked.length; i++) {
+            var id = ListChecked[i].split("-");
+            var result = $.grep(tempListChecked, function (e) { return e == parseInt(id[1]); });//mencari apakah id function yang tercheck ada didatabase
+            if (result.length == 0) {
+                var result2 = $.grep(tempArrayFunction, function (e) { return e == parseInt(id[1]); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2.length == 0)
+                    tempArrayFunction.push(parseInt(id[1]));//kalau tidak ada id function di masukkan ke dalam array
+            }
+            else {
+                tempArrayFunction = tempArrayFunction.filter(function (obj) {//kalau dapat, maka id functionnya dikeluarkan
+                    return obj !== parseInt(id[1]);
+                });
+            }
+        }
+        for (var j = 0; j < ListUnchecked.length; j++) {
+            var iduncheck = ListUnchecked[j].split("-");
+            var resultuncheck = $.grep(tempListChecked, function (e) { return e == parseInt(iduncheck[1]); });//mencari apakah id function yang teruncheck ada didatabase
+            if (resultuncheck[0] != undefined) {
+                //if (resultuncheck.length != 0) {
+                tempArrayFunction.push(resultuncheck[0]);//kalau dapat, artinya id function yang ada didatabase, di uncheck/mau dihilangkan dari mapping. id function di masukkan ke dalam array
+                //} else {
+                //    tempArrayFunction = tempArrayFunction.filter(function(obj) {
+                //        return obj !== resultuncheck[0];
+                //    });
+                //}
+            } else {
+                var result2uncheck = $.grep(tempArrayFunction, function (e) { return e == parseInt(iduncheck[1]); });//kalau tidak dapat, mencari di array yang akan disave database, apakah sudah ada id functionnya
+                if (result2uncheck.length != 0) {
+                    tempArrayFunction = tempArrayFunction.filter(function (obj) {//kalau dapat, id functionnya di hilangkan dari array yang akan di simpan di database(defaultnya teruncheck, setelah itu di check, kemudian diuncheck lagi)
+                        return obj !== result2uncheck[0];
+                    });
+                }
+            }
+        }
+    }
+    //MENGECEK TREE LIST 2 SEBELUM SAVE END
+
+    //BEGIN : Edit Data
+    function editTable() {
+        $('#newData')[0].reset();
+        tempArrayFunction = [];
+        $('#InsertOrUpdate').val("UPDATE");
+        $("#RoleID").prop("disabled", true);
+        var table = $('#dtFilterMaster').DataTable();
+        $('#dtFilterMaster tbody').one('click', 'tr', function () {
+            var data = table.row(this).data();
+            $('#IDRolesFunctionMapping').val(data["IDRolesFunctionMapping"]);
+            generateDropDownRole(data["IDRole"]);
+            $('#RoleID').val(data["IDRole"]);
+            generateTreeFunction2(data["IDRole"]);
+            //defaultIsActive = data["IsActive"];
+            //if (data["IsActive"])
+            $('#Status').val("1");
+            //else
+            //    $('#Status').val("0");
+            $('#CreatedDate').val(ToJavaScriptDate(data["CreatedDate"]));
+            $('#CreatedBy').val(data["CreatedBy"]);
+        });
+        $('#inputModal').modal('show');
+    }
+    // END : Edit Data
+
+    // BEGIN : Insert New Data
+    $('#btnSaveNew').click(function () {
+        $('#Loading').modal('show');
+        if ($('#InsertOrUpdate').val() == "UPDATE") {
+            //var status = $('#Status :selected').val() == 1 ? true : false;
+            //if (defaultIsActive != status) {
+            //    var roleid = $('#RoleID :selected').val();
+            //    $.ajax({
+            //        type: 'POST',
+            //        url: 'MstRoleFunction/UpdateIsActive?idrole=' + roleid + '&status=' + status,
+            //        success: function () {
+            //            generateTable();
+            //            resetData();
+            //            $('#inputModal').modal('hide');
+            //            generateTable();
+            //            $('#modalsuccess').modal('show');
+            //            $('#Loading').modal('hide');
+            //        }
+            //    });
+            //}
+            //else
+                save(false);
+        } else {
+            save(true);
+        }
+    });
+
+    function save(statusSave) {
+        CheckTreeListBeforeSave();
+        var idrolefunc = $('#IDRolesFunctionMapping').val();
+        var roleid = $('#RoleID :selected').val();
+        var idfunction = tempArrayFunction;
+        //var status = $('#Status :selected').val() == 1 ? true : false;
+        var status = true;
+        var createddate = $('#CreatedDate').val();
+        var createdby = $('#CreatedBy').val();
+        var data;
+        if (statusSave) {
+            data = {
+                "new": [{ "IDRole": roleid, "ListIDFunction": idfunction, "IsActive": status }],
+                "edit": [{}]
+            };
+        } else {
+            data = {
+                "new": [{}],
+                "edit": [{ "IDRolesFunctionMapping": idrolefunc, "IDRole": roleid, "listIDFunction": idfunction, "IsActive": status, "CreatedDate": createddate, "CreatedBy": createdby }]
+            };
+        }
+        $.ajax({
+            type: 'POST',
+            url: 'MstRoleFunction/InsertList',
+            data: data,
+            success: function () {
+                generateTable();
+                //resetData();
+                //$('#inputModal').modal('hide');
+                $("#treeview2").hummingbird('collapseAll');
+                generateTable();
+                $('#modalsuccess').modal('show');
+                $('#Loading').modal('hide');
+            }
+        });
+    }
+    // END : Insert New Data
+
+    function ToJavaScriptDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1])).toISOString();
+        return dt;
+    }
+
+    //function checkTreeFunction(checkbox)
+    //{
+    //    var result = $.grep(tempArrayFunction, function (e) { return e == checkbox.value; });
+    //    if (result.length == 0)
+    //        tempArrayFunction.push(checkbox.value);
+    //    else {
+    //        tempArrayFunction = tempArrayFunction.filter(function (obj) {
+    //            return obj !== checkbox.value;
+    //        });
+    //    }
+    //};
+</script>

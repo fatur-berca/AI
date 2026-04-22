@@ -1,0 +1,308 @@
+﻿@using hms_tom_dev.Helper
+@{ var titlePage = ViewBag.Title; }
+<header>
+    <section class="head">
+        <div class="logo-deck pull-left">
+            <a href="@Url.Action("Index", "Home")">
+                <img src="@Url.Content("~/assets/images/logo.png")" alt="">
+            </a>
+        </div>
+        <div class="opt-head pull-left">
+            @*<button type="button" class="navbar-toggle sidebar-toggle" aria-expanded="false" style="border-right: 1px solid rgba(128,142,167,0.1);">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>*@
+            <ul class="breadcrumb">
+                <li>@ViewBag.Title</li>
+            </ul>
+        </div>       
+        <ul class="nav navbar-nav pull-right">
+            @*<li><a href="#!" class="toggle-guideline"><img src="~/assets/images/guide.png" alt=""></a></li>*@
+            @*@{ if (!titlePage.Contains("Master")) {
+            <li id="" class="">
+                <a href="@Url.Action("Index", "MstLocation")" class="" id="mstData" role="button"><img src="~/assets/images/set.png" alt=""></a>
+            </li>
+                    } }
+            <li id="notif" class="dropdown">
+                <a href="#" class="dropdown-toggle" id="belNotif" role="button" data-toggle="dropdown"><img src="~/assets/images/notif.png" alt=""></a>
+                <ul id="notification" class="dropdown-menu" style="max-height:400px; overflow: auto;">
+                    <li id="totalNotif" class="text-center"></li>
+                </ul>
+            </li>*@
+            <li class="account">
+                <a href="#">
+                    @*<span id="displayUserId"></span>*@
+                    <span id="displayFullname"></span>
+                    <div class="acc-img">
+                        <img src="@Url.Content("~/assets/images/user.png")">
+                    </div>
+                </a>
+            </li>
+            @*<li><a href="javascript:void(0)" class="toggle-news"><img src="@Url.Content("~/assets/images/news-ico.png")" alt=""></a></li>*@
+        </ul>
+    </section>
+</header>
+
+<div class="modal fade" id="AllNotificationModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">All Notifications</h4>
+            </div>
+            <div class="modal-body">
+                <table id="dtFilterNotif" class="display table dataTable" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Page Name</th>
+                            <th>Read</th>
+                            <th>Open</th>
+                            <th>Created Date</th>
+                            <th hidden="">Created Date</th>
+                        </tr>
+                    </thead>
+                    <thead class="filters">
+                        <tr class="filter-row">
+                            <th>Page Name</th>
+                            <th>Read</th>
+                            <th>Open</th>
+                            <th>Created Date</th>
+                            <th hidden="">Created Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var fullName = "";
+    //GET USER ID START
+    //$.ajax({
+    //    type: "get",
+    //    url: '../Home/GetDisplayUsername',
+    //    dataType: 'json',
+    //    success: function (result) {
+    //        //$("#displayUserId").text(result);
+    //    }
+    //});
+    //GET USER ID END
+    getFullName();
+    //GET FullName START
+    function getFullName(){
+        if(fullName == ""){
+            $.ajax({
+                type: "get",
+                url: @Html.BaseUrl("Home/GetDisplayFullname"),
+                dataType: 'json',
+                success: function (result) {
+                    $("#displayFullname").text(result);
+                }
+            });
+        }
+        else
+            $("#displayFullname").text(fullName);
+    }
+    //GET FullName ID END
+
+    var listNotif = [];
+    var listRead = [];
+    var totalNotif = 0;
+    //loadNotification(false);
+    //timerNotification();
+    //TIMER Notif 10 menit
+    function timerNotification() {
+        setInterval(function() {
+            loadNotification(true);
+        },600000);
+    }
+    //TIMER notif 20 detik
+    //function timerNotification() {
+    //    setInterval(function () {
+    //        loadNotification(true);
+    //    }, 20000);
+    //}
+
+    function loadNotification(reload) {
+        $.ajax({
+            type: "post",
+            url: @Html.BaseUrl("Home/LoadNotification"),
+            data: { idnotif: listNotif, reload: reload },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                var newsBaru = false;
+                if (result.length > 0) {
+                    if (!reload) {
+                        //$("#notification").append('<li id="totalNotif" class="text-center">'+result[0]["Description"]+'</li>');
+                        document.getElementById("totalNotif").innerHTML = result[0]["Description"];
+                        for (var i = 1; i < result.length; i++) {
+                            if (listNotif.indexOf(result[i]["IDNotification"]) < 0)
+                                listNotif.push(result[i]["IDNotification"]);
+                            if (result[i]["IsRead"] == 0) {
+                                if (newsBaru == false) {
+                                    addSpanBubble();
+                                    newsBaru = true;
+                                }
+                                $("#notification").append('<li id="' + result[i]["IDNotification"] + '"><a class="blue" href="' + result[i]["Description"] + '" onClick="openNotification('+result[i]["IDNotification"]+')"><span class="tab">' + result[i]["PageName"] + '</span></a></li>');
+                            }
+                            else{
+                                $("#notification").append('<li id="' + result[i]["IDNotification"] + '"><a class="green" href="' + result[i]["Description"] + '" onClick="openNotification(' + result[i]["IDNotification"] + ')"><span class="tab">' + result[i]["PageName"] + '</span></a></li>');
+                            }
+                            totalNotif++;
+                        }
+                        //if(result.length > 1)
+                        $("#notification").append('<li><a href="#" class="btn btn-outline-primary" type="button" class="text-center" data-toggle="modal" data-target="#AllNotificationModal" onClick="generateTableNotification()">View All</a></li>');
+                    } else {
+                        var stringNotif = "";
+                        for (var i = 0; i < result.length; i++) {
+                            if (newsBaru == false) {
+                                addSpanBubble();
+                                newsBaru = true;
+                            }
+                            if (listNotif.indexOf(result[i]["IDNotification"]) < 0)
+                                listNotif.push(result[i]["IDNotification"]);
+                            $("#notification li:first").after('<li id="' + result[i]["IDNotification"] + '"><a class="blue" href="' + result[i]["Description"] + '" onClick="openNotification('+result[i]["IDNotification"]+')"><span class="tab">' + result[i]["PageName"] + '</span></a></li>');
+                            totalNotif++;
+                            if (totalNotif > 1)
+                                stringNotif = "notifications";
+                            else
+                                stringNotif = "notification";
+                            //document.getElementById("totalNotif").innerHTML = "";
+                            //document.getElementById("totalNotif").innerHTML = "You have " + totalNotif + " " + stringNotif;
+                            $("#totalNotif").html('');
+                            $("#totalNotif").html('You have ' + totalNotif + ' ' + stringNotif);
+                        }
+                    }
+
+                }
+            }
+        });
+    }
+
+    function readNotification() {
+        $.ajax({
+            type: "post",
+            url: @Html.BaseUrl("Home/UpdateNotificationIsRead"),
+            data: { idnotif: listNotif },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+            }
+        });
+    }
+
+    function openNotification(idnotification) {       
+       $.ajax({
+            type: "post",
+            url: @Html.BaseUrl("Home/UpdateNotificationIsOpen"),
+            data: { idnotif: idnotification },
+            dataType: 'json',
+            cache: false,
+            success: function (result) {
+                $("#"+idnotification).remove();  
+                //var totnotif=$("#countnotif").html();
+                //$("#countnotif").html(parseInt(totnotif)-1);
+                var stringNotif = "";
+                totalNotif--;
+                if (totalNotif > 1)
+                    stringNotif = "notifications";
+                else
+                    stringNotif = "notification";
+                $("#totalNotif").html('');
+                $("#totalNotif").html('You have ' + totalNotif + ' ' + stringNotif);
+            }
+        });
+    }
+
+    $("#notif").click(function () {
+        setTimeout(
+            function () {
+                listRead = [];
+                $(".blue").each(function (key, val) {
+                    listRead.push($(this).parent().attr('id'));
+                });
+                readNotification(listRead);
+                removeSpanBubble();
+                $("#notification li a.blue").addClass("green");
+                $("#notification li a.blue").removeClass("blue");
+            }, 2000);
+
+    });
+
+    function addSpanBubble() {
+        $("#belNotif").append('<span class="bubble"></span>');
+    }
+
+    function removeSpanBubble() {
+        $("#belNotif").find("span").remove();
+    }
+
+    function generateTableNotification() {
+        $.ajax({
+            url: @Html.BaseUrl("Home/ViewAllNotification"),
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtFilterNotif').DataTable({
+                    data: json,
+                    destroy: true,
+                    cache: false,
+                    paging: true,
+                    sort: true,
+                    searching: true,
+                    order: [[4, "desc"]],
+                    iDisplayLength: 10,
+                    columns: [
+                        {
+                            'data': 'PageName', "render": function (data, type, row, meta) {
+                                return '<a href="' + row["Description"] + '" onClick="openNotification(' + row["IDNotification"] + ')">' + row["PageName"] + '</a>';
+                            }
+                        },
+                        {
+                            'data': 'IsRead', "render": function (data, type, row, meta) {
+                                if (row['IsRead'] == false)
+                                    return "Unread";
+                                else
+                                    return "Read";
+                            }
+                        },
+                        {
+                            'data': 'IsOpen', "render": function (data, type, row, meta) {
+                                if (row['IsOpen'] == false)
+                                    return "Not Yet Opened";
+                                else
+                                    return "Already Open";
+                            }
+                        },
+                        {
+                            'data': 'CreatedDate', "render": function (data, type, row, meta) {
+                                return moment(row['CreatedDate']).format("DD-MMM-YYYY HH:mm");
+                            }
+                        },
+                        { 'data': 'CreatedDate', "visible": false }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtFilterNotif thead.filters th').each(function (index) {
+                    var title = $('#dtFilterNotif thead.filters th').eq($(this).index()).text();
+                    jQuery(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                });
+                table.columns().every(function (index) {
+                    $('#dtFilterNotif thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+</script>

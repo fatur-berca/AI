@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "Warehouse > Audit Checklist > List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .tbKolom {
+        min-width: 150px !important;
+    }
+    .tbDet {
+        min-width: 20px !important;
+    }
+    .colWarehouse {
+        padding-left: 55px !important;
+    }
+    .indenter {
+        padding-right: 10px !important;
+    }
+</style>
+
+<div class="filter-deck">
+    <div class="title-deck wmb">
+        <div class="button-wrap pull-left">
+            <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("AddNew", "AuditChecklist")'">Add New</button>
+        </div>
+        <a href="#filter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advsrc"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+    </div>
+
+    <div class="filter-deck nmb">
+        <div id="filter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+            <div class="col-panel">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <input type="text" id="year" name="year" class="form-control yearpicker" placeholder="Enter year" value="@DateTime.Now.Year" />
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" onclick="callFilterByYear()">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="display table dataTable ">
+    <thead>
+    <tr >
+        <th rowspan="2" class="tbKolom">Location</th>
+        <th colspan="2" class="text-center">January</th>
+        <th colspan="2" class="text-center">February</th>
+        <th colspan="2" class="text-center">March</th>
+        <th colspan="2" class="text-center">April</th>
+        <th colspan="2" class="text-center">May</th>
+        <th colspan="2" class="text-center">June</th>
+        <th colspan="2" class="text-center">July</th>
+        <th colspan="2" class="text-center">August</th>
+        <th colspan="2" class="text-center">September</th>
+        <th colspan="2" class="text-center">October</th>
+        <th colspan="2" class="text-center">November</th>
+        <th colspan="2" class="text-center">December</th>
+    </tr>
+    <tr>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+        <th class="tbDet">C</th>
+        <th class="tbDet">NC</th>
+    </tr>
+    </thead>
+</table>
+
+<script type="text/javascript">
+    var today = new Date();
+    var yearNow = today.getFullYear();
+
+    $("#year").val(yearNow);
+    generateTable();
+
+    $("#advsrc").click(function() {
+        $("#year").val(yearNow);
+    });
+
+    function callFilterByYear() {
+        generateTable();
+    }
+
+    function generateTable() {
+        var treeid = 0;
+        var treeparentid = 0;
+        var treeparentnational = 0;
+        var filter = $("#year").val();
+
+        var dialogLoading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $('#dtFilter').treetable('destroy');
+        $.ajax({
+            url: 'AuditChecklist/GetAllAuditChecklist',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {tahun: filter},
+            cache: false,
+            success: function (json) {
+                dialogLoading.modal('hide');
+
+                $('#dtFilter').on('draw.dt', function () {
+                    $(this).treetable({ expandable: true });
+                }).DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': false,
+                    'info': false,
+                    'sort': false,
+                    'searching': false,
+                    'autoWidth': false,
+                    columns: [
+                        { "data": "LocationName", 'orderable': false },
+                        { "data": "JanC", 'orderable': false },
+                        { "data": "JanNC", 'orderable': false },
+                        { "data": "FebC", 'orderable': false },
+                        { "data": "FebNC", 'orderable': false },
+                        { "data": "MarC", 'orderable': false },
+                        { "data": "MarNC", 'orderable': false },
+                        { "data": "AprilC", 'orderable': false },
+                        { "data": "AprilNC", 'orderable': false },
+                        { "data": "MeiC", 'orderable': false },
+                        { "data": "MeiNC", 'orderable': false },
+                        { "data": "JuniC", 'orderable': false },
+                        { "data": "JuniNC", 'orderable': false },
+                        { "data": "JuliC", 'orderable': false },
+                        { "data": "JuliNC", 'orderable': false },
+                        { "data": "AgustusC", 'orderable': false },
+                        { "data": "AgustusNC", 'orderable': false },
+                        { "data": "SeptC", 'orderable': false },
+                        { "data": "SeptNC", 'orderable': false },
+                        { "data": "OktC", 'orderable': false },
+                        { "data": "OktNC", 'orderable': false },
+                        { "data": "NovC", 'orderable': false },
+                        { "data": "NovNC", 'orderable': false },
+                        { "data": "DesemberC", 'orderable': false },
+                        { "data": "DesemberNC", 'orderable': false }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true,
+                    "createdRow": function (row, data, index) {
+                        $(row).attr('data-tt-id', treeid);
+                        if (data["LocationType"] == "National"){
+                            treeparentnational = treeid;
+                            $('td', row).eq(0).addClass('colNational');
+                        }
+                        else if (data["LocationType"] == "Region" || data["LocationType"] == "RegionTRI") {
+                            $(row).attr('data-tt-parent-id', treeparentnational);
+                            treeparentid = treeid;
+                        }
+                        else{
+                            $(row).attr('data-tt-parent-id', treeparentid);
+                            $('td', row).eq(0).addClass('colWarehouse');
+                        }
+                        treeid++;
+                    }
+                });
+            }
+        });
+    }
+
+</script>

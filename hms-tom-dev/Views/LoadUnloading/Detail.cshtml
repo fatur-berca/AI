@@ -1,0 +1,315 @@
+﻿@{
+    ViewBag.Title = "Transport > Loading & Unloading > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <h4 class="title-page pull-left">Load & Unloading History Detail</h4>
+            <div class="button-wrap">
+                <button class="btn btn-purple" onclick="window.location.href='../LoadUnloading'">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="box">
+            <form>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Loading/Unloading</label>
+                            <h4 class="sub-text" id="LoadingUnloading"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Origin Warehouse</label>
+                            <h4 class="sub-text" id="WarehouseName"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Destination Warehouse</label>
+                            <h4 class="sub-text" id="DestinationCity"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <h4 class="sub-text" id="Date"></h4>
+                        </div>
+                    </div>                
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Vendor Name</label>
+                            <h4 class="sub-text" id="VendorName"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Police Registration Number</label>
+                            <h4 class="sub-text" id="PoliceRegNumber"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Unit Type</label>
+                            <h4 class="sub-text" id="UnitType"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <h4 class="sub-text" id="Qty"></h4>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>GP Number</label>
+                            <h4 class="sub-text" id="GPNumber"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <h4 class="sub-text" id="Status"></h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Additional Info</label>
+                            <h4 class="sub-text" id="AdditionalInfo"></h4>
+                        </div>
+                    </div>                
+                    
+                    <div class="col-md-12">
+                        <hr />
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label id="lbindate">Pick in Date</label>
+                            <h4 class="sub-text" id="PickinDate"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label id="loadstart">Load start Date</label>
+                            <h4 class="sub-text" id="LoadStartDate"></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label id="loadfinish">Load finish Date</label>
+                            <h4 class="sub-text" id="LoadFinishDate"></h4>
+                        </div>
+                    </div> 
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label id="lboutdate">Pick Out Date</label>
+                            <h4 class="sub-text" id="PickOutDate"></h4>
+                        </div>
+                    </div>
+                                  
+               
+                    <div class="col-md-12">
+                        <hr />
+                    </div>
+                    <div id="GenerateSealDetail">
+                        <div class="col-md-4" id="PleaseWait" hidden>
+                            <div class="form-group">
+                                <label></label>
+                                <div class="col-md-2">
+                                    <h4 class="sub-text"><i class="fa fa-spin fa-spinner"></i></h4>
+                                </div>
+                                <div class="col-md-10">
+                                    <h4 class="sub-text">Please Wait...</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <script>
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        $('#LoadingUnloading').html(getUrlParameter('StatusLoadingUnloading'));
+        $('#GPNumber').html(getUrlParameter('GPNumber'));
+
+        GetAllData();
+
+        function GetAllData() {
+            $('#WarehouseName').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#PoliceRegNumber').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#UnitType').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#VendorName').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#Date').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#Status').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#AdditionalInfo').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#DestinationCity').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#Qty').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#LoadStartDate').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#LoadFinishDate').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#PickinDate').html('<i class="fa fa-spin fa-spinner"></i>');
+            $('#PickOutDate').html('<i class="fa fa-spin fa-spinner"></i>');
+
+            $.ajax({
+                url: 'GetHeaderDetail',
+                dataType: 'JSON',
+                cache: false,
+                data: {
+                    "GPNumber": getUrlParameter('GPNumber'),
+                    "SJNumber": getUrlParameter('SJNumber'),
+                    "Origin": getUrlParameter('Origin'),
+                    "StatusLoadUnload": getUrlParameter('StatusLoadingUnloading'),
+                },
+                success: function (data) {
+
+                    console.log(data);
+                    //$('#WarehouseName').html(data[0]["Origin"] + ' - ' + data[0]["WarehouseName"]);
+                    $('#WarehouseName').html(data[0]["Origin"]);
+                    $('#PoliceRegNumber').html(data[0]["PoliceRegNumber"]);
+                    $('#UnitType').html(data[0]["UnitType"]);
+                    $('#VendorName').html(data[0]["VendorName"]);
+                    $('#Date').html(moment(data[0]["Date"]).format("DD MMMM YYYY"));
+                    $('#Status').html(data[0]["Status"]);
+                    $('#AdditionalInfo').html(data[0]["Additionalinfo"]);
+                    // $('#DestinationCity').html(data[0]["UnitType"]);
+                    $('#Qty').html(data[0]["Quantity"] + " Boxes");
+                    //$('#LoadStartDate').html(moment(data[0]["Date"]).format("DD MMMM YYYY"));
+                    //$('#LoadFinishDate').html(moment(data[0]["Date"]).format("DD MMMM YYYY"));
+                    //$('#PickinDate').html(moment(data[0]["Date"]).format("DD MMMM YYYY"));
+                    //$('#PickOutDate').html(moment(data[0]["Date"]).format("DD MMMM YYYY"));
+                    var destination;
+                    var i = 0;
+                    for (var key in data) {
+                        if (i == 0) {
+                            destination = data[key].DestinationName;
+
+                        } else {
+                            destination = destination + ', ' + data[key].DestinationName;
+                        }
+                        i = i + 1;
+
+                        console.log(destination);
+                    }
+                    $('#DestinationCity').html(destination);
+
+                   // $('#DestinationCity').html(data[0]["Destination"]);
+
+
+                },
+                error: function () {
+
+
+                }
+            });
+
+
+            $.ajax({
+                url: 'GetHeaderDetail',
+                dataType: 'JSON',
+                cache: false,
+                data: {
+                    "GPNumber": getUrlParameter('GPNumber'),
+                    "SJNumber": getUrlParameter('SJNumber'),
+                    "Origin": getUrlParameter('Origin'),
+                    "StatusLoadUnload": getUrlParameter('StatusLoadingUnloading'),
+                },
+                success: function (data) {
+
+                    console.log(data);
+                    if (getUrlParameter('StatusLoadingUnloading') == "LOAD") {
+
+                        $('#lbindate').html("Pick in Date");
+                        $('#loadstart').html("Load Start Date");
+                        $('#lboutdate').html("Pick Out Date");
+                        $('#loadfinish').html("Load Finish Date");
+
+                    } else {
+
+                        $('#lbindate').html("Drop in Date");
+                        $('#loadstart').html("Unload Start Date");
+                        $('#lboutdate').html("Drop Out Date");
+                        $('#loadfinish').html("Unload Finish Date");
+
+                    }
+                   
+                  
+                    $('#LoadStartDate').html(moment(data[0]["LoadStartDate"]).format("DD MMMM YYYY") + "<br>" + moment(data[0]["LoadStartDate"]).format("HH:mm"));
+                    $('#LoadFinishDate').html(moment(data[0]["LoadFinishDate"]).format("DD MMMM YYYY") + "<br>" + moment(data[0]["LoadFinishDate"]).format("HH:mm"));
+                    $('#PickinDate').html(moment(data[0]["PickInDate"]).format("DD MMMM YYYY") + "<br>" + moment(data[0]["PickInDate"]).format("HH:mm"));
+                    $('#PickOutDate').html(moment(data[0]["PickOutDate"]).format("DD MMMM YYYY") + "<br>" + moment(data[0]["PickOutDate"]).format("HH:mm"));
+                    var _SJNumber = data[0]["SJNumber"];
+                    $div = $('#GenerateSealDetail');
+                    document.getElementById('PleaseWait').style.display = "block";
+                    //$div.html('<i class="fa fa-spin fa-spinner"></i><label> Please wait...</label>');
+                    //request the JSON data and parse into the select element
+                    $.ajax({
+                        url: 'GetSealDetail',
+                        dataType: 'JSON',
+                        data: {
+                            "GPNumber": getUrlParameter('GPNumber'),
+                            "StatusLoadUnload": getUrlParameter('StatusLoadingUnloading'),
+                        },
+                        cache: false,
+                        success: function (data) {
+                            console.log(data);
+                            if (data.length > 0) {
+                                var i = 0;
+                                for (var key in data) {
+                                    document.getElementById('PleaseWait').style.display = "none";
+                                    //if(data.count())
+
+                                    i = i + 1;
+                                    $div.append('<div class="col-md-4"><div class="form-group"><label>Truck Seal Number (' + i + ')</label><div class="col-md-2"><h4 class="sub-text">' + data[key].SealNumber + '</h4></div><div class="col-md-10"><h4 class="sub-text">' + data[key].Remarks + '</h4></div></div></div>');
+                                }
+
+                            } else {
+
+                                document.getElementById('PleaseWait').style.display = "none";
+                                $div.append('<div class="col-md-4"><div class="form-group"><label>No Seal Available</label></div></div>');
+                            }
+
+
+                        },
+                        error: function () {
+                            //if there is an error append a 'none available' option
+                            //  $select.html('<option value="NULL">none available</option>');
+                            //$div.html('<div class="col-md-4"><div class="form-group"><label>Truck Seal Number</label><div class="col-md-2"><h4 class="sub-text">No</h4></div><div class="col-md-10"><h4 class="sub-text">data found</h4></div></div></div>');
+                        }
+                    });
+
+                },
+                error: function () {
+
+
+                }
+            });
+
+   
+
+
+        }
+    </script>

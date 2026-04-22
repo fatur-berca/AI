@@ -1,0 +1,307 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper;
+@using DFIS.Universal.Domain.Outputs;
+<section class="sidebar">
+	@{
+		var titlePage = ViewBag.Title;
+		var session = (UserSession)System.Web.HttpContext.Current.Session["CurrentUser"];
+		var IsSuperUser = session.Role.Where(f => f.RoleName.Equals(EnumHelper.GetDescription(DFIS.Utils.Enums.UserRole.SuperAdmin))).FirstOrDefault() != null;
+		var IsContracted = session.Email.Contains("contracted") && !IsSuperUser;
+
+		var isNewRole = false;
+		try
+		{
+			isNewRole = session.Role[0].RoleName.Contains("ADMIN VENDOR TRANSPORT");
+		}
+		catch
+		{
+
+			string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
+			string redirectUrl = string.Format("{0}/Error/UserNotRegistered", baseUrl);
+			Response.Redirect(redirectUrl);
+
+			//string appPath = HttpRuntime.AppDomainAppVirtualPath.Trim('/');
+			//Response.Redirect("/" + appPath + "/Error/UserNotRegistered");
+
+			//Response.Redirect(string.Format("{0}/Error/UserNotRegistered", Request.ApplicationPath));
+			//return RedirectToAction("UserNotRegistered", "Error");
+		}
+
+		string controller = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+		var listPage = ViewBag.PageAccess;
+		var GuidelineUrl = Url.Content("~/Assets/Guideline/");
+	}
+
+	<a href="#!" @ViewBag.Type class="sidebar-toggle" onclick="return false;">
+		<i class="fa fa-angle-left"></i>
+	</a>
+
+	@{
+		if (titlePage.Contains("User Guideline"))
+		{
+			<ul class="breadcrumb pull-left">
+				<li><a href="@Url.Action("Index", "Home")"><i class="flaticon-web-page-home"></i>HOME</a></li>
+				<li>User Guideline</li>
+			</ul>
+
+			<ul class="menu general pull-left">
+				<li class="@(ViewBag.Type.Contains("Guideline Picking List") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Picking List.pdf"><i class=""></i>Picking List</a></li>
+				<li class="@(ViewBag.Type.Contains("Guideline Order") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Order.pdf"><i class=""></i>Order</a></li>
+				<li class="@(ViewBag.Type.Contains("Guideline Execution") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Execution.pdf"><i class=""></i>Execution</a></li>
+				<li class="@(ViewBag.Type.Contains("Guideline Monitoring") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Monitoring.pdf"><i class=""></i>Monitoring</a></li>
+				<li class="@(ViewBag.Type.Contains("Guideline Transportation Seal") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Transportation Seal.pdf"><i class=""></i>Transportation Seal</a></li>
+				<li class="@(ViewBag.Type.Contains("Guideline Loading Unloading History") ? "active" : "")"><a href="@Url.Action("Index", "UserGuideline")?Type=Guideline Loading Unloading History.pdf"><i class=""></i>Loading Unloading History</a></li>
+			</ul>
+		}
+
+		if (titlePage.Contains("Master"))
+		{
+			<ul class="breadcrumb pull-left">
+				<li><a href="@Url.Action("Index", "Home")"><i class="flaticon-web-page-home"></i>HOME</a></li>
+				<li>MASTER DATA</li>
+			</ul>
+			<ul class="menu general pull-left">
+				<!--li>
+					<a href="#" data-toggle="collapse" data-target="#sm" aria-expanded="true"><i class="fa fa-truck"></i>Master Transport</a>
+					<ul class="child collapsed" id="sm" aria-expanded="true"-->
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstCost)))
+						{
+							<li class="@(controller == "MstCost" ? "active" : "")"><a href="@Url.Action("Index", "MstCost")"><i class="fa fa-money"></i>Cost</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-money"></i>Cost</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstCostCenterAccount)))
+						{
+							<li class="@(controller == "MstCostCenterAccount" ? "active" : "")"><a href="@Url.Action("Index", "MstCostCenterAccount")"><i class="fa fa-suitcase"></i>Cost Center &amp; Account</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-suitcase"></i>Cost Center &amp; Account</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstDistance)))
+						{
+							<li class="@(controller == "MstDistance" ? "active" : "")"><a href="@Url.Action("Index", "MstDistance")"><i class="fa fa-dashboard"></i>Distance</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-dashboard"></i>Distance</a></li>
+						}
+
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstLeadTimeTom)))
+						{
+							<li class="@(controller == "MstLeadTimeTom" ? "active" : "")"><a href="@Url.Action("Index", "MstLeadTimeTom")"><i class="fa fa-hourglass-2"></i>Lead Time</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-hourglass-2"></i>Lead Time</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstServicePoTom)))
+						{
+							<li class="@(controller == "MstServicePoTom" ? "active" : "")"><a href="@Url.Action("Index", "MstServicePoTom")"><i class="fa fa-envelope-open" ></i>Service PO</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-envelope-open"></i>Service PO</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstTruckSeal)))
+						{
+							<li class="@(controller == "MstTruckSeal" ? "active" : "")"><a href="@Url.Action("Index", "MstTruckSeal")"><i class="fa fa-lock"></i>Truck Seal Stock</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-lock"></i>Truck Seal Stock</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstUom)))
+						{
+							<li class="@(controller == "MstUom" ? "active" : "")"><a href="@Url.Action("Index", "MstUom")"><i class="fa fa-cube"></i>Unit of Measure</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-cube"></i>Unit of Measure</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstUserRoleDelegate)))
+						{
+							<li class="@(controller == "MasterUserRoleDelegation" ? "active" : "")"><a href="@Url.Action("Index", "MasterUserRoleDelegation")"><i class="fa fa-users"></i>User Role Delegation</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-users"></i>User Role Delegation</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstVendorTOM)))
+						{
+							<li class="@(controller == "MstVendorTOM" ? "active" : "")"><a href="@Url.Action("Index", "MstVendorTOM")"><i class="fa fa-id-badge"></i>Vendor</a></li>
+						}
+						else
+						{
+							<li class="not-active"><a href="#"><i class="fa fa-id-badge"></i>Vendor</a></li>
+						}
+						@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MstVendorSuggestion)))
+						{
+							<li class="@(controller == "MstVendorSuggestion" ? "active" : "")"><a href="@Url.Action("Index", "MstVendorSuggestion")"><i class="fa fa-share-alt"></i>Vendor Suggestion</a></li>
+						}
+						else
+						{ 
+							<li class="not-active"><a href="#"><i class="fa fa-share-alt"></i>Vendor Suggestion</a></li>
+						}
+					<!--/ul>
+				</li -->
+				@if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.MasterLocation)))
+				{
+					<li class="@(controller == "MstLocation" ? "active" : "")"><a href="@Url.Action("Index", "MstLocation")"><i class="fa fa-map-marker"></i>Master Location</a></li>
+				}
+				else
+				{
+					<li class="not-active"><i class="fa fa-map-pin"></i><a href="#">Master Location</a></li>
+				}
+
+				<li class="@(controller == "MstUser" ? "active" : "")"><a href="@Url.Action("Index", "MstUser")"><i class="fa fa-user"></i>Master User</a></li>
+
+				<li class="@(controller == "MstUserRole" ? "active" : "")"><a href="@Url.Action("Index", "MstUserRole")"><i class="fa fa-road"></i>Master User Role</a></li>
+
+				<li class="@(controller == "MstUserLocationMap" ? "active" : "")"><a href="@Url.Action("Index", "MstUserLocationMap")"><i class="fa fa-signal"></i>Master User Location</a></li>
+
+				<li class="@(controller == "MstRoleFunction" ? "active" : "")"><a href="@Url.Action("Index", "MstRoleFunction")"><i class="fa fa-gears"></i>Master Role Function</a></li>
+
+				<li class="@(controller == "MstConfiguration" ? "active" : "")"><a href="@Url.Action("Index", "MstConfiguration")"><i class="fa fa-gear"></i>Master Configuration</a></li>
+				
+				<li class="@(controller == "MstDataLoadFactorCFPController" ? "active" : "")"><a href="@Url.Action("Index", "MstDataLoadFactorCFP")"><i class="fa fa-gear"></i>Master Load Factor CFP</a></li>
+			</ul>
+		}
+	}
+
+	@{
+		if (titlePage.Contains("Transport") || titlePage.Contains("Vehicle Data Detail"))
+		{
+			<ul class="breadcrumb pull-left">
+				<li><a href="@Url.Action("Index", "Home")"><i class="flaticon-web-page-home"></i>HOME</a></li>
+				<li>TRANSPORT</li>
+			</ul>
+            <ul class="menu general pull-left">
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportPickingList)))
+                {
+                    <li class="@(controller == "TransportPickingList" ? "active" : "")"><a href="@Url.Action("Index", "TransportPickingList")"><i class="fa fa-tasks"></i>Picking List</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-tasks"></i>Picking List</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationOrder)))
+                {
+                    <li class="@(controller == "TransportationOrder" ? "active" : "")"><a href="@Url.Action("Index", "TransportationOrder")"><i class="fa fa-shopping-cart"></i>Order</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-shopping-cart"></i>Order</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationExecution)))
+                {
+                    <li class="@(controller == "TransportationExecution" ? "active" : "")"><a href="@Url.Action("Index", "TransportationExecution")"><i class="fa fa-road"></i>Execution</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-road"></i>Execution</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationMonitoring)))
+                {
+                    <li class="@(controller == "TransportationMonitoring" ? "active" : "")"><a href="@Url.Action("Index", "TransportationMonitoring")"><i class="fa fa-eye"></i>Monitoring</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-eye"></i>Monitoring</a></li>
+                }
+
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationSummary)) && !IsContracted)
+                {
+                    <li class="@(controller == "TransportationSummary" ? "active" : "")"><a href="@Url.Action("Index", "TransportationSummary")"><i class="fa fa-lock"></i>Summary</a></li>
+                }
+                else if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationSummary)) && isNewRole)
+                {
+                    <li class="@(controller == "TransportationSummary" ? "active" : "")"><a href="@Url.Action("Index", "TransportationSummary")"><i class="fa fa-lock"></i>Summary</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-lock"></i>Summary</a></li>
+                }
+
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportationSeal)))
+                {
+                    <li class="@(controller == "TransportationSeal" ? "active" : "")"><a href="@Url.Action("Index", "TransportationSeal")"><i class="fa fa-key"></i>Transportation Seal</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-key"></i>Transportation Seal</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.LoadingUnloadingHistory)))
+                {
+                    <li class="@(controller == "LoadingUnloadingHistory" ? "active" : "")"><a href="@Url.Action("Index", "LoadingUnloadingHistory")"><i class="fa flaticon-trolley"></i>Loading Unloading History</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa flaticon-trolley"></i>Loading Unloading History</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportDriverManagement)))
+                {
+                    <li class="@(controller == "DriverManagement" ? "active" : "")"><a href="@Url.Action("Index", "DriverManagement")"><i class="fa flaticon-delivery-man"></i>Driver Data</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa flaticon-delivery-man"></i>Driver Data</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportVehicleData)))
+                {
+                    <li class="@(controller == "VehicleData" ? "active" : "")"><a href="@Url.Action("Index", "VehicleData")"><i class="fa flaticon-delivery-truck"></i>Vehicle Data</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa flaticon-delivery-truck"></i>Vehicle Data</a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportTicketNcr)))
+                {
+                    <li class="@(controller == "TicketNcr" ? "active" : "")"><a href="@Url.Action("Index", "TicketNcr")"><i class="fa fa-shield"></i>Safety & Security Data </a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="fa fa-shield"></i>Safety & Security Data </a></li>
+                }
+                @if (listPage.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.PageName.TransportLostDamageClaim)))
+                {
+                    <li class="@(controller == "TransportLostDamageClaim" ? "active" : "")"><a href="@Url.Action("Index", "TransportLostDamageClaim")"><i class="flaticon-fragile"></i>Lost & Damage Claim</a></li>
+                }
+                else
+                {
+                    <li class="not-active"><a href="#"><i class="flaticon-fragile"></i>Lost & Damage Claim</a></li>
+                }
+            </ul>
+		}
+	}
+</section>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var pathArray = window.location.pathname.split('/');
+		var lastlevelurl = pathArray[2];
+
+		$('.child collapse').filter(function () {
+			return $(this).attr('href') == lastlevelurl
+		}).parent().parent().addClass('in');
+
+		$("#BestPracticeToolbox").click(function (event) {
+			event.preventDefault();
+			callMeBaby();
+		});
+	});
+
+   
+
+	function callMeBaby() {
+		$.ajax({
+			type: "get",
+			url: '@Url.Action("GetUrl","Home")',
+			dataType: 'json',
+			success: function (result) {
+				window.open(result, '_blank');
+			}
+		});
+	}
+</script>

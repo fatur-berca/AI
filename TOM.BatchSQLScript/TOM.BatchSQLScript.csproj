@@ -1,0 +1,475 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FF7F40CF-F27E-4B85-94BF-80C957D92485}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TOM.BatchSQLScript</RootNamespace>
+    <AssemblyName>TOM.BatchSQLScript</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="dbup-core, Version=4.1.0.0, Culture=neutral, PublicKeyToken=4b419c53bdfd4cbf, processorArchitecture=MSIL">
+      <HintPath>..\packages\dbup-core.4.1.0\lib\net45\dbup-core.dll</HintPath>
+    </Reference>
+    <Reference Include="dbup-sqlserver, Version=4.1.0.0, Culture=neutral, PublicKeyToken=4b419c53bdfd4cbf, processorArchitecture=MSIL">
+      <HintPath>..\packages\dbup-sqlserver.4.1.0\lib\net35\dbup-sqlserver.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0001_Database_TOM_201809131332.sql" />
+    <EmbeddedResource Include="SQLScripts\0002_Tabel_MasterUser_201809131432.sql" />
+    <EmbeddedResource Include="SQLScripts\0003_Table_MasterRole_201809131433.sql" />
+    <EmbeddedResource Include="SQLScripts\0004_Table_MasterFunction_201809131434.sql" />
+    <EmbeddedResource Include="SQLScripts\0005_Table_MasterLocation_201809131435.sql" />
+    <EmbeddedResource Include="SQLScripts\0006_Table_MasterUserRoleMapping_201809131436.sql" />
+    <EmbeddedResource Include="SQLScripts\0007_Table_MasterRolesFunctionMapping_201809131437.sql" />
+    <EmbeddedResource Include="SQLScripts\0008_Table_MasterUserLocationMapping_201809131438.sql" />
+    <EmbeddedResource Include="SQLScripts\0009_Table_MasterConfiguration_201809131439.sql" />
+    <EmbeddedResource Include="SQLScripts\0010_Table_MasterFABrand_201809131440.sql" />
+    <EmbeddedResource Include="SQLScripts\0011_Table_MasterList_201809131441.sql" />
+    <EmbeddedResource Include="SQLScripts\0012_Table_MasterLoadFactorCFP_201809131442.sql" />
+    <EmbeddedResource Include="SQLScripts\0013_Table_MasterMapping_201809131443.sql" />
+    <EmbeddedResource Include="SQLScripts\0014_Table_MasterConfigurationEmail_201809131444.sql" />
+    <EmbeddedResource Include="SQLScripts\0015_Table_MasterGenWeek_201809131445.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0016_Table_TransportOrder_201809141634.sql" />
+    <EmbeddedResource Include="SQLScripts\0017_Table_MasterFunction_Insert_201809181047.sql" />
+    <EmbeddedResource Include="SQLScripts\0018_Table_MasterList_Insert_201809141709.sql" />
+    <EmbeddedResource Include="SQLScripts\0019_Table_TransportOrderRequest_201809181217.sql" />
+    <EmbeddedResource Include="SQLScripts\0020_Table_MasterList_201809171615.sql" />
+    <EmbeddedResource Include="SQLScripts\0021_SP_SendEmailPickingList_201809241428.sql" />
+    <EmbeddedResource Include="SQLScripts\0022_SP_UpdateLogHeader_201809241428.sql" />
+    <EmbeddedResource Include="SQLScripts\0023_SP_UpdateSeqNoTransportOrder_201809241429.sql" />
+    <EmbeddedResource Include="SQLScripts\0024_SP_UpdateVersionTransportOrderDetailChangeLog_201809241429.sql" />
+    <EmbeddedResource Include="SQLScripts\0025_Table_TransportOrderTemp_201809241429.sql" />
+    <EmbeddedResource Include="SQLScripts\0026_Table_MasterList_201809241430.sql" />
+    <EmbeddedResource Include="SQLScripts\0027_Table_MasterFunction_201809241430.sql" />
+    <EmbeddedResource Include="SQLScripts\0028_Table_TransportExecution_201809241430.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0029_Table_TransportOrder_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0030_Table_TransactionLog_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0031_Table_MasterCostCenter_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0032_Table_CustomReportState_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0033_SP_MasterRoleFunctionTreeListView_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0034_SP_MasterUserLocationMapTreeListView_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0035_SP_MasterUserRoleDelegationView_201809251105.sql" />
+    <EmbeddedResource Include="SQLScripts\0036_SP_UserRolesSecurityView_201809251105.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0037_Table_ADSI_User_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0038_Table_vNOTES_DATA_FLOW_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0039_View_HRD_EMP_V2_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0040_Table_MasterTransportRegion_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0041_Table_MasterKilometer_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0042_SP_GenTransportUnitFreq_201809251205.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0043_Table_Constraint_MasterLocation_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0044_Table_MasterLocation_201809251205.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0045_Table_MasterMappingLocation_201809251205.sql" />
+    <EmbeddedResource Include="SQLScripts\0046_View_MasterLocation_201809251205.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0047_Table_TransportPickingListLog_201809251648.sql" />
+    <EmbeddedResource Include="SQLScripts\0048_Table_TransportOrderRequest_201809251649.sql" />
+    <EmbeddedResource Include="SQLScripts\0049_Table_TransportOrder_201809251650.sql" />
+    <EmbeddedResource Include="SQLScripts\0050_Table_MasterMapping_201809251652.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0051_Table_TransportOrder_201809251710.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0052_Table_MasterFunction_201809241430.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0053_Table_MasterFABrand_201809261411.sql" />
+    <EmbeddedResource Include="SQLScripts\0054_View_MasterFABrand_201809261420.sql" />
+    <EmbeddedResource Include="SQLScripts\0055_Table_MasterList_201809261416.sql" />
+    <EmbeddedResource Include="SQLScripts\0056_Table_MasterMapping_201809261529.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0057_Table_MasterMapping_201809270941.sql" />
+    <EmbeddedResource Include="SQLScripts\0058_Table_MasterUoM_201809261757.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0059_Table_Master_list_201809271413.sql" />
+    <EmbeddedResource Include="SQLScripts\0060_Function_FN_TRANSPORT_EXECUTION_LIST_ADD__201809271413.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0061_Table_MasterFunction_201809281109.sql" />
+    <EmbeddedResource Include="SQLScripts\0062_Table_MasterFunction_201809281110.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0063_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201809281357.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0064_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201809281630.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0065_Table_MasterRole_201809281149.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0066_Table_TransportRoute_201810011049.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0067_Table_TransportVesselMonitoring_201810011050.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0069_Table_TransportExecution_201810031311.sql" />
+    <EmbeddedResource Include="SQLScripts\0070_Table_TransportVendorChangeLog.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0068_Table_MasterConfiguration_201810011720.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0071_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201810041056.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0072_Table_TransportOrder_Alter_201810051501.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0073_Table_TransportPositionDetail_201810051507.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0074_View_TransportMonitoringView%28ship%29_201810081340.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0075_Table_MasterList_201810081522.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0076_Table_TransportOrder_201810100926.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0077_Table_TransportOrder_201810101308.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0078_Table_TableTransportVesselMonitoring_201810091118.sql" />
+    <EmbeddedResource Include="SQLScripts\0079_View_GeneralBuildingFacility_201810101730.sql" />
+    <EmbeddedResource Include="SQLScripts\0080_Table_MasterList_Insert_201810111136.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0081_View_TransportOrderRequestListView_201810111648.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0082_Table_TransportExecution_Alter_201810121638.sql" />
+    <EmbeddedResource Include="SQLScripts\0083_Table_TransportLostClaimDamage_201810150957.sql" />
+    <EmbeddedResource Include="SQLScripts\0084_Table_TransportLostClaimFACode_201810150958.sql" />
+    <EmbeddedResource Include="SQLScripts\0085_Table_TransportLostClaimUploadBoxes_201810150959.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0086_Table_TransportLostClaimDamage_Update_201810151011.sql" />
+    <EmbeddedResource Include="SQLScripts\0087_Table_TransportLostClaimDamage_Alter_201810151012.sql" />
+    <EmbeddedResource Include="SQLScripts\0088_Table_GPHeader_201810151013.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0089_Table_SSO_201810151747.sql" />
+    <EmbeddedResource Include="SQLScripts\0090_Table_MasterFunction_201810151748.sql" />
+    <EmbeddedResource Include="SQLScripts\0091_Table_MasterRole_201810151749.sql" />
+    <EmbeddedResource Include="SQLScripts\0092_Table_MasterRolesFunctionMapping_201810151750.sql" />
+    <EmbeddedResource Include="SQLScripts\0093_Table_MasterUserRoleMapping_201810151751.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0094_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201810171549.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0095_Table_MasterList_201810181550.sql" />
+    <EmbeddedResource Include="SQLScripts\0096_Table_TransportExecution_201810181550.sql" />
+    <EmbeddedResource Include="SQLScripts\0097_Table_TransportOrder_201810181550.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0098_Function_FN_SPLIT_STRING_201810181653.sql" />
+    <EmbeddedResource Include="SQLScripts\0099_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201810181654.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0100_Table_TransportExecution_201810191118.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0112_Table_TransportExecution_Alter_201810251408.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0113_Table_TransportOrder_Alter_201810251409.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0114_Table_TransportRoute_Alter_201810251410.sql" />
+    <EmbeddedResource Include="SQLScripts\0101_Add_MstFunction_Driver_Management_201810191522.sql" />
+    <EmbeddedResource Include="SQLScripts\0102_Add_MstFunction_Vehicle_Data_201810191622.sql" />
+    <EmbeddedResource Include="SQLScripts\0103_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201810221704.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0104_Alter_Collumn_TRANSPORT_Order_201810231223.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0105_Function_FnTransportationSummary_201810231504.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0106_Table_MasterList_201810231320.sql" />
+    <EmbeddedResource Include="SQLScripts\0107_Table_MasterFunction_201810240944.sql" />
+    <EmbeddedResource Include="SQLScripts\0108_View_TransportOrderRequestListView_201810241649.sql" />
+    <EmbeddedResource Include="SQLScripts\0109_Function_FnTransportationSummary_201810241712.sql" />
+    <EmbeddedResource Include="SQLScripts\0110_View_TransportOrderRequestListView_201810251011.sql" />
+    <EmbeddedResource Include="SQLScripts\0111_Function_FnTransportationSummary_201810251012.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0115_View_TransportOrderRequestSummary_201810251531.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0116_View_TransportOrderRequestSummary_201810251657.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0123_SP_SendEmailTransportExecutionSI_201810301025.sql" />
+    <EmbeddedResource Include="SQLScripts\0122_View_TransportMonitoringTruckTrainList_201810301024.sql" />
+    <EmbeddedResource Include="SQLScripts\0125_Table_MasterRole_201810311001.sql" />
+    <EmbeddedResource Include="SQLScripts\0126_Table_MasterRoleFunctionMapping_201810311008.sql" />
+    <EmbeddedResource Include="SQLScripts\0127_Table_MasterUserRoleMapping_201810311143.sql" />
+    <EmbeddedResource Include="SQLScripts\0124_Table_MasterFunction_201810301016.sql" />
+    <EmbeddedResource Include="SQLScripts\0117_Table_TransportOrder_201810291015.sql" />
+    <EmbeddedResource Include="SQLScripts\0118_Table_TransportExecution_201810291025.sql" />
+    <EmbeddedResource Include="SQLScripts\0119_Table_TransportRoute_201810291026.sql" />
+    <EmbeddedResource Include="SQLScripts\0120_Table_MasterLocation_201810291048.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0121_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201810261742.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0128_Table_TransportExecution_201810312320.sql" />
+    <EmbeddedResource Include="SQLScripts\0129_Table_TransportRoute_201810312320.sql" />
+    <EmbeddedResource Include="SQLScripts\0130_SP_CalculateCost_201810312321.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0131_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811011514.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0132_Table_TransportExecution_201811011716.sql" />
+    <EmbeddedResource Include="SQLScripts\0133_Function_FnTransportationSummary_201811011717.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0134_Table_MasterConfiguration_201811011104.sql" />
+    <EmbeddedResource Include="SQLScripts\0135_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811011104.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0136_Table_MasterMapping_201811011108.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0137_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811021111.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0138_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811041730.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0139_Table_TransportExecution_201811051008.sql" />
+    <EmbeddedResource Include="SQLScripts\0140_Function_FnTransportationSummary_201811051009.sql" />
+    <EmbeddedResource Include="SQLScripts\0141_Function_KPILoadFactorAvg_201811051010.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQLScripts\0142_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201805111730.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLScripts\0275_SP_CalculateCost_201902131503.sql" />
+    <EmbeddedResource Include="SQLScripts\0288_SP_CalculateLoadFactorCFP_201904161623.sql" />
+    <EmbeddedResource Include="SQLScripts\0289_SP_CalculateCost_201904161624.sql" />
+    <EmbeddedResource Include="SQLScripts\0286_Table_TransportExecution_201904011415.sql" />
+    <EmbeddedResource Include="SQLScripts\0287_SP_CalculateLoadFactorCFP_201904011416.sql" />
+    <EmbeddedResource Include="SQLScripts\0284_Table_masterList_201903221715.sql" />
+    <EmbeddedResource Include="SQLScripts\0285_Table_TransportLostClaimDamage_201903221716.sql" />
+    <EmbeddedResource Include="SQLScripts\0282_SP_CalculateLoadFactorCFP_201903141738.sql" />
+    <EmbeddedResource Include="SQLScripts\0283_SP_CalculateCost_201903141739.sql" />
+    <EmbeddedResource Include="SQLScripts\0281_Table_Alter_MasterLoadFactorCFP_201903071318.sql" />
+    <EmbeddedResource Include="SQLScripts\0280_Table_TransportExecution_201902251709.sql" />
+    <EmbeddedResource Include="SQLScripts\0279_SP_CalculateCost_201902251456.sql" />
+    <EmbeddedResource Include="SQLScripts\0278_Table_MasterMapping_201902181144.sql" />
+    <EmbeddedResource Include="SQLScripts\0276_SP_InsertGIGRDate_2019012151743.sql" />
+    <EmbeddedResource Include="SQLScripts\0277_SP_CalculateCost_2019012151744.sql" />
+    <EmbeddedResource Include="SQLScripts\0274_SP_InsertGIGRDate_201902131423.sql" />
+    <EmbeddedResource Include="SQLScripts\0273_SP_ReCalculateTotalKM_201902111731.sql" />
+    <EmbeddedResource Include="SQLScripts\0271_SP_CalculateCost_201902111210.sql" />
+    <EmbeddedResource Include="SQLScripts\0272_SP_ReCalculateTotalKM_201902111211.sql" />
+    <EmbeddedResource Include="SQLScripts\0270_Alter_SP_CalculateCost_201902061931.sql" />
+    <EmbeddedResource Include="SQLScripts\0268_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201902011403.sql" />
+    <EmbeddedResource Include="SQLScripts\0269_SP_CalculateCost_201902011402.sql" />
+    <EmbeddedResource Include="SQLScripts\0267_SP_CalculateCost_201901311715.sql" />
+    <EmbeddedResource Include="SQLScripts\0265_SP_InsertGIGRDate_201901281800.sql" />
+    <EmbeddedResource Include="SQLScripts\0266_SP_InsertSTONo_201901281801.sql" />
+    <EmbeddedResource Include="SQLScripts\0264_SP_UpdateSeqNoTransportOrder_201901241140.sql" />
+    <EmbeddedResource Include="SQLScripts\0263_SP_CalculateCost_201901231846_201901241036.sql" />
+    <EmbeddedResource Include="SQLScripts\0262_SP_CalculateCost_201901231436.sql" />
+    <EmbeddedResource Include="SQLScripts\0261_SP_CalculateCost_201901231055.sql" />
+    <EmbeddedResource Include="SQLScripts\0258_SP_InsertSTONo_201901211819.sql" />
+    <EmbeddedResource Include="SQLScripts\0259_SP_InsertGIGRDate_201901211820.sql" />
+    <EmbeddedResource Include="SQLScripts\0260_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901211821.sql" />
+    <EmbeddedResource Include="SQLScripts\0255_SP_InsertGIGRDate_201901171130.sql" />
+    <EmbeddedResource Include="SQLScripts\0256_SP_InsertSTONo_201901171131.sql" />
+    <EmbeddedResource Include="SQLScripts\0257_SP_sendEmailPickingList_201901171132.sql" />
+    <EmbeddedResource Include="SQLScripts\0253_SP_InsertGIGRDate_201901161407.sql" />
+    <EmbeddedResource Include="SQLScripts\0254_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901161408.sql" />
+    <EmbeddedResource Include="SQLScripts\0250_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901141552.sql" />
+    <EmbeddedResource Include="SQLScripts\0251_SP_InsertGIGRDate_201901141553.sql" />
+    <EmbeddedResource Include="SQLScripts\0252_Table_TransportExecutionTemp_201901141554.sql" />
+    <EmbeddedResource Include="SQLScripts\0249_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901111518.sql" />
+    <EmbeddedResource Include="SQLScripts\0247_SP_InsertSTONo_20190111439.sql" />
+    <EmbeddedResource Include="SQLScripts\0248_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901111440.sql" />
+    <EmbeddedResource Include="SQLScripts\0245_SP_InsertSTONo_201901101140.sql" />
+    <EmbeddedResource Include="SQLScripts\0246_SP_InsertGIGRDate_201901101141.sql" />
+    <EmbeddedResource Include="SQLScripts\0244_SP_InsertSTONo_201801071450.sql" />
+    <EmbeddedResource Include="SQLScripts\0243_ALTER_TABLE_TransportVesselMonitoring_201901031410.sql" />
+    <EmbeddedResource Include="SQLScripts\0241_SP_InsertSTONo_201901031148.sql" />
+    <EmbeddedResource Include="SQLScripts\0242_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201901031149.sql" />
+    <EmbeddedResource Include="SQLScripts\0239_SP_InsertSTONo_201812261637.sql" />
+    <EmbeddedResource Include="SQLScripts\0240_SP_sendEmailPickingList_201812261638.sql" />
+    <EmbeddedResource Include="SQLScripts\0238_SP_UpdateSeqNoTransportOrder_201812261530.sql" />
+    <EmbeddedResource Include="SQLScripts\0237_View_MasterFABrand_201812211428.sql" />
+    <EmbeddedResource Include="SQLScripts\0236_SP_InsertSTONo_201812210957.sql" />
+    <EmbeddedResource Include="SQLScripts\0235_SP_InsertSTONo_201812201213.sql" />
+    <EmbeddedResource Include="SQLScripts\0230_SP_CalculateCost_201812131618.sql" />
+    <EmbeddedResource Include="SQLScripts\0231_SP_MasterFunction_201812131619.sql" />
+    <EmbeddedResource Include="SQLScripts\0232_SP_ReCalculateCost_201812131620.sql" />
+    <EmbeddedResource Include="SQLScripts\0233_SP_ReCalculateTotalKM_201812131621.sql" />
+    <EmbeddedResource Include="SQLScripts\0234_SP_InsertSTONo_201812131622.sql" />
+    <EmbeddedResource Include="SQLScripts\0229_SP_GetTransportOrderRequest_201812111426.sql" />
+    <EmbeddedResource Include="SQLScripts\0226_Function_FnTransportationSummary_201812071829.sql" />
+    <EmbeddedResource Include="SQLScripts\0227_SP_InsertSTONo_201812071830.sql" />
+    <EmbeddedResource Include="SQLScripts\0228_SP_UpdateSeqNoTransportOrder_201812071831.sql" />
+    <EmbeddedResource Include="SQLScripts\0225_TransportVehicleData_AlterIDPoliceRegNumber_201812061844.sql" />
+    <EmbeddedResource Include="SQLScripts\0224_SP_InsertSTONo_201812061758.sql" />
+    <EmbeddedResource Include="SQLScripts\0223_SP_GetTransportOrderRequest_201812061717.sql" />
+    <EmbeddedResource Include="SQLScripts\0221_SP_UpdateTransportSummaryStatusComplete_201812061625.sql" />
+    <EmbeddedResource Include="SQLScripts\0222_Function_FnTransportationSummary_201812061626.sql" />
+    <EmbeddedResource Include="SQLScripts\0220_SP_GetTransportOrderRequest_201812061117.sql" />
+    <EmbeddedResource Include="SQLScripts\0219_SP_InsertOrUpdateMstLocation_201812051413.sql" />
+    <EmbeddedResource Include="SQLScripts\0216_SP_InsertGIGRDate_201812041827.sql" />
+    <EmbeddedResource Include="SQLScripts\0217_SP_sendEmailPickingList_201812041828.sql" />
+    <EmbeddedResource Include="SQLScripts\0218_SP_UpdateTransportSummaryStatusComplete_201812041829.sql" />
+    <EmbeddedResource Include="SQLScripts\0215_SP_CalculateCost_201812041612.sql" />
+    <EmbeddedResource Include="SQLScripts\0214_SP_sendEmailPickingList_201812032028.sql" />
+    <EmbeddedResource Include="SQLScripts\0213_SP_CalculateCost_201812031800.sql" />
+    <EmbeddedResource Include="SQLScripts\0212_SP_SendEmailTransportExecutionSI_201812031703.sql" />
+    <EmbeddedResource Include="SQLScripts\0211_Table_TransportExecutionTemp_201812031546.sql" />
+    <EmbeddedResource Include="SQLScripts\0210_Table_TransportExecutionTemp_201812031237.sql" />
+    <EmbeddedResource Include="SQLScripts\0209_Table_TransportExecutionTemp_201812031023.sql" />
+    <EmbeddedResource Include="SQLScripts\0208_Table_MasterFunction_201811301744.sql" />
+    <EmbeddedResource Include="SQLScripts\0207_SP_spSendEmail_201811301745.sql" />
+    <EmbeddedResource Include="SQLScripts\0206_Table_TransportOrder_201811301506.sql" />
+    <EmbeddedResource Include="SQLScripts\0205_View_LoadingUnloadingExportView_201811292027.sql" />
+    <EmbeddedResource Include="SQLScripts\0204_View_LoadingUnloadingExportView_201811291623.sql" />
+    <EmbeddedResource Include="SQLScripts\0203_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811270201.sql" />
+    <EmbeddedResource Include="SQLScripts\0202_Table_TransportOrder_201811271434.sql" />
+    <EmbeddedResource Include="SQLScripts\0201_Table_TransportDriver_TransportVehicle_201811262251.sql" />
+    <EmbeddedResource Include="SQLScripts\0200_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811262017.sql" />
+    <EmbeddedResource Include="SQLScripts\0197_SP_InsertSTONo_201811261424.sql" />
+    <EmbeddedResource Include="SQLScripts\0198_SP_sendEmailPickingList_201811261425.sql" />
+    <EmbeddedResource Include="SQLScripts\0199_SP_UpdateSeqNoTransportOrder_201811261426.sql" />
+    <EmbeddedResource Include="SQLScripts\0196_Table_TransportOrderRequestHeader_201811231421.sql" />
+    <EmbeddedResource Include="SQLScripts\0195_Function_FnTransportationSummary_201811221847.sql" />
+    <EmbeddedResource Include="SQLScripts\0194_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811221248.sql" />
+    <EmbeddedResource Include="SQLScripts\0193_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811221228.sql" />
+    <EmbeddedResource Include="SQLScripts\0189_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811211800.sql" />
+    <EmbeddedResource Include="SQLScripts\0190_SP_InsertGIGRDate_201811211801.sql" />
+    <EmbeddedResource Include="SQLScripts\0191_SP_InsertSTONo_201811211802.sql" />
+    <EmbeddedResource Include="SQLScripts\0192_SP_sendEmailPickingList_201811211803.sql" />
+    <EmbeddedResource Include="SQLScripts\0187_Table_TransportExecution_201811211332.sql" />
+    <EmbeddedResource Include="SQLScripts\0186_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811191456.sql" />
+    <EmbeddedResource Include="SQLScripts\0185_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811191209.sql" />
+    <EmbeddedResource Include="SQLScripts\0184_MasterFunction_TransportationSeal_20181116105500.sql" />
+    <EmbeddedResource Include="SQLScripts\0183_SP_sendEmailPickingList_201811161104.sql" />
+    <EmbeddedResource Include="SQLScripts\0182_Table_TransportExecution_201811151522.sql" />
+    <EmbeddedResource Include="SQLScripts\0181_Function_FnTransportationSummaryCRate_201811151325.sql" />
+    <EmbeddedResource Include="SQLScripts\0180_Table_TransportOrder_201811150945.sql" />
+    <EmbeddedResource Include="SQLScripts\0179_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811141133.sql" />
+    <EmbeddedResource Include="SQLScripts\0178_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811113.sql" />
+    <EmbeddedResource Include="SQLScripts\0177_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811131232.sql" />
+    <EmbeddedResource Include="SQLScripts\0176_View_TransportSummaryReclassView_201811121755.sql" />
+    <EmbeddedResource Include="SQLScripts\0175_View_TransportSummaryReclassView_201811121729.sql" />
+    <EmbeddedResource Include="SQLScripts\0174_SP_GetTransportOrderRequest_201811121128.sql" />
+    <EmbeddedResource Include="SQLScripts\0170_SP_InsertSTONo_201811120807.sql" />
+    <EmbeddedResource Include="SQLScripts\0171_SP_UpdateSeqNoTransportOrder_201811120807.sql" />
+    <EmbeddedResource Include="SQLScripts\0172_Table_TransportExecution_201811120807.sql" />
+    <EmbeddedResource Include="SQLScripts\0173_Table_TransportOrder_201811120807.sql" />
+    <EmbeddedResource Include="SQLScripts\0169_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811111920.sql" />
+    <EmbeddedResource Include="SQLScripts\0168_SP_GetTransportOrderRequest_201811102013.sql" />
+    <EmbeddedResource Include="SQLScripts\0167_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811101915.sql" />
+    <EmbeddedResource Include="SQLScripts\0166_SP_GetTransportOrderRequest_201811101718.sql" />
+    <EmbeddedResource Include="SQLScripts\0164_Table_TransportExecution_201811091515.sql" />
+    <EmbeddedResource Include="SQLScripts\0165_Table_MasterList_201811101610.sql" />
+    <EmbeddedResource Include="SQLScripts\0163_Table_TransportOrder_Alter_201811101433.sql" />
+    <Content Include="SQLScripts\0143_Alter_SP_sendEmailPickingList_201811051745.sql" />
+    <EmbeddedResource Include="SQLScripts\0162_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_20181109.sql" />
+    <EmbeddedResource Include="SQLScripts\0161_SP_GetTransportOrderRequest_201811091118.sql" />
+    <EmbeddedResource Include="SQLScripts\0159_Table_MasterConfiguration_201811081912.sql" />
+    <EmbeddedResource Include="SQLScripts\0160_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811082041.sql" />
+    <EmbeddedResource Include="SQLScripts\0158_Data_MasterConfiguration_201811081806.sql" />
+    <EmbeddedResource Include="SQLScripts\0157_SP_GetTransportOrderRequest_201811081110.sql" />
+    <EmbeddedResource Include="SQLScripts\0156_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811071930.sql" />
+    <EmbeddedResource Include="SQLScripts\0153_Function_FN_TRANSPORT_EXECUTION_LIST_ADD_201811071715.sql" />
+    <EmbeddedResource Include="SQLScripts\0154_SP_UpdateSeqNoTransportOrder_201811071716.sql" />
+    <EmbeddedResource Include="SQLScripts\0155_Table_MasterMapping_201811071717.sql" />
+    <EmbeddedResource Include="SQLScripts\0151_Table_TransportTicketNCR_201811071718.sql" />
+    <EmbeddedResource Include="SQLScripts\0152_Function_FnTransportationSummary_201811071719.sql" />
+    <EmbeddedResource Include="SQLScripts\0150_SP_GetTransportOrderRequest_201811071258.sql" />
+    <EmbeddedResource Include="SQLScripts\0149_SP_GetTransportOrderRequest_201811071117.sql" />
+    <EmbeddedResource Include="SQLScripts\0148_SP_GetTransportOrderRequest_201811071044.sql" />
+    <EmbeddedResource Include="SQLScripts\0147_SP_GetTransportOrderRequest_201811061708.sql" />
+    <EmbeddedResource Include="SQLScripts\0146_Function_FnTransportSummary_201811061422.sql" />
+    <EmbeddedResource Include="SQLScripts\0145_SP_GetTransportOrderRequest_201811060916.sql" />
+    <EmbeddedResource Include="SQLScripts\0144_SP_CalculateLoadFactorCFP_201811051759.sql" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,111 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="uploadPositionOnTruk2" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Position on Truck</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <canvas id="canvasTrukCondition2" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputTrukCondition2" type="file" class="filestyle" name="" accept=".jpg">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarkerTrukCondition2">Add</button>
+                            <button class="btn btn-purple" id="clearMarkerTrukCondition2">Clear All</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="2" id="descUploadTrukCondition2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadTrukCondition2">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    if ($("#fileInputTrukCondition2").val() == '') {
+        $("#btnUploadTrukCondition2").prop("disabled", true);
+        $("#addMarkerTrukCondition2").prop("disabled", true);
+        $("#clearMarkerTrukCondition2").prop("disabled", true);
+        $("#descUploadTrukCondition2").prop("disabled", true);
+    } else {
+        $("#btnUploadTrukCondition2").prop("disabled", false);
+        $("#addMarkerTrukCondition2").prop("disabled", false);
+        $("#clearMarkerTrukCondition2").prop("disabled", false);
+        $("#descUploadTrukCondition2").prop("disabled", false);
+    }
+
+    var canvasTruck2 = new fabric.Canvas('canvasTrukCondition2');
+    //canvas.setBackgroundImage('../assets/images/no-image.jpg', canvas.renderAll.bind(canvas), {
+    //    width: canvas.width,
+    //    height: canvas.height,
+    //    originX: 'left',
+    //    originY: 'top'
+    //});
+
+    $('#addMarkerTrukCondition2').click(function (e) {
+        var posX = canvasTruck2.width /2; //* Math.random();
+        var posY = canvasTruck2.height / 2; //* Math.random();
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvasTruck2.add(oImg).setActiveObject(oImg);
+            canvasTruck2.renderAll();
+        });
+    });
+
+    $('#clearMarkerTrukCondition1').click(function (e) {
+        var canvasObjects = canvasTruck2.getObjects();
+        while (canvasObjects.length != 0) {
+            canvasTruck2.remove(canvasObjects[0]);
+            canvasTruck2.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputTrukCondition2").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvasTruck2.setBackgroundImage(img, canvasTruck2.renderAll.bind(canvasTruck2), {
+                    width: canvasTruck2.getWidth(),
+                    height: canvasTruck2.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadTrukCondition2").prop("disabled", false);
+        $("#addMarkerTrukCondition2").prop("disabled", false);
+        $("#clearMarkerTrukCondition2").prop("disabled", false);
+        $("#descUploadTrukCondition2").prop("disabled", false);
+    });
+
+    $('#btnUploadTrukCondition2').click(function (e) {
+        var canvas = document.getElementById("canvasTrukCondition2");
+        $("#frontTruckCond2").css("background-image", "url('" + canvasTruck2.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+
+
+

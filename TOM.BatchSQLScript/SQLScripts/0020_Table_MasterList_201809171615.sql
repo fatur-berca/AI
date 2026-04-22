@@ -1,0 +1,160 @@
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'Draft',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'Submit',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'In-process',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'On deliver',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'Arrive at destination and waiting for confirmation',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'Complete',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'TransportationStatus',
+	'Close',
+	1,
+	'system',
+	GETDATE(),
+	'system',
+	GETDATE(),
+	''
+);

@@ -1,0 +1,719 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transport > Vessel Monitoring";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button class="btn btn-primary" id="exportDefaultButton">Export</button>
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Upload)))
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#uploadModal" id="uploadButton">Upload Vessel Mapping</button>
+        }
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Stuffing Date</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepickerFromHaveFuture" id="DateOfStuffingFrom">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepickerToHaveFuture" id="DateOfStuffingTo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group checkbox-padding">
+                        <div class="checkbox-deck">
+                            <input type="checkbox" id="DelayShipment" value="delay">
+                            <label for="DelayShipment"></label>
+                        </div>
+                        <span class="checkbox-deck-span">Delay Shipment</span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Origin</label>
+                        <select class="select2 IDLocation" multiple="multiple" id="OriginWarehouses"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Destination</label>
+                        <select class="select2 IDLocationDestination" multiple="multiple" id="DestinationWarehouses"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>GP Number</label>
+                        <select class="select2" multiple="multiple" id="GPNumbers"></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Agent</label>
+                        <select class="select2" multiple="multiple" id="POWeekAgents"></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        <select class="select2" id="IDVendor"><option value="">-- Select --</option></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Regional AOT</label> <!-- master transfort region -->
+                        <select class="select2" id="IDRegion"><option value="">-- Select --</option></select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary search-filter">Search</button>
+                    <button class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="display table dataTable">
+    <thead>
+        <tr>
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            <th>Stuffing Date</th>
+            <th>Origin</th>
+            <th>Region</th>
+            <th>Destination</th>
+            <th>Vendor</th>
+            <th>Ship</th>
+            <th>GP Number</th>
+            <!--th>SJ Number</th-->
+            <th>ETD 1</th>
+            <th>ETD 2</th>
+            <th>ATD</th>
+            <th>Est. Received</th>
+            <th class="long-col">Remarks</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th class="text-center">Filter</th>
+            <th>Stuffing Date</th>
+            <th>Origin</th>
+            <th>Region</th>
+            <th>Destination</th>
+            <th>Vendor</th>
+            <th>Ship</th>
+            <th>GP Number</th>
+            <!--th>SJ Number</th-->
+            <th>ETD 1</th>
+            <th>ETD 2</th>
+            <th>ATD</th>
+            <th>Est. Received</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form id="formUpload">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label">Upload Vessel Mapping</label>
+                                <input type="file" class="filestyle" id="fileInputVesselMapping" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/VesselMappingTemplate.xlsx" id="downloadTemplate">Download Template</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnUpload" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        stuffingDateRange();
+
+        generateList();//generateTable();
+
+        generateDropdownWarehouse();
+
+        generateDropdownDestinationWarehouse();
+
+        generateDropdownGPNumbers();
+
+        generateDropdownIDVendor();
+
+        generateRegion();
+
+        $(document).on('click', '.search-filter', function (e) {
+            generateList();//generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '.reset-search-filter', function (e) {
+            $('form#filter')[0].reset();
+            $(".IDLocation, #GPNumbers, #POWeekAgents, #IDVendor, #IDRegion").select2("val", "");
+            stuffingDateRange();
+            generateList();//generateTable();
+            e.preventDefault();
+        });
+
+        $(document).on('click', '#exportDefaultButton', function (e) {
+            exportToExcel();
+            e.preventDefault();
+        });
+
+        $('#fileInputVesselMapping').on('change', function () {
+            $("#btnUpload").prop("disabled", false);
+        });
+
+        $(document).on('click', '#btnUpload', function (e) {
+            var filename;
+
+            if (window.FormData !== undefined) {
+                var dialog = bootbox.dialog({
+                    message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Uploading...</div>',
+                    closeButton: false
+                }),
+                fileUpload = $("#fileInputVesselMapping").get(0),
+                files = fileUpload.files;
+
+                // Create FormData object
+                var fileData = new FormData();
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(files[i].name, files[i]);
+                    filename = files[i].name;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("UploadMstMappingFile")',
+                    type: "POST",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("ImportMstMapping")',
+                            data: {
+                                "FileName": document.getElementById("fileInputVesselMapping").files[0].name
+                            },
+                            cache: false,
+                            success: function (data) {
+                                dialog.modal('hide');
+                                bootbox.alert({
+                                    message: '<i class="fa fa-check-circle fa-2x" style="color:green"></i><font class="text-success">  Upload Successfully</font>',
+                                    size: 'small',
+                                    callback: function () {
+                                        $("#uploadModal").modal('hide');
+                                    }
+                                });
+                            }
+                        });
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        });
+
+    });
+
+    function exportToExcel(exportType) {
+        var DateOfStuffingFrom = jQuery("#DateOfStuffingFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateOfStuffingTo = jQuery("#DateOfStuffingTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            OriginWarehouses = (jQuery("#OriginWarehouses").val()) ? jQuery("#OriginWarehouses").val().join(",") : "",
+            DestinationWarehouses = (jQuery("#DestinationWarehouses").val()) ? jQuery("#DestinationWarehouses").val().join(",") : "",
+            GPNumbers = (jQuery("#GPNumbers").val()) ? jQuery("#GPNumbers").val().join(",") : "",
+            POWeekAgents = (jQuery("#POWeekAgents").val()) ? jQuery("#POWeekAgents").val().join(",") : "",
+            IDVendor = jQuery("#IDVendor :selected").val(),
+            IDRegion = jQuery("#IDRegion :selected").val(),
+            DelayShipment = (jQuery('#DelayShipment').is(':checked')) ? jQuery('#DelayShipment').val() : "";
+
+        var columns = "Stuffing Date,Origin,Region,Destination,Vendor,Ship,GP Number,SJ Number,ETD 1,ETD 2,ATD,Est. Received,Remarks",
+            dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+        jQuery.ajax({
+            url: '@Url.Action("ExportToExcel")',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                "Columns": columns,
+                "OriginWarehouses": OriginWarehouses,
+                "DestinationWarehouses": DestinationWarehouses,
+                "DateOfStuffingFrom": DateOfStuffingFrom,
+                "DateOfStuffingTo": DateOfStuffingTo,
+                "GPNumbers": GPNumbers,
+                "POWeekAgents": POWeekAgents,
+                "IDVendor": IDVendor,
+                "Region": IDRegion,
+                "DelayShipment": DelayShipment
+            },
+            success: function (response) {
+                window.location.assign("Assets/Download/" + response);
+                dialog.modal('hide');
+            }
+        });
+    }
+
+    @*function generateTable() {
+        var DateOfStuffingFrom = jQuery("#DateOfStuffingFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateOfStuffingTo = jQuery("#DateOfStuffingTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            OriginWarehouses = (jQuery("#OriginWarehouses").val()) ? jQuery("#OriginWarehouses").val().join(",") : "",
+            DestinationWarehouses = (jQuery("#DestinationWarehouses").val()) ? jQuery("#DestinationWarehouses").val().join(",") : "",
+            GPNumbers = (jQuery("#GPNumbers").val()) ? jQuery("#GPNumbers").val().join(",") : "",
+            POWeekAgents = (jQuery("#POWeekAgents").val()) ? jQuery("#POWeekAgents").val().join(",") : "",
+            IDVendor = jQuery("#IDVendor :selected").val(),
+            IDRegion = jQuery("#IDRegion :selected").val(),
+            DelayShipment = (jQuery('#DelayShipment').is(':checked')) ? jQuery('#DelayShipment').val() : "";
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        jQuery('#checkall').attr('checked', false);
+
+        jQuery.ajax({
+            url: '@Url.Action("GetRecords")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "DateOfStuffingFrom": DateOfStuffingFrom,
+                "DateOfStuffingTo": DateOfStuffingTo,
+                "GPNumbers": GPNumbers,
+                "POWeekAgents": POWeekAgents,
+                "IDVendor": IDVendor,
+                "Region": IDRegion,
+                "DelayShipment": DelayShipment
+            },
+            success: function (response) {
+                if (response) {
+                    var NewGPNumbers = "";
+                    for (i = 0; i < response.length; i++) {
+                        NewGPNumbers = NewGPNumbers + response[i].GPNumber + ",";
+                    }
+                    NewGPNumbers = NewGPNumbers.slice(0, -1);
+
+                    generateVesselMonitoringDetail(NewGPNumbers, OriginWarehouses, DestinationWarehouses, dialog);
+                } else {
+                    dialog.modal('hide');
+                }
+            }
+        });
+    }
+
+    function generateVesselMonitoringDetail(NewGPNumbers, OriginWarehouses, DestinationWarehouses, dialog) {
+        jQuery.ajax({
+            url: '@Url.Action("DetailGetRecords")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "GPNumbers": NewGPNumbers,
+                "OriginWarehouses": OriginWarehouses,
+                "DestinationWarehouses": DestinationWarehouses
+            },
+            success: function (response) {
+                var table = $('#dtFilter').DataTable({
+                    data: response,
+                    "cache": false,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "GPNumber", "class": "text-center", "render": function (datum) {
+                                return '<div class="checkbox-deck"><input name="isActiveRecord" type="checkbox" value="' + datum + '" id="' + datum + '"><label for="' + datum + '"></label></div>';
+                            }
+                        },
+                        {
+                            "data": "GPNumber", 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.DateOfStuffing && (parseInt(Number(row.TransportVesselMonitoring.DateOfStuffing.match(/\d+/)[0])) < 2209014000000)) ? '<a href="@Url.Action("Detail")?GPNumber=' + datum + '">' + moment(row.TransportVesselMonitoring.DateOfStuffing).format("DD-MMM-YYYY") + '</a>' : "";
+                                }
+                                return output;
+                            }
+                        },
+                        { 'data': 'OriginWarehouse', 'searchable': true },
+                        {
+                            "data": "GPNumber", 'searchable': true, "render": function (datum, type, row) {
+                                return (row.TransportVesselMonitoring) ? row.TransportVesselMonitoring.Region : "";
+                            }
+                        },
+                        { 'data': 'DestinationWarehouse', 'searchable': true },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.MasterVendor) ? row.TransportVesselMonitoring.MasterVendor.VendorName : "";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                return (row.TransportVesselMonitoring) ? row.TransportVesselMonitoring.ShipName : "";
+                            }
+                        },
+                        { 'data': 'GPNumber', 'searchable': true },
+                        //{ 'data': 'SJNumber', 'searchable': true },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.EDT1 && (parseInt(Number(row.TransportVesselMonitoring.EDT1.match(/\d+/)[0])) < 2209014000000)) ? moment(row.TransportVesselMonitoring.EDT1).format("DD-MMM-YYYY") : "";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.EDT2 && (parseInt(Number(row.TransportVesselMonitoring.EDT2.match(/\d+/)[0])) < 2209014000000)) ? moment(row.TransportVesselMonitoring.EDT2).format("DD-MMM-YYYY") : "";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.ATD && (parseInt(Number(row.TransportVesselMonitoring.ATD.match(/\d+/)[0])) < 2209014000000)) ? moment(row.TransportVesselMonitoring.ATD).format("DD-MMM-YYYY") : "";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                var output = "";
+                                if (row.TransportVesselMonitoring) {
+                                    output = (row.TransportVesselMonitoring.EstimationReceived && (parseInt(Number(row.TransportVesselMonitoring.EstimationReceived.match(/\d+/)[0])) < 2209014000000)) ? moment(row.TransportVesselMonitoring.EstimationReceived).format("DD-MMM-YYYY") : "";
+                                }
+                                return output;
+                            }
+                        },
+                        {
+                            'data': 'GPNumber', 'searchable': true, "render": function (datum, type, row) {
+                                return (row.TransportVesselMonitoring) ? row.TransportVesselMonitoring.Remarks : "";
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if (index == 0) {
+                        $(this).text('Filter');
+                    } else {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+
+                dialog.modal('hide');
+            }
+        });
+    }*@
+
+    function generateList() {
+        var DateOfStuffingFrom = jQuery("#DateOfStuffingFrom").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            DateOfStuffingTo = jQuery("#DateOfStuffingTo").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            OriginWarehouses = (jQuery("#OriginWarehouses").val()) ? jQuery("#OriginWarehouses").val().join(",") : "",
+            DestinationWarehouses = (jQuery("#DestinationWarehouses").val()) ? jQuery("#DestinationWarehouses").val().join(",") : "",
+            GPNumbers = (jQuery("#GPNumbers").val()) ? jQuery("#GPNumbers").val().join(",") : "",
+            POWeekAgents = (jQuery("#POWeekAgents").val()) ? jQuery("#POWeekAgents").val().join(",") : "",
+            IDVendor = jQuery("#IDVendor :selected").val(),
+            IDRegion = jQuery("#IDRegion :selected").val(),
+            DelayShipment = (jQuery('#DelayShipment').is(':checked')) ? jQuery('#DelayShipment').val() : "";
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        jQuery('#checkall').attr('checked', false);
+
+        jQuery.ajax({
+            url: '@Url.Action("GetData")',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            data: {
+                "OriginWarehouses": OriginWarehouses,
+                "DestinationWarehouses": DestinationWarehouses,
+                "DateOfStuffingFrom": DateOfStuffingFrom,
+                "DateOfStuffingTo": DateOfStuffingTo,
+                "GPNumbers": GPNumbers,
+                "POWeekAgents": POWeekAgents,
+                "IDVendor": IDVendor,
+                "Region": IDRegion,
+                "DelayShipment": DelayShipment
+            },
+            success: function (response) {
+                dialog.modal('hide');
+
+                var theData = [],
+                    theGPNumber = "";
+                for (i = j = 0; i < response.length; i++) {
+                    if (theGPNumber === response[i].GPNumber) {
+                        continue;
+                    }
+                    theGPNumber = response[i].GPNumber;
+                    theData[j++] = response[i];
+                }
+
+                var table = $('#dtFilter').DataTable({
+                    data: theData,
+                    "cache": false,
+                    "destroy": true,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "GPNumber", "class": "text-center", "render": function (datum) {
+                                return '<div class="checkbox-deck"><input name="isActiveRecord" type="checkbox" value="' + datum + '" id="' + datum + '"><label for="' + datum + '"></label></div>';
+                            }
+                        },
+                        {
+                            "data": "DateOfStuffing", 'searchable': true, "render": function (datum, type, row) {
+                                return (datum && (parseInt(Number(datum.match(/\d+/)[0])) < 2209014000000)) ? '<a href="@Url.Action("Detail")?GPNumber=' + row.GPNumber + '">' + moment(datum).format("DD-MMM-YYYY") + '</a>' : "";
+                            }
+                        },
+                        { 'data': 'OriginWarehouse', 'searchable': true },
+                        { 'data': 'Region', 'searchable': true },
+                        { 'data': 'DestinationWarehouse', 'searchable': true },
+                        { 'data': 'VendorName', 'searchable': true },
+                        { 'data': 'ShipName', 'searchable': true },
+                        { 'data': 'GPNumber', 'searchable': true },
+                        //{ 'data': 'SJNumber', 'searchable': true },
+                        {
+                            'data': 'EDT1', 'searchable': true, "render": function (datum) {
+                                return (datum && (parseInt(Number(datum.match(/\d+/)[0])) < 2209014000000)) ? moment(datum).format("DD-MMM-YYYY") : "";
+                            }
+                        },
+                        {
+                            'data': 'EDT2', 'searchable': true, "render": function (datum) {
+                                return (datum && (parseInt(Number(datum.match(/\d+/)[0])) < 2209014000000)) ? moment(datum).format("DD-MMM-YYYY") : "";
+                            }
+                        },
+                        {
+                            'data': 'ATD', 'searchable': true, "render": function (datum) {
+                                return (datum && (parseInt(Number(datum.match(/\d+/)[0])) < 2209014000000)) ? moment(datum).format("DD-MMM-YYYY") : "";
+                            }
+                        },
+                        {
+                            'data': 'EstimationReceived', 'searchable': true, "render": function (datum) {
+                                return (datum && (parseInt(Number(datum.match(/\d+/)[0])) < 2209014000000)) ? moment(datum).format("DD-MMM-YYYY") : "";
+                            }
+                        },
+                        { 'data': 'MainRemarks', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if (index == 0) {
+                        $(this).text('Filter');
+                    } else {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                table.columns().every(function (index) {
+                    $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    function generateDropdownWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterLocation")',
+            dataType: 'JSON',
+            data: { "Type": "Warehouse" },
+            cache: false,
+            success: function (response) {
+                jQuery('.IDLocation').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDLocation + ":" + val.LocationName + '">' + val.IDLocation + ":" + val.LocationName + '</option>';
+                });
+                jQuery('.IDLocation').html(options).select2();
+            },
+            error: function () {
+                jQuery('.IDLocation').select2("destroy");
+                jQuery('.IDLocation').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function generateDropdownDestinationWarehouse() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetDestinationWarehouses")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (response) {
+                jQuery('.IDLocationDestination').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.DestinationWarehouse + '">' + val.DestinationWarehouse + '</option>';
+                });
+                jQuery('.IDLocationDestination').html(options).select2();
+            },
+            error: function () {
+                jQuery('.IDLocationDestination').select2("destroy");
+                jQuery('.IDLocationDestination').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function generateDropdownGPNumbers() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetRecords")',
+            dataType: 'JSON',
+            data: {},
+            cache: false,
+            success: function (response) {
+                jQuery('#GPNumbers').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.GPNumber + '">' + val.GPNumber + '</option>';
+                });
+                jQuery('#GPNumbers').html(options).select2();
+            },
+            error: function () {
+                jQuery('#GPNumbers').select2("destroy");
+                jQuery('#GPNumbers').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function generateDropdownIDVendor() {
+        return jQuery.ajax({
+            url: '@Url.Action("GetMasterVendor")',
+            dataType: 'JSON',
+            data: { "IsActive": true },
+            cache: false,
+            success: function (response) {
+                jQuery('#IDVendor').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="">-- Select --</option>';
+                jQuery.each(data, function (key, val) {
+                    options = options + '<option value="' + val.IDVendor + '">' + val.VendorName + '</option>';
+                });
+                jQuery('#IDVendor').html(options).select2();
+            },
+            error: function () {
+                jQuery('#IDVendor').select2("destroy");
+                jQuery('#IDVendor').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function generateRegion() {
+        jQuery.ajax({
+            url: '@Url.Action("GetRegion")',
+            dataType: 'JSON',
+            success: function (response) {
+                jQuery('#IDRegion').select2("destroy");
+                var data = response.sort(function (a, b) { return a - b }),
+                    options = '<option value="">-- Select --</option>',
+                    theTransReg = "";
+                jQuery.each(data, function (key, val) {
+                    if (theTransReg !== val.TransportRegion) {
+                        options = options + '<option value="' + val.TransportRegion + '">' + val.TransportRegion + '</option>';
+                        theTransReg = val.TransportRegion;
+                    }
+                });
+                jQuery('#IDRegion').html(options).select2();
+            },
+            error: function () {
+                jQuery('#IDRegion').select2("destroy");
+                jQuery('#IDRegion').html('<option value="NULL">none available</option>').select2();
+            }
+        });
+    }
+
+    function stuffingDateRange() {
+        var twoMonthsAgo = moment().subtract(2, 'weeks').format('DD/MM/YYYY'),
+            today = moment().format('DD/MM/YYYY');
+
+        jQuery('#DateOfStuffingFrom').val(twoMonthsAgo);
+        jQuery('#DateOfStuffingTo').val(today);
+    }
+</script>

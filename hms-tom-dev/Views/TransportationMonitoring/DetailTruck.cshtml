@@ -1,0 +1,689 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportExecutionViewModel
+@{
+    ViewBag.Title = "Transportation Monitoring > Detail " + Model.TransportMode;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<style>
+    .main {
+        overflow: scroll;
+        position:absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+    }
+
+    .bootstrap-datetimepicker-widget{
+          z-index:99999;    
+    }
+    .col-md-12.bar {
+        padding: 0px;
+    }
+    .col-md-12.bar label {
+        font-size: 11px;
+        width: 100%;
+    }
+    .col-md-12.bar input[type=text] {
+        font-size: 11px;
+        padding: 0px 5px !important;
+        margin: 0px !important;
+        height: 22px;
+        width: 100%;
+        border-radius: 0px;
+    }
+    .col-md-12.bar select {
+        font-size: 11px;
+        padding: 0px 5px !important;
+        margin: 0px !important;
+        height: 22px;
+        width: 100%;
+        border-radius: 0px;
+    }    
+    .col-md-2.col-mini {
+        height: 50px;
+        padding-right: 0px;
+        width: 11%;
+    }
+    .glyphicon {
+        cursor: pointer;
+        overflow-x: scroll; 
+    }
+
+    .header-label {
+        text-transform: uppercase;
+        font-weight: normal;
+        font-size: 12px;
+        width: 100%;
+    }
+    .Order {
+        padding-bottom: 5px;
+        padding-top: 5px;
+    }
+    /*.Order:nth-child(even) {
+        background: #E1F4F7;
+    }*/
+
+    .datecontainer {
+        overflow: visible;
+        position: relative;
+    }
+
+    /*
+    .bootstrap-datetimepicker-widget { 
+        z-index: 999999 !important; 
+        position: relative; 
+    }
+    */
+
+    .route-scroll-container {
+        height: auto; 
+        overflow-x: hidden; 
+        overflow-y: visible; 
+        position: relative;
+    }
+
+    .route-main-container {
+        min-width: 1680px;
+        overflow-y: visible; 
+    }
+
+    .glyphicon {
+        overflow: hidden !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationMonitoring")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnSave" disabled>Save</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    if (string.IsNullOrEmpty(Model.UserRole))
+                    {
+                        <button type="button" class="btn btn-primary" id="btnEdit" @{ if (Model.TransportStatus == "Close") { @("disabled") ; } }>
+                            Edit
+                        </button>
+                    }
+                }
+                <input hidden id="IDTransportOrder" value="">
+                <input hidden id="addPosition" value="">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Status</label>
+            <input hidden id="IDTransportExecution" value="@(Model.IDTransportExecution)">
+            <input type="text" id="TransportationStatus" class="form-control" value="@(Model.TransportStatus)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Number</label>
+            <input type="text" id="" class="form-control" value="@(Model.TransportNo)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Date</label>
+            @if (Model.TransportNo == null) { <input type="text" id="" class="form-control" value="" disabled> }
+            else { <input type="text" id="" class="form-control" value="@Model.TransportDate.ToString("dd-MMM-yyyy")" disabled> }
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Vehicle Type</label>
+            <input type="text" id="" class="form-control" value="@(Model.VehicleType)" disabled>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Vendor Name</label>
+            <input type="text" id="" class="form-control" value="@(Model.VendorName)" disabled>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Start Location</label>
+            <input type="text" id="" class="form-control" value="@(Model.StartLocation)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Finish Location</label>
+            <input type="text" id="" class="form-control" value="@(Model.FinishLocation)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Police Registration Number</label>
+            <input type="text" id="" class="form-control" value="@(Model.PoliceRegNo)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Driver 1</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDDriver1)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Driver 2</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDDriver2)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Co-Driver</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDCoDriver)" disabled>
+        </div>
+    </div>
+</div>
+
+<!-- ******* Routes Block - BEGIN  -->
+<div class="">
+    <div class="route-main-container">
+        <div class="row">
+            @*<div class="col-md-1"><label class="header-label">Cargo Received</label></div>*@
+            <div class="col-md-1"><label class="header-label">Order Number</label></div>
+            <div class="col-md-2"><label class="header-label">Order Status</label></div>
+            <div class="col-md-2"><label class="header-label">Sender</label></div>
+            <div class="col-md-2"><label class="header-label">Receiver</label></div>
+            <div class="col-md-1"><label class="header-label">Lead Time</label></div>
+            <div class="col-md-1"><label class="header-label">Estimate Arrival</label></div>
+            <div class="col-md-1"><label class="header-label">GI</label></div>
+            <div class="col-md-1"><label class="header-label">GR</label></div>
+        </div>
+        <div class="row" id="rowPosition">
+            @{ for (int i = 0; i < Model.TransportOrders.Count; i++)
+                {
+                    var to = Model.TransportOrders[i];
+                    var statuses = new string[] { "In Process", "On Delivery", "Arrive At Destination and Waiting For Confirmation", "Complete", "Close" };
+                    <div class="row Order">
+                        <!--<div class="col-md-1 checkbox-deck">
+                            @*@if (to.IsMaterialReceived != null)
+                            {
+                                if ((bool)to.IsMaterialReceived)
+                                {
+                                    <input type="checkbox" class="CargoReceived" id="cxOrder_@i" checked disabled />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" class="CargoReceived" id="cxOrder_@i" disabled />
+                                }
+                            }
+                            else
+                            {
+                                <input type="checkbox" class="CargoReceived" id="cxOrder_@i" disabled />
+                            }*@
+                            @*<label for="cxOrder_@i" style="margin: 0 auto; margin-top: 10px; display: block"></label>*@
+
+                        </div>-->
+                        <input type="hidden" class="IDTO" value="@to.IDTransportOrder" />
+                        <input type="hidden" class="OrderType" value="@to.OrderType" />
+                        <div class="col-md-1" style="margin-left:10px">
+                            <input type="text" class="form-control OrderNumber" value="@to.STONo" disabled />
+                        </div>
+                        <div class="col-md-2">
+                            <select class="select2 OrderStatus" id="orderStatus-@to.STONo" data-order-type="@to.OrderType" style="width: 100%; height: 26px" disabled>
+                                @{ 
+                                    foreach (var s in statuses)
+                                    {
+                                        if (s == to.OrderStatus)
+                                        {
+                                            <option value="@s" selected>@s</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@s">@s</option>
+                                        }
+                                    }
+                                }
+                             </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control Sender" value="@to.SenderLocationName" disabled />
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control Receiver" value="@to.ReceiverLocationName" disabled />
+                        </div>
+                        <div class="col-md-1">
+                            <input type="text" class="form-control LeadTime" value="@to.LeadTime" disabled />
+                        </div>
+                        <div class="col-md-1">
+                            <input type="text" class="form-control EstimateArrival" value="@{
+                                if (to.EstArrivalDate.HasValue) { @to.EstArrivalDate.Value.ToString("dd-MMM-yyyy") }
+                                    }" disabled />
+                        </div>
+                        <div class="col-md-1 datecontainer">
+                            <input type="text" class="form-control DateDummy" data-date-format="DD-MMM-YYYY HH:mm:ss" value="@{ if (to.GIDate.HasValue) { @to.GIDate.Value.ToString("dd-MMM-yyyy HH:mm:ss").Replace(".",":") } }" disabled />
+                            <input type="text" class="form-control GI datepicker" id="GI-@to.STONo" data-date-format="DD/MM/YYYY HH:mm:ss" value="@{ if (to.GIDate.HasValue) { @to.GIDate.Value.ToString("dd/MM/yyyy HH:mm:ss").Replace(".",":") } }" disabled style="display:none" />
+                        </div>
+                        <div class="col-md-1 datecontainer">
+                            <input type="text" class="form-control DateDummy" data-date-format="DD-MMM-YYYY HH:mm:ss" value="@{ if (to.GRDate.HasValue) { @to.GRDate.Value.ToString("dd-MMM-yyyy HH:mm:ss").Replace(".",":") } }" disabled />
+                            <input type="text" class="form-control GR datepicker" id="GR-@to.STONo" data-date-format="DD/MM/YYYY HH:mm:ss" value="@{ if (to.GRDate.HasValue) { @to.GRDate.Value.ToString("dd/MM/yyyy HH:mm:ss").Replace(".",":") } }" disabled style="display:none" />
+                        </div>
+                    </div>
+                } }
+        </div>
+    </div>
+</div>
+<!-- ******* Routes Block - END  -->
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label><b><u>Update Position</u></b></label>
+        </div>
+    </div>
+</div>
+
+<!-- **** Log Block - BEGIN **** -->
+<div>
+    @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+    {
+    <div class="row">
+        <div class="col-md-2"><label class="header-label">Date</label></div>
+        <div class="col-md-2"><label class="header-label">Location</label></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control datepicker" id="txLogDateTime" data-date-format="DD/MM/YYYY HH:mm:ss" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input class="form-control" id="txLogLocation" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" id="btnSavePosition">Update</button>
+            </div>
+        </div>
+    </div>
+    }
+    <div class="row">
+        <div class="col-md-6">
+            <table id="dtFilterMaster" class="display table dataTable table-condensed">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th width=15% nowrap class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="loContainer">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- **** Log Block - END **** -->
+
+@Html.Partial("~/Views/Shared/_NotificationModals.cshtml")
+<script src="@Url.Content("~/Scripts/ez.js")"></script>
+
+<script>
+    var dialog = bootbox.dialog({
+        message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+        closeButton: false
+    });
+
+    $(document).ready(function() {
+        GeneratePUData();
+    });
+
+    /*
+    $(window).on("load", function () {
+        GeneratePUData();
+    });
+    */
+
+    if ($("#TransportationStatus").val() == "Close") {
+        $("#btnEdit").prop("disabled", true);
+        $("#txLogDateTime").prop("disabled", true);
+        $("#txLogLocation").prop("disabled", true);
+        $("#btnSavePosition").prop("disabled", true);
+    } else {
+        $("#btnEdit").prop("disabled", false);
+        $("#txLogDateTime").prop("disabled", false);
+        $("#txLogLocation").prop("disabled", false);
+        $("#btnSavePosition").prop("disabled", false);
+    }
+
+    function RouteEnable(val) {
+        if (!val)
+        {
+            $(".DateDummy").show();
+            $(".GR").hide();
+            $(".GI").hide();
+        }
+        else{
+            $(".GR").show();
+            $(".GI").show();
+            $(".DateDummy").hide();
+        }
+
+        $("#rowPosition").find(".Order").each(function (k, ele) {
+            $(ele).find(".CargoReceived").prop("disabled", !val);
+            $(ele).find(".CargoReceived").trigger("changed");
+
+            //$(ele).find(".GI").prop("disabled", !val);
+            var v = $(ele).find(".GI").val();
+            if (v != null && v != "")
+            {
+                if (!val)
+                {
+                    // $(ele).find(".GI").attr("data-date-format", "DD-MMM-YYYY HH:mm:ss");
+                    //  $(ele).find(".GI").val(moment(v, "DD/MM/YYYY HH:mm:ss").format("DD-MMM-YgzYYY HH:mm:ss"));
+                }
+                else
+                {
+                    //  $(ele).find(".GI").attr("data-date-format", "DD/MM/YYYY HH:mm:ss");
+                    // $(ele).find(".GI").val(moment(v, "DD-MMM-YYYY HH:mm:ss").format("DD/MM/YYYY HH:mm:ss"));
+                }
+            }
+            else
+                $(ele).find(".GI").val("");
+
+            //$(ele).find(".GR").prop("disabled", !val);
+            var v = $(ele).find(".GR").val();
+            if (v != null && v != "")
+            {
+                /*
+                if (!val)
+                    $(ele).find(".GR").val(moment(v, "DD/MM/YYYY HH:mm:ss").format("DD-MMM-YYYY HH:mm:ss"));
+                else
+                    $(ele).find(".GR").val(moment(v, "DD-MMM-YYYY HH:mm:ss").format("DD/MM/YYYY HH:mm:ss"));
+                */
+            }
+            else
+                $(ele).find(".GR").val("");
+
+            $(ele).find(".OrderStatus").prop("disabled", !val);
+            $(ele).find(".OrderStatus").trigger("change");
+            $(".GI").prop("disabled", !val);
+            $(".GR").prop("disabled", !val);
+            //var OrderType = $(ele).find(".OrderType").val();
+            //if (OrderType == "Finished Good") {
+            //    $(ele).find(".GI").prop("disabled", true);
+            //    $(ele).find(".GR").prop("disabled", true);
+            //}
+        });
+    };
+
+    $("#btnEdit").on("click", function () {
+        $("#btnSave").prop("disabled", false);
+        $("#btnEdit").prop("disabled", true);
+        RouteEnable(true);
+
+        @foreach (var to in Model.TransportOrders)
+        {
+            <text>var gi=document.getElementById("GI-"+"@to.STONo");</text>
+            <text>var gr=document.getElementById("GR-"+"@to.STONo");</text>
+            <text>gi.setAttribute("disabled", "");</text>
+            <text>gr.setAttribute("disabled", "");</text>
+            if (to.OrderStatus == "On Delivery") {
+                <text>gi.removeAttribute("disabled");</text>
+            }
+            else if (to.OrderStatus == "Arrive At Destination and Waiting For Confirmation") {
+                <text>gr.removeAttribute("disabled");</text>
+                <text>gi.removeAttribute("disabled");</text>
+            }
+            else if (to.OrderStatus == "Complete") {
+                <text>gr.removeAttribute("disabled");</text>
+                <text>gi.removeAttribute("disabled");</text>
+            }
+        }
+    });
+    $("#btnSave").on("click", function () {
+        var ord = GetOrderData();
+        if (!Validate(ord)) return;
+        SaveData();
+    });
+    $("#btnSavePosition").on("click", function () { SavePUData(); });
+
+    $(".OrderStatus").change(function() {
+        if ($(this).prop("disabled") === false)
+        {
+            //pakai jquery ada bug kalau ordernumbernya ada tanda garis miring (/)
+            var orderStatus = document.getElementById($(this).attr('id'));
+            var gi=document.getElementById("GI-"+$(this).attr('id').split('-')[1]);
+            var gr=document.getElementById("GR-"+$(this).attr('id').split('-')[1]);
+            if(orderStatus.value.includes("Delivery")){
+                gi.removeAttribute("disabled");
+                gr.setAttribute("disabled", "");
+            }
+            else if (orderStatus.value.includes("Arrive") || orderStatus.value.includes("Complete"))
+            {
+                gi.removeAttribute("disabled");
+                gr.removeAttribute("disabled");
+            }
+            else{
+                gi.setAttribute("disabled", "");
+                gr.setAttribute("disabled", "");
+            }
+
+            /*
+            var OrderType = $(this).attr("data-order-type");
+            if (OrderType == "Finished Good") {
+                $(this).parent().parent().find(".GI").prop("disabled", true);
+                $(this).parent().parent().find(".GR").prop("disabled", true);
+            }
+            */
+        }
+    });
+
+    function DeletePU(id) {
+        ez.Modals.Confirm.on("yes-clicked", (function () {
+            ez.Modals.BeginLoading();
+
+            $.ajax({
+                url: "@Url.Action("DeleteTransportPosition")",
+                data: { TPID: id },
+                method: "POST",
+                success: function (res) {
+                    ez.Modals.EndLoading();
+                    if (res.IsSuccess)
+                    {
+                        ez.Modals.notification("Your data has successfully deleted!");
+                        GeneratePUData();
+                    }
+                    else
+                        ez.Modals.error("Failed to delete data!");
+                },
+                error: function () {
+                    ez.Modals.EndLoading();
+                    ez.Modals.error("Failed to delete data!");
+                }
+            });
+
+        }).bind(this));
+        ez.Modals.Confirm.show("Are you sure to delete this data?");
+    }
+
+    function GeneratePUData() {
+        var id = $("#IDTransportExecution").val();
+        $.ajax({
+            url: "@Url.Action("GetTransportPosition")",
+            data: { TEID: id },
+            method: "POST",
+            success: function (res) {
+                dialog.modal('hide');
+
+                var today = moment(new Date()).format("DD/MM/YYYY");
+                $("#loContainer").html('');
+
+                console.log("Position Data", res);
+
+                linq(res).do(function (d) {
+                    var tr = $("<tr></tr>");
+                    var dt = moment(d.PositionDate).format("DD/MM/YYYY");
+                    var tme = moment(d.PositionDate).format("DD-MMM-YYYY HH:mm:ss");
+
+                    var td = $("<td></td>").html(tme);
+                    tr.append(td);
+
+                    td = $("<td></td>").html(d.PositionName);
+                    tr.append(td);
+
+                    if (dt == today)
+                    {
+                        var canedit = @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                        {
+                            @("true")
+                        } else { @("false") } ;
+                        var idpu = d.IDTransportPositionDetail;
+                        td = $("<td></td>");
+                        if (canedit)
+                            td.html('<a href="javascript:void(0)" style="margin-left:5px" onclick="DeletePU(' + idpu + ');" title="Delete"><i data-toggle="modal" class="fa fa-trash"></i></a></div>');
+                        tr.append(td);
+                    }
+                    else {
+                        td = $("<td></td>");
+                        tr.append(td);
+                    }
+
+                    $("#loContainer").append(tr);
+                });
+            }
+        });
+    }
+
+    function SavePUData() {
+        var err = "";
+
+        var loc = $("#txLogLocation").val();
+        //var dte = $("#txLogDateTime").val();
+        var dte = moment($('#txLogDateTime').val(), "DD/MM/YYYY HH:mm:ss").format("DD-MMM-YYYY HH:mm:ss");
+        var id = $("#IDTransportExecution").val();
+
+        if (!loc) err += "&bull; Location is required!<br />";
+        if (!dte || dte == "Invalid date") err += "&bull; Date is required!";
+
+        if (err != "") {
+            ez.Modals.error("<b style='font-size: larger'>Invalid inputs!</b><br />" + err);
+            return false;
+        }
+
+        ez.Modals.BeginLoading();
+
+        var topu = { Location: loc, Date: dte, ID: id };
+        $.ajax({
+            url: "@Url.Action("AddTransportPosition")",
+            data : topu,
+            method: "POST",
+            success: function (res) {
+                if (res.IsSuccess) {
+                    ez.Modals.notification("Your data has successfully saved!");
+
+                    $("#txLogLocation").val("");
+                    $("#txLogDateTime").val("");
+                    ez.Modals.EndLoading();
+
+                    GeneratePUData();
+                }
+                else
+                    ez.Modals.error("Failed to save data!");
+            },
+            error: function () {
+                ez.Modals.error("Failed to save data!");
+                ez.Modals.EndLoading();
+            }
+        });
+    }
+
+    function SaveData() {
+        ez.Modals.BeginLoading();
+
+        var id = $("#IDTransportExecution").val();
+        $.ajax({
+            url: "@Url.Action("UpdateTransportOrder")",
+            data : {TO: GetOrderData(), TEID: id},
+            method: "POST",
+            success: function (res) {
+                ez.Modals.EndLoading();
+
+                if (res.IsSuccess) {
+                    location.reload();
+                    $("#btnSave").prop("disabled", true);
+                    $("#btnEdit").prop("disabled", false);
+                    RouteEnable(false);
+                    ez.Modals.notification("Your data has successfully saved!");
+                }
+                else {
+                    ez.Modals.error("Failed to save data!");
+                }
+            },
+            error: function () {
+                ez.Modals.EndLoading();
+                ez.Modals.error("Failed to save data!");
+            }
+        });
+    }
+
+    function GetOrderData() {
+        var res = [];
+        $("#rowPosition").find(".Order").each(function (k, ele) {
+            var o = {};
+            o.CargoReceived = $(ele).find(".CargoReceived").is(':checked');
+            o.OrderStatus = $(ele).find(".OrderStatus").select2("val");
+            o.GI = $(ele).find(".GI").val();
+            if (o.GI != "" && o.GI != null)
+            {
+                o.GI = moment(o.GI, "DD/MM/YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+            }
+            o.GR = $(ele).find(".GR").val();
+            if (o.GR != "" && o.GR != null)
+            {
+                o.GR = moment(o.GR, "DD/MM/YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+            }
+            o.OrderType = $(ele).find(".OrderType").val();
+            o.OrderNumber = $(ele).find(".OrderNumber").val();
+            o.ID = $(ele).find(".IDTO").val();
+            res.push(o);
+
+            console.log(o);
+        });
+        return res;
+    }
+
+    function Validate(data) {
+        data = data || GetOrderData();
+        var err = "";
+        linq(data).do(function (d) {
+            console.log(d.OrderNumber, d);
+            if (d.OrderStatus == "On Delivery" || d.OrderStatus.includes("Arrive") || d.OrderStatus == "Complete") {
+                if (!d.GI) // && d.OrderType != "Finished Good")
+                    err += "&bull; " + d.OrderNumber + " - GI is required<br />";
+            }
+            if (d.OrderStatus == "Complete") {
+                if (!d.GR) // && d.OrderType != "Finished Good")
+                    err += "&bull; " + d.OrderNumber + " - GR is required<br />";
+            }
+        });
+
+        if (err != "")
+        {
+            ez.Modals.error("<b style='font-size: larger'>Invalid inputs!</b><br />"+ err);
+            return false;
+        }
+
+        return true;
+    }
+</script>

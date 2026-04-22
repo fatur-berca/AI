@@ -1,0 +1,311 @@
+﻿@using System.Web.Mvc.Html
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "KPI > Annual Warehouse Utilization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Export)))
+        {
+            <button class="btn btn-primary" id="buttonExport">Export</button>
+        }
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.CustomReport)))
+        {
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#customReportModal" id="customReportButton">Custom Report</button>
+        }
+    </div>
+    <a href="#filter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b> <i class="fa fa-angle-down"></i></a>
+</div>
+<textarea id="simpanData" hidden></textarea>
+<div class="filter-deck nmb">
+    <div id="filter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="text" id="year" name="year" class="form-control yearpicker" placeholder="Enter year" value="@DateTime.Now.Year" />
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" onclick="callFilterByYear()">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tableList"></div>
+
+@Html.Action("PartialViewCustomReport")
+
+<script>
+    jQuery(function ($) {
+        var date = new Date();
+        //getJsonData(date.getFullYear());
+        generateTable(date.getFullYear());
+
+        $(document).on('click', '#buttonExport', function (e) {
+            exportToExcel(); //exportToExcel();
+            e.preventDefault();
+        });
+
+        var tempCalcData;
+    });
+
+    Number.prototype.decimalPlaces = function (n) {
+        var n = (typeof n === 'undefined') ? 2 : n,
+            numberOfDecimal = (Math.floor(this.valueOf()) === this.valueOf()) ? 0 : (this.toString().split(".")[1].length || 0);
+
+        return (numberOfDecimal > 0) ? this.valueOf().toFixed(parseInt(n)) : this.valueOf();
+    }
+
+
+    @*function exportToExcel() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var year = $("#year").val();
+        if (year == undefined || year == null) {
+            year = new Date().getFullYear();
+        }
+
+        $.ajax({
+            url: '@Url.Action("ExportToExcel", "ViewAnnualWarehouseUtilization")',
+			type:'GET',
+			data: {
+				year: year
+			},
+			success: function (path) {
+				dialog.modal('hide')
+				window.location.assign("Assets/Download/" + path);
+			},
+			error: function (jqhxr) {
+			    bootbox.alert(jqhxr);
+				dialog.modal('hide');
+			}
+		})
+    }*@
+
+    @*function exportToExcelPerRegion() {
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+
+        var year = $("#year").val();
+        if (year == undefined || year == null) {
+            year = new Date().getFullYear();
+        }
+
+        $.ajax({
+            url: '@Url.Action("ExportToExcelPerRegion", "ViewAnnualWarehouseUtilization")',
+            type: 'GET',
+            data: {
+                year: year
+            },
+            success: function (path) {
+                dialog.modal('hide')
+                window.location.assign("Assets/Download/" + path);
+            },
+            error: function (jqhxr) {
+                bootbox.alert(jqhxr);
+                dialog.modal('hide');
+            }
+        });
+    }*@
+
+	function callFilterByYear() {
+		var year = $("#year").val();
+		if (year == undefined || year == null) {
+			year = new Date().getFullYear();
+		}
+		//getJsonData(year);
+		generateTable(year);
+	}
+
+	function exportToExcel() {
+	    var dialog = bootbox.dialog({
+	        message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+	        closeButton: false
+	    });
+
+	    //console.log(tempCalcData);
+	    var dataSend = $("#simpanData").text();
+	    //alert(dataSend);
+	    var year = $("#year").val();
+	    if (year == undefined || year == null) {
+	        year = new Date().getFullYear();
+	    }
+	    
+	    @*$.ajax({
+	        url: '@Url.Action("tempExport", "ViewAnnualWarehouseUtilization")',
+            async: true,
+	        type: 'POST',
+	        dataType: 'json',
+            contentType:"application/json; charset=utf-8",
+            data: JSON.stringify(tempCalcData),
+	        success: function (path) {
+	            dialog.modal('hide')
+	            window.location.assign("Assets/Download/" + path);
+	        },
+	        error: function (jqhxr) {
+	            bootbox.alert("error");
+	            dialog.modal('hide');
+	        }
+	    });*@
+	    $.ajax({
+	        url: '@Url.Action("FetchData", "ViewAnnualWarehouseUtilization")',
+	        method: 'post',
+	        dataType: 'json',
+	        cache:false,
+	        data: {
+	            "year": year,
+                "flag":"export"
+	        },
+	        success: function (path) {
+	            dialog.modal('hide')
+	            window.location.assign("Assets/Download/" + path);
+	        },
+	        error: function (jqhxr) {
+	            bootbox.alert("error");
+	            dialog.modal('hide');
+	        }
+	    });
+	}
+
+	function generateTable(year) {
+
+	    try{
+	        var dialog = bootbox.dialog({
+	            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+	            closeButton: false
+	        });
+
+	        $.ajax({
+	            url         : '@Url.Action("FetchData", "ViewAnnualWarehouseUtilization")',
+	            method      : 'post',
+	            dataType    : 'json',
+	            cache: false,
+	            data: {
+	                "year": year,
+                    "flag":"view"
+	            },
+	            success: function (response)
+	            {
+	                //tempCalcData = response;
+	                jQuery('#dtFilterCollapse').treetable('destroy');
+
+	                var table = $('#dtFilterCollapse').DataTable();
+
+	                table.destroy();
+	                var datalist = '<table id="dtFilterCollapse" class="display table dataTable no-placeholder-filter"><thead><tr><th>&nbsp;</th><th style="text-align: center;">Location</th><th style="text-align: center;">January</th><th style="text-align: center;">February</th><th style="text-align: center;">March</th><th style="text-align: center;">April</th><th style="text-align: center;">May</th><th style="text-align: center;">June</th><th style="text-align: center;">July</th><th style="text-align: center;">August</th><th style="text-align: center;">September</th><th style="text-align: center;">October</th><th style="text-align: center;">November</th><th style="text-align: center;">December</th></thead><tbody id="datalist">';
+	                jQuery("#tableList").html(datalist);
+	                if (response == null) {
+	                    table = $('#dtFilterCollapse').on('init.dt', function () { $(this).treetable({ expandable: true }); }).DataTable({
+	                        "destroy": true,
+	                        "dom": '<"table-overflow"t>ip',
+	                        "columnDefs": [{
+	                            "targets": "_all",
+	                            "orderable": false
+	                        }],
+	                        "iDisplayLength": 25,
+	                        "bPaginate": false,
+	                        orderCellsTop: false
+	                    });
+
+	                    dialog.modal('hide');
+	                    return;
+	                }
+                    
+	                //draw
+	                for (var i = 0; i < response.length; i++) {
+	                    console.log(response[i].LocationName);
+	                    if (response[i].LocationName == "") {
+                            //DRAW PARENT LOCATIONS
+	                        datalist += "<tr data-tt-id='" + response[i].parentLocation.replace(/\s/g, '') + "'>";
+	                        datalist += "<td style='text-align: center;'>&nbsp;</td>";
+	                        datalist += "<td>" + response[i].parentLocation + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jan.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Feb.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Mar.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Apr.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].May.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jun.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jul.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Aug.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Sep.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Oct.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Nov.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Dec.decimalPlaces(2) + "</td>";
+	                        datalist += "</tr>";
+	                    }
+	                    else if(response[i].parentLocation == "na" && response[i].LocationName == "na"){
+	                        //DRAW NATIONAL AVERAGE
+	                        datalist += '</tbody><tfoot><tr>';
+	                        datalist += '<th colspan="2" style="text-align: right;">NATIONAL AVERAGE</th>';
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jan.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Feb.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Mar.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Apr.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].May.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jun.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jul.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Aug.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Sep.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Oct.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Nov.decimalPlaces(2) + "%</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Dec.decimalPlaces(2) + "%</td>";
+	                        datalist += '</tr></tfoot></table>';
+	                    }
+	                    else {
+                            //DRAW LOCATIONS
+	                        datalist += "<tr data-tt-id='" + response[i].LocationName.replace(/\s/g, '') + "' data-tt-parent-id='" + response[i].parentLocation.replace(/\s/g, '') + "'>";
+	                        datalist += "<td>&nbsp;</td>";
+	                        datalist += "<td>" + response[i].LocationName + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jan.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Feb.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Mar.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Apr.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].May.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jun.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Jul.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Aug.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Sep.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Oct.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Nov.decimalPlaces(2) + "</td>";
+	                        datalist += "<td style='text-align: center;'>" + response[i].Dec.decimalPlaces(2) + "</td>";
+	                        datalist += "</tr>";
+	                    }
+	                }
+
+	                jQuery("#tableList").html(datalist);
+	                table = $('#dtFilterCollapse').on('init.dt', function () { $(this).treetable({ expandable: true, initialState: "collapsed" }); }).DataTable({
+	                    "destroy": true,
+	                    "dom": '<"table-overflow"t>ip',
+	                    "columnDefs": [{
+	                        "targets": "_all",
+	                        "orderable": false
+	                    }],
+	                    "iDisplayLength": 25,
+	                    "bPaginate": false,
+	                    orderCellsTop: false
+	                });
+
+	                setTimeout(function () { // https://stackoverflow.com/questions/2570061/how-can-i-tell-when-changes-to-jquery-html-have-finished
+	                    dialog.modal("hide");
+	                }, 0);
+	                dialog.modal('hide');
+	            }
+	        });
+
+	    }
+	    catch(err){
+	        bootbox.alert(err);
+	    }
+	}
+
+</script>

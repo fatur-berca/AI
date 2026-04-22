@@ -1,0 +1,364 @@
+﻿@using DFIS.Utils
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportDriverManagementViewModel
+@{
+    ViewBag.Title = "Transport > Driver Management > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "DriverManagement")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="editButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="saveButton" onclick="confirmSave()">Save</button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="box">
+            <form class="record">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="box-title">DRIVER DATA</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="ID">ID</label>
+                            <input id="ID" class="form-control" disabled maxlength="20">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Name">NAME</label>
+                            <input id="Name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="DrivingLicensePeriod">DRIVING LICENSE VALIDITY PERIOD</label>
+                            <input id="DrivingLicensePeriod" type="text" class="form-control datepicker">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="RoleDriver">Status (Co-Driver/Driver)</label>
+                            <select id="RoleDriver" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="IDVendor">VENDOR NAME</label>
+                            <select id="IDVendor" class="select2"></select>
+                        </div>
+                    </div>               
+                </div>
+            </form>
+        </div>
+    </div>    
+</div>
+
+<script type="text/javascript">
+    var state = "NEWDATA";
+    $(document).ready(function () {
+        var id = gup('id');
+        var param = (id) ? true : false;
+
+        if (param) {// edit data
+            disableEnableInput(true);
+        } else {// new data
+            resetRecord();
+            $('#editButton').prop("disabled", true);
+        }
+
+        $('#editButton').on('click', function (e) {
+            disableEnableInput(false);
+        });
+
+        generateIDVendor();
+
+        $('#JoinDate').on('change', function(e) {
+            var inputDate = document.getElementById(param);
+            var todaysDate = new Date();
+            if (inputDate.setHours(0, 0, 0, 0) > todaysDate.setHours(0, 0, 0, 0)) {
+                // Date equals today's date
+                return false;
+            }
+            return true;
+        });
+
+    });
+
+    function disableEnableInput(param) {
+        $('#saveButton').prop("disabled", param);
+        $('#editButton').prop("disabled", !param);
+        $('#ID').prop("disabled", true);
+        $('#Name').prop("disabled", param);
+        $('#DrivingLicensePeriod').prop("disabled", param);
+        $('#Status').prop("disabled", param);
+        $('#IDVendor').prop("disabled", true);
+        $('#RoleDriver').attr('disabled', param);
+    }
+
+    function confirmSave() {
+        var msg;
+        if (gup('id') != "") {
+            msg = "Changes have been made to this record, Do you want to Save these changes?";
+        } else {
+            msg = "Do you want to save the data? </br> Press Ok to continue, or Cancel to stay on the current page";
+        }
+
+        bootbox.confirm({
+            title: "TOM Notification Center",
+            message: msg,
+            buttons: {
+                confirm: {
+                    label: 'Ok',
+                    className: 'btn btn-primary'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    className: 'btn btn-purple'
+                }
+            },
+            callback: function(result) {
+                if (result) {
+                    Save();
+                }
+            }
+        });
+    }
+
+    function titleCase(str) {
+        var splitStr = str.toLowerCase().split(' ');
+        for (var i = 0; i < splitStr.length; i++) {
+            // You do not need to check if i is larger than splitStr length, as your for does that for you
+            // Assign it back to the array
+            splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+        }
+        // Directly return the joined string
+        return splitStr.join(' ');
+    }
+
+    var PrevIDVendor = "";
+
+    function Save() {
+        var ID = $('#ID'),
+            Name = $('#Name'),
+            DrivingLicensePeriod = $('#DrivingLicensePeriod'),
+            RoleDriver = $('#RoleDriver :selected'),
+            Status = "-",
+            IDVendor = $('#IDVendor option:selected'),
+            nonvalid = false,
+            datadouble = false;
+
+        var datum = {
+            "PrevIDCardNumber": gup('id'),
+            "ID": ID.val(),
+            "Name": Name.val(),
+            "PrevIDVendor": PrevIDVendor,
+            "IDVendor": IDVendor.val(),
+            "DrivingLicensePeriod": DrivingLicensePeriod.val()
+                ? DrivingLicensePeriod.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1")
+                : "",
+            "Status": Status,
+            "RoleDriver": RoleDriver.val()
+        };
+
+        if (Name.val() == "") { //nama
+            Name.css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            Name.css('border-color', '#ccc');
+        }
+
+        if (IDVendor.val() == "") {
+            $('#IDVendor').prev().children().css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $('#IDVendor').prev().children().css('border-color', '#ccc');
+        }
+
+        if (nonvalid == true) {
+            bootbox.alert({
+                title: "TOM Notification Center",
+                message: '<div><img src="../assets/images/danger.png" alt=""> Please fill the yellow field(s)! </div>',
+                backdrop: true
+            });
+            return false;
+        } else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("CheckDriver")',
+                data: {
+                    "idcard": ID.val(),
+                    "idvendor": IDVendor.val()
+                },
+                cache: false,
+                success: function (res) {
+                    if (res != "null" && gup('id') == "") {
+                        alertSaveErrorDuplicate();
+                    } else {
+
+                        return jQuery.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("UpdateRecord")',
+                            data: datum,
+                            success: function (res) {
+                                if (res == "Success") {
+                                    bootbox.alert({
+                                        title: "TOM Notification Center",
+                                        message: '<div><img src="../assets/images/checked.png" alt=""> Data has been successfully saved to the database! </div>',
+                                    });
+
+                                    if (ID.val() == '') {
+                                        window.location.href = "@Url.Action("Index")";
+                                    } else {
+                                        window.location.href = "@Url.Action("AddNew")?id=" + ID.val() + "&idvendor=" + IDVendor.val() + "";
+                                    }
+                                } else {
+                                    bootbox.alert({
+                                        title: "TOM Notification Center",
+                                        message: '<div><img src="../assets/images/cancel.png" alt=""> <b style="font-size: larger">Save failed!</b><br /> </div>',
+                                        backdrop: true
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    function resetRecord() {
+        jQuery('.record')[0].reset();
+    }
+
+    var dialogloading;
+    var generateIDVendor = function () {
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMasterVendor")',
+            cache: false,
+            data: { "IsActive": true },
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (var i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].IDVendor + '">' + response[i].VendorName + '</option>';
+                    }
+                }
+                $('#IDVendor').html(options);
+                generateRoleDriver();
+            }
+        });
+    };
+
+    var generateRoleDriver = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "RoleDriver"
+            },
+            url: '@Url.Action("GetMasterList")',
+            success: function (response) {
+                var options = '<option value=""></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#RoleDriver').html(options);
+                if (gup('id') != "") {
+                    state = "EDIT";
+                    generateUpdateData(gup('id'));
+                } else {
+                    dialogloading.modal('hide');
+                }
+            }
+        });
+    };
+
+    function generateUpdateData(param, idvendor) {
+        console.log(param + " - " + idvendor);
+        if (param != "") {
+            $.ajax({
+                url: '@Url.Action("GetTransportDriverManagements")',
+                method: 'get',
+                dataType: 'json',
+                data: {
+                    "ID": param,
+                    "IDVendor": location.search.split("&")[1].split("=")[1],
+                    "State": "editpage"
+                },
+                cache: false,
+                success: function (json) {
+                    //console.log(json);
+                    if (json != "") {
+                        for (var i = 0; i < json.viewmodel.length; i++) {
+                            $('#ID').val(json.viewmodel[i].ID);
+                            $('#Name').val(json.viewmodel[i].Name);
+
+                            if (json.viewmodel[i].DrivingLicensePeriod) {
+                                $('#DrivingLicensePeriod').val(moment(Number(json.viewmodel[i].DrivingLicensePeriod.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                            }
+
+                            $("#IDVendor").select2('val', json.viewmodel[i].IDVendor);
+                            PrevIDVendor = json.viewmodel[i].IDVendor;
+                            $("#RoleDriver option[value='" + json.viewmodel[i].RoleDriver + "']").prop("selected", true);
+
+                            $('#cancel1, #cancel2, #cancel3').hide();
+                        }
+                    }
+                    dialogloading.modal('hide');
+                }
+            });
+        }
+    }
+
+    // ========================================== hakim ===========================================
+
+    function IsAngka(evt) {
+        var charCode = (evt.which);
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function IsAngkaCustom1(evt) {
+        var charCode = (evt.which);
+        if (charCode > 31 && (charCode < 47 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+</script>

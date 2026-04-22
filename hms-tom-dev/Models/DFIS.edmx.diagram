@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="68907b5898e345ca9194a01f27a2cfb5" Name="Diagram1">
+        <EntityTypeShape EntityType="DFISModel.tm_location" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="DFISModel.tm_location_detail" Width="1.5" PointX="3" PointY="1" />
+        <AssociationConnector Association="DFISModel.FK_tm_location_detail_tm_location" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

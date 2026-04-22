@@ -1,0 +1,958 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Warehouse > Seal Management > Seal Stock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wborder wmb">
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="BackUrl()">Back</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="EditBtnSeal">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="SaveBtnSeal" onclick="SaveNew(true)">Save</button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="box">
+            <form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-4" hidden>
+                            <div class="form-group">
+                                <label>id</label>
+                                <input type="text" id="IDSealStock" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="text" id="SealStockDate" class="form-control datepicker">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Warehouse Name</label>
+                                <select class="select2" id="DDWarehouse"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Condition</label>
+                                <select class="form-control" id="DDCondition"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Seal Number</label>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <input type="text" name="" class="form-control" id="SealNumberFrom" onkeypress="return IsAngka(event)">
+                                    </div>
+                                    <div class="col-md-2 to-bi">
+                                        <label>To</label>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="text" name="" class="form-control" id="SealNumberTo"  onkeypress="return IsAngka(event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea class="form-control" id="Remarks"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span>Please input Yellow field</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning1" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="../assets/images/danger.png" alt="">
+                <span>Seal number from cannot be higher than seal number to</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Notification Modal -->
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+@*<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <div tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <div class="row">
+                                <p>Data Already Exist for ; </p>
+                                <div class="col-md-4">
+                                    <label>Month</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevMonth"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Year</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevYear"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Warehouse</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevWarehouse"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Condition</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevCondition"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Seal Number From</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevSealFrom"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Seal Number To</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevSealTo"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Remark</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevRemark"> </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="Save(false)" data-dismiss="modal">Update</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div class="modal fade" id="infoModalNew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <div tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <div class="box sameHeight">
+                            <div class="row">
+                               <p><h4><b>Please input another seal number, Data Already Exist for : </b></h4></p>
+                                <div class="col-md-4">
+                                    <label>Month</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevMonth"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Year</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevYear"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Warehouse</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevWarehouse"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Condition</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevCondition"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Seal Number From</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevSealFrom"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Seal Number To</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevSealTo"> </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Remark</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label id="PrevRemark"> </label>
+                                </div>
+                            </div>
+                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-primary" onclick="Save(false)" data-dismiss="modal">Update</button>*@
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    jQuery(function ($) {
+        loadingPage();
+        var id = gup('id');
+        var param = id == "" ? false : true;
+        if (!param) {// new data
+            disableEnableInput(false, true);
+        } else {/** edit data */
+            disableEnableInput(true, false);
+        }
+
+        $('#EditBtnSeal').on('click', function (e) {
+            disableEnableInput(false, true);
+        });
+        ResetData();
+
+        $("#SealStockDate").val(moment(new Date()).format("DD/MM/YYYY"));
+        
+        GenerateDropDownWarehouse();
+    });
+
+    var dialogloading = "";
+    function loadingPage() {
+        dialogloading = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+    }
+    //==========================================================================================================
+    // PART A: BEGIN
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    function disableEnableInput(boolOne, boolTwo) {
+        var fields = ['#SaveBtnSeal', '#SealStockDate', '#DDWarehouse', '#DDCondition', '#SealNumberFrom', '#SealNumberTo', '#Remarks'];
+
+        $(fields.join(",")).prop("disabled", boolOne);
+        $("#EditBtnSeal").prop("disabled", boolTwo);
+    }
+
+    function moveItems(origin, dest) {
+        jQuery(origin).find('.fc-selected').appendTo(dest);
+    }
+
+    function moveAllItems(origin, dest) {
+        jQuery(origin).children().appendTo(dest);
+    }
+
+    function ResetData() {
+        $("#SealStockDate").val(moment(new Date()).format("DD/MM/YYYY"));
+        $("#DDWarehouse").select2("val","");
+        $("#DDCondition").val("");
+        $("#SealNumberFrom").val("");
+        $("#SealNumberTo").val("");
+        $("#Remarks").val("");
+    }
+    //==========================================================================================================
+    // PART A: END
+    // Global Variable, instantiate objects, and prepare array
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART B: BEGIN
+    // This part is to validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    function IsAngka(evt) {
+        var charCode = (evt.which); //? evt.which : event.keyCode
+        //alert(evt.which);
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function resetSearch() {
+
+    }
+    function BackUrl() {
+        if (gup('src') == "main") {
+            window.location.href = '../SealStock';
+        } else {
+            window.location.href = '../SealManagement/AddNew';
+        }
+
+    }
+    //==========================================================================================================
+    // PART B: END
+    // Validate all entries, and reset all entries, define standard function
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    @*var GenerateDropDownWarehouse = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                Type: "Warehouse"
+            },
+            url: '@Url.Action("../SealStock/GetMasterLocation")',
+            success: function(response) {
+                var options = '<option value="-"></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].IDLocation + '">' + response[i].IDLocation + ' - ' + response[i].LocationName + '</option>';
+                    }
+                }
+                $('#DDWarehouse').html(options);
+                GenerateDropDownCondition();
+            }
+        });
+    };*@
+
+    var GenerateDropDownWarehouse = function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("../SealStock/GetUserWarehouse")',
+            success: function (listLocation) {
+                var options = '<option value="-"></option>';
+                if (listLocation.length) {
+                    for (i = 0; i < listLocation.length; i++) {
+                        options = options + '<option value="' + listLocation[i].IDLocation + '">' + listLocation[i].IDLocation + ' - ' + listLocation[i].LocationName + '</option>';
+                    }
+
+                }
+                $('#DDWarehouse').html(options);
+                GenerateDropDownCondition();
+            }
+        });
+    };
+
+    var GenerateDropDownCondition = function () {
+        $.ajax({
+            type: 'POST',
+            data: {
+                FieldName: "SealCondition"
+            },
+            url: '@Url.Action("../SealStock/GetConditionList")',
+            success: function (response) {
+                var options = '<option value="-"></option>';
+                if (response.length) {
+                    for (i = 0; i < response.length; i++) {
+                        options = options + '<option value="' + response[i].FieldValue + '">' + response[i].FieldValue + '</option>';
+                    }
+                }
+                $('#DDCondition').html(options);
+                if (gup('id') != "") {
+                    generateUpdateData(gup('id'));
+                } else {
+                    dialogloading.modal("hide");
+                }
+                
+            }
+        });
+    };
+    //==========================================================================================================
+    // PART C: BEGIN
+    // This part is to handle additional function in form
+    // DO NOT MODIFY THIS
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART C: END
+    // aaditional function in form
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART D: BEGIN
+    // This part is to control data while view, create,edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+
+    var fileInput = new Object();
+    function Save(param) {
+        var nonvalid = false;
+        var sealStockDate = $("#SealStockDate"),
+            ddWarehouse = $("#DDWarehouse option:selected"),
+            ddCondition = $("#DDCondition option:selected"),
+            sealNumberFrom = $("#SealNumberFrom"),
+            sealNumberTo = $("#SealNumberTo"),
+            remark = $("#Remarks"),
+            idSealStock = $("#IDSealStock");
+
+        var data = {
+            "IDSealStock": idSealStock.val(),
+            "IDLocation": ddWarehouse.val(),
+            "SealNumberFrom": sealNumberFrom.val(),
+            "SealNumberTo": sealNumberTo.val(),
+            "Condition": ddCondition.val(),
+            "Remarks": remark.val(),
+            "SealStockDate": sealStockDate.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+        };
+
+        if (sealStockDate.val() == "") { // sealdate
+            sealStockDate.css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            sealStockDate.css('border-color', '#ccc');
+        }
+
+        if (sealNumberFrom.val() == "") { //
+            sealNumberFrom.css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            sealNumberFrom.css('border-color', '#ccc');
+        }
+
+        if (sealNumberTo.val() == "") { //
+            sealNumberTo.css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            sealNumberTo.css('border-color', '#ccc');
+        }
+        if (ddCondition.val() == "-") {
+            $("#DDCondition").css('border-color', 'orange');
+            nonvalid = true;
+        } else {
+            $("#DDCondition").css('border-color', '#ccc');
+        }
+
+        if (ddWarehouse.val() == "-") { //
+            $("#s2id_DDWarehouse .select2-choice").css('border-color', 'orange');
+            //ddWarehouse.css("border", "1px solid orange");
+            nonvalid = true;
+        } else {
+            $("#s2id_DDWarehouse .select2-choice").css('border-color', '#ccc');
+        }
+
+        if (nonvalid) {
+            $('#modalwarning').modal('show');
+            return false;
+        }
+        else
+        {
+            if (param) {
+                loadingPage();
+                // to validate exist warehouse and date (only this page)
+                fileInput.IDLocation = $("#DDWarehouse option:selected").val();
+                fileInput.SealStockDate = $("#SealStockDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                $.ajax({
+                    url: '@Url.Action("GetDataValidate")',
+                    method: 'get',
+                    cache : false,
+                    dataType: 'json',
+                    data: fileInput,
+                    success: function(json) {
+                        if (json.length != 0) {
+                            // warningupdate
+                            dialogloading.modal("hide");
+                            var sealDate = moment(Number(json[0].SealStockDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                            var closingDateArr = moment(sealDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                            $("#PrevMonth").html(moment(closingDateArr[1], 'M').format('MMMM'));
+                            $("#PrevYear").html(closingDateArr[2]);
+                            $("#PrevWarehouse").html(json[0].MasterLocation.LocationName);
+                            $("#PrevCondition").html(json[0].Condition);
+                            $("#PrevSealFrom").html(json[0].SealNumberFrom);
+                            $("#PrevSealTo").html(json[0].SealNumberTo);
+                            $("#PrevRemark").html(json[0].Remark);
+                            console.log(json);
+                            $("#infoModal").modal('show');
+                        } else {
+                            jQuery.ajax({
+                                type: 'POST',
+                                url: '@Url.Action("SaveSealStock")',
+                                data: data,
+                                success: function (res) {
+                                    dialogloading.modal("hide");
+                                    if (res == "Success") {
+                                        bootbox.alert({
+                                            title: "DFIS Notification Center",
+                                            message: "<div class='text-center'><img src='../assets/images/checked.png' alt=''> Data has been successfully save to the database.</div>",
+                                            size: 'small',
+                                            closeButton: false
+                                        });
+                                        ResetData();
+                                        if (gup('id') != "") { // jika saat edit
+                                            disableEnableInput(true, false);
+                                            if ($('#IDCardNumber').val() != gup('id') && ($('#IDCardNumber').val() != "")) {
+                                                generateUpdateData($('#IDCardNumber').val());
+                                            } else {
+                                                generateUpdateData(gup('id'));
+                                            }
+                                        } else {
+                                            ResetData();
+                                        }
+                                    } else {
+                                        bootbox.alert({
+                                            title: "DFIS Notification Center",
+                                            message: "<div class='text-center'><img src='../assets/images/cancel.png' alt=''> Data failed to save to the database.</div>",
+                                            size: 'small',
+                                            closeButton: false
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                loadingPage();
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("SaveSealStock")',
+                    data: data,
+                    success: function (res) {
+                        dialogloading.modal("hide");
+                        if (res == "Success") {
+                            bootbox.alert({
+                                title: "DFIS Notification Center",
+                                message: "<div class='text-center'><img src='../assets/images/checked.png' alt=''> Data has been successfully save to the database.</div>",
+                                size: 'small',
+                                closeButton: false
+                            });
+                            ResetData();
+                            if (gup('id') != "") { // jika saat edit
+                                disableEnableInput(true, false);
+                                if ($('#IDCardNumber').val() != gup('id') && ($('#IDCardNumber').val() != "")) {
+                                    generateUpdateData($('#IDCardNumber').val());
+                                } else {
+                                    generateUpdateData(gup('id'));
+                                }
+                            } else {
+                                ResetData();
+                            }
+                        } else {
+                            bootbox.alert({
+                                title: "DFIS Notification Center",
+                                message: "<div class='text-center'><img src='../assets/images/cancel.png' alt=''> Data failed to save to the database.</div>",
+                                size: 'small',
+                                closeButton: false
+                            });
+                        }
+                    }
+                });
+            }
+
+        }
+        return true;
+    }
+
+    function generateUpdateData(param) {
+        if (param != "") {
+            $.ajax({
+                url: '@Url.Action("GetDataUpdate")',
+                method: 'get',
+                cache: false,
+                dataType: 'json',
+                data: {
+                    "IDSealStock": gup('id'),
+                    "Type": "firstload"
+                },
+                success: function (json) {
+                    if (json.viewmodel != "") {
+                        dialogloading.modal("hide");
+                        //for (var i = 0; i < json.length; i++) {
+                            console.log(json.viewmodel.IDLocation);
+                            $('#SealStockDate').val(moment(Number(json.viewmodel.SealStockDate.match(/\d+/)[0])).format('DD/MM/YYYY'));
+                            //$("#DDWarehouse option[value=" + json.viewmodel.IDLocation + "]").prop("selected", true);
+                            $("#DDWarehouse").select2('data', { id: json.viewmodel.IDLocation, text: json.viewmodel.IDLocation + ' - ' + json.viewmodel.MasterLocation.LocationName });
+                            $("#DDCondition option[value=" + json.viewmodel.Condition + "]").prop("selected", true);
+                            $('#SealNumberFrom').val(json.viewmodel.SealNumberFrom);
+                            $('#SealNumberTo').val(json.viewmodel.SealNumberTo);
+                            $('#Remarks').val( json.viewmodel.Remarks == "NULL" ? "" : json.viewmodel.Remarks );
+                            $('#IDSealStock').val(json.viewmodel.IDSealStock);
+                            var createdDate = moment(Number(json.viewmodel.CreatedDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                            setBtnEdit(createdDate, json.viewmodel.IDLocation);
+                            $('#notificationModal .modal-body, #notificationModal .modal-footer').empty();
+                            $('#notificationModal').modal('hide');
+                            //$("#EditBtnSeal").prop("disabled", json.viewbag);
+                        //}
+                    }
+                }
+            });
+        }
+    }
+
+    // BEGIN : SSO closing page, listlocation by usermapping, listrole by user mapping
+    var closingPageDate = '@ViewBag.ClosingPageDate';
+    var listLocation = @Html.Raw(Json.Encode(ViewBag.ListLocation));
+    var listUserRole = @Html.Raw(Json.Encode(ViewBag.ListUserRole));
+    // END : SSO closing page, listlocation by usermapping, listrole by user mapping
+    // validasi tombol edit (SSO)
+    function setBtnEdit(param1, param2) {
+        //var disabled = true;
+        //for (var j = 0; j < listUserRole.length; j++) {
+        //    if (listUserRole[j] == "SUPER ADMIN") { // untuk test gunakan "!=", untuk produksi gunakan "=="
+        //        if (listUserRole[j] != "SUPER ADMIN") continue;
+        //        disabled = false;
+        //    } else {
+        //        var closingDateArr = moment(closingPageDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+        //        var closingDate = new Date(''+closingDateArr[2]+'-'+closingDateArr[1]+'-'+(closingDateArr[0]-1));
+        //        var createdDateArr = moment(param1, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+        //        var createdDate = new Date(''+createdDateArr[2]+'-'+createdDateArr[1]+'-'+(createdDateArr[0]-1));
+        //        if (param2 != null) { //begin : untuk page yg memiliki lokasi
+        //            for (var i = 0; i < listLocation.length; i++) {
+        //                if (listLocation[i] != param2) continue;
+        //                if (closingDate < createdDate) {
+        //                    disabled = false;
+        //                } else if(closingDate > createdDate) {
+        //                    disabled = true;
+        //                }
+        //            }
+        //            //end : untuk page yg memiliki lokasi
+        //        } else {
+        //            if (closingDate < createdDate) {
+        //                disabled = false;
+        //            } else if(closingDate > createdDate) {
+        //                disabled = true;
+        //            }
+        //        }
+        //    }
+        //}
+        //$("#EditBtnSeal").prop("disabled", disabled);
+    }
+    //==========================================================================================================
+    // PART D: END
+    // This part is to control data while edit and delete
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+    //==========================================================================================================
+    // PART E: BEGIN
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+
+    //==========================================================================================================
+    // PART E: END
+    // This part is to handle searching
+    // MODIFY THIS according to the fields
+    //==========================================================================================================
+
+
+    /// ================================
+    /// Part :
+    /// Bug Fix By Arman Tamvan
+    /// ================================
+    function SaveNew(param) {
+        if( parseInt($("#SealNumberFrom").val()) >  parseInt($("#SealNumberTo").val())){
+            
+            $("#modalwarning1").modal('show');
+        }else{
+            var nonvalid = false;
+            var sealStockDate = $("#SealStockDate"),
+                ddWarehouse = $("#DDWarehouse option:selected"),
+                ddCondition = $("#DDCondition option:selected"),
+                sealNumberFrom = $("#SealNumberFrom"),
+                sealNumberTo = $("#SealNumberTo"),
+                remark = $("#Remarks"),
+                idSealStock = $("#IDSealStock");
+
+            var data = {
+                "IDSealStock": idSealStock.val(),
+                "IDLocation": ddWarehouse.val(),
+                "SealNumberFrom": sealNumberFrom.val(),
+                "SealNumberTo": sealNumberTo.val(),
+                "Condition": ddCondition.val(),
+                "Remarks": remark.val(),
+                "SealStockDate": sealStockDate.val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"),
+            };
+
+            if (sealStockDate.val() == "") { // sealdate
+                sealStockDate.css('border-color', 'orange');
+                nonvalid = true;
+            } else {
+                sealStockDate.css('border-color', '#ccc');
+            }
+
+            if (sealNumberFrom.val() == "") { //
+                sealNumberFrom.css('border-color', 'orange');
+                nonvalid = true;
+            } else {
+                sealNumberFrom.css('border-color', '#ccc');
+            }
+
+            if (sealNumberTo.val() == "") { //
+                sealNumberTo.css('border-color', 'orange');
+                nonvalid = true;
+            } else {
+                sealNumberTo.css('border-color', '#ccc');
+            }
+            if (ddCondition.val() == "-") {
+                $("#DDCondition").css('border-color', 'orange');
+                nonvalid = true;
+            } else {
+                $("#DDCondition").css('border-color', '#ccc');
+            }
+
+            if (ddWarehouse.val() == "-") { //
+                $("#s2id_DDWarehouse .select2-choice").css('border-color', 'orange');
+                //ddWarehouse.css("border", "1px solid orange");
+                nonvalid = true;
+            } else {
+                $("#s2id_DDWarehouse .select2-choice").css('border-color', '#ccc');
+            }
+
+            if (nonvalid) {
+                $('#modalwarning').modal('show');
+                return false;
+            }
+            else
+            {
+                if (gup('id') != ""){
+                    param = false;
+                }
+                if (param) {
+                    loadingPage();
+                    // to validate exist warehouse and date (only this page)
+                    fileInput.IDLocation = $("#DDWarehouse option:selected").val();
+                    fileInput.SealStockDate = $("#SealStockDate").val().replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1");
+                    $.ajax({
+                        url: '@Url.Action("ValidationCheckDataExisting")',
+                        cache: false,
+                        method: 'get',
+                        dataType: 'json',
+                        data: data,
+                        success: function(json) {
+                            if (json.length != 0) {
+                                // warningupdate
+                                dialogloading.modal("hide");
+                                var sealDate = moment(Number(json[0].SealStockDate.match(/\d+/)[0])).format('DD/MM/YYYY');
+                                var closingDateArr = moment(sealDate, "DD/MM/YYYY").format("DD MM YYYY").split(" ");
+                                $("#PrevMonth").html(moment(closingDateArr[1], 'M').format('MMMM'));
+                                $("#PrevYear").html(closingDateArr[2]);
+                                $("#PrevWarehouse").html(json[0].MasterLocation.LocationName);
+                                $("#PrevCondition").html(json[0].Condition);
+                                $("#PrevSealFrom").html(json[0].SealNumberFrom);
+                                $("#PrevSealTo").html(json[0].SealNumberTo);
+                                $("#PrevRemark").html(json[0].Remark);
+                                console.log(json);
+                                $("#infoModalNew").modal('show');
+                            } else {
+                                jQuery.ajax({
+                                    type: 'POST',
+                                    url: '@Url.Action("SaveSealStock")',
+                                    data: data,
+                                    success: function (res) {
+                                        dialogloading.modal("hide");
+                                        if (res == "Success") {
+                                            bootbox.alert({
+                                                title: "DFIS Notification Center",
+                                                message: "<div class='text-center'><img src='../assets/images/checked.png' alt=''> Data has been successfully save to the database.</div>",
+                                                size: 'small',
+                                                closeButton: false
+                                            });
+                                            ResetData();
+                                            if (gup('id') != "") { // jika saat edit
+                                                disableEnableInput(true, false);
+                                                if ($('#IDCardNumber').val() != gup('id') && ($('#IDCardNumber').val() != "")) {
+                                                    generateUpdateData($('#IDCardNumber').val());
+                                                } else {
+                                                    generateUpdateData(gup('id'));
+                                                }
+                                            } else {
+                                                ResetData();
+                                            }
+                                        } else {
+                                            bootbox.alert({
+                                                title: "DFIS Notification Center",
+                                                message: "<div class='text-center'><img src='../assets/images/cancel.png' alt=''> Data failed to save to the database.</div>",
+                                                size: 'small',
+                                                closeButton: false
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    loadingPage();
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SaveSealStock")',
+                        data: data,
+                        success: function (res) {
+                            dialogloading.modal("hide");
+                            if (res == "Success") {
+                                bootbox.alert({
+                                    title: "DFIS Notification Center",
+                                    message: "<div class='text-center'><img src='../assets/images/checked.png' alt=''> Data has been successfully save to the database.</div>",
+                                    size: 'small',
+                                    closeButton: false
+                                });
+                                ResetData();
+                                if (gup('id') != "") { // jika saat edit
+                                    disableEnableInput(true, false);
+                                    if ($('#IDCardNumber').val() != gup('id') && ($('#IDCardNumber').val() != "")) {
+                                        generateUpdateData($('#IDCardNumber').val());
+                                    } else {
+                                        generateUpdateData(gup('id'));
+                                    }
+                                } else {
+                                    ResetData();
+                                }
+                            } else {
+                                bootbox.alert({
+                                    title: "DFIS Notification Center",
+                                    message: "<div class='text-center'><img src='../assets/images/cancel.png' alt=''> Data failed to save to the database.</div>",
+                                    size: 'small',
+                                    closeButton: false
+                                });
+                            }
+                        }
+                    });
+                }
+
+            }
+            return true;
+        }
+      
+    }
+</script>

@@ -1,0 +1,669 @@
+@{
+    ViewBag.Title = " Master Data > Location";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<div class="title-deck wborder">
+    <h4 class="title-page pull-left"> Location</h4>
+</div>*@
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Add New</button>
+    </div> 
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>
+            <th>ID Location</th>
+            <th>Location Name</th>
+            <th>Parent Location</th>
+            <th>Type</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Is Allowed</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <th width=5% nowrap class="text-center">Filter</th>
+            <th>ID Location</th>
+            <th>Location Name</th>
+            <th>Parent Location</th>
+            <th>Type</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Location</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-24">                        
+                        <form id="newData">                                
+                            <div class="row" hidden>
+                                <div class="col-md-24">
+                                    <div class="form-group">
+                                        <label>InsertOrUpdate</label>
+                                        <input type="text" id="InsertOrUpdate" class="form-control">
+                                    </div>
+                                </div>
+                            </div>     
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>ID Location</label>
+                                    <input type="text" id="IDLocation" class="form-control" maxlength="10">
+                                </div>                                    
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Location Name</label>
+                                    <input type="text" id="LocationName" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Type</label>
+                                    <select class="form-control" id="Type"></select>
+                                </div>
+                            </div>  
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Parent Location</label>
+                                    <select class="form-control" id="ParentLocation"></select>
+                                </div>
+                            </div>
+                                                                                
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Remarks</label>
+                                    <textarea class="form-control" id="Remarks"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                                  
+                            </div>   
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Is Regional Location</label>
+                                    <select class="form-control" id="IsRegionalLocation">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>             
+                            </div> 
+                                                  
+                        </form>                      
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="modalwarning" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span>Type or ID Location or Location Name cannot be empty, please fill field value</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    // page   : MasterList
+    // author : hakim
+    // ticket :
+    // date   : 2017-08-11
+
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        //generateDropDown();
+        generateDropDownType();
+
+        $('#addNew').click(function () {
+
+            resetData();
+            //generateDropDown();
+            generateDropDownType();
+            $('#InsertOrUpdate').val("INSERT");
+            $('#ParentLocation').val(null).trigger('change');
+
+        });
+     
+        $('#btnSaveYes').click(function () {
+            edit();
+            $('#setinactive').modal('hide');
+            $('#inputModal').modal('hide');
+        });
+
+        $('#btnSaveNew').click(function () {
+            //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+
+            if ($('#Type :selected').val() == "NULL" || $('#inputModal').find('input[id="IDLocation"]').val() == "" || $('#inputModal').find('input[id="LocationName"]').val() == "") {
+                $('#modalwarning').modal('show');
+            } else {
+                if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+
+                    $('#setinactive').modal('show');
+
+                } else {
+                    save();
+
+
+                }
+            }
+          
+        });
+
+     
+        
+    });
+    $('#Type').change(function () {
+        generateDropDown();
+    });
+  
+
+    $('#inputModal').on('hidden.bs.modal', function () {
+        $('#ParentLocation').select2("close");
+    });
+
+    function resetData() {
+        document.getElementById("IDLocation").readOnly = false;
+        document.getElementById("IDLocation").disabled = false;
+        $('#newData')[0].reset();
+        $('#ParentLocation').val("NULL").trigger('change');
+    }
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    generateTable();
+   
+    
+    function generateDropDown() {
+        //get a reference to the select element
+        $select = $('#ParentLocation');
+        var type = $('#Type :selected').val();
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstLocation/GetMasterLocationDrop',
+            dataType: 'JSON',
+            data: { "Type": type },
+            cache: false,         
+            success:function(data){
+                //clear the current content of the select
+                $select.html('');
+                //iterate over the data and append a select option
+                $select.html('<option value="NULL"></option>').trigger('change');
+                $.each(data, function(key, val){
+                    $select.append('<option value="' + val.IDLocation + '">' + val.LocationName + ' - ' + val.IDLocation + '</option>');
+                })
+            },
+            error:function(){
+                //if there is an error append a 'none available' option
+                $select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownType() {
+        //get a reference to the select element
+        $select1 = $('#Type');
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstList/GetListForLocation',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                //clear the current content of the select
+                $select1.html('');
+                //iterate over the data and append a select option
+                $select1.html('<option value="NULL"></option>').trigger('change');
+                $.each(data, function (key, val) {
+                    $select1.append('<option value="' + val.FieldValue + '">' + val.FieldValue +'</option>');
+                })
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select1.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MstLocation/GetMasterLocationTOM',
+            method: 'get',
+            dataType: 'json',
+            cache:false,
+            success: function (data) {
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    "cache":false,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [],
+                    columns: [
+                           {
+                               "data": "IsActive", "class": "text-center", "render": function (data) {
+
+                                   if (data == true) {
+
+                                       return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                   } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+
+                               }
+                           },
+                          { 'data': 'IDLocation', 'searchable': true },
+                          { 'data': 'LocationName', 'searchable': true },
+                          { 'data': 'ParentLocation', 'searchable': true },
+                          { 'data': 'Type', 'searchable': true },
+                          {
+                              render: function (data, type, row) {
+                                  // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                  var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                  var formatted = date.getFullYear() + "-" +
+                                        ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                        ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                        date.getMinutes();
+                                  //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                  //var dtStr = dt.toString();
+                                  //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                  //      dt.getMinutes();
+                                  var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                  return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                              }
+                          },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": null, "render": function (data) {
+                                return '<div  align="center"><input type="checkbox" ' + ( data.IsAssigned ? 'checked=""' : '') + ' value="OK" onchange="setFlag(\'' + data.IDLocation + '\', $(this).prop(\'checked\'))" /></div>';
+                            }
+                        },
+                        {
+                            "data": "IDLocation", "render": function (data) {
+                                return '<div  align="center"><a href="#" id="editForm" onclick="return editTable(' + "'" + data + "'" + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 6)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+
+        });
+    }
+
+    function setFlag(id, value) {
+        $('#Loading').modal('show');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SetMasterLocationTOM")',
+            data: {
+                IDLocation: id,
+                flag: value
+            },
+            success: function (data) {
+                $('#Loading').modal('hide');
+                if (data) {
+                    $('#modalsuccess').modal('show');
+                }
+                else {
+                    $('#modalerror').modal('show');
+                    generateTable();
+                }
+            },
+            error: function () {
+                $('#Loading').modal('hide');
+                $('#modalerror').modal('show');
+                generateTable();
+            }
+        });
+    }
+
+        function save() {
+            //var data = $('#newData').serialize();
+            $('#Loading').modal('show');
+            if ($('#ParentLocation :selected').val() == "NULL") {
+                var parent = null;
+            } else {
+                var parent = $('#ParentLocation :selected').val();
+            }
+            var id = $('#newData').find('input[id="IDLocation"]').val();
+            var location = $('#newData').find('input[id="LocationName"]').val();
+            var type = $('#Type :selected').val();
+            var remark = $('#newData').find('textarea[id="Remarks"]').val();
+            var status = $('#Status :selected').val() == 1 ? true : false;
+            var isregionallocation = $('#IsRegionalLocation :selected').val() == 1 ? true : false;
+            var data = {
+                "new": [{ "IDLocation": id, "LocationName": location, "ParentLocation": parent, "Type": type, "Remarks": remark, "IsActive": status, "IsRegionalOffice": isregionallocation }],
+                "edit": [{}]
+            };
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: 'MstLocation/InsertLocation',
+                data: data,
+                success: function (data) {
+              
+                    //if (data.New) {
+                    //    $.each(data.New, function (k, value) {
+                    //        if (value) {
+                    //            DFIS.Helper.ResponseNotification(value, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                    //            //generateTable();
+                    //        }
+
+                    //    });
+                    //}
+
+                    //close modal
+                   // $('#inputModal').modal('hide');
+
+                    //generateTable();
+                    //generateDropDown();
+
+                    if (data.New) {
+                        $.each(data.New, function (k, value) {
+                            if (value.ResponseType == "Success") {
+                                //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                                //alert(value.ResponseType);
+                                //generateTable();
+                                generateTable();
+                                $('#modalsuccess').modal('show');
+                                resetData();
+                                generateDropDown();
+                                generateDropDownType();
+                                $('#ParentLocation').val(null).trigger('change');
+                                $('#Loading').modal('hide');
+
+                            } else {
+                                $('#modalerror').modal('show');
+                                $('#Loading').modal('hide');
+                            }
+
+                        });
+                    }
+
+                }
+            });
+        }
+        // END : Insert New Data
+
+        // BEGIN : Edit Data
+        // get edit data and assign to modal
+
+        var crBy = null;
+        var crDate = null;
+            
+
+        function editTable(id) {
+            $('#newData')[0].reset();
+            console.log($('#InsertOrUpdate').val("UPDATE"));
+            //generateDropDownType();
+            $.ajax({
+                url: 'MstLocation/GetDataById',
+                type: "GET",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                cache: false,
+                data: { "IDLocation": id },
+                success: function (json) {
+                    document.getElementById("IDLocation").readOnly = true;
+                    document.getElementById("IDLocation").disabled = true;
+
+                    $('#IDLocation').val(json.IDLocation);
+                    $('#LocationName').val(json.LocationName);
+                    $('#Remarks').val(json.Remarks);                      
+                    $('#Type').val(json.Type).trigger('change');
+                    crBy = json.CreatedBy;
+                    crDate = json.CreatedDate;
+                  
+                    $.ajax({
+                        url: 'MstLocation/GetDataById',
+                        type: "GET",
+                        contentType: "application/json;charset=UTF-8",
+                        dataType: "json",
+                        cache: false,
+                        data: { "IDLocation": id },
+                        success: function (json) {
+
+                            //  generateDropDown();
+                            $('#ParentLocation').val(json.ParentLocation).trigger('change');
+
+
+                        }
+                    });
+                  
+                  
+               
+
+                    if (json.IsActive) {
+                        $('#Status').val("1");
+                    } else {
+                        $('#Status').val("0");
+                    }
+
+                    if (json.IsRegionalOffice) {
+                        $('#IsRegionalLocation').val("1");
+                    } else {
+                        $('#IsRegionalLocation').val("0");
+                    }
+
+                    ////close modal
+                    $('#inputModal').modal('show');
+
+                }
+            });
+          
+            
+        }
+
+        //update edited data
+        function edit() {
+            $('#Loading').modal('show');
+            if ($('#ParentLocation :selected').val() == "NULL") {
+                var parent = null;
+            } else {
+                var parent = $('#ParentLocation :selected').val();
+            }
+            var id = $('#newData').find('input[id="IDLocation"]').val();
+            var location = $('#newData').find('input[id="LocationName"]').val();
+            var type = $('#Type :selected').val();
+            var remark = $('#newData').find('textarea[id="Remarks"]').val();
+            var status = $('#Status :selected').val() == 1 ? true : false;
+            var isregionallocation = $('#IsRegionalLocation :selected').val() == 1 ? true : false;
+            console.log(isregionallocation);
+            var data = {
+                "new": [{}],
+                "edit": [{ "CreatedBy": crBy, "CreatedDate": crDate, "IDLocation": id, "LocationName": location, "ParentLocation": parent, "Type": type, "Remarks": remark, "IsActive": status, "IsRegionalOffice": isregionallocation }]
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'MstLocation/InsertLocation',
+                data: data,
+                success: function (data) {
+                    //if (data.New) {
+                    //    $.each(data.New, function (k, value) {
+                    //        console.log(value);
+                    //        if (value.responseType == "Success") {
+                    //            //DFIS.Helper.ResponseNotification(value, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                    //            generateTable();
+                    //        }
+
+                    //    });
+                    //}
+                    //generateTable();
+
+                    //generateTable();
+
+                    if (data === true)
+                    {
+                        $('#modalsuccess').modal('show');
+                        resetData();
+                        generateTable();
+                        generateDropDown();
+                        generateDropDownType();
+                        $('#Loading').modal('hide');
+                    }
+                    else {
+                        $('#modalerror').modal('show');
+                        $('#Loading').modal('hide');
+                    }
+                    return;
+
+                    if (data.Edit) {
+                        $.each(data.Edit, function (k, value) {
+                            if (value.ResponseType == "Success") {
+                                //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                                //alert(value.ResponseType);
+                                //generateTable();
+                                $('#modalsuccess').modal('show');
+                                resetData();
+                                generateTable();
+                                generateDropDown();
+                                generateDropDownType();
+                                $('#Loading').modal('hide');
+
+                            } else {
+                                $('#modalerror').modal('show');
+                                $('#Loading').modal('hide');
+                            }
+
+                        });
+                    }
+
+
+                }
+            });
+        }
+    
+</script>
+
+
+

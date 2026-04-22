@@ -1,0 +1,139 @@
+﻿
+<!-- NOTIFICATION MODALS BEGIN -->
+
+<!-- CONFIRMATION -->
+<div class="modal fade" id="mdlConfirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="mdlConfirmTitle" data-default="TOM Notification Center">TOM Notification Center"</h4>
+            </div>
+            <div class="modal-body">
+                <span  id="mdlConfirmContent" data-default="Are you sure want to Edit Data?"></span>                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mdlConfirmBtnYes">Yes</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="mdlConfirmBtnNo">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="modal fade ml-sucess" id="mdlNotif" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="mdlNotifTitle" data-default="TOM Notification Center">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="@Url.Content("~/assets/images/checked.png")" alt="">
+                <span id="mdlNotifContent" data-default="Your data has been successfully saved">Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mdlNotifBtnOK">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ERROR -->
+<div class="modal fade ml-error" id="mdlError" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="mdlErrorTitle" data-default="TOM Notification Center">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="@Url.Content("~/assets/images/cancel.png")" alt="">
+                <span id="mdlErrorContent" data-default="An error has occured"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mdlErrorBtnOK">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function NotificationModal()
+    {
+        this.initialize.apply(this, arguments);
+    }
+
+    NotificationModal.prototype.initialize = function (id)
+    {
+        this.Id = id;
+        this.Modal = $("#" + id);
+        this.eleTitle = $("#" + id + "Title");
+        this.eleContent = $("#" + id + "Content");
+        this.btnOK = $("#" + id + "BtnOK");
+        this.btnOK.on("click", this.performClick.bind(this, ["ok"]));
+        this.btnYes = $("#" + id + "BtnYes");
+        this.btnYes.on("click", this.performClick.bind(this, ["yes"]));
+        this.btnNo = $("#" + id + "BtnNo");
+        this.btnNo.on("click", this.performClick.bind(this, ["no"]));
+        this.Context = undefined;
+
+        this._onEvent = {};
+    }
+
+    NotificationModal.prototype.on = function (event, callback) {
+        this._onEvent[event] = callback;
+    }
+
+    NotificationModal.prototype.trigger = function (event, args) {
+        if (this._onEvent[event])
+            this._onEvent[event].apply(this, args);
+    }
+
+    NotificationModal.prototype.performClick = function (code) {
+        this.trigger(code + "-clicked");
+    }
+
+    NotificationModal.prototype.show = function (content, title, callbacks)
+    {
+        this.eleTitle.html(title || this.eleTitle.attr("data-default"));
+        this.eleContent.html(content || this.eleContent.attr("data-default"));
+        if (callbacks) {
+            if (callbacks["ok"]) this.on("ok-clicked", callbacks["ok"]);
+            if (callbacks["yes"]) this.on("yes-clicked", callbacks["yes"]);
+            if (callbacks["no"]) this.on("no-clicked", callbacks["no"]);
+        }
+        this.Modal.modal("show");
+    }
+
+    NotificationModal.prototype.hide = function() {
+        this.Modal.modal("hide");
+    }
+
+    var ezNotif = {};
+    ezNotif.Notif = new NotificationModal("mdlNotif");
+    ezNotif.notification = function () {
+        ezNotif.Notif.show.apply(ezNotif.Notif, arguments);
+    }
+    ezNotif.Error = new NotificationModal("mdlError");
+    ezNotif.error = function () {
+        ezNotif.Error.show.apply(ezNotif.Error, arguments);
+    }
+    ezNotif.Confirm = new NotificationModal("mdlConfirm");
+    ezNotif.confirmation = function () {
+        ezNotif.Confirm.show.apply(ezNotif.Confirm, arguments);
+    }
+    ezNotif.BeginLoading = function () {
+        this.dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+    };
+    ezNotif.EndLoading = function () {
+        this.dialog.modal('hide');
+    }
+
+</script>
+
+<!-- NOTIFICATION MODALS END -->

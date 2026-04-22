@@ -1,0 +1,128 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+</style>
+
+
+<body class="report-page watermarks">
+    <main>
+        <h3 class="title noline">STOCK COUNT RECONCILE</h3>
+
+        <ul class="col-data">
+            <li><label>Date</label><span>: 04-May-2017</span></li>
+            <li><label>Plant</label><span>: ZD4A-DC Karawang Lot 17</span></li>
+        </ul>
+
+        <ul class="col-data">
+            <li><label>Operational Shift</label><span>: 2</span></li>
+            <li><label>UOM</label><span>: CS</span></li>
+        </ul>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Speaking Code</th>
+                    <th>Batch</th>
+                    <th>Unrestricted Qty</th>
+                    <th>QI Qty</th>
+                    <th>Total SAP Qty</th>
+                    <th>Manual Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017017</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>DSS16RA</td>
+                    <td>PV-2017018</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>UML12RA</td>
+                    <td>PB-2017008</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>UMC12RA</td>
+                    <td>PB-2017009</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>173.813</td>
+                    <td>173.813</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Remark</p>
+        <textarea rows="6" cols="form-control" style="width: 100%;resize: none;">Loading PO Hari senin 220507</textarea>
+
+        <div class="signature col3">
+            <div class="sign text-center">
+                <p>
+                    Distribution Assistant Shift 2
+                </p>
+                <p class="name"><strong>Kristian Praba</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>&nbsp;</p>
+                <p class="name"><strong>Berlina Novayanti</strong></p>
+            </div>
+            <div class="sign text-center">
+                <p>
+                    Mengetahui, Supervisor Area Distribution
+                </p>
+                <p class="name"><strong>Ria Ratnaningsih</strong></p>
+            </div>
+        </div>
+
+        <hr class="bold" />
+        <p class="printed" style="width: 50%; float: left;">Printed by : KSISWOAD on 19-May-2017 09:19</p>
+        <p class="printed" style="width: 50%; float: left; text-align: right;">Submitted by : KSISWOAD on 19-May-2017 09:19</p>
+    </main>
+</body>

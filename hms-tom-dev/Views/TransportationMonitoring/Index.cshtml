@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Transportation Monitoring";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .txt-invalid {
+        border: 1px solid red !important;
+    }
+    .tab-disabled {
+        pointer-events: none;
+    }
+    .dataTables_processing {
+        top: 64px !important;
+        z-index: 11000 !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-pills title">
+            @if (ViewBag.UserRole != "")
+            {
+                if (ViewBag.UserRole.ToLower().Contains("truck"))
+                {
+                    <li class="active"><a id="tab2" data-toggle="pill" href="#tabtruck">Truck</a></li>
+                }
+                else if (ViewBag.UserRole.ToLower().Contains("ship"))
+                {
+                    <li class="active"><a id="tab1" data-toggle="pill" href="#tabship">Ship</a></li>
+                }
+                else if (ViewBag.UserRole.ToLower().Contains("train"))
+                {
+                    <li class="active"><a id="tab3" data-toggle="pill" href="#tabtrain">Train</a></li>
+                }
+
+            }
+            else
+            {
+                <li class="active"><a id="tab2" data-toggle="pill" href="#tabtruck">Truck</a></li>
+                <li><a id="tab1" data-toggle="pill" href="#tabship">Ship</a></li>
+                <li><a id="tab3" data-toggle="pill" href="#tabtrain">Train</a></li>
+            }
+        </ul>
+        <div id="form" class="tab-content">
+            @if (ViewBag.UserRole != "")
+            {
+                if (ViewBag.UserRole.ToLower().Contains("truck"))
+                {
+                    <div id="tabtruck" class="tab-pane fade in active">
+                        @Html.Action("PartialViewIndexTruck")
+                    </div>
+                }
+                else if (ViewBag.UserRole.ToLower().Contains("ship"))
+                {
+                    <div id="tabship" class="tab-pane fade in active">
+                        @Html.Action("PartialViewIndexShip")
+                    </div>
+                }
+                else if (ViewBag.UserRole.ToLower().Contains("train"))
+                {
+                    <div id="tabtrain" class="tab-pane fade in active">
+                        @Html.Action("PartialViewIndexTrain")
+                    </div>
+                }
+            }
+            else
+            {
+                <div id="tabtruck" class="tab-pane fade in active">
+                    <div id="truckPage">
+                        @Html.Action("PartialViewIndexTruck")
+                    </div>
+                </div>
+                <div id="tabship" class="tab-pane fade ">
+                    <div id="shipPage"></div>
+                </div>
+                <div id="tabtrain" class="tab-pane fade ">
+                    <div id="trainPage"></div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('.nav-pills a[href="#tabtruck"]').click(function () {
+        var $truckPage = $("#truckPage");
+        var url = '@Url.Action("PartialViewIndexTruck")';
+        $.get(url, function(data) {
+            $truckPage.replaceWith(data);
+            $('#FilterDateFromTru').datetimepicker();
+            $('#FilterDateToTru').datetimepicker();
+        });
+    });
+
+    $('.nav-pills a[href="#tabship"]').click(function () {
+        var $shipPage = $("#shipPage");
+        var url = '@Url.Action("PartialViewIndexShip")';       
+        $.get(url, function(data) {
+            $shipPage.replaceWith(data);
+            $('#DateOfStuffingFrom').datetimepicker();
+            $('#DateOfStuffingTo').datetimepicker();
+        });
+    });
+
+    $('.nav-pills a[href="#tabtrain"]').click(function () {
+        var $trainPage = $("#trainPage");
+        var url = '@Url.Action("PartialViewIndexTrain")';
+        $.get(url, function(data) {
+            $trainPage.replaceWith(data);
+            $('#FilterDateFromTra').datetimepicker();
+            $('#FilterDateToTra').datetimepicker();
+        });
+    });
+</script>

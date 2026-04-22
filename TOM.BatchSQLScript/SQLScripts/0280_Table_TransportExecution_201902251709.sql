@@ -1,0 +1,3 @@
+
+ALTER TABLE TransportExecution
+ALTER COLUMN PoliceRegNo VARCHAR(15)

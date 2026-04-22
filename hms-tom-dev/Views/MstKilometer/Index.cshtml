@@ -1,0 +1,219 @@
+﻿@{
+    ViewBag.Title = " Master Data > Master Kilometer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="uploadMasterKilometer" class="btn btn-primary" type="button" data-toggle="modal" data-target="#inputModal">Upload</button>
+    </div>
+</div>
+
+<table id="dtKilometer" class="display table dataTable table-condensed">
+    <thead>
+    <tr>
+        <th width=5% nowrap class="text-center">Active</th>
+        <th>Id Location From</th>
+        <th>From</th>
+        <th>Longitude</th>
+        <th>Latitude</th>
+        <th>Id Location To</th>
+        <th>To</th>
+        <th>Longtitude</th>
+        <th>Latitude</th>
+        <th>Kilometer</th>
+    </tr>
+    </thead>
+    <thead class="filters">
+    <tr class="filter-row">
+        <th width=5% nowrap class="text-center">Active</th>
+        <th>Id Location From</th>
+        <th>From</th>
+        <th>Longitude</th>
+        <th>Latitude</th>
+        <th>Id Location To</th>
+        <th>To</th>
+        <th>Longtitude</th>
+        <th>Latitude</th>
+        <th>Kilometer</th>
+    </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="inputModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmKilometer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input id="uploadkilometer" type="file" name="" class="filestyle" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                <a href="Assets/Download/TemplateExcel/MasterKilometer.xlsx">Download Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnUploadKilometer">Execute</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        generateTabelKilometer();
+    });
+
+    var filekilometer;
+    function generateTabelKilometer() {
+        $.ajax({
+            url: 'MstKilometer/GetDataMasterKilometer',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (json) {
+                var table = $('#dtKilometer').DataTable({
+                    'destroy': true,
+                    data: json,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "autoWidth": false,
+                    "iDisplayLength": 25,
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true)
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                else
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                            }
+                        },
+                        { 'data': 'IDLocationFrom', 'searchable': true },
+                        { 'data': 'LocationFrom', 'searchable': true },
+                        { 'data': 'LongitudeFrom', 'searchable': true },
+                        { 'data': 'LatitudeFrom', 'searchable': true },
+                        { 'data': 'IDLocationTo', 'searchable': true },
+                        { 'data': 'LocationTo', 'searchable': true },
+                        { 'data': 'LongitudeTo', 'searchable': true },
+                        { 'data': 'LatitudeTo', 'searchable': true },
+                        { 'data': 'Kilometer', 'searchable': true }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                $('#dtKilometer thead.filters th').each(function (index) {
+                    if (index > 0) {
+                        var title = $('#dtKilometer thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                table.columns().every(function (index) {
+                    $('#dtKilometer thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible').search(this.value).draw();
+                    });
+                });
+            }
+        });
+    }
+
+    $("#uploadMasterKilometer").click(function () {
+        $("#btnUploadKilometer").prop("disabled", true);
+        $("#uploadkilometer").val("");
+        $("#uploadkilometer").jfilestyle('clear');
+        filekilometer = "";
+    });
+
+    $('#uploadkilometer').on('change', function (e) {
+        $("#btnUploadKilometer").prop("disabled", false);
+        filekilometer = e.target.files;
+    });
+
+    $("#btnUploadKilometer").click(function () {
+        var data = new FormData();
+        for (var x = 0; x < filekilometer.length; x++) {
+            data.append("filekilometer", filekilometer[x]);
+        }
+        $.ajax({
+            type: "POST",
+            url: 'MstKilometer/UploadFileMasterKilometer',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: data,
+            success: function (data) {
+                if (data.length == 0) {
+                    $('#modalsuccess').modal('show');
+                }
+                else {
+                    var txtLeadError = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var split = data[i].toString().split("-");
+                        if (split[0] == "LocationFrom") {
+                            txtLeadError = txtLeadError + "There is no Location From " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                        if (split[0] == "LocationTo") {
+                            txtLeadError = txtLeadError + "There is no Location To " + split[1] + " row " + split[2] + " in table master location<br/>";
+                        }
+                    }
+                    $("#textModalError").html("");
+                    $("#textModalError").append(txtLeadError);
+                    $('#modalerror').modal('show');
+                }
+                generateTabelKilometer();
+            },
+            error: function (xhr, status, p3, p4) {
+                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                    err = JSON.parse(xhr.responseText).Message;
+            }
+        });
+    });
+</script>

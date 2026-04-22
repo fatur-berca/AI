@@ -1,0 +1,3 @@
+
+ALTER TABLE TransportOrder
+ADD POWeek INT NULL

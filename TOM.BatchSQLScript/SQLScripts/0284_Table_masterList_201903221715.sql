@@ -1,0 +1,92 @@
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'ClaimCategory',
+	'Lost',
+	1,
+	'system',
+	GETDATE(),
+	'ssytem',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'ClaimCategory',
+	'Wet',
+	1,
+	'system',
+	GETDATE(),
+	'ssytem',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'ClaimCategory',
+	'Dented',
+	1,
+	'system',
+	GETDATE(),
+	'ssytem',
+	GETDATE(),
+	''
+);
+
+INSERT INTO MasterList
+(
+	FieldName,
+	FieldValue,
+	IsActive,
+	CreatedBy,
+	CreatedDate,
+	UpdatedBy,
+	UpdatedDate,
+	Remarks
+)
+VALUES
+(
+	'ClaimCategory',
+	'Contaminated',
+	1,
+	'system',
+	GETDATE(),
+	'ssytem',
+	GETDATE(),
+	''
+);

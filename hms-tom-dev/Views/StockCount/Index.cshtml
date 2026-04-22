@@ -1,0 +1,754 @@
+﻿@using System.Web.Mvc.Html
+@using Newtonsoft.Json
+@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.WarehouseStockCountViewModel
+@{
+    ViewBag.Title = "Warehouse > Stock Count > List ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ParamIDLocation = String.IsNullOrEmpty(Request.Params["IDLocation"]) ? "" : Request.Params["IDLocation"];
+    int ParamMonth = String.IsNullOrEmpty(Request.Params["Month"]) ? 0 : int.Parse(Request.Params["Month"]);
+    int ParamYear = String.IsNullOrEmpty(Request.Params["Year"]) ? 0 : int.Parse(Request.Params["Year"]);
+    var FilterStartDate = ParamMonth > 0 && ParamYear > 0 ? new DateTime(ParamYear, ParamMonth, 1) : DateTime.Now.AddDays(-7);
+    var FilterEndDate = ParamMonth > 0 && ParamYear > 0 ? FilterStartDate.AddMonths(1).AddDays(-1) : DateTime.Now;
+    /*
+    if (ParamMonth == 0 || ParamMonth == 0)
+    {
+        ParamStartDate = DateTime.Now;
+        ParamEndDate = ParamStartDate.AddMonths(1).AddDays(-1);
+    }
+    */
+
+    //var jsonSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+    //string jsonShiftList = JsonConvert.SerializeObject(Model.GetListStockCountShift);//jsonSerializer.Serialize(Model.GetListStockCountShift);
+    string jsonShift = "";
+}
+
+<style>
+    table th
+    {
+        text-align: center;
+    }
+
+    .space_attachment
+    {
+        padding-right:5px;
+    }
+
+    .dataTables_wrapper .table-overflow .table thead tr th:first-child
+    {
+        min-width:90px;
+    }
+</style>
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.AddNew)))
+        {
+            <button class="btn btn-primary" onclick="$('#modalStockType').modal('show')">Add New</button>
+        }
+        <button class="btn btn-primary" onclick="window.location.href = '@Url.Action("Index", "MstFGStacking")'">Master Finished Good Stacking</button>
+        <button class="btn btn-primary" id="btnDefaultReport" onclick="exportToExcel(false)">Export</button>
+        <button class="btn btn-primary" type="button" id="btnCustomReport" data-toggle="modal" data-target="#customReportModal">Custom Report</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter"><b>Advanced Search</b><i class="fa fa-angle-down"></i></a>
+</div>
+
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="frmFilter">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepicker" id="startDate" value="@FilterStartDate.ToString("dd-MM-yyyy")">
+                            </div>
+                            <div class="col-md-2 to-bi">
+                                <label>To</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control datepicker" id="endDate" value="@FilterEndDate.ToString("dd-MM-yyyy")">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Shift</label>
+                        <select id="shift" class="select2">
+                            <option value="">All</option>
+                            @foreach (var obj in Model.GetListStockCountShift)
+                            {
+                            <option value="@obj.Key">@obj.Value</option>
+                            }
+                            @*@for (int i = 1; i <= 3; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }*@
+                            <!--<option value="0">Surprise Visit</option>-->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="type" class="select2">
+                            <option value="">All</option>
+                            <option value="0">Distribution Center</option>
+                            <option value="1">Warehouse</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Inventory Accuracy</label>
+                        <select id="invAcc" class="select2">
+                            <option value="">None</option>
+                            <option value="100">100%</option>
+                            <option value="<100">Below 100%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Warehouse Utilization</label>
+                        <select id="invUtil" class="select2">
+                            <option value="">None</option>
+                            <option value="10-50">10-50%</option>
+                            <option value="51-70">51-70%</option>
+                            <option value="71-90">71-90%</option>
+                            <option value="91-100">91-100%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Warehouse Name</label>
+                        <select id="warehouse" class="select2" multiple></select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Warehouse Staff</label>
+                        <select id="staff" class="select2"></select>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button id="btnSearch" type="button" class="btn btn-primary">Search</button>
+                    <button id="btnReset" type="reset" class="btn btn-purple">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilter" class="dataTable display table">
+    <thead>
+        <tr>
+            <!--
+            <th data-orderable="false" class="text-center">
+                <div class="checkbox-deck">
+                    <input type="checkbox" id="checkall">
+                    <label for="checkall"></label>
+                </div>
+            </th>
+            -->
+            <th data-orderable="false">Attachment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Shift</th>
+            <th>Type</th>
+            <th>Warehouse</th>
+            <th>Staff-1</th>
+            @foreach (string columnName in hms_tom_dev.Models.WarehouseStockCountViewModel.STORE_LOCATION)
+            {
+            <th>@columnName.Replace("Total", "Qty").Replace("Pack", "(Pack)").Replace("Box", "(Box)")</th>
+            }
+            <th>Inv. Accuracy (%)</th>
+            <th>Warehouse Utilization (%)</th>
+            <!--
+                <th>Remarks</th>
+            -->
+            <th data-orderable="false">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">
+            <!--<th class="text-center">Filter</th>-->
+            <th>Attachment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Shift</th>
+            <th>Type</th>
+            <th>Warehouse</th>
+            <th>Staff-1</th>
+            @foreach (string columnName in hms_tom_dev.Models.WarehouseStockCountViewModel.STORE_LOCATION)
+            {
+            <th></th>
+            }
+            <th>Inv. Accuracy (%)</th>
+            <th>Warehouse Utilization (%)</th>
+            <!--
+                <th>Remarks</th>
+                <th>Action</th>
+            -->
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="modalStockType" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3" style="margin-top:9px;">
+                        <label>Transaction type : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" onclick="window.location.href = '@Url.Action("InputWarehouse")'">Area Warehouse</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" onclick="window.location.href = '@Url.Action("InputDistributionCenter")'">Distribution Center</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customReport" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Custom Report</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Date From</label>
+                            <input type="text" class="form-control datepicker" id="DateFrom">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Date To</label>
+                            <input type="text" class="form-control datepicker" id="DateTo">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="radio-inline" style="padding-left: 0px;">
+                            <input name="" id="cModifiedField" class="" value="1" type="checkbox"> Show Modified Field
+                        </label>
+                    </div>
+                    <div class="col-sm-24">
+                        <label class="radio-inline" style="padding-left: 0px;">
+                            <input name="" id="cActiveStatusField" class="" value="0" type="checkbox"> Show IsActive Status
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnExportCustomReport">Export</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="warningUpload">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarning"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="attachmentDialog" tabindex="-1" role="dialog">
+    <input type="hidden" id="action" value="1" />
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">Download Attachment</h4>
+            </div>
+            <div class="modal-body">
+                <span id="attachmentDialogText"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="warningModalYesNo" tabindex="-1" role="dialog">
+    <input type="hidden" id="action" value="1" />
+    <input type="hidden" id="ReferId" value="" />
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelWarning">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/danger.png" alt="">
+                <span id="textModalWarningYesNo"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmationSave">OK</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="confirmationCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-warning" id="downloadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="titleDownloadModal">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <span id="contentDownloadModal">
+
+                </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /*supaya search datatable bagian kanan atas, textnya align left*/
+    .dataTables_filter input {
+        text-align: left !important;
+    }
+    /*warna untuk bagian footer*/
+    tfoot {
+        background-color: #D0D0D0;
+    }
+
+    .fc-selected {
+        background-color: #f39814 !important;
+    }
+</style>
+
+@*Partial View*@
+@Html.Action("PartialViewCustomReport")
+
+@{
+//jsonShift = "[" + jsonShift.Substring(1, jsonShift.Length - 1) + "]";
+}
+<script type="text/javascript">
+    var tempProNumber = [];//array untuk menyimpan productivity number ketika checkbox bagian kiri di klik(dipakai untuk query)
+    var filter = new Object();//object filter input
+    //var ShiftList = JSON.parse('@(jsonShift)');
+
+    function generateWareHouseName() {
+        var select = $('#warehouse');
+        $.ajax({
+            url: '@Url.Action("../StockCount/GetLocationData")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                select.html('');
+                select.html('<option></option>');
+                $.each(data,
+                    function (key, val) {
+                        select.append('<option value="' + val.IDLocation + '">' + val.LocationName + '</option>');
+                    });
+
+                @if (!String.IsNullOrEmpty(ParamIDLocation))
+                {
+                    <text>
+                $('#warehouse').select2('val', '@ParamIDLocation');
+                </text>
+                }
+
+                loadData();
+            },
+            error: function () {
+                select.html('<option>none available</option>');
+            }
+        });
+    }
+    /*
+    function loadData()
+    {
+        var table = $('#dtFilter').DataTable({
+            'destroy': true,
+            'empty': true,
+            //data: json,
+            'searching': true,
+            'autoWidth': false,
+            "iDisplayLength": 25,
+            columns: [
+            ],
+            "dom": 'lf<"table-overflow"t>ip',
+            orderCellsTop: true
+        });
+    }
+    */
+
+    var dtFilter = null;
+
+    function loadData() {
+        if (dtFilter != null) {
+            dtFilter.clear().draw();
+        }
+
+        var targetColumns = [];
+
+        for (var i = 7; i <= 31; i++) {
+            targetColumns.push(i);
+        }
+
+        var filterType = $('#type').val() == 1 ? true : false;
+        filterType = $('#type').val() == "" ? null : filterType;
+
+        var dialog = bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+            closeButton: false
+        });
+        //dialog.modal('hide');
+        $.ajax({
+            //beforeSend: function () { $("#textModalLoading").html(" Please Wait"); $("#loadingModal").modal('show'); },
+            complete: function () { dialog.modal('hide'); },
+            criteria: {
+                SortExpression: "Year",
+                SortOrder: "ASC",
+            },
+            url: '@Url.Action("../StockCount/GetData")',
+            cache: false,
+            data: {
+                "filterStartDate": moment($('#startDate').val(), 'DD-MM-YYYY').format('YYYY-MM-DD'), //$('#startDate').val(),
+                "filterEndDate": moment($('#endDate').val(), 'DD-MM-YYYY').format('YYYY-MM-DD'),//$('#endDate').val(),
+                "IDLocations": $('#warehouse').val(),
+                "Shift": $('#shift').val(),
+                "WarehouseStaff1": $('#staff').val(),
+                'Type': filterType,
+                'InvAcc': $('#invAcc').val(),
+                'InvUtil': $('#invUtil').val(),
+            },
+            method: 'POST',
+            dataType: 'json',
+            success: function (res) {
+                dtFilter = $('#dtFilter').DataTable({
+                    //"order": [[ -1, "" ]],
+                    "order": [],
+                    //"bSort": true,
+                    "destroy": true,
+                    'paging': true,
+                    //'sort': true,
+                    'searching': true,
+                    'autowidth': false,
+                    "iDisplayLength": 25,
+                    "dom": '<"table-overflow"t>ip',
+                    'orderCellsTop': true,
+                    "columnDefs": [
+                                    {
+                                        className: "dt-body-right", "targets": targetColumns
+                                    },
+                                    {
+                                        className: "dt-body-center", "targets": [0, 1, 3, 33]
+                                    },
+                                    {
+                                        className: "dt-body-center", "targets": 32
+                                    },
+                    ],
+                    //scrollY: "300px",
+                    //scrollX: true,
+                    //scrollCollapse: true,
+                    //paging: false,
+                    /*
+                    fixedColumns: {
+                        leftColumns: 6,
+                    }
+                    */
+                });
+                var listShift = res.listShift;
+
+                //console.log(listShift);
+                for (i in res.data) {
+                    var AttachNo = 1;
+                    var r = res.data[i];
+
+                    if (r.Shift == 0) continue;
+                    //console.log(r);
+                    var urlAttachment = '<div class="attachment_content" style="display:none">';
+                    r.TransDate = moment(r.TransDate).format("DD-MMM-YYYY")
+
+                    var AttachmentUrlName = 'AttachmentWarehouseStockCount_' + r.TransDate + '_' + r.IDLocation + '_' + r.Shift;
+                    if (r.Attachment != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a><div style="height: 10px;"></div>';
+                    }
+
+                    if (r.Attachment2 != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment2 + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a><div style="height: 10px;"></div>';
+                    }
+
+                    if (r.Attachment3 != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment3 + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a><div style="height: 10px;"></div>';
+                    }
+
+                    if (r.Attachment4 != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment4 + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a><div style="height: 10px;"></div>';
+                    }
+
+                    if (r.Attachment5 != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment5 + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a><div style="height: 10px;"></div>';
+                    }
+
+                    if (r.Attachment6 != null) {
+                        urlAttachment += '<a class="space_attachment" target="_blank" href="@Url.Content(@System.Configuration.ConfigurationManager.AppSettings["LocationFileWarehouseStockCount"])' + r.Attachment6 + '"><i class="fa fa-download"> Attachment - ' + (AttachNo++) + '</i></a>';
+                    }
+
+                    urlAttachment += '</div>';
+
+                    dtFilter.row.add([
+                        urlAttachment + '<button class="btn btn-primary btnDownloadAttachment"><i class="fa fa-download"></i></button>',
+                        r.Status == null || r.Status == '' ? 'None' : r.Status,
+                        '<a href="@Url.Action("ViewDetail", "StockCount")?id=' + r.IDStockCount + '" target="_blank">' + r.TransDate + '</a>',
+                        listShift[r.Shift], r.IsReportWeekly ? 'Weekly' : 'Daily', r.WarehouseName, r.WarehouseStaff1Name,
+                        numberWithCommas(r.TotalSAP1000Box), numberWithCommas(r.TotalSAP1000Pack), numberWithCommas(r.TotalMan1000Box), numberWithCommas(r.TotalMan1000Pack),
+                        numberWithCommas(r.TotalSAP1040Box), numberWithCommas(r.TotalSAP1040Pack), numberWithCommas(r.TotalMan1040Box), numberWithCommas(r.TotalMan1040Pack),
+                        numberWithCommas(r.TotalSAP1041Box), numberWithCommas(r.TotalSAP1041Pack), numberWithCommas(r.TotalMan1041Box), numberWithCommas(r.TotalMan1041Pack),
+                        numberWithCommas(r.TotalSAP1042Box), numberWithCommas(r.TotalSAP1042Pack), numberWithCommas(r.TotalMan1042Box), numberWithCommas(r.TotalMan1042Pack),
+                        numberWithCommas(r.TotalSAP1043Box), numberWithCommas(r.TotalSAP1043Pack), numberWithCommas(r.TotalMan1043Box), numberWithCommas(r.TotalMan1043Pack),
+                        numberWithCommas(r.TotalSAP1046Box), numberWithCommas(r.TotalSAP1046Pack), numberWithCommas(r.TotalMan1046Box), numberWithCommas(r.TotalMan1046Pack),
+                        r.InvAcc, r.InvUtil,
+                        '<button class="btn btn-primary btnDelete" TransId="' + r.IDStockCount + '"><i class="fa fa-trash"></i></button>'
+                        //r.Remarks,
+                        //'<a href="@Url.Action("ViewDetail", "StockCount")?id=' + r.IDStockCount + '" target="_blank"><i class="fa fa-eye"></i> View</a>'
+                    ]).draw();
+                }
+                /*
+                $('#dtFilter thead.filters th').each(function (index) {
+                    if (index >= 1 && index < columnLength - 3) {
+                        var title = $('#dtFilter thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+                */
+                /*
+                dtFilter.columns().every(function (index) {
+                    if (index >= 1) {
+                        $('#dtFilter thead.filters th:eq(' + index + ') input').on('input', function () {
+                            dtFilter.column($(this).parent().index() + ':visible').search(this.value).draw();
+                        });
+                    }
+                });
+                */
+                var columnLength = $('#dtFilter thead.filters th').length;
+
+                dtFilter.columns().every(function (index) {
+                    if (index > 0) {
+                        $('#dtFilter thead.filters th:eq(' + index + ') input').on('keyup change', function () {
+                            dtFilter.column($(this).parent().index() + ':visible').search(this.value).draw();
+                        });
+                    }
+                });
+
+                //clear search textbox on 1st col
+                $('#dtFilter .filter-row th:first').html('');
+                $('#dtFilter .filter-row th:last').html('');
+                //$($('.form-control.mini')[0]).remove();
+                //$($('.filter-row th')[0]).html('');
+                //$($('.filter-row th')[columnLength - 1]).html('');
+
+            }
+        });
+    }
+
+    var SelectedRow = null;
+    jQuery(function ($) {
+        generateWareHouseName();
+        /*
+        var oTable = $('#dtFilter').DataTable({
+            'destroy': true,
+            'empty': true,
+            //data: json,
+            'searching': true,
+            'autoWidth': false,
+            "iDisplayLength": 25,
+            // columns: [
+            //],
+            "dom": 'lf<"table-overflow"t>ip',
+            //orderCellsTop: true
+        });
+        */
+        $('#confirmationSave').on('click', function () {
+            var dialog = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            $.ajax({
+                complete: function () { dialog.modal('hide'); },
+                url: '@Url.Action("../StockCount/DeleteTransaction")',
+                cache: false,
+                data: {
+                    IDStockCount: $('#ReferId').val()
+                },
+                method: 'POST',
+                dataType: 'json',
+                success: function (res) {
+                    dtFilter.row(SelectedRow).remove().draw();
+                    SelectedRow = null;
+                    $('#textModalWarning').html('Data has been successfully deleted');
+                    $('#warningModal').modal('show');
+                }
+            })
+        });
+
+        $(document).on('click', '.btnDelete', function () {
+            var TransId = $(this).attr('TransId');
+            SelectedRow = $(this).closest('tr');
+            //dtFilter.draw(false);
+            $('#ReferId').val(TransId);
+            $('#textModalWarningYesNo').html('Are you sure want to delete this transaction?');
+            $('#warningModalYesNo').modal('show');
+        });
+
+        $(document).on('click', '.btnDownloadAttachment', function () {
+            var html = $(this).siblings('.attachment_content').html();
+            $('#attachmentDialogText').html(html);
+            $('#attachmentDialog').modal('show');
+        });
+
+        $('#btnSearch').on('click', function () {
+            loadData();
+        });
+
+        $('#warehouse').on('change', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("../StockCount/GetUserByLocations")',
+                cache: false,
+                data: { IDLocations: $('#warehouse').val() },
+                success: function (response) {
+                    var options = '<option value="">None</option>';
+                    if (response.length) {
+                        for (i = 0; i < response.length; i++) {
+                            options = options + '<option value="' + response[i].IDUser + '">' + response[i].MasterUser.FullName + '</option>';
+                        }
+                    }
+                    $('#staff').html(options);
+                }
+            });
+        });
+
+        $('#btnReset').on('click', function () {
+            $('#frmFilter :input').each(function () {
+                if ($(this).is('select')) {
+                    $(this).select2('val', '');
+                } else {
+                    $(this).val('');
+                }
+            });
+        })
+    })
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function showDialog(message) {
+        if (message == '' || message === undefined) message = 'Please Wait...'
+        return bootbox.dialog({
+            message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> ' + message + '</div>',
+            closeButton: false
+        });
+    }
+
+    $('#btnPrintBerita').on('click', function (){
+
+        var dialog = showDialog();
+
+        $.ajax({
+            url: '@Url.Action("PrintBeritaAcara","StockCount")',
+            complete: function () { dialog.modal('hide'); /*$('#warningModal').modal('hide');*/ },
+            cache: false,
+            method: 'GET',
+            dataType: 'JSON',
+            data: {
+                namaOwner1 : $('#namaInventoryOwner1').val(),
+                jabatanInventoryOwner1: $('#jabatanInventoryOwner1').val(),
+                namaOwner2: $('#namaInventoryOwner2').val(),
+                jabatanInventoryOwner2: $('#jabatanInventoryOwner2').val(),
+                namaOwner3: $('#namaInventoryOwner3').val(),
+                jabatanInventoryOwner3: $('#jabatanInventoryOwner3').val(),
+                namaStock1: $('#namaStockTeam1').val(),
+                jabatanStock1: $('#jabatanStockTeam1').val(),
+                namaStock2: $('#namaStockTeam2').val(),
+                jabatanStock2: $('#jabatanStockTeam2').val(),
+                namaStock3: $('#namaStockTeam3').val(),
+                jabatanStock3: $('#jabatanStockTeam3').val()
+            },
+            success: function (res) {
+                console.log(res);
+                //debugger;
+                if (res.FileName == undefined) {
+                    //$('#textModalWarning').html('Failed to create reconcile. Please try again.');
+                    //$('#warningModal').modal('show');
+                }
+                //var filenames = res.FileName.split('###');
+
+                var filenames = res.FileName;
+
+                //var content = "<h3>Download Berita Acara</h3>";
+                var content = "";
+                content += "<ul style='margin-left:-20px;'>";
+                var downloadUrl = '@Url.Action("DownloadFile")' + "?FileName=" + res.FileName + "&UId=" + res.Uid;
+                var extractUrl = downloadUrl.split('-');
+                //content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                //content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="">' + extractUrl[1] + ' Download <i class="fa fa-download"></i></a></li>';
+                content += '<li style="padding-bottom:10px;"><a href="' + encodeURI(downloadUrl) + '" onclick="$(this).parent().remove()"> Download berita acara <i class="fa fa-download"></i></a></li>';
+                content += "</ul>";
+                
+                $('#contentDownloadModal').html(content);
+                $('#downloadModal').modal('show');
+                //debugger;
+            }
+        });
+    });
+</script>

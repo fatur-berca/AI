@@ -1,0 +1,302 @@
+﻿@using OfficeOpenXml.FormulaParsing.Excel.Functions.Math
+
+@model hms_tom_dev.Models.WarehouseStockCountListViewModel
+@{
+    //ViewBag.Title = "Warehouse > Seal Management > PrintDocument";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    //Model.MAX_ROW_PER_PAGE = 30;
+    //DateTime PrintedDate = Model.PrintedDate;
+    bool isNotFirstLoop = false;
+    hms_tom_dev.Models.WarehouseStockCountViewModel tool = new hms_tom_dev.Models.WarehouseStockCountViewModel();
+    //Model.STORE_LOCATIONS = new string[] { "1000", "1042" };
+}
+
+
+<!-- Load Style -->
+<link rel="stylesheet" href="@Url.Content("~/assets/css/select2.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery.dataTables.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/bootstrap-datetimepicker.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/lightbox.min.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/jquery-ui.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/flaticon.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/app.css")" media="screen">
+<link rel="stylesheet" href="@Url.Content("~/assets/css/ReportStockCount.css")" media="screen">
+
+<script src="@Url.Content("~/assets/js/jquery-1.12.4.min.js")"></script>
+
+<style>
+    .imgPdf {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .numberAlign {
+        text-align: right;
+    }   
+
+    .midAlign {
+        text-align : center;
+    }
+
+    .report-page main .signature .sign {
+        width : 15%;
+        float: left;
+        font-size: 12px;
+    }
+
+    p.name {
+        text-align : center;
+        font-size : 12px;
+    }
+
+    div.foot { 
+      page-break-after: always; 
+    }
+
+    .content_mid_bold {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .contentAlign {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    th[rowspan] {
+        position: relative;
+    }
+
+    th[rowspan]:before {
+        position: absolute;
+        content: "";
+        top: 0px;
+        left: -1px;
+        background-color: transparent;
+        border-left: solid #444 1px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .report-page.watermarks main
+    {
+        page-break-before: auto; /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+        page-break-after: auto;  /*'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+        page-break-inside: avoid; /* or 'auto' */
+    }
+</style>
+
+<body class="report-page watermarks">
+    <main>
+        @for (int idx = 0; idx < Model.WarehouseStockCounts.Count; idx++)
+        {
+            var r = Model.WarehouseStockCounts[idx];
+            Type type = r.GetType();
+            var idx_head = 0;
+            var start = 0;
+            int record_no = 0;
+            foreach (string SLoc in Model.STORE_LOCATIONS)
+            {
+                start = 0;
+                int no = 0;
+                int TotalDetail = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).ToList().Count;
+                int TotalQtySAP = Convert.ToInt32(r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).Sum(f => f.SAPQtyPack));
+                int TotalQtyMan= Convert.ToInt32(r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).Sum(f => f.ManQtyPack));
+                int TotalDiff = TotalQtyMan - TotalQtySAP;
+
+                if (TotalDetail == 0) { continue; }
+                while (true)
+                {
+                    var StockCountDetails = r.WarehouseStockCountDetails.Where(f => f.SLoc == SLoc).OrderBy(f => f.IDStockCountDetail).Skip(start).Take(Model.MAX_ROW_PER_PAGE).ToList();
+                    if (StockCountDetails.Count == 0) { break; }
+                    idx_head++;
+                    <div style="float:right; @(isNotFirstLoop ? "padding-top:15px;" : "")" class="numbering"></div>
+                    <h3 class="title noline" style="@(isNotFirstLoop ? "padding-top:30px;" : "")"><b> STOCK COUNT RECONCILE </b></h3>
+                    <!--<div class="A4">-->
+                    <ul class="col-data" style="width:45%;">
+                        <li><label>Date</label><span>: <b>@r.TransDate.ToString("dd-MMM-yyyy")</b></span></li>
+                        <li><label>Warehouse</label><span>: <b>@r.IDLocation - @r.MasterLocation.LocationName</b></span></li>
+                    </ul>
+                    <ul class="col-data" style="width:45%;">
+                        <li><label>Operational Shift</label><span>: <b>@(Model.ShiftList["" + r.Shift])</b></span></li>
+                        <!--<li><label>SLoc</label><span>: @SLoc</span></li>-->
+                    </ul>
+                    <div style="" class="div_small_box">
+                        <div style="" class="slocinfo"><b>SLoc</b></div>
+                        <div style="padding: 4px 1px 1px 4px;"><b>@SLoc</b></div>
+                    </div>
+                    <table class="table" style="margin-bottom:10px;">
+                        <thead>
+                            <tr>
+                                <th rowspan="3" class="midAlign">No</th>
+                                <th rowspan="3" style="" class="midAlign">FA Code</th>
+                                <th rowspan="3" style="" class="midAlign">Brand</th>
+                                <th rowspan="3" style="" class="midAlign">UoM</th>
+                                <th style="" colspan="6" class="midAlign">Manual Qty</th>
+                                <th style="" class="midAlign">SAP Qty</th>                                
+                                <th rowspan="3" class="midAlign">Selisih <br /> (h= f-g)</th>
+                                <th rowspan="3" class="midAlign">Remarks</th>
+                            </tr>
+                            <tr>
+                                <th class="midAlign">Fisik</th>
+                                <th class="midAlign">Receiving <br /> (Not Yet Interface/GR)</th>
+                                <th colspan="3" class="midAlign">Loading <br /> (Not Yet Input/Interface/GI)</th>
+                                <th rowspan="2" class="midAlign">Total <br /> (f= a-b+c+d+e)</th>
+                                <th rowspan="3" class="midAlign">On Hand <br /> SLoc @SLoc <br /> (g)</th>
+                            </tr>
+                            <tr>
+                                <th class="midAlign">(a)</th>
+                                <th class="midAlign">(b)</th>
+                                <th class="midAlign">STO <br /> (c)</th>
+                                <th class="midAlign">BPPB <br /> (d)</th>
+                                <th class="midAlign">RNRF <br /> (e)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @for (int i = 0; i < StockCountDetails.Count; i++)
+                        {
+                            no += 1;
+                            record_no += 1;
+                            decimal TotalWarehouse = StockCountDetails.ElementAt(i).WarehouseQty1 - StockCountDetails.ElementAt(i).WarehouseQty2 +
+                                                    StockCountDetails.ElementAt(i).WarehouseQty3 + StockCountDetails.ElementAt(i).WarehouseQty4 + StockCountDetails.ElementAt(i).WarehouseQty5;
+                            decimal Diff = TotalWarehouse - StockCountDetails.ElementAt(i).SAPQtyPack;
+                                <tr>
+                                    <td class="content_mid_bold"><b >@no </b></td>
+                                    <td class="contentAlign"><b> @StockCountDetails.ElementAt(i).FACode </b></td>
+                                    <td class="contentAlign"><b> @StockCountDetails.ElementAt(i).BrandDescription </b></td>
+                                    <td class="contentAlign"><b> Pack </b></td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).WarehouseQty1))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).WarehouseQty2))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).WarehouseQty3))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).WarehouseQty4))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).WarehouseQty5))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).ManQtyPack))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@StockCountDetails.ElementAt(i).SAPQtyPack))</td>
+                                    <td class="numberAlign">@tool.addSeparator(Convert.ToInt32(@Diff))</td>
+                                    <td class="" style="font-size: 7px;">@StockCountDetails.ElementAt(i).Remarks</td>
+                                </tr>
+                        }
+                        @{
+                            start += Model.MAX_ROW_PER_PAGE;
+                            if (start >= TotalDetail)
+                            {
+                                <tr>
+                                    <td colspan="9" style="text-align:right;">Total</td>
+                                    <td class="numberAlign">@tool.addSeparator(TotalQtyMan)</td>
+                                    <td class="numberAlign">@tool.addSeparator(TotalQtySAP)</td>
+                                    <td class="numberAlign">@tool.addSeparator(TotalDiff)</td>
+                                    <td></td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+
+                    isNotFirstLoop = true;
+                    //start += Model.MAX_ROW_PER_PAGE;
+                    if (record_no <= Model.WarehouseStockCounts[0].WarehouseStockCountDetails.Count)
+                    { 
+                        if (start >= TotalDetail)
+                        {
+                            System.Reflection.PropertyInfo pInfo = type.GetProperty("Remarks" + (SLoc == "1000" ? "" : SLoc));
+                            <div style="font-size:11px;">
+                                <div style="float:left">
+                                    <b style="font-size:13px;">Note: @(TotalQtySAP != TotalQtyMan ? "Not Balance / Selisih" : "Balance / Tidak Ada Selisih" )</b><br />
+                                    <div>                                        
+                                        Additional Info : @pInfo.GetValue(r, null)
+
+                                    </div>
+                                </div>
+                                <div style="float:right">
+                                    <table style="font-size:11px;">
+                                        <tr>
+                                            <td style="">Legend : </td>
+                                            <td style="text-align:left">(-) Selisih Kurang</td>
+                                        </tr>
+                                        <tr>
+                                            <td style=""></td>
+                                            <td style="text-align:left">(+) Selisih Lebih</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <br />                                
+                            </div>      
+
+                            if (StockCountDetails.Count > Model.MAX_ROW_PER_PAGE - 5)
+                            {
+                                <div class="foot"></div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="foot"></div>
+                        }
+                    }
+                    
+                    if (start >= TotalDetail)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        <!--<div class="foot"></div>-->
+                    }
+                }
+
+                
+            <div class="signature col6" style="">
+                <div class="sign">
+                    <p>
+                        <br /><br />&nbsp;
+                    </p>
+                    <p class="name">(______________)</p>
+                </div>
+                <div class="sign">
+                    <p style="text-align:center;">Disiapkan & diperiksa oleh,<br />Stock Taking Team</p>
+                    <br />
+                    <p class="name">(______________)</p>
+                </div>
+                <div class="sign">
+                    <p><br /><br />&nbsp;</p>
+                    <p class="name" style="text-align:center">(______________)</p>
+                </div>
+                <div class="sign text-center">
+                    <p><br /><br />Stock Admin Area</p>
+                    <p class="name">(&nbsp;&nbsp;&nbsp;@(String.IsNullOrEmpty(Model.WarehouseStockCounts[0].WarehouseStaff1) ? "-" : Model.WarehouseStockCounts[0].WarehouseStaff1)&nbsp;&nbsp;&nbsp;)</p>
+                </div>
+                <div class="sign text-center" style="float:right">
+                    <p>Manager Regional Distribution<br />(khusus surprise visit)</p>
+                    <p class="name">(______________)</p>
+                </div>
+                <div class="sign text-center" style="float:right">
+                    <p>Mengetahui,<br />Owner Warehouse (SAD/DC)</p>
+                    <br />
+                    <p class="name">(@(String.IsNullOrEmpty(Model.SPVName) ? "______________" : (r.MasterLocation.LocationName.StartsWith("DPC") ? "______________" : Model.SPVName)))</p>
+                </div>
+            </div>
+            <hr class="bold" />
+            <p class="printed printedby" style="width: 50%; float: left;">Printed by : @Model.UserName on @Model.PrintedDate</p>
+            <p class="printed printedby" style="width: 50%; float: left; text-align: right; page-break-after:always;">Last updated by : @Model.WarehouseStockCounts[0].UpdatedBy on @Model.WarehouseStockCounts[0].UpdatedDate.ToString("dd-MMM-yyyy HH:mm")</p>
+            }
+        }
+        @if (Model.WarehouseStockCounts.Count > 0)
+        {
+
+        }
+        else
+        {
+            <h1>No Data Found</h1>
+        }
+    </main>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        var total_page = $('.numbering').length;
+        var no = 1;
+        $('.numbering').each(function (e) {
+            $(this).html(no + ' of ' + total_page);
+            no++;
+        });
+    });
+</script>

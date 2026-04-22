@@ -1,0 +1,585 @@
+@{
+    ViewBag.Title = "Master Data > Master Dynamic Field";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew" class="btn btn-primary" type="button" data-toggle="modal" data-target="#addnew">Add New</button>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap class="text-center">Active</th>           
+            <th>Namepage</th>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Group</th>
+            <th>Ordering</th>
+            <th>Notification</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center">Action</th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">     
+            <th width=5% nowrap class="text-center">Filter</th>                 
+            <th>Namepage</th>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Group</th>
+            <th>Ordering</th>
+            <th>Notification</th>
+            <th>Last Update</th>
+            <th hidden>Last Update</th>
+            <th width=5% nowrap class="text-center"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">Dynamic Field</h4>
+			</div>
+			<div class="modal-body">
+                <div id="fieldChooser" tabindex="1" class="field-chooser">
+                    <div class="col-md-12">
+                        <form id="newData">
+                            <div class="row">
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>InsertOrUpdate</label>
+                                            <input type="text" id="InsertOrUpdate" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <label>Field Type</label>
+                                            </div>
+                                            <!--<input type="radio" id="TextInput" name="FieldType" value="TextInput" checked> Text Input<br>
+                                            <input type="radio" id="ComboBox" name="FieldType" value="ComboBox"> ComboBox (Yes/No)<br>
+                                            <input type="radio" id="Date" name="FieldType" value="Date"> Date<br>
+                                            <input type="radio" id="Number" name="FieldType" value="Number"> Number<br>
+                                            <input type="radio" id="ComboMultiple" name="FieldType" value="ComboMultiple"> ComboBox (Multiple Select)-->
+                                            <label>IDDynamicField</label>
+                                            <input type="text" id="IDDynamicField" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" hidden>
+                                    <div class="col-md-24">
+                                        <div class="form-group">
+                                            <label>CreatedBy</label>
+                                            <input type="text" id="CreatedBy" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Name Page</label>
+                                    <select class="select2" id="PageName">
+                                        <option value="NULL"></option>
+                                        <option value="Building & Facility">Building & Facility</option>
+                                        <option value="Sand Bag">Sand Bag</option>
+                                        <option value="Suggestion System"> Suggestion System</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label>Field Type</label>
+                                    </div>
+                                    <input type="radio" id="TextInput" name="FieldType" value="TextInput" checked> Text Input<br>
+                                    <input type="radio" id="ComboBox" name="FieldType" value="ComboBox"> ComboBox (Yes/No)<br>
+                                    <input type="radio" id="Date" name="FieldType" value="Date"> Date<br>
+                                    <input type="radio" id="Number" name="FieldType" value="Number"> Number<br>
+                                    <input type="radio" id="ComboMultiple" name="FieldType" value="ComboMultiple"> ComboBox (Multiple Select)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Field Name</label>
+                                    <input type="text" id="FieldName" class="form-control" style="text-transform:uppercase">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ordering</label>
+                                    <input type="number" id="Ordering" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                </div>
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Group</label>
+                                    <select class="form-control" id="group">
+                                        <option value=""></option>
+                                        <option value="General">General</option>
+                                        <option value="Asset">Asset</option>
+                                        <option value="Equipment">Equipment</option>
+                                        <option value="Headcount">Headcount</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @*<div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ordering</label>
+                                    <input type="number" id="Ordering" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                </div>
+                            </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Notification</label>
+                                    <input type="text" id="Notif" class="form-control">
+                                </div>
+                            </div>
+                            @*<div class="row">
+                                <div class="form-group">
+                                    <label>Group</label>
+                                    <input type="text" id="group" class="form-control">
+                                </div>
+                            </div>*@
+                        </form>
+                    </div>
+				</div>
+			</div>
+			<div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">Are you sure want to Edit Data?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span>Your data has been successfully saved</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span>Sorry, the inputted data exists or your connection is lost</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DFIS Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // BEGIN : GENERAL Logic
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            document.getElementById("group").disabled = true;
+            $('#PageName').select2('val',"");
+            $('#group').val(" ").trigger('change');
+            $('#Status').val(true).trigger('change');
+
+            $('#FieldName').val("");
+            $('#FieldType').val("TextInput").checked = true;
+            //document.getElementById('#FieldType').checked = true;
+            //$('#group').val(json.GroupCollapse);
+            $('#Ordering').val(null);
+            $('#Notif').val(null);
+            $('#InsertOrUpdate').val("INSERT");
+            //generateDropDownFunc();
+        });
+       
+    });
+
+    function resetData() {
+        //$('#newData')[0].reset();
+        //$('#IDDynamicField').val(json.IDDynamicField);
+        //$('#PageName').val(json.PageName).trigger('change');
+        $('#PageName').select2('val', "");
+        $('#group').val(" ").trigger('change');
+        $('#Status').val(true).trigger('change');
+
+        $('#FieldName').val("");
+        $('#FieldType').val("TextInput").checked = true;
+        //document.getElementById('#FieldType').checked = true;
+        //$('#group').val(json.GroupCollapse);
+        $('#Ordering').val(null);
+        $('#Notif').val(null);
+    }
+
+    $('#PageName').change(function () {
+        if ($('#PageName :selected').val() == "Building & Facility") {
+            document.getElementById("group").disabled = false;
+            generateDropDownGroupBuilding();
+        }
+        else if ($('#PageName :selected').val() == "Suggestion System") {
+            document.getElementById("group").disabled = false;
+            generateDropDownSS();
+        }
+        else {
+            document.getElementById("group").disabled = true;
+            $('#group').val(" ").trigger('change');
+        }
+    });
+
+    function generateDropDownGroupBuilding() {
+        var select = $('#group');
+        select.html('');
+        select.html('<option value=""></option>');
+        select.append('<option value="General">General</option>');
+        select.append('<option value="Asset">Asset</option>');
+        select.append('<option value="Equipment">Equipment</option>');
+        select.append('<option value="Headcount">Headcount</option>');
+        $('#group').select2('val', "");
+    }
+
+    function generateDropDownSS() {
+        var select = $('#group');
+        select.html('');
+        select.html('<option value=""></option>');
+        select.append('<option value="1">General</option>');
+        select.append('<option value="2">Score & Approval</option>');
+        $('#group').select2('val', "");
+    }
+
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    generateTable();
+    //generateDropDownFunc();
+
+    //function generateDropDownFunc() {
+    //    //get a reference to the select element
+    //    $select1 = $('#PageName');
+    //    $select1.html('<option value="NULL"></option>').trigger('change');
+    //    //request the JSON data and parse into the select element
+    //    $.ajax({
+    //        url: 'MstFunction/GetMasterFunctionForDynamic',
+    //        dataType: 'JSON',
+    //        cahce: false,
+    //        success: function (data) {
+    //            //clear the current content of the select
+    //            $select1.html('');
+    //            //iterate over the data and append a select option
+    //            $.each(data, function (kunci, tampung) {
+    //                $select1.append('<option value="' + tampung.FunctionName + '">' + tampung.FunctionName + '</option>');
+    //            })
+    //        },
+    //        error: function () {
+    //            //if there is an error append a 'none available' option
+    //            $select1.html('<option value="NULL">none available</option>');
+    //        }
+    //    });
+    //}
+    $('#addnew').on('hidden.bs.modal', function () {
+        $('#PageName').select2("close");
+    });
+    //generate table
+    function generateTable() {
+        $.ajax({
+            url: 'MstDynamicField/GetMasterDynamicField',
+            method: 'get',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    'searching': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[8, 'desc']],
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else {
+                                    return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>';
+                                }
+
+                            }
+                        },
+                        { 'data': 'PageName', 'searchable': true },
+                        { 'data': 'FieldName', 'searchable': true },
+                        { 'data': 'FieldType', 'searchable': true },
+                        {
+                            'data': 'GroupCollapse', 'searchable': true, "render": function (data) {
+                                if (data == 1) {
+                                    return 'General';
+                                } else if (data == 2) {
+                                    return 'Score & Approval';
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        { 'data': 'Ordering', 'searchable': true },
+                        { 'data': 'NotificationPeriod', 'searchable': true },
+                        {
+                            render: function (data, type, row) {
+                                // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                    ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                    ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                    date.getMinutes();
+                                //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                //var dtStr = dt.toString();
+                                //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                //      dt.getMinutes();
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDDynamicField", "class": "text-center", "render": function (data) {
+                                return '<div ><a href="#" id="editForm" onclick="editTable(' + data + '); return false;"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 9)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN : Insert New Data
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+        $('#addnew').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+        if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+            $('#setinactive').modal('show');
+        } else {
+            save();
+        }
+    });
+
+
+    function save() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var namepage = $('#PageName :selected').val();
+        var group = $('#group :selected').val();
+
+        var fieldname = $('#newData').find('input[id="FieldName"]').val();      
+        //  var fieldtype = $('#FieldType:checked').val();
+        var fieldtype = $('input[name="FieldType"]:checked', '#newData').val();
+
+        //var group = $('#group').val();
+
+        //var group = $('#newData').find('input[id="group"]').val();
+        var ordering = $('#newData').find('input[id="Ordering"]').val();
+        var notif = $('#newData').find('input[id="Notif"]').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+
+        var data = {
+            "new": [{ "PageName": namepage, "FieldName": fieldname, "FieldType": fieldtype, "GroupCollapse": group, "Ordering": ordering, "NotificationPeriod": notif, "IsActive": status }],
+            "edit": [{}]
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'MstDynamicField/InsertDynamicField',
+            data: data,
+            success: function (data) {
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                            //alert(value.ResponseType);
+                            //generateTable();
+                            generateTable();
+                            //generateDropDownFunc();
+                            $('#modalsuccess').modal('show');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+                    });
+                }
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+    function editTable(id) {
+        $('#newData')[0].reset();
+        $('#InsertOrUpdate').val("UPDATE");
+        // generateDropDownFunc();
+        $.ajax({
+            url: 'MstDynamicField/GetDataById',
+            typr: "GET",
+            cache : false,
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: { "IDDynamicField": id },
+            success: function (json) {
+                $('#IDDynamicField').val(json.IDDynamicField);
+                $('#PageName').val(json.PageName).trigger('change');
+                $('#group').val(json.GroupCollapse).trigger('change');
+                $('#FieldName').val(json.FieldName);
+                $('#FieldType').val(json.FieldType);
+                console.log(json.FieldType);
+                if (jQuery("#" + json.FieldType).length > 0) {
+                    //it does exist
+                    document.getElementById(json.FieldType).checked = true;
+                }
+
+                //$('#group').val(json.GroupCollapse);
+                $('#Ordering').val(json.Ordering);
+                $('#Notif').val(json.NotificationPeriod);
+                $('#CreatedBy').val(json.CreatedBy);
+
+                if (json.IsActive) {
+                    $('#Status').val("1");
+                } else {
+                    $('#Status').val("0");
+                }
+                ////close modal
+                $('#addnew').modal('show');
+            }
+        });
+    }
+
+    //update edited data
+    function edit() {
+        //var data = $('#newData').serialize();
+        $('#Loading').modal('show');
+        var id = $('#newData').find('input[id="IDDynamicField"]').val();
+        var namepage = $('#PageName :selected').val();
+        var fieldname = $('#newData').find('input[id="FieldName"]').val();
+        var fieldtype = $('input[name="FieldType"]:checked', '#newData').val();
+        //var group = $('#newData').find('input[id="group"]').val();
+        var group = $('#group :selected').val();
+        var ordering = $('#newData').find('input[id="Ordering"]').val();
+        var notif = $('#newData').find('input[id="Notif"]').val();
+        var status = $('#Status :selected').val() == 1 ? true : false;
+
+        var data = {
+            "new": [{}],
+            "edit": [{ "IDDynamicField": id, "PageName": namepage, "FieldName": fieldname, "FieldType": fieldtype, "GroupCollapse": group, "Ordering": ordering, "NotificationPeriod": notif, "IsActive": status }],
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'MstDynamicField/InsertDynamicField',
+            data: data,
+            success: function (data) {
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                            //generateTable();
+                            generateTable();
+                            //generateDropDownFunc();
+                            $('#modalsuccess').modal('show');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+                    });
+                }
+            }
+        });
+    }
+</script>

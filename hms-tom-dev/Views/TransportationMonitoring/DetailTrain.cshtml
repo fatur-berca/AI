@@ -1,0 +1,379 @@
+﻿@using EnumHelper = DFIS.Utils.EnumHelper
+@model hms_tom_dev.Models.Transport.TransportExecutionViewModel
+@{
+    ViewBag.Title = "Transportation Monitoring";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listUserRole = ViewBag.ListUserRole;
+}
+
+<!-- DO NOT USE THIS, use DetailTruck instead -->
+
+
+<style>
+    .col-md-12.bar {
+        padding: 0px;
+    }
+
+        .col-md-12.bar label {
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .col-md-12.bar input[type=text] {
+            font-size: 11px;
+            padding: 0px 5px !important;
+            margin: 0px !important;
+            height: 22px;
+            width: 100%;
+            border-radius: 0px;
+        }
+
+        .col-md-12.bar select {
+            font-size: 11px;
+            padding: 0px 5px !important;
+            margin: 0px !important;
+            height: 22px;
+            width: 100%;
+            border-radius: 0px;
+        }
+
+    .col-md-2.col-mini {
+        height: 50px;
+        padding-right: 0px;
+        width: 11%;
+    }
+
+    .glyphicon {
+        cursor: pointer;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="button-wrap pull-left">
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationMonitoring")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnSaveDetailTra">Save</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button type="button" class="btn btn-primary" id="btnEdit" disabled>Edit</button>
+                }
+                <input hidden id="IDTransportOrder" value="">
+                <input hidden id="addPosition" value="">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Status</label>
+            <input hidden id="IDTransportExecution" value="@(Model.IDTransportExecution)">
+            <input type="text" id="" class="form-control" value="@(Model.TransportStatus)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Number</label>
+            <input type="text" id="" class="form-control" value="@(Model.TransportNo)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Transportation Date</label>
+            @if (Model.TransportNo == null)
+            { <input type="text" id="" class="form-control" value="" disabled> }
+            else
+            { <input type="text" id="" class="form-control" value="@Model.TransportDate.ToString("dd-MMM-yyyy")" disabled> }
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Vehicle Type</label>
+            <input type="text" id="" class="form-control" value="@(Model.VehicleType)" disabled>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Vendor Name</label>
+            <input type="text" id="" class="form-control" value="@(Model.VendorName)" disabled>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Start Location</label>
+            <input type="text" id="" class="form-control" value="@(Model.StartLocation)" disabled>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Police Registration Number</label>
+            <input type="text" id="" class="form-control" value="@(Model.PoliceRegNo)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Driver 1</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDDriver1)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Driver 2</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDDriver2)" disabled>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label>Co-Driver</label>
+            <input type="text" id="" class="form-control" value="@(Model.IDCoDriver)" disabled>
+        </div>
+    </div>
+</div>
+
+<div id="rowTO" class="row"></div><br />
+
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <label><b><u>Update Position</u></b></label>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" id="btnAddPosition">Add New Update</button>
+        </div>
+    </div>
+</div>
+
+<div id="rowPosition" class="row"></div>
+
+<div id="modalloadingTra" class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="../../assets/images/loading.gif" alt=""><span>Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if ($("#IDTransportExecution").val() != '') {
+        generateRowTra();
+    }
+
+    $(document).on('click', '#btnSaveDetailTra', function () {
+        updateTransOrder();
+    });
+
+    $(document).on('click', '#btnAddPosition', function () {
+        var n;
+        var v = $("#addPosition").val();
+        if (v == '') {
+            n = "1";
+        }
+        else {
+            n = parseInt(v) + 1;
+        }
+        $("#addPosition").val(n);
+
+        $("#rowPosition").append(''
+            + '<div class="col-md-12 bar" id="rowPosition' + n + '">'
+            + '<div class="col-md-2 col-mini" style="width: 13%;">'
+            + '<div class="form-group">'
+            + '<label>Date and Time</label>'
+            + '<div class="inner-addon left-addon">'
+            + '<i class="glyphicon glyphicon-time" style="float: left; width: 10%;"></i>'
+            + '<input type="text" style="float: right; width: 90%;" class="form-control" id="datePost' + n + '" data-date-format="DD-MMM-YYYY HH:mm">'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+            + '<div class="col-md-2 col-mini" style="width: 20%;">'
+            + '<div class="form-group">'
+            + '<label>Location</label>'
+            + '<input type="text" id="locPost' + n + '" maxlength="100" class="form-control">'
+            + '</div>'
+            + '</div>'
+            + '<div class="col-md-2 col-mini" style="width: auto; padding: 5px;">'
+            + '<div class="form-group">'
+            + '<label></label>'
+            + '<i class="glyphicon glyphicon-remove" onclick="removeRowPost(' + n + ')" style="float: left;"></i>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+            + '');
+
+        $('#datePost' + n + '').datetimepicker();
+    });
+
+    function generateRowTra() {
+        $('#modalloadingTra').modal('show');
+
+        var tn = $("#IDTransportExecution").val();
+
+        $.ajax({
+            url: '@Url.Action("GetRowOrderTruckTrain", "TransportationMonitoring", new { idte = "ID" })'.replace("ID", tn),
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                var IDTo = ''; var leadTime, estArrv, GIdate, GRdate;
+                $.each(data, function (key, val) {
+                    IDTo = IDTo + val.IDTransportOrder + ',';
+                    leadTime = ''; estArrv = ''; GIdate = ''; GRdate = '';
+
+                    if (val.LeadTime != null) { leadTime = moment(val.LeadTime).format("DD-MMM-YYYY HH:mm"); }
+                    if (val.EstArrivalDate != null) { estArrv = moment(val.EstArrivalDate).format("DD-MMM-YYYY HH:mm"); }
+                    if (val.GIDate != null) { GIdate = moment(val.GIDate).format("DD-MMM-YYYY HH:mm"); }
+                    if (val.GRDate != null) { GRdate = moment(val.GRDate).format("DD-MMM-YYYY HH:mm"); }
+
+                    $('#rowTO')
+                        .append("<div class='col-md-12 bar'>"
+                        + "<div class='col-md-2 col-mini'>"
+                        + "<div class='form-group'>"
+                        + "<label>Order Number</label>"
+                        + "<input type='text' class='form-control' value='" + val.STONo + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini'>"
+                        + "<div class='form-group'>"
+                        + "<label>Sender</label>"
+                        + "<input type='text' class='form-control' value='" + val.LocNameSender + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini'>"
+                        + "<div class='form-group'>"
+                        + "<label>Receiver</label>"
+                        + "<input type='text' class='form-control' value='" + val.LocNameReceiver + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini' style='width: 7%;'>"
+                        + "<div class='form-group'>"
+                        + "<label style='width: auto;'>Lead Time</label>"
+                        + "<input type='text' class='form-control' value='" + leadTime + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini'>"
+                        + "<div class='form-group'>"
+                        + "<label>Estimate Arrival</label>"
+                        + "<input type='text' class='form-control' value='" + estArrv + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini' style='width: 13%;'>"
+                        + "<div class='form-group'>"
+                        + "<label>GI</label>"
+                        + "<div class='inner-addon left-addon'>"
+                        + "<i class='glyphicon glyphicon-time' style='float: left; width: 10%;'></i>"
+                        + "<input type='text' style='float: right; width: 90%;' class='form-control' id='GI" + val.IDTransportOrder + "' data-date-format='DD-MMM-YYYY HH:mm' value='" + GIdate + "'>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini' style='width: 13%;'>"
+                        + "<div class='form-group'>"
+                        + "<label>GR</label>"
+                        + "<input type='text' class='form-control' value='" + GRdate + "' disabled>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini'>"
+                        + "<div class='form-group'>"
+                        + "<label>Order Status</label>"
+                        + "<input hidden id='valOrderStatusTra" + val.IDTransportOrder + "' value='" + val.OrderStatus + "'>"
+                        + "<select class='form-control' id='OrderStatusTra" + val.IDTransportOrder + "'></select>"
+                        + "</div>"
+                        + "</div>"
+                        + "<div class='col-md-2 col-mini' style='width: 10%;'>"
+                        + "<div class='form-group' style='text-align: center;'>"
+                        + "<label>Cargo Recv.</label>"
+                        + "<div class='checkbox-deck'>"
+                        + "<input type='checkbox' id='CargoRecv" + val.IDTransportOrder + "'>"
+                        + "<label for='CargoRecv" + val.IDTransportOrder + "'></label>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>");
+
+                    $('#GI' + val.IDTransportOrder + '').datetimepicker();
+
+                    if (val.IsMaterialReceived == true) {
+                        $("#CargoRecv" + val.IDTransportOrder + "").prop('checked', true);
+                    }
+                    else {
+                        $("#CargoRecv" + val.IDTransportOrder + "").prop('checked', false);
+                    }
+
+                    getmasterLoc(val.IDTransportOrder);
+                })
+
+                IDTo = IDTo.slice(0, -1);
+                $('#IDTransportOrder').val(IDTo);
+                $('#modalloadingTra').modal('hide');
+            }
+        });
+    }
+
+    function getmasterLoc(n) {
+        $.ajax({
+            url: '@Url.Action("GetMasterListOrderSts", "TransportationMonitoring")',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $('#OrderStatusTra' + n + '').html('');
+                $.each(data, function (key, val) {
+                    if (val.FieldValue == $('#valOrderStatusTra' + n + '').val()) {
+                        $('#OrderStatusTra' + n + '').append('<option selected value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    }
+                    else {
+                        $('#OrderStatusTra' + n + '').append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    }
+                })
+            }
+        });
+    }
+
+    function removeRowPost(n) {
+        $("#rowPosition" + n + "").remove();
+    }
+
+    function updateTransOrder() {
+        var idto, TO = '', PU = '';
+        var nTO = $("#IDTransportOrder").val().split(',').length - 1;
+        var nPU = $("#addPosition").val();
+
+        for (r = 0; r <= nTO; r++) {
+            idto = $("#IDTransportOrder").val().split(',')[r];
+            TO = TO + idto + ',' + $("#GI" + idto + "").val() + ',' + $("#OrderStatusTra" + idto + "").val() + ',' + $("#CargoRecv" + idto + "").prop('checked') + '|';
+        }
+
+        if (TO.length > 1) { TO = TO.slice(0, -1); }
+
+        for (x = 1; x <= nPU; x++) {
+            if ($("#datePost" + x + "").val() != '' && $("#locPost" + x + "").val() != '') {
+                PU = PU + $("#IDTransportExecution").val() + ',' + $("#datePost" + x + "").val() + ',' + $("#locPost" + x + "").val() + '|';
+            }
+        }
+
+        if (PU.length > 1) { PU = PU.slice(0, -1); }
+
+        $.ajax({
+            url: '@Url.Action("InsertUpdateDataTransOrder", "TransportationMonitoring")',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { valTO: TO, valPU: PU },
+            success: function (result) {
+                window.location.href = '@Url.Action("", "TransportationMonitoring")';
+            }
+        });
+    }
+</script>

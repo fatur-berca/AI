@@ -1,0 +1,932 @@
+
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = " Master Data > Master Trans >Load Factor & CFP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="title-deck wmb">
+    <div class="button-wrap pull-left">
+        <button id="addNew"  class="btn btn-primary" data-toggle="modal" data-target="#addnew">Add New</button>
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadfile" id="btnUploadFile">Upload</button>
+    </div>
+    <a href="#searchfilter" class="search-collapse pull-right" data-toggle="collapse" aria-expanded="true" aria-controls="searchfilter" id="advSrc"><b>Advanced Search </b><i class="fa fa-angle-down"></i></a>
+</div>
+<div class="filter-deck nmb">
+    <div id="searchfilter" class="collapse" role="tabpanel" aria-labelledby="searchfilter">
+        <div class="col-panel wmb wbt">
+            <form id="filter">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Effective Date</label>
+                        <input type="text" name="" id="FilterFrom" class="form-control datepicker">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Vehicle Type</label>
+                        <select id="FilterVehicleType" class="select2" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="button" id="btnSearchFilter" class="btn btn-primary search-filter">Search</button>
+                    <button type="button" id="btnResetFilter" class="btn btn-purple reset-search-filter">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table id="dtFilterMaster" class="display table dataTable table-condensed">
+    <thead>
+        <tr>
+            <th width=5% nowrap><div align="center">Active</div></th>            
+            <th>Vehicle Type</th>
+            <th>Mode</th>
+            <th>Km/Liter</th>
+            <th>Weight/Stick</th>
+            <th>Fuel Consumption</th>
+            <th>Brand Category</th>
+            <th>Max Qty</th>
+            <th>Start Date</th>
+            <th>End Date</th>        
+            <th>Last Update</th>
+            <th hidden>Last Update</th>          
+            <th width=5% nowrap ><div align="center">Action</div></th>
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="filter-row">      
+            <th width=5% nowrap><div align="center"></div></th>                 
+            <th>Vehicle Type</th>
+            <th>Mode</th>
+            <th>Km/Liter</th>
+            <th>Weight/Stick</th>
+            <th>Fuel Consumption</th>
+            <th>Brand Category</th>
+            <th>Max Qty</th>  
+            <th>Start Date</th>
+            <th>End Date</th>         
+            <th>Last Update</th>
+            <th hidden>Last Update</th>         
+            <th width=5% nowrap ><div align="center"></div></th>
+        </tr>
+    </thead>    
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Data Load Factor & CFP</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-24">
+                    <form id="newData">
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>InsertOrUpdate</label>
+                                    <input type="text" id="InsertOrUpdate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" hidden>
+                            <div class="col-md-24">
+                                <div class="form-group">
+                                    <label>IDLoadFactorCFP</label>
+                                    <input type="text" id="IDLoadFactorCFP" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Vehicle Type</label>
+                                    @*<select class="form-control" id="VehicleType"></select>*@
+                                    @Html.DropDownList("VehicleType", (SelectList)ViewBag.ListVehicle, string.Empty, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Brand</label>
+                                    @*<select class="form-control" id="BrandCategory"></select>*@
+                                    @Html.DropDownList("BrandCategory", (SelectList) ViewBag.ListBrandCategory, string.Empty, new {@class = "form-control"})
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Mode</label>
+                                    @*<select class="form-control" id="Mode"></select>*@
+                                    @Html.DropDownList("Mode", (SelectList)ViewBag.ListModel, string.Empty, new { @class = "form-control"})
+                                </div>
+                            </div>                        
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Km/Liter</label>
+                                    <input id="KMperLiter" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Fuel Consumption</label>
+                                    <input id="KgCO2perLiter" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Maximum QTY</label>
+                                    <input type="number" id="MaxQty" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Weight/Stick</label>
+                                    <input id="Weight_perstick" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Active</label>
+                                    <select class="form-control" id="Status">
+                                        <option value="1">YES</option>
+                                        <option value="0">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="disESD" class="col-md-5">
+                                <div class="form-group">
+                                    <label>Effective Date</label>
+                                    <input type="text" id="effecStartDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                            <div id="disTO" class="col-md-1">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <div style="padding-top: 10px">TO</div>
+                                </div>
+                            </div>
+                            <div id="disEED" class="col-md-6">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <input type="text" id="effecEndDate" class="form-control datepicker" data-date-format="DD/MM/YYYY">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNew">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="setinactive" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Data Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure want to Edit Data?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-purple" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="btnSaveYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-sucess" id="modalsuccess" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/checked.png" alt="">
+                <span id="labelsuccess"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ml-error" id="modalerror" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body">
+                <img src="assets/images/cancel.png" alt="">
+                <span id="textModalError"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Loading" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"><img src="assets/images/loading.gif" alt=""><span> Please wait...</span></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<div id="modalError" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="notificationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">TOM Notification Center</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+@*Partial View*@
+@Html.Action("PartialViewUploadFile")
+<script type="text/javascript">
+    // page   : MasterList
+    // author : hakim
+    // ticket :
+    // date   : 2017-08-11
+    $("#FilterFrom").val(moment(new Date()).format("DD/MM/YYYY"));
+    generateDropDownVehicleTypeFilter("Light");
+    generateTable("Light");
+
+    $(document).ready(function () {
+        //$(function () {
+        // BEGIN : GENERAL Logic
+        
+        // clear field when click add new btn
+        $('#addNew').click(function () {
+            resetData();
+            $('#InsertOrUpdate').val("INSERT");
+            generateDropDownVehicleType();
+            generateDropDownBrandCategory();
+           // generateDropDownMode();            
+           
+        });
+        // END : GENERAL Logic
+    });
+    
+    $('#btnSaveYes').click(function () {
+        edit();
+        $('#setinactive').modal('hide');
+        $('#addnew').modal('hide');
+    });
+
+    $('#btnSaveNew').click(function () {
+        if (!validation()) {
+            //alert($('#newData').find('input[id="InsertOrUpdate"]').val());
+            if ($('#newData').find('input[id="InsertOrUpdate"]').val() == "UPDATE") {
+                $('#setinactive').modal('show');
+            } else {
+                save();
+            }
+        }
+    });
+
+    $("#effecStartDate").on("dp.change", function () {
+        if ($("#effecEndDate").val() == "" || $("#effecEndDate").val() === null || $("#effecEndDate").val() === undefined)
+            $("#effecEndDate").val(moment('2999/12/31').format("DD/MM/YYYY"));
+    });
+
+
+    $("#effecEndDate").on("dp.change", function () {
+        if ($("#effecEndDate").val() == "" || $("#effecEndDate").val() === null || $("#effecEndDate").val() === undefined)
+            $("#effecEndDate").val(moment('2999/12/31').format("DD/MM/YYYY"));
+    });
+
+    function validation() {
+        var VehicleType = $('#VehicleType').val();
+        var Mode = $('#Mode').val();
+        var BrandCategory = $('#BrandCategory').val();
+        var KMperLiter = $('#KMperLiter').val();
+        var Weight_perstick = $('#Weight_perstick').val();
+        var KgCO2perLiter = $('#KgCO2perLiter').val();
+        var MaxQty = $('#MaxQty').val();
+        var containError = false;
+        var error = "";
+        //var regexValidator = /^\d+[\,]{0,1}\d+$/gi
+        var regexValidator = /^\d+\,?\d*$/gi
+        //console.log("VehicleType value: " + VehicleType);
+        //console.log("BrandCategory value: " + BrandCategory);
+        //console.log("Mode value: " + Mode);
+        //console.log("Fuel consumption: " + KgCO2perLiter);
+        if (VehicleType == null || VehicleType == "NULL" || VehicleType == undefined || VehicleType == "") {
+            containError = true;
+            error += "Vehicle Type must be selected</br>";
+            
+        }
+        if (BrandCategory == null || BrandCategory == "NULL"|| BrandCategory == undefined || BrandCategory == "") {
+            containError = true;            
+            error += "Brand Category must be selected</br>";
+            
+        }
+       
+        if (Mode == null || Mode == "NULL" || Mode == undefined || Mode == "") {
+            containError = true;
+            error += "Mode must be selected</br>";
+
+        }
+        if (KMperLiter == null || KMperLiter == undefined || KMperLiter == "") {
+            containError = true;
+            error += "KM/Liter is null</br>";
+
+        }
+        if (MaxQty == null || MaxQty == undefined || MaxQty == "") {
+            containError = true;
+            error += "MaxQty is null</br>";
+
+        }
+        if (Weight_perstick == null || Weight_perstick == undefined || Weight_perstick == "") {
+            containError = true;
+            error += "Weight/stick is null</br>";
+
+        }
+
+        if (KMperLiter != null && KMperLiter != undefined && KMperLiter != "") {
+            if (KMperLiter.match(regexValidator) != null) {
+                if (KMperLiter.match(regexValidator).length == 1) {
+                    if (KMperLiter.includes(",")) {
+                        var digit = KMperLiter.split(",")[1].length;
+                        if (digit > 2) {
+                            containError = true;
+                            error += "KM/Liter Digit precision must be less than or equal to 4 digits</br>";
+                        }
+                    }
+                    else {
+                        KMperLiter += ",0";
+                    }
+                }
+            } else {
+                containError = true;
+                error += "KM/Liter Format should be a number</br>";
+            }
+        }
+        if (KgCO2perLiter != null && KgCO2perLiter != undefined && KgCO2perLiter != "") {
+            if (KgCO2perLiter.match(regexValidator) != null) {
+                if (KgCO2perLiter.match(regexValidator).length == 1) {
+                    if (KgCO2perLiter.includes(",")) {
+                        var digit = KgCO2perLiter.split(",")[1].length;
+                        if (digit > 4) {
+                            containError = true;
+                            error += "Fuel Consumption Digit precision must be less than or equal to 4 digits</br>";
+                        }
+                    }
+                    else {
+                        KgCO2perLiter += ",0";
+                    }
+                }
+            } else {
+                containError = true;
+                error += "Fuel Consumption Format should be a number</br>";
+            }
+        }
+       
+        if (Weight_perstick != null && Weight_perstick != undefined && Weight_perstick != "") {
+            if (Weight_perstick.match(regexValidator) != null) {
+                if (Weight_perstick.match(regexValidator).length == 1) {
+                    if (Weight_perstick.includes(",")) {
+                        var digit = Weight_perstick.split(",")[1].length;
+                        if (digit > 20) {
+                            containError = true;
+                            error += "Weight/Stick Digit precision must be less than or equal to 4 digits</br>";
+                        }
+                    }
+                    else {
+                        Weight_perstick += ",0";
+                    }
+                }
+            } else {
+                containError = true;
+                error += "Weight/Stick Format should be a number</br>";
+            }
+        }
+        if (containError)
+        {
+            $("#errorMessage").html(error);
+            $("#modalError").modal();
+        }
+        return containError;
+
+    }
+
+    function resetData() {
+        $('#newData')[0].reset();
+    }
+
+
+    // END : GENERAL Logic
+
+    // BEGIN : JQUERY SELECT TO DataTable
+    //call generate table
+    //generateTable();    
+    //generateDropDownVehicleType();    
+
+    function generateDropDownVehicleTypeFilter(defaultValue) {
+        $select2 = $("#FilterVehicleType");
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstDataLoadFactorCFP/GetListForCPF',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                $select2.html('');
+                $.each(data,
+                    function(key, val) {
+                        $select2.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            complete: function() {
+                if (defaultValue != "" || defaultValue !== null || defaultValue !== undefined) {
+                    $("#FilterVehicleType").select2('val', defaultValue);
+                }
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownVehicleType() {
+        //get a reference to the select element
+        $select = $('#VehicleType');
+        
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstDataLoadFactorCFP/GetListForCPF',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                //clear the current content of the select
+                $select.html('');
+                $select2.html('');
+                //iterate over the data and append a select option
+                $select.html('<option value="NULL"></option>').trigger('change');
+                $select2.html('<option value="NULL"></option>').trigger('change');
+                $.each(data,
+                    function(key, val) {
+                        $select.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                        $select2.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownBrandCategory() { // ini yg diapnggil
+        //get a reference to the select element
+        $select1 = $('#BrandCategory');
+       
+        //request the JSON data and parse into the select element
+        $.ajax({
+            //url: 'MstList/GetListForBrandCategory',
+            url: '@Url.Action("GetFABrands")',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                //clear the current content of the select
+                $select1.html('');
+                //iterate over the data and append a select option
+                $select1.html('<option value="NULL"></option>').trigger('change');
+                $.each(data,
+                    function(kunci, tampung) {
+                        $select1.append('<option value="' + tampung + '">' + tampung + '</option>');
+                    });
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select1.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+
+    function generateDropDownMode() {
+        //get a reference to the select element
+        $select3 = $('#Mode');
+
+        //request the JSON data and parse into the select element
+        $.ajax({
+            url: 'MstDataLoadFactorCFP/GetListForModel',
+            dataType: 'JSON',
+            cache: false,
+            success: function (data) {
+                //clear the current content of the select
+                $select3.html('');
+                //iterate over the data and append a select option
+                $select3.html('<option value="NULL"></option>').trigger('change');
+                $.each(data,
+                    function(key, val) {
+                        $select3.append('<option value="' + val.FieldValue + '">' + val.FieldValue + '</option>');
+                    });
+            },
+            error: function () {
+                //if there is an error append a 'none available' option
+                $select3.html('<option value="NULL">none available</option>');
+            }
+        });
+    }
+    //generate table
+
+    $("#btnSearchFilter").click(function() {
+        generateTable();
+    });
+
+    $("#btnResetFilter").click(function() {
+        $("#FilterFrom").val("");
+        $("#FilterVehicleType").select2('val', "Light");
+        generateTable();
+    });
+
+    function generateTable(vecType) {
+        var filterDateFrom = $("#FilterFrom").val();
+        var filterVehicleType = $("#FilterVehicleType").val();
+        var filterDateParam = null;
+        var filterVehicleTypeParam = null;
+        console.log(filterDateFrom);
+        if (filterDateFrom != "" && filterDateFrom !== null && filterDateFrom !== undefined) {
+            var splitStartDate = $('#FilterFrom').val().split("/");
+            var strStartDate = splitStartDate[2] + "-" + splitStartDate[1] + "-" + splitStartDate[0];
+            var dStart = moment(strStartDate.toString());
+            filterDateParam = dStart.toISOString();
+        }
+
+        if (filterVehicleType != "" && filterVehicleType !== null && filterVehicleType !== undefined) {
+            filterVehicleTypeParam = filterVehicleType;
+        }
+
+        if (vecType != "" && vecType !== null && vecType !== undefined) {
+            filterVehicleTypeParam = vecType;
+        }
+
+        $.ajax({
+            url: 'MstDataLoadFactorCFP/GetMasterLoadFactorCFP',
+            method: 'post',
+            cache : false,
+            dataType: 'json',
+            data: {
+                "StartDate": filterDateParam,
+                "VehicleTypeListFilter": filterVehicleTypeParam
+            },
+            success: function (data) {
+                //console.log(data);
+                var table = $('#dtFilterMaster').DataTable({
+                    "destroy": true,
+                    data: data,
+                    'paging': true,
+                    'sort': true,
+                    "iDisplayLength": 25,
+                    aaSorting: [[11, 'desc']],
+                    'searching': true,
+                    columns: [
+                        {
+                            "data": "IsActive", "class": "text-center", "render": function (data) {
+                                if (data == true) {
+                                    return '<div><img src="assets/images/circlegreen.png" alt=""height="15" width="15"></div>';
+                                } else { return '<div><img src="assets/images/circlered.png" alt=""height="15" width="15"></div>'; }
+                            }
+                        },
+                        { 'data': 'VehicleType', 'searchable': true },
+                        { 'data': 'Mode', 'searchable': true },
+                        { 'data': '_KMperLiter', 'searchable': true },
+                        { 'data': '_WeightperStick', 'searchable': true },
+                        { 'data': '_KgCO2perLiter', 'searchable': true },
+                        { 'data': 'BrandCategory', 'searchable': true },
+                        { 'data': 'MaxQty', 'searchable': true },
+                        {
+                            'data': 'StartDate', "render": function (data, type, row) {
+                                var tanggal = moment(row['StartDate']).format("DD-MMM-YYYY");
+                                return tanggal;
+                            }
+                        },
+                        {
+                            'data': 'EndDate', "render": function (data, type, row) {
+                                var tanggal = moment(row['EndDate']).format("DD-MMM-YYYY");
+                                return tanggal;
+                            }
+                        },
+                        {
+                            render: function (data, type, row) {
+                                // var tes = { data: 'UpdatedDate', } + { data: 'UpdatedBy' };  
+                                var date = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                var formatted = date.getFullYear() + "-" +
+                                    ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                                    ("0" + date.getDate()).slice(-2) + " " + date.getHours() + ":" +
+                                    date.getMinutes();
+                                //var dt = new Date(parseInt(row['UpdatedDate'].substr(6)));
+                                //var dtStr = dt.toString();
+                                //var date = dtStr.substr(8, 2) + " " + (dtStr.substr(4, 3)) + " " + dtStr.substr(11, 4) + " " + dt.getHours() + ":" +
+                                //      dt.getMinutes();
+                                var jamtanggal = moment(row['UpdatedDate']).format("DD-MMM-YYYY HH:mm");
+                                return '<label hidden>' + row['UpdatedDate'] + '</label>by ' + row['UpdatedBy'] + ' on ' + jamtanggal;
+                            }
+                        },
+                        { 'data': 'UpdatedDate', 'class': 'hidden' },
+                        {
+                            "data": "IDLoadFactorCFP", "render": function (data) {
+                                return '<div  align="center"><a href="#" id="editForm" onclick="return editTable(' + "'" + data + "'" + ')"><i data-toggle="modal" class="fa fa-pencil-square-o" ></i></a></div>';
+                            }
+                        }
+                    ],
+                    "dom": 'lf<"table-overflow"t>ip',
+                    orderCellsTop: true
+                });
+
+                $('.dataTables_filter input').attr("placeholder", "Search Here");
+                // Setup - add a text input to each footer cell
+                $('#dtFilterMaster thead.filters th').each(function (index) {
+                    if ((index >= 1) && (index < 11)) {
+                        var title = $('#dtFilterMaster thead.filters th').eq($(this).index()).text();
+                        $(this).html('<input type="search" class="form-control mini" placeholder="Search ' + title + '" />');
+                    }
+                });
+
+                //searching with column on datatable
+                table.columns().every(function (index) {
+                    $('#dtFilterMaster thead.filters th:eq(' + index + ') input').on('input', function () {
+                        table.column($(this).parent().index() + ':visible')
+                            .search(this.value)
+                            .draw();
+                    });
+                });
+            }
+        });
+    }
+    // END : JQUERY SELECT TO DataTable
+
+    // BEGIN : Insert New Data
+ 
+    function save() {
+        $('#Loading').modal('show');
+        //var data = $('#newData').serialize();
+        var id = $('#newData').find('input[id="IDLoadFactorCFP"]').val();
+        var vehicletype = $('#VehicleType :selected').val();
+        var brandcategory = $('#BrandCategory :selected').val();
+        var mode = $('#Mode :selected').val();
+        var weightperstick = $('#newData').find('input[id="Weight_perstick"]').val().replace(",", ".");
+        var kmperliter = $('#newData').find('input[id="KMperLiter"]').val().replace(",", ".");
+        var kgco2perliter = $('#newData').find('input[id="KgCO2perLiter"]').val().replace(",", ".");
+        var maxqty = $('#newData').find('input[id="MaxQty"]').val().replace(",", ".");
+       
+        var splitStartDate = $('#effecStartDate').val().split("/");
+        var strStartDate = splitStartDate[2] + "-" + splitStartDate[1] + "-" + splitStartDate[0];
+        var dStart = moment(strStartDate.toString());
+        var effectiveStartDate = dStart.toISOString();
+        var effectiveEndDate;
+        if ($('#effecEndDate').val() != "") {
+            var splitEndDate = $('#effecEndDate').val().split("/");
+            var strEndDate = splitEndDate[2] + "-" + splitEndDate[1] + "-" + splitEndDate[0];
+            var dEnd = moment(strEndDate.toString());
+            effectiveEndDate = dEnd.toISOString();
+        }
+
+        if (dStart > dEnd) {
+
+            $("#textModalError").html("Start Date cannot be Greater than End Date");
+            $('#modalerror').modal('show');
+            dialog.modal('hide');
+            return;
+        };
+
+        var status = $('#Status :selected').val() == 1 ? true : false;       
+        var data = {
+            "new": [{
+                "IDLoadFactorCFP": id, "VehicleType": vehicletype, "BrandCategory": brandcategory, "KMperLiter": parseFloat(kmperliter).toFixed(2), "KgCO2perLiter": parseFloat(kgco2perliter), "MaxQty": maxqty, "IsActive": status,
+                "mode": mode, "WeightperStick": parseFloat(weightperstick).toFixed(9), "StartDate": effectiveStartDate, "EndDate": effectiveEndDate
+            }],
+            "edit": [{}]
+        };
+        //console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: 'MstDataLoadFactorCFP/InsertLoadFactorCFP',
+            data: data,
+            success: function (data) {
+              
+                if (data.New) {
+                    $.each(data.New, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                            //alert(value.ResponseType);
+                            //generateTable();
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                            $('#labelsuccess').html('Your data has been successfully saved');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $("#textModalError").html("Sorry, the inputted data exists or your connection is lost");
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+
+                    });
+                }
+          
+            }
+        });
+    }
+    // END : Insert New Data
+
+    // BEGIN : Edit Data
+    // get edit data and assign to modal
+    function editTable(id) {
+        resetData();
+        $('#InsertOrUpdate').val("UPDATE");
+        //generateDropDownVehicleType();
+        //generateDropDownBrandCategory();
+        
+        $.ajax({
+            url: 'MstDataLoadFactorCFP/GetDataById',
+            type: "GET",
+            cache : false,
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: { "IDLoadFactorCFP": id },
+            success: function (json) {
+                //alert(json.Mode);
+                $('#IDLoadFactorCFP').val(json.IDLoadFactorCFP);
+               
+                var mode = json.Mode; //utk nmpung properti data dari table
+                $("#Mode option").each(function (index, value) {     //iterasi
+                    if (value.value != "" && value.value!=null) {    //pilih yg gak kosong atau null
+                        if (mode.toLowerCase() == value.value.toLowerCase()){  //klo mode == value.value (value dari dropdownlist)
+                            mode = value.value;
+                        }
+                    }
+                });
+                $('#Mode').val(mode).trigger('change');
+
+                var vehicleType = json.VehicleType;
+                //console.log(VehicleType);
+                $("#VehicleType option").each(function (index, value) {   
+                    if (value.value != "" && value.value != null) {    
+                        if (vehicleType.toLowerCase() == value.value.toLowerCase()) {  
+                            vehicleType = value.value;
+                        }
+                    }
+                });
+                $('#VehicleType').val(vehicleType).trigger('change');
+
+                var brandCategory = json.BrandCategory;
+                $("#BrandCategory option").each(function (index, value) {
+                    if (value.value != "" && value.value != null) {   
+                        if (brandCategory.toLowerCase() == value.value.toLowerCase()) {
+                            brandCategory = value.value;
+                        }
+                    }
+                });
+                $('#BrandCategory').val(brandCategory).trigger('change');
+
+                var tes = json._WeightperStick;
+               
+                $('#Weight_perstick').val(json._WeightperStick);
+                $('#KMperLiter').val(json._KMperLiter);
+                $('#KgCO2perLiter').val(json._KgCO2perLiter);
+                $('#MaxQty').val(json.MaxQty);
+              
+                $('#effecStartDate').val(moment(json.StartDate).format("DD/MM/YYYY"));
+                $('#effecEndDate').val(moment(json.EndDate).format("DD/MM/YYYY"));
+                if (json.IsActive) {
+                    $('#Status').val("1");
+                } else {
+                    $('#Status').val("0");
+                }
+
+                ////close modal
+                $('#addnew').modal('show');
+
+            }
+        });
+    }
+
+    //update edited data
+    function edit() {
+        $('#Loading').modal('show');
+        //var data = $('#newData').serialize();
+        var id = $('#newData').find('input[id="IDLoadFactorCFP"]').val();
+        var vehicletype = $('#VehicleType :selected').val();
+        var brandcategory = $('#BrandCategory :selected').val();
+        var mode = $('#Mode :selected').val();
+        var kmperliter = $('#newData').find('input[id="KMperLiter"]').val().replace(",", ".");
+        var kgco2perliter = $('#newData').find('input[id="KgCO2perLiter"]').val().replace(",", ".");
+        var weightperstick = $('#newData').find('input[id="Weight_perstick"]').val().replace(",", ".");
+        var maxqty = $('#newData').find('input[id="MaxQty"]').val();
+
+        var splitStartDate = $('#effecStartDate').val().split("/");
+        var strStartDate = splitStartDate[2] + "-" + splitStartDate[1] + "-" + splitStartDate[0];
+        var dStart = moment(strStartDate.toString());
+        var effectiveStartDate = dStart.toISOString();
+        var effectiveEndDate;
+        if ($('#effecEndDate').val() != "") {
+            var splitEndDate = $('#effecEndDate').val().split("/");
+            var strEndDate = splitEndDate[2] + "-" + splitEndDate[1] + "-" + splitEndDate[0];
+            var dEnd = moment(strEndDate.toString());
+            effectiveEndDate = dEnd.toISOString();
+        }
+
+        if (dStart > dEnd) {
+
+            $("#textModalError").html("Start Date cannot be Greater than End Date");
+            $('#modalerror').modal('show');
+            dialog.modal('hide');
+            return;
+        };
+    
+        var status = $('#Status :selected').val() == 1 ? true : false;
+
+        //console.log(weightperstick);
+        //console.log(parseFloat(weightperstick));
+
+        var data = {
+            "new": [{}],
+            "edit": [{
+                "IDLoadFactorCFP": id, "VehicleType": vehicletype, "BrandCategory": brandcategory, "KMperLiter": parseFloat(kmperliter).toFixed(2), "KgCO2perLiter": parseFloat(kgco2perliter), "MaxQty": maxqty, "IsActive": status,
+                "mode": mode, "WeightperStick": parseFloat(weightperstick).toFixed(9), "StartDate": effectiveStartDate, "EndDate": effectiveEndDate
+            }]
+        };
+        //console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: 'MstDataLoadFactorCFP/InsertLoadFactorCFP',
+            data: data,
+            success: function (data) {              
+               
+                if (data.Edit) {
+                    $.each(data.Edit, function (k, value) {
+                        if (value.ResponseType == "Success") {
+                            //DFIS.Helper.ResponseNotification(k.ResponseNotification, "Insert Master List", value.FieldName + " - " + value.FieldValue);
+                            //alert(value.ResponseType);
+                            //generateTable();
+                            generateTable();
+                            $('#modalsuccess').modal('show');
+                            $('#labelsuccess').html('Your data has been successfully saved');
+                            $('#Loading').modal('hide');
+                            resetData();
+                        } else {
+                            $("#textModalError").html("Sorry, the inputted data exists or your connection is lost");
+                            $('#modalerror').modal('show');
+                            $('#Loading').modal('hide');
+                        }
+
+                    });
+                }
+            }
+        });
+    }
+
+</script>

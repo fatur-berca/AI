@@ -1,0 +1,380 @@
+﻿@using System.Web.Mvc.Html;
+@using EnumHelper = DFIS.Utils.EnumHelper
+@{
+    ViewBag.Title = "Transaction > Transportation Seal > Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="title-deck wmb">
+            <div class="">
+                @*@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Back)))
+                {
+                    <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "DriverManagement")'">Back</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                    <button class="btn btn-primary" id="editButton">Edit</button>
+                }
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+                {
+                    <button class="btn btn-primary" id="saveButton" onclick="confirmSave()">Save</button>
+                }*@
+                <button class="btn btn-purple" onclick="window.location.href = '@Url.Action("Index", "TransportationSeal")'">Back</button>
+                @if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Edit)))
+                {
+                <button class="btn btn-primary" id="editButton">Edit</button>
+                }
+@if (ViewBag.ButtonAccess.Contains(EnumHelper.GetDescription(DFIS.Utils.Enums.ButtonName.Save)))
+{
+                <button class="btn btn-primary" id="saveButton" onclick="save()">Save</button>
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12" >
+        <div class="box" >
+            <form>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="transportationNumber">TRANSPORTATION NUMBER</label>
+                            <input id="transportationNumber" class="form-control datepicker">
+                            <input id="IDTransportExecution" type="hidden" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="inputRow"></div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group" id="divsealNumber[0]">
+                            <label for="sealNumber">Seal Number</label>
+                            @*<input id="sealNumber" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group" id="divsealActivity[0]">
+                            <label for="sealActivity">Activity</label>
+                            @*<input id="sealActivity" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divlocation[0]">
+                            <label for="location">Location</label>
+                            @*<input id="location" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divdateandtime[0]">
+                            <label for="dateandtime">Date And Time</label>
+                            @*<input id="dateandtime" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divremarks[0]">
+                            <label for="remarks">Remarks</label>
+                            @*<input id="remarks" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divuser[0]">
+                            <label for="user">User</label>
+                            @*<input id="user" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group" id="divremove">
+                            <a class="btn-delete-route" onclick="removeElement()">
+                                <span role="button" style="position: absolute; right: 50px; top: 30px; "><i class="fa fa-trash" style="height: 30px; width: 30px; color:black"></i></span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group" id="divsealActivity[1]">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divlocation[1]">
+                            @*<label for="location">Location</label>*@
+                            @*<input id="location1" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divdateandtime[1]">
+                            @*<label for="dateandtime">Date And Time</label>*@
+                            @*<input id="dateandtime1" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divremarks[1]">
+                            @*<label for="remarks">Remarks</label>*@
+                            @*<input id="remarks1" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="divuser[1]">
+                            @*<label for="user">User</label>*@
+                            @*<input id="user1" type="text" class="form-control">*@
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" id="">
+                            @*<label for="user">User</label>*@
+                            @*<input id="user" type="text" class="form-control">*@
+                            
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#saveButton').prop("disabled", true);
+        $('#IDTransportExecution').val();
+        generateInput();
+    });
+
+    function ResetData() {
+
+    }
+
+    $(document).on("click", "#editButton", function (e) {
+        for (var i = 0; i < totalinputRecord; i++) {
+            document.getElementById('remarks[' + i + ']').disabled = false;
+            document.getElementById('dateandtime[' + i + ']').disabled = false;
+
+            $('#saveButton').prop("disabled", false);
+            $(this).prop("disabled", true);
+        }
+    });
+
+    function gup(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href);
+        if (results == null)
+            return "";
+        else {
+            for (i = 0; i < results[1].length; i++) {
+                results[1] = results[1].replace("%20", " ");
+                results[1] = results[1].replace("%27", "'");
+            }
+            return results[1];
+        }
+    }
+
+    function createElement(elementType,elementAttr, id, elementClass, parent, state) {
+        var newElement = document.createElement(elementAttr);
+        newElement.setAttribute('id', id);
+        newElement.setAttribute('type', elementType);
+        newElement.setAttribute('class', elementClass);
+        newElement.setAttribute('disabled', state);
+        var element = document.getElementById(parent);
+        element.appendChild(newElement);
+        //$('.select2').select2();
+    }
+
+    $('body').on('focus', ".datepicker", function () {
+        $(this).datetimepicker({
+            format: 'DD-MMM-YYYY HH:mm:ss'
+        });
+    });
+
+    var totalinputRecord = 0;
+    function generateInput() {
+        var input = {
+            SealNumber: gup("sn"),
+            SortExpression: "SealNumber",
+            SortOrder: "ASC",
+            SortExpression2: "SealActivity"
+        };
+        $.ajax({
+            url: '@Url.Action("GetData", "TransportationSeal")',
+            method: 'get',
+            dataType: 'json',
+            data: input,
+            cache: false,
+            success: function (json) {
+                totalinputRecord = json.length;
+                $('#transportationNumber').val(json[0].TransportExecution.TransportNo);
+                document.getElementById('transportationNumber').setAttribute("disabled", true);
+                $('#IDTransportExecution').val(json[0].TransportExecution.IDTransportExecution);
+
+                createElement("text", "input", "sealNumber[0]", "form-control", "divsealNumber[0]", true);
+                document.getElementById("sealNumber[0]").value = json[0].SealNumber;
+                for (var i = 0; i < json.length; i++) {
+                    createElement("hidden", "input", "idtransportseal[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("idtransportseal[" + i + "]").value = json[i].IDTransportSeal;
+
+                    createElement("hidden", "input", "isactive[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("isactive[" + i + "]").value = json[i].IsActive;
+
+                    createElement("text", "input", "sealActivity[" + i + "]", "form-control", "divsealActivity[" + i + "]", true);
+                    document.getElementById("sealActivity[" + i + "]").value = json[i].SealActivity;
+
+                    createElement("text", "input", "location[" + i + "]", "form-control", "divlocation[" + i + "]", true);
+                    document.getElementById("location[" + i + "]").value = json[i].LocationName;
+                    document.getElementById("location[" + i + "]").innerHTML = json[i].LocationName;
+
+                    createElement("text", "input", "dateandtime[" + i + "]", "form-control datepicker", "divdateandtime[" + i + "]", true);
+                    document.getElementById("dateandtime[" + i + "]").value = moment(json[i].SealTime).format("DD-MMM-YYYY HH:mm:ss");
+
+                    createElement("text", "input", "remarks[" + i + "]", "form-control", "divremarks[" + i + "]", true);
+                    document.getElementById("remarks[" + i + "]").value = json[i].Remarks;
+
+                    createElement("text", "input", "user[" + i + "]", "form-control", "divuser[" + i + "]", true);
+                    document.getElementById("user[" + i + "]").value = json[i].CreatedByFullName;
+
+
+                }
+            }
+        });
+    }
+
+    function removeElement() {
+        var TN = $("#transportationNumber").val();
+        var SN = gup("sn");
+
+        console.log(SN);
+        bootbox.confirm({
+            title: "TOM Notification Center",
+            message: "Are you sure you want to delete this data?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-primary'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-purple'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    bootbox.dialog({
+                        message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Deleting data...</div>',
+                        closeButton: false
+                    });
+
+                    $.ajax({
+                        url: '@Url.Action("DeleteSealNumber")',
+                        method: 'POST',
+                        data: { transportationNumber : TN, sealNumber : SN },
+                        success: function (result) {
+                            bootbox.hideAll();
+                            if (result == true) {
+                                //bootbox.alert("<div class='modal-body'><img src='assets/images/checked.png' alt=''><span>Data has been successfully deleted.</span></div>");
+                                document.getElementById("sealNumber[0]").setAttribute("type", "hidden");
+                                for (var i = 0; i < totalinputRecord; i++) {
+                                    document.getElementById("location[" + i + "]").setAttribute("type", "hidden");
+                                    document.getElementById("sealActivity[" + i + "]").setAttribute("type", "hidden");
+                                    document.getElementById("dateandtime[" + i + "]").setAttribute("type", "hidden");
+                                    document.getElementById("remarks[" + i + "]").setAttribute("type", "hidden");
+                                    document.getElementById("user[" + i + "]").setAttribute("type", "hidden");
+                                    document.getElementById("isactive[" + i + "]").value = 0;
+                                }
+
+                                window.location.href = '@Url.Action("Index", "TransportationSeal")';
+                            } else {
+                                bootbox.alert("Error while deleting data");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function save() {
+        var nonvalid = false;
+        if (document.getElementById("dateandtime[0]").value == "") {
+            document.getElementById("dateandtime[0]").style.borderColor = "orange";
+            nonvalid = true;
+        }
+        if (document.getElementById("dateandtime[1]") != null) {
+            if (document.getElementById("dateandtime[1]").value == "") {
+                document.getElementById("dateandtime[1]").style.borderColor = "orange";
+                nonvalid = true;
+            }
+        }
+
+        if (nonvalid) {
+            alertCrPleaseFill();
+
+            return false;
+        } else {
+            document.getElementById("dateandtime[0]").style.borderColor = "#ccc";
+            if (document.getElementById("dateandtime[1]") != null) document.getElementById("dateandtime[1]").style.borderColor = "#ccc";
+
+            var dialogloading = bootbox.dialog({
+                message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Please Wait...</div>',
+                closeButton: false
+            });
+
+            var data;
+            console.log(totalinputRecord);
+            if (totalinputRecord == 1) {
+                data = {
+                    "new": [{}],
+                    "edit": [{ IDTransportSeal: document.getElementById("idtransportseal[0]").value, SealTime: document.getElementById("dateandtime[0]").value, Remarks: document.getElementById("remarks[0]").value, IsActive: document.getElementById("isactive[0]").value }]
+                };
+            } else {
+                data = {
+                    "new": [{}],
+                    "edit": [
+                        { IDTransportSeal: document.getElementById("idtransportseal[0]").value, SealTime: document.getElementById("dateandtime[0]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"), Remarks: document.getElementById("remarks[0]").value, IsActive: document.getElementById("isactive[0]").value },
+                        { IDTransportSeal: document.getElementById("idtransportseal[1]").value, SealTime: document.getElementById("dateandtime[1]").value.replace(/(\d\d)\/(\d\d)\/(\d{4})/, "$3-$2-$1"), Remarks: document.getElementById("remarks[1]").value, IsActive: document.getElementById("isactive[1]").value }
+                    ]
+                };
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("InsertList", "TransportationSeal")',
+                data: data,
+                success: function (result) {
+                    dialogloading.modal("hide");
+                    //console.log(result.Edit[0].ResponseType);
+                    if ((result.Edit[0].ResponseType === "Invalid") || (result.Edit[0].ResponseType === "Error")) {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: "<div class='text-left'><img src='../assets/images/danger.png' alt=''>" + result.Edit[0].Message + "</div>",
+                            closeButton: false,
+                            backdrop: true
+                        });
+                    } else if (result.Edit[0].ResponseType === "Success") {
+                        bootbox.alert({
+                            title: "TOM Notification Center",
+                            message: "<div class='text-left'><img src='../assets/images/checked.png' alt=''>" + result.Edit[0].Message + "</div>",
+                            closeButton: false,
+                            backdrop: true
+                        });
+                        for (var i = 0; i < totalinputRecord; i++) {
+                            document.getElementById('remarks[' + i + ']').disabled = true;
+                            document.getElementById('dateandtime[' + i + ']').disabled = true;
+
+                            $('#saveButton').prop("disabled", true);
+                            $('#editButton').prop("disabled", false);
+                        }
+                    }
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,110 @@
+﻿@model hms_tom_dev.Models.Transport.TransportLostClaimDamageViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="uploadBoxCondition3" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Upload Box Condition</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <canvas id="canvasBoxCondition3" width="500" height="500"></canvas>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="box interactive">
+                            <h5>Picture Upload</h5>
+                            <input id="fileInputBoxCondition3" type="file" class="filestyle" name="" accept=".jpg">
+                            <hr>
+                            <h5>Add/Clear Arrow</h5>
+                            <button class="btn btn-primary" id="addMarker3">Add</button>
+                            <button class="btn btn-purple" id="clearMarker3">Clear All</button>
+                            <hr>
+                            <h5>Description</h5>
+                            <textarea class="form-control" rows="2" id="descUploadBoxCond3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnUploadCondBox3">Upload</button>
+                <button type="button" class="btn btn-purple" data-dismiss="modal" id="btnClose">Back</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    if ($("#fileInputBoxCondition3").val() == '') {
+        $("#btnUploadCondBox3").prop("disabled", true);
+        $("#addMarker3").prop("disabled", true);
+        $("#clearMarker3").prop("disabled", true);
+        $("#descUploadBoxCond3").prop("disabled", true);
+    } else {
+        $("#btnUploadCondBox3").prop("disabled", false);
+        $("#addMarker3").prop("disabled", false);
+        $("#clearMarker3").prop("disabled", false);
+        $("#descUploadBoxCond3").prop("disabled", false);
+    }
+
+    var canvas3 = new fabric.Canvas('canvasBoxCondition3');
+    //canvas.setBackgroundImage('../assets/images/no-image.jpg', canvas.renderAll.bind(canvas), {
+    //    width: canvas.width,
+    //    height: canvas.height,
+    //    originX: 'left',
+    //    originY: 'top'
+    //});
+
+    $('#addMarker3').click(function (e) {
+        var posX = canvas3.width / 2; //* Math.random();
+        var posY = canvas3.height / 2; //* Math.random();
+
+        fabric.Image.fromURL('../assets/images/cursor.png', function (oImg) {
+            oImg.set({
+                left: posX,
+                top: posY
+            });
+            canvas3.add(oImg).setActiveObject(oImg);
+            canvas3.renderAll();
+        });
+    });
+
+    $('#clearMarker3').click(function (e) {
+        var canvasObjects = canvas3.getObjects();
+        while (canvasObjects.length != 0) {
+            canvas3.remove(canvasObjects[0]);
+            canvas3.discardActiveGroup();
+        }
+    });
+
+    $("#fileInputBoxCondition3").on("change", function (e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (f) {
+            var data = f.target.result;
+            fabric.Image.fromURL(data, function (img) {
+                canvas3.setBackgroundImage(img, canvas3.renderAll.bind(canvas3), {
+                    width: canvas3.getWidth(),
+                    height: canvas3.getHeight()
+                });
+            });
+        };
+        reader.readAsDataURL(file);
+        $("#btnUploadCondBox3").prop("disabled", false);
+        $("#addMarker3").prop("disabled", false);
+        $("#clearMarker3").prop("disabled", false);
+        $("#descUploadBoxCond3").prop("disabled", false);
+    });
+
+    $('#btnUploadCondBox3').click(function (e) {
+        var canvas = document.getElementById("canvasBoxCondition3");
+        $("#frontImgBox3").css("background-image", "url('" + canvas.toDataURL("image/jpeg") + "')");
+    });
+
+</script>
+
+
