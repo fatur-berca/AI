@@ -1,3 +1,6 @@
 gspread>=6.0
 requests>=2.31
 PyYAML>=6.0
+# opsional: saran Title/Source dari Claude (claude.enabled: true)
+anthropic>=1.9
+pydantic>=2.0

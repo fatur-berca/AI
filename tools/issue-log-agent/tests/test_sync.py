@@ -1,12 +1,12 @@
-import csv
 from pathlib import Path
 
 import pytest
 
+from issue_log_agent.claude_assist import TitleSuggestion
 from issue_log_agent.config import load_config
-from issue_log_agent.formatter import build_issue
-from issue_log_agent.sheet import SheetIO
-from issue_log_agent.sync import run_sync
+from issue_log_agent.formatter import format_section
+from issue_log_agent.sheet import CsvSpreadsheet, col_letter
+from issue_log_agent.sync import Syncer, status_from_issue
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,12 +22,35 @@ class FakeWorksheet:
     def batch_update(self, data, **kw):
         self.updates.extend(data)
 
+    def cells(self):
+        """A1 -> value, using header names for readability: {(row, header): value}."""
+        headers = self.values[0]
+        out = {}
+        for u in self.updates:
+            col = "".join(c for c in u["range"] if c.isalpha())
+            row = int("".join(c for c in u["range"] if c.isdigit()))
+            idx = next(i for i in range(len(headers)) if col_letter(i) == col)
+            out[(row, headers[idx])] = u["values"][0][0]
+        return out
+
+
+class FakeBook:
+    def __init__(self):
+        csv_book = CsvSpreadsheet(ROOT / "examples")
+        self.sheets = {}
+        for tab in ("FEATURE", "BUG", "SECURITY", "PERFORMANCE"):
+            self.sheets[tab] = FakeWorksheet(csv_book.worksheet(tab).get_all_values())
+
+    def worksheet(self, name):
+        return self.sheets[name]
+
 
 class FakeGitLab:
-    def __init__(self, existing=None):
+    def __init__(self):
         self.created = []
-        self.updated = []
-        self.existing = existing or {}
+        self.updates = []
+        self.existing = {}
+        self.issues = {12: {"iid": 12, "state": "opened", "labels": ["backlog", "status::Ready to Deploy"]}}
 
     def find_issue_by_marker(self, marker):
         return self.existing.get(marker)
@@ -37,9 +60,21 @@ class FakeGitLab:
         iid = 100 + len(self.created)
         return {"iid": iid, "web_url": f"https://gitlab.example/p/-/issues/{iid}"}
 
-    def update_issue(self, iid, payload, state_event=None):
-        self.updated.append((iid, payload, state_event))
+    def get_issue(self, iid):
+        return self.issues[iid]
+
+    def update_issue(self, iid, **kw):
+        self.updates.append((iid, kw))
         return {"iid": iid, "web_url": f"https://gitlab.example/p/-/issues/{iid}"}
+
+
+class FakeClaude:
+    def __init__(self):
+        self.calls = 0
+
+    def suggest(self, row, itype, need_source):
+        self.calls += 1
+        return TitleSuggestion(title="Judul dari Claude", source="BRD" if need_source else "")
 
 
 @pytest.fixture
@@ -48,73 +83,134 @@ def cfg(monkeypatch):
     return load_config(ROOT / "config.example.yaml")
 
 
-@pytest.fixture
-def values():
-    with open(ROOT / "examples" / "sample_issue_log.csv", newline="", encoding="utf-8") as f:
-        return [list(r) for r in csv.reader(f)]
+def test_creates_issues_with_guideline_title_and_writes_back(cfg):
+    book, gl = FakeBook(), FakeGitLab()
+    report = Syncer(cfg, gl).run(book)
 
-
-def cell_updates(ws):
-    return {u["range"]: u["values"][0][0] for u in ws.updates}
-
-
-def test_creates_valid_rows_and_writes_back(cfg, values):
-    ws = FakeWorksheet(values)
-    gl = FakeGitLab()
-    report = run_sync(SheetIO(ws, cfg), gl, cfg)
-
-    assert report.created == [2, 3]
-    assert list(report.invalid) == [4]
-    assert report.skipped == [5, 6]  # 5 already has an issue, 6 is Draft
     assert [p.title for p in gl.created] == [
-        "[Transport Order] Tombol Save tidak merespon saat input order",
-        "[Master Data] Tambah filter lokasi pada list master kilometer",
+        "[FEATURE][FSD]-Upload dokumen pada proses pengajuan",
+        "[FEATURE][FSD]-Penambahan column salary pada list debitur multiguna",
+        "[BUG][SIT]-Error HTTP 500 saat submit pengajuan dengan data valid",
+        "[SECURITY][EXT]-Document API belum melakukan authorization check",
+        "[PERFORMANCE][INT]-Response time API Submit Pengajuan tinggi saat 50 concurrent user",
     ]
-    cells = cell_updates(ws)
-    # writeback columns: GitLab Issue=R, GitLab URL=S, Sync Status=T, Sync Message=U
-    assert cells["R2"] == "#101"
-    assert cells["S2"].endswith("/issues/101")
-    assert cells["T2"] == "CREATED"
-    assert cells["T4"] == "INVALID"
-    assert "Severity" in cells["U4"]
+    assert set(report.invalid) == {"FEATURE!4", "FEATURE!5"}
+
+    feat = book.sheets["FEATURE"].cells()
+    assert feat[(2, "GitLab Issue")] == "#101"
+    assert feat[(2, "Sync Status")] == "CREATED"
+    # source inferred from Reference ("FSD: ...") is written back for review
+    assert feat[(3, "Source")] == "FSD"
+    assert "Source diambil dari isi issue" in feat[(3, "Sync Message")]
+    # empty status defaults to Open
+    assert feat[(3, "Issue Board Status")] == "Open"
+    assert feat[(4, "Sync Status")] == "INVALID"
+    assert "Title wajib diisi" in feat[(4, "Sync Message")]
+    assert "tidak sesuai tab FEATURE" in feat[(5, "Sync Message")]
 
 
-def test_issue_format(cfg, values):
-    sheet = SheetIO(FakeWorksheet(values), cfg)
-    rows = sheet.rows()
-    p = build_issue(rows[0], cfg)
-    assert p.labels == ["issue-log", "type::bug", "severity::Major", "priority::High", "module::Transport Order"]
-    assert p.assignee_username == "budi.santoso"
-    assert p.due_date == "2026-09-15"
-    assert "## Langkah Reproduksi\n1. Buka menu Transport Order" in p.description
-
-    p2 = build_issue(rows[1], cfg)
-    assert p2.assignee_username == "citra"
-    # empty sections are dropped
-    assert "## Expected Result" not in p2.description
-    assert "## Deskripsi" in p2.description
-
-
-def test_dedup_via_marker(cfg, values):
+def test_body_follows_slide_structure(cfg):
     gl = FakeGitLab()
-    marker = "<!-- issue-log:%s:%s:IL-001 -->" % (cfg.sheet.spreadsheet_id, cfg.sheet.worksheet)
-    gl.existing[marker] = {"iid": 7, "web_url": "https://gitlab.example/p/-/issues/7"}
-    ws = FakeWorksheet(values)
-    run_sync(SheetIO(ws, cfg), gl, cfg, only_rows={2})
+    Syncer(cfg, gl).run(FakeBook(), [t for t in cfg.types if t.name == "FEATURE"])
+    body = gl.created[0].description
+    headings = [l for l in body.splitlines() if l.startswith("## ")]
+    assert headings == [
+        "## Background", "## Description", "## Scope", "## Business / Functional Requirement",
+        "## Acceptance Criteria", "## Technical Notes", "## Out of Scope", "## Reference",
+    ]
+    assert "- [ ] File > 10 MB ditolak" in body
+    assert "- Validasi format file" in body
+    assert gl.created[0].labels == ["backlog", "feature", "source::FSD"]
+
+
+def test_status_label_on_create(cfg):
+    gl = FakeGitLab()
+    Syncer(cfg, gl).run(FakeBook(), [t for t in cfg.types if t.name == "SECURITY"])
+    assert "status::On-Progress" in gl.created[0].labels
+
+
+def test_dedup_via_marker(cfg):
+    gl = FakeGitLab()
+    book = FakeBook()
+    types = [t for t in cfg.types if t.name == "BUG"]
+    # simulate an earlier run that created the issue but crashed before writing the sheet
+    first = FakeGitLab()
+    Syncer(cfg, first).run(FakeBook(), types)
+    gl.existing[first.created[0].marker] = {"iid": 7, "web_url": "https://gitlab.example/p/-/issues/7"}
+    Syncer(cfg, gl).run(book, types)
     assert gl.created == []
-    assert cell_updates(ws)["R2"] == "#7"
+    assert book.sheets["BUG"].cells()[(2, "GitLab Issue")] == "#7"
 
 
-def test_update_existing_and_close(cfg, values):
-    values[4][15] = "Closed"  # row 5 status
-    cfg.trigger_values.append("Closed")
+def test_status_pull_from_gitlab(cfg):
+    book, gl = FakeBook(), FakeGitLab()
+    Syncer(cfg, gl, status_sync="pull").run(book, [t for t in cfg.types if t.name == "PERFORMANCE"])
+    assert book.sheets["PERFORMANCE"].cells()[(3, "Issue Board Status")] == "Ready to Deploy"
+
+
+def test_status_push_to_gitlab(cfg):
     gl = FakeGitLab()
-    run_sync(SheetIO(FakeWorksheet(values), cfg), gl, cfg, update_existing=True, only_rows={5})
-    assert [(i, s) for i, _, s in gl.updated] == [(12, "close")]
+    Syncer(cfg, gl, status_sync="push").run(FakeBook(), [t for t in cfg.types if t.name == "PERFORMANCE"])
+    iid, kw = gl.updates[-1]
+    assert iid == 12
+    assert kw["add_labels"] == ["status::Testing"]
+    assert "status::Ready to Deploy" in kw["remove_labels"]
 
 
-def test_dry_run_does_not_touch_anything(cfg, values):
-    ws = FakeWorksheet(values)
-    report = run_sync(SheetIO(ws, cfg), None, cfg, dry_run=True)
-    assert report.created == [2, 3]
-    assert ws.updates == []
+def test_status_from_issue(cfg):
+    assert status_from_issue(cfg, {"state": "closed", "labels": []}) == "Closed"
+    assert status_from_issue(cfg, {"state": "opened", "labels": ["status::Re-work"]}) == "Re-work"
+    assert status_from_issue(cfg, {"state": "opened", "labels": []}) == "Open"
+
+
+def test_claude_fills_missing_title(cfg):
+    book, gl, claude = FakeBook(), FakeGitLab(), FakeClaude()
+    report = Syncer(cfg, gl, assistant=claude).run(book, [t for t in cfg.types if t.name == "FEATURE"])
+    # row 4 has no title: Claude drafts one, but the row is still invalid (missing required sections)
+    cells = book.sheets["FEATURE"].cells()
+    assert cells[(4, "Title")] == "Judul dari Claude"
+    assert "FEATURE!4" in report.invalid
+    # rows that already have a title+source never call Claude
+    assert claude.calls == 1
+
+
+def test_dry_run_does_not_touch_anything(cfg):
+    book = FakeBook()
+    report = Syncer(cfg, None, dry_run=True).run(book)
+    assert len(report.created) == 5
+    assert all(ws.updates == [] for ws in book.sheets.values())
+
+
+@pytest.mark.parametrize(
+    "value,style,expected",
+    [
+        ("a\nb", "checklist", "- [ ] a\n- [ ] b"),
+        ("- [x] done\n- [ ] todo", "checklist", "- [x] done\n- [ ] todo"),
+        ("1. a\n2) b\n\n• c", "numbered", "1. a\n2. b\n3. c"),
+        ("* a\n- b", "bullets", "- a\n- b"),
+        ("line 1\nline 2", "text", "line 1\nline 2"),
+    ],
+)
+def test_format_section(value, style, expected):
+    assert format_section(value, style) == expected
+
+
+def test_inferred_source_written_back_even_with_claude(cfg):
+    book, gl, claude = FakeBook(), FakeGitLab(), FakeClaude()
+    Syncer(cfg, gl, assistant=claude).run(book, [t for t in cfg.types if t.name == "FEATURE"])
+    cells = book.sheets["FEATURE"].cells()
+    assert cells[(3, "Source")] == "FSD"
+
+
+def test_claude_api_error_does_not_stop_sync(cfg, monkeypatch):
+    pytest.importorskip("anthropic")
+    from issue_log_agent.claude_assist import ClaudeAssistant
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "http://127.0.0.1:9")
+    assistant = ClaudeAssistant(cfg.claude)
+    assistant.client = assistant.client.with_options(max_retries=0)
+    book, gl = FakeBook(), FakeGitLab()
+    report = Syncer(cfg, gl, assistant=assistant).run(book, [t for t in cfg.types if t.name == "FEATURE"])
+    assert "FEATURE!4" in report.invalid  # still processed, just without a Claude title
+    assert len(gl.created) == 2

@@ -1,8 +1,0 @@
-No,Tanggal,Modul,Judul Issue,Deskripsi,Langkah Reproduksi,Expected Result,Actual Result,Environment,Tipe,Severity,Priority,Reporter,PIC,Target Date,Status,Evidence,GitLab Issue,GitLab URL,Sync Status,Sync Message,Synced At
-IL-001,01/09/2026,Transport Order,Tombol Save tidak merespon saat input order,User tidak dapat menyimpan transport order baru,"1. Buka menu Transport Order
-2. Isi form
-3. Klik Save",Data tersimpan dan muncul notifikasi sukses,Tidak ada respon; console error 500,UAT - Chrome 128,Bug,Major,High,Andi,Budi Santoso,15/09/2026,Open,https://drive.example/ss1.png,,,,,
-IL-002,02/09/2026,Master Data,Tambah filter lokasi pada list master kilometer,Perlu filter lokasi agar pencarian lebih cepat,,,,,Enhancement,Minor,Low,Sari,@citra,,Open,,,,,,
-IL-003,03/09/2026,,Report kosong,,,,,,Bug,Blocker,Urgent,Joko,,,Open,,,,,,
-IL-004,04/09/2026,Transport Order,Sudah dibuat sebelumnya,Test,,,,,Bug,Minor,Low,Andi,,,Open,,#12,https://gitlab.example/x/-/issues/12,CREATED,,
-IL-005,05/09/2026,Billing,Draft - belum siap,Test,,,,,Bug,Minor,Low,Andi,,,Draft,,,,,,
