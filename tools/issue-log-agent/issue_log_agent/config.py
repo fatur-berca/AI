@@ -115,7 +115,9 @@ def _require(d: Any, key: str, ctx: str) -> Any:
 
 def _expand_env(value: Any) -> Any:
     if isinstance(value, str):
-        return os.path.expandvars(value)
+        expanded = os.path.expandvars(value)
+        # An unset ${VAR} stays literal; treat it as "not configured" instead of a real value.
+        return "" if "${" in expanded else expanded
     if isinstance(value, dict):
         return {k: _expand_env(v) for k, v in value.items()}
     if isinstance(value, list):
@@ -148,8 +150,6 @@ def load_config(path: str | Path, require_token: bool = True) -> Config:
     g = _require(raw, "gitlab", "")
 
     token = g.get("token") or os.environ.get("GITLAB_TOKEN", "")
-    if token.startswith("$"):
-        token = ""
     if require_token and not token:
         raise ConfigError("GitLab token belum di-set (gitlab.token atau env GITLAB_TOKEN)")
 

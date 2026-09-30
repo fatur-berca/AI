@@ -78,19 +78,75 @@ pip install openpyxl
 python scripts/make_template.py --from templates/Template_Backlog_v1.xlsx --out templates/Template_Backlog_v2.xlsx
 ```
 
-## Setup
+## Menjalankan di lokal
 
-1. **Python 3.10+**, lalu `pip install -r requirements.txt`.
-2. **Google Service Account**
-   - Buat project di Google Cloud Console, lalu aktifkan *Google Sheets API*.
-   - Buat Service Account beserta key JSON. Jangan commit file key ini.
-   - Share spreadsheet ke email service account dengan akses **Editor**.
-   - `export GOOGLE_APPLICATION_CREDENTIALS=/path/ke/key.json`
-3. **GitLab:** buat Personal/Project Access Token dengan scope `api`, lalu `export GITLAB_TOKEN=glpat-xxxx`.
-4. **(Opsional) Claude:** isi `claude.enabled: true` di config dan `export ANTHROPIC_API_KEY=...`.
-   Claude hanya dipakai untuk mengisi **Title/Source yang kosong**. Hasilnya ditulis balik ke sheet
-   dan ditandai di Sync Message ("Title dibuat oleh Claude, mohon dicek").
-5. `cp config.example.yaml config.yaml`, lalu isi `gitlab.url`, `gitlab.project`, dan sesuaikan bagian lain bila perlu.
+Butuh **Python 3.10+** dan **git**.
+
+**1. Ambil kode & install dependency**
+
+```bash
+git clone https://github.com/fatur-berca/AI.git
+cd AI
+git checkout claude/spreadsheet-gitlab-issue-agent-w9xevp   # sebelum PR di-merge
+cd tools/issue-log-agent
+python -m venv .venv
+```
+
+| | Windows (PowerShell) | macOS / Linux |
+|---|---|---|
+| Aktifkan venv | `.venv\Scripts\Activate.ps1` | `source .venv/bin/activate` |
+| Install | `pip install -r requirements.txt` | `pip install -r requirements.txt` |
+
+Kalau PowerShell menolak menjalankan script, jalankan sekali `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+**2. Coba offline dulu** (tanpa kredensial apa pun):
+
+```bash
+python -m issue_log_agent --config config.example.yaml --csv-dir examples -v
+```
+
+**3. Kredensial**
+- **Google:** di Google Cloud Console aktifkan *Google Sheets API*, buat Service Account, lalu buat key
+  JSON dan simpan di luar folder repo (mis. `C:\secrets\issue-agent.json`). Share spreadsheet
+  ke email service account (`...@...iam.gserviceaccount.com`) sebagai **Editor**.
+- **GitLab:** buat Personal/Project Access Token dengan scope `api`. Akun token minimal
+  berperan *Reporter* di project.
+- **Claude (opsional):** API key dari console.anthropic.com, hanya jika `claude.enabled: true`.
+
+**4. Config**: `cp config.example.yaml config.yaml` (Windows: `copy`), lalu isi:
+- `sheet.spreadsheet_id`: ID dari URL spreadsheet (`/d/<ID>/edit`).
+- `sheet.credentials_file`: path ke key JSON. Boleh ditulis langsung, tanpa env var.
+- `gitlab.url` dan `gitlab.project` (mis. `group/nama-project`).
+
+`config.yaml` sudah di-`.gitignore`, jadi tidak ikut ter-commit.
+
+**5. Set token & jalankan**
+
+| | Windows (PowerShell) | macOS / Linux |
+|---|---|---|
+| Token GitLab | `$env:GITLAB_TOKEN="glpat-xxxx"` | `export GITLAB_TOKEN=glpat-xxxx` |
+| Key Claude (opsional) | `$env:ANTHROPIC_API_KEY="sk-ant-..."` | `export ANTHROPIC_API_KEY=sk-ant-...` |
+
+```bash
+python -m issue_log_agent --dry-run     # cek dulu: baca sheet asli, tidak menulis apa pun
+python -m issue_log_agent               # sync sungguhan
+python -m issue_log_agent --watch 300   # jalan terus, cek tiap 5 menit
+```
+
+Env var di atas hanya berlaku di terminal yang sedang dibuka. Untuk menjalankan agent secara
+terjadwal, pakai **Task Scheduler** (Windows) atau **cron** (macOS/Linux) yang memanggil
+`python -m issue_log_agent` dari folder ini, dengan env var di-set di task tersebut.
+
+**Masalah umum**
+
+| Gejala | Penyebab |
+|---|---|
+| `SpreadsheetNotFound` / `403` dari Google | Spreadsheet belum di-share ke email service account, atau Sheets API belum aktif |
+| `WorksheetNotFound` | Nama tab tidak sama dengan `types.<TIPE>.worksheet` |
+| `kolom tidak ditemukan` di log | Header sheet berbeda dengan config. Pakai Template v2 |
+| `401` dari GitLab | Token salah atau kedaluwarsa |
+| `404` dari GitLab | `gitlab.project` salah, atau token tidak punya akses ke project |
+| `SSL: CERTIFICATE_VERIFY_FAILED` | GitLab self-hosted dengan sertifikat internal. Set `REQUESTS_CA_BUNDLE` ke CA kantor (atau `verify_ssl: false` untuk uji coba saja) |
 
 ## Pemakaian
 

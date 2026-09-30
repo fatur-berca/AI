@@ -214,3 +214,13 @@ def test_claude_api_error_does_not_stop_sync(cfg, monkeypatch):
     report = Syncer(cfg, gl, assistant=assistant).run(book, [t for t in cfg.types if t.name == "FEATURE"])
     assert "FEATURE!4" in report.invalid  # still processed, just without a Claude title
     assert len(gl.created) == 2
+
+
+def test_unset_env_var_in_config_is_treated_as_empty(monkeypatch):
+    monkeypatch.delenv("GOOGLE_APPLICATION_CREDENTIALS", raising=False)
+    monkeypatch.delenv("GITLAB_TOKEN", raising=False)
+    cfg = load_config(ROOT / "config.example.yaml", require_token=False)
+    assert cfg.sheet.credentials_file is None
+    assert cfg.gitlab.token == ""
+    with pytest.raises(Exception, match="GITLAB_TOKEN"):
+        load_config(ROOT / "config.example.yaml")
