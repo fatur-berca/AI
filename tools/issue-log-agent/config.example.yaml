@@ -1,0 +1,112 @@
+# Salin ke config.yaml lalu sesuaikan. Nilai ${VAR} diambil dari environment variable.
+# CATATAN: nama kolom, format judul/deskripsi, label, dan aturan validasi di bawah
+# masih asumsi umum. Sesuaikan dengan standar penulisan (slide 5-13) & header sheet asli.
+
+timezone: Asia/Jakarta
+
+sheet:
+  spreadsheet_id: 1xwR5GFNYhISBYAjqSdXrtVrX8kF9BxdY5fNTjiXkUnY
+  worksheet: Issue Log
+  header_row: 1
+  # Service account JSON; sheet harus di-share ke email service account (Editor)
+  credentials_file: ${GOOGLE_APPLICATION_CREDENTIALS}
+
+gitlab:
+  url: https://gitlab.com            # atau URL GitLab self-hosted
+  project: group/project-name        # path atau ID numerik project
+  token: ${GITLAB_TOKEN}             # Personal/Project Access Token, scope: api
+  default_labels: [issue-log]
+  confidential: false
+  verify_ssl: true
+
+# field logis -> teks header kolom di sheet (case-insensitive)
+columns:
+  key: "No"                # ID unik baris, dipakai sebagai marker anti-duplikat
+  date: Tanggal
+  module: Modul
+  summary: Judul Issue
+  description: Deskripsi
+  steps: Langkah Reproduksi
+  expected: Expected Result
+  actual: Actual Result
+  environment: Environment
+  type: Tipe
+  severity: Severity
+  priority: Priority
+  reporter: Reporter
+  assignee: PIC
+  due_date: Target Date
+  status: Status
+  evidence: Evidence
+
+# Kolom yang diisi balik oleh agent (buat kolomnya di sheet)
+writeback:
+  issue_iid: GitLab Issue
+  issue_url: GitLab URL
+  sync_status: Sync Status
+  sync_message: Sync Message
+  synced_at: Synced At
+
+format:
+  date_format: "%d/%m/%Y"
+  title: "[{module}] {summary}"
+  # Section yang isinya kosong otomatis dihapus.
+  description: |
+    ## Deskripsi
+    {description}
+
+    ## Langkah Reproduksi
+    {steps}
+
+    ## Expected Result
+    {expected}
+
+    ## Actual Result
+    {actual}
+
+    ## Environment
+    {environment}
+
+    ## Evidence
+    {evidence}
+
+    ## Informasi
+    - **No. Issue Log:** {key}
+    - **Tanggal Lapor:** {date}
+    - **Reporter:** {reporter}
+    - **Severity / Priority:** {severity} / {priority}
+    - **Sumber:** [Spreadsheet baris {row_number}]({sheet_url})
+
+  # field -> aturan label. `map` opsional untuk menormalkan nilai sheet.
+  labels:
+    type:
+      template: "type::{value}"
+      map: {Bug: bug, "Change Request": change-request, Enhancement: enhancement, Question: question}
+    severity:
+      template: "severity::{value}"
+    priority:
+      template: "priority::{value}"
+    module:
+      template: "module::{value}"
+
+rules:
+  required: [summary, module, type, severity, priority, description]
+  max_title_length: 120
+  allowed_values:
+    type: [Bug, Change Request, Enhancement, Question]
+    severity: [Critical, Major, Minor, Trivial]
+    priority: [High, Medium, Low]
+  # Hanya baris dengan Status berikut yang dikirim ke GitLab
+  trigger:
+    field: status
+    values: [Open, New, Ready]
+
+# Nama PIC di sheet -> username GitLab (atau tulis "@username" langsung di sheet)
+assignees:
+  "Budi Santoso": budi.santoso
+
+# Dipakai saat --update-existing: status sheet -> aksi issue GitLab
+state_map:
+  Closed: close
+  Done: close
+  Reopen: reopen
