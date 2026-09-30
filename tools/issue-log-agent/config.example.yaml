@@ -6,8 +6,12 @@ timezone: Asia/Jakarta
 sheet:
   spreadsheet_id: 1xwR5GFNYhISBYAjqSdXrtVrX8kF9BxdY5fNTjiXkUnY
   header_row: 1
-  # Service account JSON; spreadsheet harus di-share ke email service account (Editor)
-  credentials_file: ${GOOGLE_APPLICATION_CREDENTIALS}
+  # service_account : baca + tulis balik (link issue, Sync Status, alasan INVALID, status dari GitLab).
+  #                   Butuh key JSON; spreadsheet di-share ke email service account sebagai Editor.
+  # public          : hanya baca, TANPA credential. Sheet harus "Anyone with the link".
+  #                   Tidak ada yang ditulis ke sheet; hasil hanya muncul di log.
+  access: service_account
+  credentials_file: ${GOOGLE_APPLICATION_CREDENTIALS}   # tidak dipakai jika access: public
 
 gitlab:
   url: https://gitlab.com            # atau URL GitLab self-hosted

@@ -78,6 +78,30 @@ pip install openpyxl
 python scripts/make_template.py --from templates/Template_Backlog_v1.xlsx --out templates/Template_Backlog_v2.xlsx
 ```
 
+## Mode akses sheet: `service_account` atau `public`
+
+| | `service_account` (default) | `public` |
+|---|---|---|
+| Credential Google | Key JSON service account | **Tidak perlu** |
+| Syarat sheet | Di-share ke email service account sebagai Editor | General access = *Anyone with the link* |
+| Link issue, Sync Status, alasan INVALID ditulis ke sheet | Ya | **Tidak**, hanya di log |
+| Title/Source hasil Claude ditulis ke sheet | Ya | Tidak |
+| Status GitLab → sheet (`pull`) | Ya | Tidak (`push` sheet → GitLab tetap bisa) |
+| Anti-duplikat | Kolom GitLab Issue + marker | Marker di GitLab saja |
+
+Google tidak mengizinkan penulisan ke sheet tanpa credential, walaupun sheet dibuka untuk umum.
+Jadi mode `public` hanya membaca. Aktifkan dengan `sheet.access: public` di `config.yaml`.
+
+Di mode `public`, setiap run membaca semua baris lagi. Agent mengecek ke GitLab lewat dua marker
+tersembunyi: hash isi baris dan hash judul. Baris yang sudah pernah dikirim dilewati (`existing` di
+log), dan pengecekan ini dilakukan sebelum Claude dipanggil.
+**Batasannya:** kalau judul **dan** isi sebuah baris sama-sama diubah setelah terkirim, baris itu
+dianggap baru dan dibuatkan issue lagi.
+
+> ⚠️ Sheet publik bisa dibaca siapa pun yang punya link, termasuk temuan di tab **SECURITY**
+> (detail celah keamanan dari pentest). Untuk data seperti itu, pakai `service_account` dan tutup
+> akses publiknya.
+
 ## Menjalankan di lokal
 
 Butuh **Python 3.10+** dan **git**.
@@ -106,7 +130,7 @@ python -m issue_log_agent --config config.example.yaml --csv-dir examples -v
 ```
 
 **3. Kredensial**
-- **Google:** di Google Cloud Console aktifkan *Google Sheets API*, buat Service Account, lalu buat key
+- **Google:** tidak perlu kalau memakai `sheet.access: public` (lihat bagian mode akses di atas). Untuk `service_account`: di Google Cloud Console aktifkan *Google Sheets API*, buat Service Account, lalu buat key
   JSON dan simpan di luar folder repo (mis. `C:\secrets\issue-agent.json`). Share spreadsheet
   ke email service account (`...@...iam.gserviceaccount.com`) sebagai **Editor**.
 - **GitLab:** buat Personal/Project Access Token dengan scope `api`. Akun token minimal

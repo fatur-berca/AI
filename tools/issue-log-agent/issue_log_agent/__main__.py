@@ -9,7 +9,7 @@ import time
 
 from .config import ConfigError, load_config
 from .gitlab_client import GitLabClient
-from .sheet import CsvSpreadsheet, GoogleSpreadsheet
+from .sheet import CsvSpreadsheet, GoogleSpreadsheet, PublicSpreadsheet
 from .sync import Syncer
 
 
@@ -58,14 +58,36 @@ def main(argv: list[str] | None = None) -> int:
         # the prompt limit excludes the "[TYPE][SOURCE]-" prefix
         assistant = ClaudeAssistant(cfg.claude, cfg.max_title_length - len("[PERFORMANCE][EXT]-"))
 
+    public = cfg.sheet.access == "public" and not args.csv_dir
+    if public:
+        logging.warning(
+            "sheet.access = public: sheet hanya dibaca, tanpa credential Google. Link issue, Sync Status "
+            "dan alasan INVALID TIDAK ditulis ke sheet (lihat log). Duplikat dicegah lewat marker di GitLab."
+        )
+        if args.status_sync == "pull":
+            logging.info("Status GitLab -> sheet tidak bisa di mode public; gunakan --status-sync push bila perlu.")
+
     while True:
-        book = CsvSpreadsheet(args.csv_dir) if args.csv_dir else GoogleSpreadsheet(cfg)
+        try:
+            if args.csv_dir:
+                book = CsvSpreadsheet(args.csv_dir)
+            elif public:
+                book = PublicSpreadsheet(cfg)
+            else:
+                book = GoogleSpreadsheet(cfg)
+        except Exception as e:  # network down, sheet not shared, bad credentials
+            logging.error("Spreadsheet tidak bisa dibuka: %s", e)
+            if not args.watch:
+                return 1
+            time.sleep(args.watch)
+            continue
         report = Syncer(
             cfg, gitlab,
             assistant=assistant,
             dry_run=args.dry_run,
             status_sync=args.status_sync,
             only_rows=set(args.row) if args.row else None,
+            read_only=public,
         ).run(book, types)
         logging.info("Selesai: %s", report.summary())
         if not args.watch:

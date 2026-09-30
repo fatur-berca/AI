@@ -41,6 +41,59 @@ class GoogleSpreadsheet:
         return self._book.worksheet(name)
 
 
+class ReadOnlyWorksheet:
+    """Worksheet backed by values already in memory; writing is not possible."""
+
+    def __init__(self, values: list[list[str]]):
+        self._values = values
+
+    def get_all_values(self) -> list[list[str]]:
+        return self._values
+
+    def batch_update(self, data: list[dict], **kw) -> object:
+        raise RuntimeError("Sumber sheet ini read-only")
+
+
+def _cell_text(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value)
+
+
+class PublicSpreadsheet:
+    """A spreadsheet shared as "Anyone with the link", downloaded as .xlsx without credentials.
+
+    Read-only: the agent cannot write issue links or sync results back to it.
+    """
+
+    def __init__(self, cfg: Config, timeout: int = 60):
+        import io
+
+        import requests
+        from openpyxl import load_workbook
+
+        url = f"https://docs.google.com/spreadsheets/d/{cfg.sheet.spreadsheet_id}/export?format=xlsx"
+        r = requests.get(url, timeout=timeout)
+        # A private sheet answers with a login page (HTML), not an error status.
+        if r.status_code != 200 or not r.content.startswith(b"PK"):
+            raise PermissionError(
+                f"Spreadsheet tidak bisa diunduh tanpa login (HTTP {r.status_code}). Pastikan General access = "
+                "'Anyone with the link', atau pakai sheet.access: service_account."
+            )
+        wb = load_workbook(io.BytesIO(r.content), read_only=True, data_only=True)
+        self._tabs = {
+            ws.title: [[_cell_text(v) for v in row] for row in ws.iter_rows(values_only=True)]
+            for ws in wb.worksheets
+        }
+
+    def worksheet(self, name: str) -> Worksheet:
+        if name not in self._tabs:
+            raise KeyError(f"tab '{name}' tidak ada (tersedia: {', '.join(self._tabs)})")
+        return ReadOnlyWorksheet(self._tabs[name])
+
+
 class CsvWorksheet:
     """Read-only stand-in for a worksheet, used with --csv-dir for offline dry-runs."""
 

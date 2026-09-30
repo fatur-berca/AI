@@ -32,7 +32,7 @@ class IssuePayload:
     title: str
     description: str
     labels: list[str]
-    marker: str
+    markers: list[str]  # hidden dedup markers embedded in the description
 
 
 def resolve_title(row: Row, itype: IssueType) -> ResolvedTitle:
@@ -123,6 +123,12 @@ def content_marker(cfg: Config, itype: IssueType, row: Row) -> str:
     return f"<!-- issue-backlog:{cfg.sheet.spreadsheet_id}:{itype.worksheet}:{digest} -->"
 
 
+def title_marker(cfg: Config, itype: IssueType, title: str) -> str:
+    """Second dedup key, so editing a row's content alone does not create a new issue."""
+    digest = hashlib.sha1(re.sub(r"\s+", " ", title).strip().lower().encode("utf-8")).hexdigest()[:12]
+    return f"<!-- issue-backlog-title:{cfg.sheet.spreadsheet_id}:{itype.worksheet}:{digest} -->"
+
+
 def labels_for(cfg: Config, itype: IssueType, source: str, status: str) -> list[str]:
     labels = list(cfg.default_labels) + list(itype.labels)
     if cfg.source_label and source:
@@ -135,10 +141,11 @@ def labels_for(cfg: Config, itype: IssueType, source: str, status: str) -> list[
 
 
 def build_issue(row: Row, cfg: Config, itype: IssueType, rt: ResolvedTitle) -> IssuePayload:
-    marker = content_marker(cfg, itype, row)
+    title = full_title(cfg, itype, rt.title, rt.source)
+    markers = [content_marker(cfg, itype, row), title_marker(cfg, itype, title)]
     return IssuePayload(
-        title=full_title(cfg, itype, rt.title, rt.source),
-        description=f"{build_body(row, itype.sections).rstrip()}\n\n{marker}\n",
+        title=title,
+        description=f"{build_body(row, itype.sections).rstrip()}\n\n" + "\n".join(markers) + "\n",
         labels=labels_for(cfg, itype, rt.source, row.get("status")),
-        marker=marker,
+        markers=markers,
     )

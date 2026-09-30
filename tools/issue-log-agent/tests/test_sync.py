@@ -5,7 +5,7 @@ import pytest
 from issue_log_agent.claude_assist import TitleSuggestion
 from issue_log_agent.config import load_config
 from issue_log_agent.formatter import format_section
-from issue_log_agent.sheet import CsvSpreadsheet, col_letter
+from issue_log_agent.sheet import CsvSpreadsheet, SheetIO, col_letter
 from issue_log_agent.sync import Syncer, status_from_issue
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,7 +58,10 @@ class FakeGitLab:
     def create_issue(self, payload, confidential=False):
         self.created.append(payload)
         iid = 100 + len(self.created)
-        return {"iid": iid, "web_url": f"https://gitlab.example/p/-/issues/{iid}"}
+        issue = {"iid": iid, "web_url": f"https://gitlab.example/p/-/issues/{iid}"}
+        for m in payload.markers:
+            self.existing[m] = issue
+        return issue
 
     def get_issue(self, iid):
         return self.issues[iid]
@@ -136,7 +139,7 @@ def test_dedup_via_marker(cfg):
     # simulate an earlier run that created the issue but crashed before writing the sheet
     first = FakeGitLab()
     Syncer(cfg, first).run(FakeBook(), types)
-    gl.existing[first.created[0].marker] = {"iid": 7, "web_url": "https://gitlab.example/p/-/issues/7"}
+    gl.existing[first.created[0].markers[0]] = {"iid": 7, "web_url": "https://gitlab.example/p/-/issues/7"}
     Syncer(cfg, gl).run(book, types)
     assert gl.created == []
     assert book.sheets["BUG"].cells()[(2, "GitLab Issue")] == "#7"
@@ -165,13 +168,26 @@ def test_status_from_issue(cfg):
 
 def test_claude_fills_missing_title(cfg):
     book, gl, claude = FakeBook(), FakeGitLab(), FakeClaude()
+    feature = book.sheets["FEATURE"]
+    headers = feature.values[0]
+    row4 = feature.values[3]  # has Background only, no Title
+    row4[headers.index("Description")] = "Deskripsi"
+    row4[headers.index("Acceptance Criteria")] = "Bisa dipakai"
     report = Syncer(cfg, gl, assistant=claude).run(book, [t for t in cfg.types if t.name == "FEATURE"])
-    # row 4 has no title: Claude drafts one, but the row is still invalid (missing required sections)
-    cells = book.sheets["FEATURE"].cells()
+    cells = feature.cells()
     assert cells[(4, "Title")] == "Judul dari Claude"
-    assert "FEATURE!4" in report.invalid
-    # rows that already have a title+source never call Claude
+    assert "Title dibuat oleh Claude" in cells[(4, "Sync Message")]
+    assert "FEATURE!4" in report.created
+    assert "[FEATURE][BRD]-Judul dari Claude" in [p.title for p in gl.created]
+    # rows that already have a title+source, or are invalid for other reasons, never call Claude
     assert claude.calls == 1
+
+
+def test_claude_not_called_when_row_is_invalid_anyway(cfg):
+    claude = FakeClaude()
+    report = Syncer(cfg, FakeGitLab(), assistant=claude).run(FakeBook(), [t for t in cfg.types if t.name == "FEATURE"])
+    assert "FEATURE!4" in report.invalid  # missing Description and Acceptance Criteria
+    assert claude.calls == 0
 
 
 def test_dry_run_does_not_touch_anything(cfg):
@@ -224,3 +240,95 @@ def test_unset_env_var_in_config_is_treated_as_empty(monkeypatch):
     assert cfg.gitlab.token == ""
     with pytest.raises(Exception, match="GITLAB_TOKEN"):
         load_config(ROOT / "config.example.yaml")
+
+
+# ---- sheet.access: public (read-only, no Google credentials) ----
+
+
+def _book_with_untitled_valid_row():
+    book = FakeBook()
+    feature = book.sheets["FEATURE"]
+    headers = feature.values[0]
+    feature.values[3][headers.index("Description")] = "Deskripsi"
+    feature.values[3][headers.index("Acceptance Criteria")] = "Bisa dipakai"
+    return book
+
+
+def test_public_mode_never_writes_and_does_not_duplicate(cfg):
+    gl, claude = FakeGitLab(), FakeClaude()
+    book = _book_with_untitled_valid_row()
+    first = Syncer(cfg, gl, assistant=claude, read_only=True).run(book)
+    assert len(first.created) == 6
+    assert all(ws.updates == [] for ws in book.sheets.values())
+    assert claude.calls == 1  # the untitled row
+
+    # nothing was written back, so the next run sees every row as new again
+    second = Syncer(cfg, gl, assistant=claude, read_only=True).run(_book_with_untitled_valid_row())
+    assert second.created == []
+    assert len(second.existing) == 6
+    assert len(gl.created) == 6
+    # rows already in GitLab are recognised before Claude is asked again
+    assert claude.calls == 1
+
+
+def test_public_mode_edited_row_is_still_recognised_by_title(cfg):
+    gl = FakeGitLab()
+    types = [t for t in cfg.types if t.name == "BUG"]
+    Syncer(cfg, gl, read_only=True).run(FakeBook(), types)
+    book = FakeBook()
+    book.sheets["BUG"].values[1][4] = "Environment: SIT\nBrowser: Firefox"  # reporter edits the row later
+    report = Syncer(cfg, gl, read_only=True).run(book, types)
+    assert report.existing == ["BUG!2"]
+    assert len(gl.created) == 1
+
+
+def test_public_mode_push_status_to_existing_issue(cfg):
+    gl = FakeGitLab()
+    types = [t for t in cfg.types if t.name == "SECURITY"]
+    Syncer(cfg, gl, read_only=True).run(FakeBook(), types)
+    Syncer(cfg, gl, read_only=True, status_sync="push").run(FakeBook(), types)
+    iid, kw = gl.updates[-1]
+    assert iid == 101 and kw["add_labels"] == ["status::On-Progress"]
+
+
+class _Resp:
+    def __init__(self, status, content):
+        self.status_code, self.content = status, content
+
+
+def test_public_spreadsheet_download(cfg, monkeypatch, tmp_path):
+    openpyxl = pytest.importorskip("openpyxl")
+    import requests
+
+    from issue_log_agent.sheet import PublicSpreadsheet
+
+    wb = openpyxl.load_workbook(ROOT / "templates" / "Template_Backlog_v2.xlsx")
+    wb["BUG"].append(["Judul", "SIT", "bg", None, "env", "1. a", "exp", "act", None, "ac", None, None, "Open", None, None, None, None, None])
+    wb["PERFORMANCE"]["D2"] = 5.0
+    path = tmp_path / "public.xlsx"
+    wb.save(path)
+    seen = {}
+
+    def fake_get(url, timeout):
+        seen["url"] = url
+        return _Resp(200, path.read_bytes())
+
+    monkeypatch.setattr(requests, "get", fake_get)
+    book = PublicSpreadsheet(cfg)
+    assert seen["url"].endswith(f"/d/{cfg.sheet.spreadsheet_id}/export?format=xlsx")
+    bug = next(t for t in cfg.types if t.name == "BUG")
+    row = SheetIO(book.worksheet("BUG"), cfg, bug).rows()[0]
+    assert (row.get("title"), row.get("source"), row.get("Environment")) == ("Judul", "SIT", "env")
+    assert book.worksheet("PERFORMANCE").get_all_values()[1][3] == "5"
+    with pytest.raises(RuntimeError):
+        book.worksheet("BUG").batch_update([])
+
+
+def test_public_spreadsheet_not_shared(cfg, monkeypatch):
+    import requests
+
+    from issue_log_agent.sheet import PublicSpreadsheet
+
+    monkeypatch.setattr(requests, "get", lambda url, timeout: _Resp(200, b"<!doctype html><title>Sign in</title>"))
+    with pytest.raises(PermissionError, match="Anyone with the link"):
+        PublicSpreadsheet(cfg)

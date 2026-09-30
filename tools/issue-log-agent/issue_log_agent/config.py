@@ -33,6 +33,9 @@ class SheetConfig:
     spreadsheet_id: str
     header_row: int = 1
     credentials_file: str | None = None
+    # service_account: read + write back via the Sheets API
+    # public: read-only download of a sheet shared as "Anyone with the link", no credentials
+    access: str = "service_account"
 
 
 @dataclass
@@ -143,6 +146,12 @@ def _section(raw: Any, ctx: str) -> Section:
     return Section(heading=heading, column=column, style=style, required=bool(raw.get("required", False)))
 
 
+def _access(value: str) -> str:
+    if value not in ("service_account", "public"):
+        raise ConfigError(f"sheet.access '{value}' tidak dikenal (pilih: service_account, public)")
+    return value
+
+
 def load_config(path: str | Path, require_token: bool = True) -> Config:
     raw = _expand_env(yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {})
 
@@ -185,6 +194,7 @@ def load_config(path: str | Path, require_token: bool = True) -> Config:
             spreadsheet_id=_require(s, "spreadsheet_id", "sheet."),
             header_row=int(s.get("header_row", 1)),
             credentials_file=s.get("credentials_file") or os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
+            access=_access(s.get("access", "service_account")),
         ),
         gitlab=GitLabConfig(
             url=_require(g, "url", "gitlab.").rstrip("/"),
