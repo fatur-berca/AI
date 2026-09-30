@@ -1,0 +1,7 @@
+Title,Source,Description,Current Condition,Expected Condition,Impact,Recommendation,Acceptance Criteria,Evidence / Reference,Issue Board Status,GitLab Issue,GitLab URL,Sync Status,Sync Message,Synced At
+Response time API Submit Pengajuan tinggi saat 50 concurrent user,INT,API Submit Pengajuan memiliki response time yang tinggi ketika digunakan secara bersamaan oleh beberapa user.,"Average response time: 5.2 seconds
+Concurrent user: 50 users","Response time maksimal: 2 seconds
+Concurrent user: 50 users",,Optimasi query database dan proses yang berjalan secara synchronous pada Submit Pengajuan.,"Average response time <= 2 seconds
+Tidak terdapat regression
+Performance verification completed",Performance Test Report: [link/attachment],Open,,,,,
+Sudah pernah dibuat,INT,Test,x,y,,,- [ ] z,,Testing,#12,https://gitlab.example/p/-/issues/12,CREATED,,
