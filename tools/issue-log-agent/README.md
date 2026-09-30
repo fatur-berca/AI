@@ -53,18 +53,30 @@ Buat list di Issue Board untuk masing-masing label tersebut.
 
 **Label lain:** `backlog`, label tipe (`feature`/`bug`/`security`/`performance`), dan `source::<SOURCE>`.
 
-## Perubahan yang dibutuhkan di Template v1
+## Template Issue Backlog v2
 
-Agent butuh beberapa kolom tambahan. `templates/Template_Backlog_v2.xlsx` sudah berisi semuanya,
-lengkap dengan dropdown Source dan Status. Tanda `*` di header = wajib; tanda ini diabaikan agent.
+Pakai `templates/Template_Backlog_v2.xlsx`. File ini adalah revisi dari `Template_Backlog_v1.xlsx`:
+style header dan warna tab tetap sama, hanya kolomnya yang ditambah. Upload ke Google Drive lalu buka
+dengan Google Sheets, atau salin header-nya ke spreadsheet yang sudah dipakai.
 
 | Tab | Kolom yang ditambahkan |
 |---|---|
-| Semua | **Title**, **Source**, dan kolom agent: GitLab Issue, GitLab URL, Sync Status, Sync Message, Synced At |
-| BUG | **Description** (ada di slide 8, belum ada di v1) |
-| PERFORMANCE | **Current Condition**, **Expected Condition** (slide 12; v1 memakai kolom SECURITY) |
+| Semua | **Title** dan **Source** (dropdown per tipe) di depan, dropdown **Issue Board Status**, kolom agent abu-abu: GitLab Issue, GitLab URL, Sync Status, Sync Message, Synced At |
+| BUG | **Description** (slide 8) |
+| PERFORMANCE | **Current Condition**, **Expected Condition** (slide 12); **Impact** tetap ada |
 
-Template v2 bisa dibuat ulang dari config dengan `python scripts/make_template.py` (butuh `openpyxl`).
+- Kolom wajib dan cara pengisiannya dijelaskan lewat note di header.
+- **Title** diisi reporter, tanpa prefix. Kalau kosong dan `claude.enabled: true`, Claude membuatkan judul
+  sebagai fallback. Kalau Claude tidak aktif, baris ditandai INVALID.
+- Kolom abu-abu diisi agent, jangan diubah manual.
+
+Kalau config berubah (misalnya kolom atau section baru), buat ulang v2 dari v1. Data yang sudah ada
+dipindahkan berdasarkan nama header:
+
+```bash
+pip install openpyxl
+python scripts/make_template.py --from templates/Template_Backlog_v1.xlsx --out templates/Template_Backlog_v2.xlsx
+```
 
 ## Setup
 
@@ -136,5 +148,6 @@ pip install pytest && python -m pytest -q tests
 | `issue_log_agent/gitlab_client.py` | Client REST API GitLab v4 |
 | `issue_log_agent/sync.py` | Orkestrasi alur pelaporan backlog |
 | `issue_log_agent/__main__.py` | CLI |
-| `scripts/make_template.py` | Generator Template Issue Backlog v2 dari config |
+| `scripts/make_template.py` | Revisi Template v1 → v2 sesuai config |
+| `templates/` | Template Issue Backlog v1 (asli) dan v2 (hasil revisi) |
 | `examples/*.csv` | Contoh isi per tab (diambil dari contoh di slide) |

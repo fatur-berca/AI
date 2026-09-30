@@ -25,9 +25,9 @@ title:
   format: "[{type}][{source}]-{title}"
   max_length: 150
 
-# Kolom yang sama di setiap tab. "Title" & "Source" belum ada di Template v1:
-# tambahkan (lihat templates/Template_Backlog_v2.xlsx). Jika Title kosong dan
-# claude.enabled = true, judul dibuatkan Claude lalu ditulis balik ke sheet.
+# Kolom yang sama di setiap tab (templates/Template_Backlog_v2.xlsx).
+# Title diisi reporter; jika kosong dan claude.enabled = true, judul dibuatkan
+# Claude sebagai fallback lalu ditulis balik ke sheet untuk dicek.
 columns:
   title: Title
   source: Source
@@ -92,7 +92,7 @@ types:
     infer_source_from: [Environment, Background, Reference]
     sections:
       - {column: Background, required: true}
-      - Description                   # ada di slide 8, belum ada di Template v1
+      - Description                   # slide 8; ditambahkan di Template v2
       - {column: Environment, required: true}
       - {column: Steps to Reproduce, required: true}
       - {column: Expected Result, required: true}
@@ -119,9 +119,9 @@ types:
     labels: [performance]
     sections:
       - {column: Description, required: true}
-      - {column: Current Condition, required: true}    # slide 12; Template v1 belum punya kolom ini
-      - {column: Expected Condition, required: true}   # slide 12; Template v1 belum punya kolom ini
-      - Impact                                         # ada di Template v1, tidak ada di slide 12
+      - {column: Current Condition, required: true}    # slide 12; ditambahkan di Template v2
+      - {column: Expected Condition, required: true}   # slide 12; ditambahkan di Template v2
+      - Impact                                         # dipertahankan dari Template v1
       - Recommendation
       - {column: Acceptance Criteria, required: true}
       - {column: Evidence / Reference, style: bullets}
