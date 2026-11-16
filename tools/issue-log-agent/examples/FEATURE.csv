@@ -1,0 +1,17 @@
+Title,Source,Background,Description,Scope,Business / Functional Requirement,Acceptance Criteria,Technical Notes,Out of Scope,Reference,Issue Board Status,GitLab Issue,GitLab URL,Sync Status,Sync Message,Synced At
+Upload dokumen pada proses pengajuan,FSD,"Berdasarkan FSD Document Management, user membutuhkan kemampuan untuk melakukan upload dokumen pada proses pengajuan.",Mengimplementasikan functionality upload dokumen sesuai spesifikasi pada FSD.,"Implementasi upload dokumen
+Validasi format file
+Validasi ukuran file
+Integrasi dengan File Service
+Penyimpanan document reference","User dapat melakukan upload dokumen
+File harus memiliki format yang diperbolehkan
+Maximum file size adalah 10 MB
+Sistem menyimpan reference file","User dapat melakukan upload file
+File dengan format tidak sesuai ditolak
+File > 10 MB ditolak
+File berhasil tersimpan
+Document reference berhasil disimpan
+Error ditampilkan apabila upload gagal",File Service menggunakan existing API,Digital signature,FSD: Document Management v1.2,Open,,,,,
+Penambahan column salary pada list debitur multiguna,,User perlu melihat salary debitur langsung dari list.,Menambahkan column salary pada list debitur multiguna.,,,- [ ] Column salary tampil di list,,,FSD: Debitur Multiguna v2.0,,,,,,
+,BRD,Background tanpa judul,,,,,,,,Open,,,,,
+[BUG][SIT]-Salah tab,,Test,Test,,,- [ ] x,,,,Open,,,,,

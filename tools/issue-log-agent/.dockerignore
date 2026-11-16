@@ -1,0 +1,12 @@
+.venv/
+.env
+*.json
+config.yaml
+secrets/
+google/
+tests/
+examples/
+templates/
+scripts/
+**/__pycache__/
+.pytest_cache/

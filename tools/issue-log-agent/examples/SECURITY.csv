@@ -1,0 +1,5 @@
+Title,Source,Description,Impact,Recommendation,Acceptance Criteria,Evidence / Reference,Issue Board Status,GitLab Issue,GitLab URL,Sync Status,Sync Message,Synced At
+Document API belum melakukan authorization check,EXT,Ditemukan bahwa Document API belum melakukan authorization check terhadap user yang mengakses document.,User yang tidak memiliki akses berpotensi melihat document milik user lain.,Implement authorization check berdasarkan user role dan document ownership.,"Unauthorized access ditolak
+Authorized access tetap dapat dilakukan
+Security re-test completed","Security Assessment: SEC-012
+Evidence: [attach file/screenshot]",On-Progress,,,,,

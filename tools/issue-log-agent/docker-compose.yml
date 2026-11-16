@@ -1,0 +1,22 @@
+services:
+  issue-log-agent:
+    build: .
+    image: issue-log-agent:latest
+    container_name: issue-log-agent
+    restart: unless-stopped
+    init: true                      # supaya `docker stop` langsung menghentikan proses
+    command: ["--watch", "${SYNC_INTERVAL:-300}"]
+    env_file: .env
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/google-sa.json
+      TZ: Asia/Jakarta
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./secrets/google-sa.json:/secrets/google-sa.json:ro
+      # GitLab self-hosted dengan CA internal: aktifkan baris ini dan REQUESTS_CA_BUNDLE di .env
+      # - ./secrets/ca.crt:/secrets/ca.crt:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

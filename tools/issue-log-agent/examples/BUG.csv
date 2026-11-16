@@ -1,0 +1,9 @@
+Title,Source,Background,Description,Environment,Steps to Reproduce,Expected Result,Actual Result,Impact,Acceptance Criteria,Evidence,Reference,Issue Board Status,GitLab Issue,GitLab URL,Sync Status,Sync Message,Synced At
+Error HTTP 500 saat submit pengajuan dengan data valid,,Issue ditemukan saat proses SIT pada fitur Submit Pengajuan. User tidak dapat menyelesaikan proses pengajuan karena API error.,Terjadi error HTTP 500 ketika user melakukan submit pengajuan dengan data pengajuan yang valid.,"Environment: SIT
+Browser: Google Chrome","Login sebagai Applicant
+Buka menu Pengajuan
+Buat pengajuan baru & Lengkapi seluruh mandatory field
+Upload dokumen yang valid & Submit
+Perhatikan response dari API",Pengajuan berhasil disimpan dan user diarahkan ke halaman detail pengajuan.,API mengembalikan HTTP 500 dan pengajuan tidak berhasil disimpan.,User tidak dapat menyelesaikan proses pengajuan.,"Submit pengajuan berhasil menggunakan data valid
+Data pengajuan tersimpan dengan benar
+User diarahkan ke halaman detail pengajuan",Screenshot: [attach screenshot],FSD: Pengajuan – Section 4.2,Open,,,,,

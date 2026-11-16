@@ -1,0 +1,5 @@
+config.yaml
+*.json
+.venv/
+.env
+secrets/

@@ -1,0 +1,141 @@
+# Salin ke config.yaml lalu sesuaikan. Nilai ${VAR} diambil dari environment variable.
+# Mengacu ke "Development Guideline" (slide 5-15) dan "Template Issue Backlog v1".
+
+timezone: Asia/Jakarta
+
+sheet:
+  spreadsheet_id: 1xwR5GFNYhISBYAjqSdXrtVrX8kF9BxdY5fNTjiXkUnY
+  header_row: 1
+  # service_account : baca + tulis balik (link issue, Sync Status, alasan INVALID, status dari GitLab).
+  #                   Butuh key JSON; spreadsheet di-share ke email service account sebagai Editor.
+  # public          : hanya baca, TANPA credential. Sheet harus "Anyone with the link".
+  #                   Tidak ada yang ditulis ke sheet; hasil hanya muncul di log.
+  access: service_account
+  credentials_file: ${GOOGLE_APPLICATION_CREDENTIALS}   # tidak dipakai jika access: public
+
+gitlab:
+  url: https://gitlab.com            # atau URL GitLab self-hosted
+  project: group/project-name        # path atau ID numerik project
+  token: ${GITLAB_TOKEN}             # Personal/Project Access Token, scope: api
+  confidential: false
+  verify_ssl: true
+
+# ---------------------------------------------------------------------------
+# Judul (slide 5): [PREFIX 1][PREFIX 2]-<judul>
+#   PREFIX 1 = tipe (nama tab), PREFIX 2 = source (kolom "Source")
+#   contoh: [FEATURE][FSD]-Penambahan column salary pada list debitur multiguna
+# ---------------------------------------------------------------------------
+title:
+  format: "[{type}][{source}]-{title}"
+  max_length: 150
+
+# Kolom yang sama di setiap tab (templates/Template_Backlog_v2.xlsx).
+# Title diisi reporter; jika kosong dan claude.enabled = true, judul dibuatkan
+# Claude sebagai fallback lalu ditulis balik ke sheet untuk dicek.
+columns:
+  title: Title
+  source: Source
+  status: Issue Board Status
+
+# Kolom yang diisi agent (tambahkan di setiap tab)
+writeback:
+  issue_iid: GitLab Issue
+  issue_url: GitLab URL
+  sync_status: Sync Status
+  sync_message: Sync Message
+  synced_at: Synced At
+
+labels:
+  default: [backlog]
+  source: "source::{source}"         # kosongkan untuk tidak memberi label source
+
+# ---------------------------------------------------------------------------
+# Issue Board Status (slide 3) -> GitLab. Board list GitLab berbasis label,
+# jadi buat list di Issue Board dengan label berikut.
+# ---------------------------------------------------------------------------
+default_status: Open
+statuses:
+  Open: {}                           # issue baru, belum di-assign (kolom "Open" di board)
+  On-Progress: {labels: ["status::On-Progress"]}
+  Testing: {labels: ["status::Testing"]}
+  Re-work: {labels: ["status::Re-work"]}
+  Ready to Deploy: {labels: ["status::Ready to Deploy"]}
+  Closed: {state: close}
+# Baris dengan status ini tidak diproses (mis. "Draft" jika ingin menahan baris)
+skip_statuses: []
+
+# ---------------------------------------------------------------------------
+# Body per tipe (slide 6-13). Urutan sections = urutan "## heading" di issue.
+#   column   : header kolom di tab
+#   heading  : judul section di GitLab (default = column)
+#   style    : text | bullets | numbered | checklist (default ditentukan dari heading:
+#              Acceptance Criteria=checklist, Steps to Reproduce=numbered, Scope/Reference/...=bullets)
+#   required : wajib diisi
+# Section yang kosong tidak ditampilkan.
+# ---------------------------------------------------------------------------
+types:
+  FEATURE:
+    worksheet: FEATURE
+    sources: [FSD, BRD, INT]
+    labels: [feature]
+    infer_source_from: [Reference]
+    sections:
+      - {column: Background, required: true}
+      - {column: Description, required: true}
+      - Scope
+      - Business / Functional Requirement
+      - {column: Acceptance Criteria, required: true}
+      - Technical Notes
+      - Out of Scope
+      - Reference
+
+  BUG:
+    worksheet: BUG
+    sources: [VIT, SIT, UAT]
+    labels: [bug]
+    infer_source_from: [Environment, Background, Reference]
+    sections:
+      - {column: Background, required: true}
+      - Description                   # slide 8; ditambahkan di Template v2
+      - {column: Environment, required: true}
+      - {column: Steps to Reproduce, required: true}
+      - {column: Expected Result, required: true}
+      - {column: Actual Result, required: true}
+      - Impact
+      - {column: Acceptance Criteria, required: true}
+      - Evidence
+      - Reference
+
+  SECURITY:
+    worksheet: SECURITY
+    sources: [EXT, INT]
+    labels: [security]
+    sections:
+      - {column: Description, required: true}
+      - {column: Impact, required: true}
+      - {column: Recommendation, required: true}
+      - {column: Acceptance Criteria, required: true}
+      - {column: Evidence / Reference, style: bullets}
+
+  PERFORMANCE:
+    worksheet: PERFORMANCE
+    sources: [EXT, INT]
+    labels: [performance]
+    sections:
+      - {column: Description, required: true}
+      - {column: Current Condition, required: true}    # slide 12; ditambahkan di Template v2
+      - {column: Expected Condition, required: true}   # slide 12; ditambahkan di Template v2
+      - Impact                                         # dipertahankan dari Template v1
+      - Recommendation
+      - {column: Acceptance Criteria, required: true}
+      - {column: Evidence / Reference, style: bullets}
+
+# ---------------------------------------------------------------------------
+# "Claude Agent" (slide 15): opsional, mengisi Title/Source yang kosong.
+# Butuh ANTHROPIC_API_KEY. Hasilnya ditulis balik ke sheet + ditandai di
+# Sync Message supaya reporter bisa merevisi manual.
+# ---------------------------------------------------------------------------
+claude:
+  enabled: false
+  model: claude-opus-5-5
+  effort: low
